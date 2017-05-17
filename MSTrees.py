@@ -10,7 +10,6 @@ params = dict(method='MST',
               NJ_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-osx'), 
               NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32') )
 
-
 class distance_matrix(object) :
     @staticmethod
     def asymmetric(profiles, normalize=True) :
