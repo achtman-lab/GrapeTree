@@ -25,12 +25,12 @@ D3MSTree.prototype.constructor = D3MSTree;
 function D3MSTree(element_id,data,callback,height,width){
         D3BaseTree.call(this,element_id,data['metadata'],height,width);
         var self =this;
-    
+        this.tempy=1;
         //d3 force parameters
         this.charge=0;
         this.maxChargeDistance=2000;
         this.gravity=0.0;
-            
+        this.original_node_positions={};
         //label parameters
         this.base_font_size=10;
         this.show_node_labels=true;
@@ -90,26 +90,67 @@ function D3MSTree(element_id,data,callback,height,width){
         .on('dragend',function(it){
               self._dragEnded(it)
        });
-                
-        
+        this.node_collapsed_value=0;      
+        this.original_nodes =[];
+        this.original_links =[];
         this.force_nodes = this.d3_force_directed_graph.nodes();
         this.force_links = this.d3_force_directed_graph.links();
         if (data['nexus']){
-                this.temp_nodes=[];
-                this.temp_links=[];
-                var root = this.readNexusFile(data['nexus']);
-                this.createLinksFromNewick(root);
-                this._addNodes(this.temp_nodes);
-                this._addLinks(this.temp_links,this.temp_nodes);
-                delete this.temp_nodes;
-                delete this.temp_links;
+                
+                var obj = this.readNexusFile(data['nexus']);
+                this.translate = obj.translate;
+                this.createLinksFromNewick(obj.root);
+                this._addNodes(this.original_nodes);
+                this._addLinks(this.original_links,this.original_nodes);
+             
+               
                 data['layout_data'] = null;
         
         }
-        else{
-                this._addNodes(data['nodes']);
-                this._addLinks(data['links'],data['nodes']);
+        else if (data['nwk']){
+                
+                var root = this.parseNewick(data['nwk']);
+                this.createLinksFromNewick(root);
+                this._addNodes(this.original_nodes);
+                this._addLinks(this.original_links,this.original_nodes);
+               
+                data['layout_data'] = null;
         }
+        else{
+                this.original_nodes=data['nodes'];
+                this.original_links=data['links'];
+                if (data['layout_data'] && data['layout_data']['node_positions']){
+                        this.original_node_positions=data['layout_data']['node_positions'];
+                
+                }
+                if (data['layout_data']){
+                
+                          this.node_collapsed_value=data['layout_data']['nodes_links']['node_collapsed_value'];
+                          if (this.node_collapsed_value){
+                                this._collapseNodes(this.node_collapsed_value,true);                        
+                          }
+                          else{
+                                this._addNodes(data['nodes']);
+                                this._addLinks(data['links'],data['nodes']);
+                          }
+                }
+                else{
+                        this._addNodes(data['nodes']);
+                        this._addLinks(data['links'],data['nodes']);
+                }
+                
+        }
+        this.root_node=null;
+        for (var index in this.force_nodes){
+                var node = this.force_nodes[index];
+                if (!node.parent){
+                        this.root_node=node;
+                        break;
+                }
+        
+        }
+        
+        
         
         this._updateNodeRadii();
         
@@ -120,6 +161,7 @@ function D3MSTree(element_id,data,callback,height,width){
 D3MSTree.prototype._start= function(callback,layout_data){
        var self = this;
        //add the links
+       this.canvas.selectAll('g.link').remove();
        this.link_elements = this.canvas.selectAll('g.link').data(this.force_links, function(it){
                 return it.source.id + "-" + it.target.id;
         });
@@ -141,6 +183,7 @@ D3MSTree.prototype._start= function(callback,layout_data){
                 return it.value;
         });
         
+        this.canvas.selectAll('.node').remove();
         this.node_elements = this.canvas.selectAll('.node').data(this.force_nodes, function(it){
                 return it.id;
         });
@@ -173,7 +216,10 @@ D3MSTree.prototype._start= function(callback,layout_data){
         this.svg.selectAll('.mst-element').sort(function(a, b){
                 return d3.descending(a.value, b.value);
         });
-        
+        this.rendering_time= this.force_nodes.length/10;
+        if (this.rendering_time<15){
+                this.rendering_time=15;
+        }
         if (!layout_data){ 
                 this.charge=-400;
                 this._setLinkDistance();
@@ -188,8 +234,8 @@ D3MSTree.prototype._start= function(callback,layout_data){
                }
                 this.update_graphics=false;
                 setTimeout(function(){	
-                        self._untangleGraph(true,20,callback);	
-                },2000);
+                        self._untangleGraph(true,self.rendering_time,callback);	
+                },this.rendering_time+1000);
         
         }
         else{
@@ -202,6 +248,158 @@ D3MSTree.prototype._start= function(callback,layout_data){
                 }
         }
 }
+
+D3MSTree.prototype.collapseNodes= function(max_distance,increase_lengths){
+        this._collapseNodes(max_distance,increase_lengths)
+        this._start(null,{"node_positions":this.original_node_positions,"scale":this.scale,"translate":this.translate});
+        this.unfixSelectedNodes(true);        
+        this.refreshGraph();
+        this.fixed_mode=true;
+
+}
+
+D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
+        //store the psoition of the original nodes
+        if (this.node_collapsed_value===0){
+                this.original_node_positions={};
+                for (var i in this.force_nodes){
+                        var node = this.force_nodes[i];
+                        this.original_node_positions[node.id]=[node.x,node.y];
+                }
+        
+        }
+        this._addNodes(this.original_nodes);
+        this._addLinks(this.original_links,this.original_nodes);
+        
+        
+        this.node_collapsed_value=max_distance;
+        this.force_links.sort(function (link1,link2){
+                return link1.value - link2.value;      
+        });
+        this.grouped_nodes={};
+        for (var id in this.original_grouped_nodes){
+                this.grouped_nodes[id]= this.original_grouped_nodes[id];
+        }
+        while (this.force_links[0].value<max_distance){
+                for (var index in this.force_links){
+                        var l = this.force_links[index];
+                       
+                        if (l.value<max_distance){
+                                var swap=false;
+                               if (l.source.hypothetical && !l.target.hypothetical){                                  
+                                     
+                                       swap=true;
+                               }
+                               l.remove=true;
+                                l.target.remove=true;
+                           
+                                if (!l.source.hypothetical && !l.target.hypothetical){
+                                        this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
+                                }
+                                var increase=l.value
+                               
+                                
+                        
+                                if (increase_lengths){
+                                        var sister_links = this._getLinksWithSource(l.source.id,l.target.id);
+                                        for (var i in sister_links){
+                                                var ln = sister_links[i];                                     
+                                                ln.value+=increase;
+                                        }
+                                }
+                                for (var i in l.target.children){
+                                        var child = l.target.children[i];
+                                        l.source.children.push(child);
+                                        child.parent = l.source;
+                                }
+                                var index_to_remove=0;
+                                for (var i in l.source.children){
+                                        if (l.source.children[i].id===l.target.id){
+                                                index_to_remove=i;
+                                                break;
+                                        }
+                                }
+                                l.source.children.splice(index_to_remove,1);
+                                var child_links = this._getLinksWithSource(l.target.id);
+                                for (var i in child_links){
+                                         var ln = child_links[i];                             
+                                         ln.source=l.source;
+                                         if (increase_lengths){
+                                                ln.value+=increase;
+                                        }
+                                }
+                                if (swap){
+                                        delete l.source.hypothetical
+                                        l.source.id =l.target.id;
+                                }
+                        }            
+                }
+                var temp_force_nodes=this.force_nodes.filter(function( obj ) {
+                        return ! obj.remove;
+                });
+                
+                var temp_force_links= this.force_links.filter(function( obj ) {
+                        return ! obj.remove;
+                })
+                .sort(function (link1,link2){
+                        return link1.value - link2.source;      
+                });
+                this.force_nodes.length=0;
+                for (var i in temp_force_nodes){
+                        this.force_nodes.push(temp_force_nodes[i]);
+                }
+                this.force_links.length=0;
+                for (var i in temp_force_links){
+                        this.force_links.push(temp_force_links[i])
+                }
+              
+        }
+         for (var i  in this.force_nodes){
+                var node = this.force_nodes[i];
+                var pos = this.original_node_positions[node.id];
+                node.x=pos[0];
+                node.px=pos[0];
+                node.y=pos[1];
+                node.py=pos[1];
+        
+        }
+        this._updateNodeRadii();
+        
+};
+
+
+
+D3MSTree.prototype._getLinksWithSource =function(source_id,exclude_target_id){
+        var links=[];
+        for (index in this.force_links){
+                var link = this.force_links[index];
+                if (link.source.id === source_id){
+                        if (exclude_target_id ===link.target.id){
+                                continue;
+                        }
+                        links.push(link)
+                }
+        
+        }
+        return links;
+
+}
+
+
+
+
+D3MSTree.prototype._getLinkDistance = function(source_id,target_id){
+        for (var i in this.force_links){
+                var link = this.force_links[i];
+                if (link.source.id == source_id && target_id == link.target.id){
+                        return link.value;
+                }      
+        }
+}
+
+
+
+
 
 D3MSTree.prototype._untangleGraph = function(center,interval,callback){
         var self=this;
@@ -226,7 +424,7 @@ D3MSTree.prototype._untangleGraph = function(center,interval,callback){
                                 self.stopForce();
                                 self._fixAllNodes();
                                 if (center){
-                                        self.centerGraph();
+                                        self._centerGraph();
                                 }
                                  self._setLinkDistance();
              
@@ -298,7 +496,8 @@ D3MSTree.prototype.setLayout = function(layout_data){
                         node.px=pos[0];
                         node.y=pos[1];
                         node.py=pos[1];
-                }
+                      
+                }        
                 this._fixAllNodes();
         }        
         if (layout_data['nodes_links']){
@@ -345,8 +544,13 @@ D3MSTree.prototype.setLayout = function(layout_data){
 D3MSTree.prototype.getLayout=function(){   
         var node_positions={};
         for (var i in this.force_nodes){
-                var node = this.force_nodes[i];
+                var node = this.force_nodes[i];            
                 node_positions[node.id]=[node.x,node.y];
+        }
+        for (var node in this.original_node_positions){
+                if (!node_positions[node]){
+                        node_positions[node]=this.original_node_positions[node];
+                }
         }
         var nodes_links = { 
                 max_link_length:this.max_link_length,
@@ -359,7 +563,9 @@ D3MSTree.prototype.getLayout=function(){
                 node_font_size:this.node_font_size,
                 custom_colours:this.custom_colours,
                 hide_link_length:this.hide_link_length,
-                show_individual_segments:this.show_individual_segments
+                show_individual_segments:this.show_individual_segments,
+                node_collapsed_value:this.node_collapsed_value
+                
         };
         if (this.log_link_scale){
                 nodes_links['log_link_scale']= "true";
@@ -413,6 +619,14 @@ D3MSTree.prototype.changeCategory= function(category){
         
         
         var self = this;
+        var hypo_nodes = this.node_elements.filter(function(d){return d.hypothetical}).
+                selectAll("circle").data(function(parent){
+                        return [{cx:parent.x,cy:parent.y}];
+                });
+    
+        hypo_nodes.enter().append("circle").attr("r",3).style("fill","gray");
+        
+        
         var nodes_existing = this.node_elements.filter(function(d){return !d.hypothetical})
                                                 .selectAll('.node-paths').data(function(it){
                                                         return self._getPieData(it, category);
@@ -455,6 +669,19 @@ D3MSTree.prototype.setNodeText = function(value){
         this._setNodeText();
 }
 
+D3MSTree.prototype.getTreeAsObject=function(){
+        var obj = {
+                links:this.original_links,
+                nodes:this.original_nodes,
+                layout_data:this.getLayout(),
+                metadata:this.metadata,
+                initial_category:this.display_category
+        }
+        return obj;
+
+
+}
+
 D3MSTree.prototype._setNodeText = function(){
         var self=this;
         var field =this.node_text_value;
@@ -462,7 +689,10 @@ D3MSTree.prototype._setNodeText = function(){
         if (! this.show_node_labels){
                 return;
         }
-        node_text = this.node_elements.append('text').attr('class', 'node-group-number').
+        node_text = this.node_elements.filter(function(d){
+                return true;//!d.hypothetical;
+        }).
+        append('text').attr('class', 'node-group-number').
         attr('dy', ".71em").attr('text-anchor', 'middle').attr('font-size', this.node_font_size).
         attr('font-family', 'sans-serif').attr('transform', function(it){
                 return "translate(0," + -self.node_font_size / 3 + ")";
@@ -610,7 +840,8 @@ D3MSTree.prototype._saveNodeRadii=function(){
         }
 }
 
-D3MSTree.prototype._addNodes=function(ids){                   
+D3MSTree.prototype._addNodes=function(ids){
+        this.force_nodes.length=0;
         if (ids.length < 4){
                 this.gravity=0.02;
         }
@@ -618,8 +849,8 @@ D3MSTree.prototype._addNodes=function(ids){
         for ( var i = 0;i < ids.length; i++) {
                 id = ids[i];
                 var name =id;
-                if (id === "hypothetical_node"){
-                        name = "hypo_node_"+i;
+                if (id === "hypothetical_node" || id === "1"){
+                        name = "_hypo_node_"+i;
                         ids[i]=name;
                 }
                 var node = {
@@ -627,8 +858,16 @@ D3MSTree.prototype._addNodes=function(ids){
                       value:-1,
                       selected:false
                 };
-                 if (id === "hypothetical_node"){
+                 if (id === "hypothetical_node" || id.startsWith("_hypo_node_")){
                         node['hypothetical']=true;
+                 }
+                 else{
+                        if (!this.original_grouped_nodes[id]){
+                                
+                                this.original_grouped_nodes[id]=[id];
+                                this.grouped_nodes[id]=[id];
+                                this.metadata[id]={};
+                        }
                  }
                 this.force_nodes.push(node);    
         }
@@ -646,7 +885,8 @@ D3MSTree.prototype._findNode=function(id){
 
 
 D3MSTree.prototype._addLinks=function(links,ids){
-       new_links=[];
+        this.force_links.length=0;
+        var new_links=[];
        for (var i in links){
                 link = links[i];
                 new_links.push({
@@ -722,10 +962,10 @@ D3MSTree.prototype._getLink=function(target_node){
         this.startForce();		
         setTimeout(function(){			
                 self._untangleGraph(false,1,callback);			
-        },2000);
+        },1000);
 }
 
-D3MSTree.prototype.centerGraph = function(){
+D3MSTree.prototype._centerGraph = function(){
         var firstNode = this.force_nodes[0];                      
         var maxX=firstNode.x;
         var minX=firstNode.x;
@@ -751,16 +991,21 @@ D3MSTree.prototype.centerGraph = function(){
         var wdiff = maxX-minX;
         var hdiff = maxY-minY;
         var scale=1;
-        if (wdiff>hdiff){
+       if (wdiff>hdiff){
                 scale = (this.width/(maxX-minX));
-        }
+       }
         else{
-                scale = (this.height/(maxY-minY));
+               scale = (this.height/(maxY-minY));
         }
         this.setScale(scale);
+        this.setTranslate([0,0]);
 }
  
- 
+D3MSTree.prototype.centerGraph = function(){
+        this._centerGraph();
+        
+        this._updateGraph(true);
+}
 //public methods
 D3MSTree.prototype.setLogLinkScale=function(log){
         this.log_link_scale = log;
@@ -786,7 +1031,7 @@ D3MSTree.prototype.clearSelection= function(){
 
 D3MSTree.prototype.setMaxLinkLength=function(amount){
         var self=this;
-        amount = parseInt(amount);
+        amount = parseFloat(amount);
         if (isNaN(amount) || amount <=0){
                 amount = null;
         }
@@ -899,7 +1144,11 @@ D3MSTree.prototype.getSelectedIDs=function(){
         }
         ret_list=[]
         for (var i in selected){
-                ret_list.push(parseInt(selected[i]));
+                var id = selected[i];
+                if (!isNaN(id)){
+                        id = parseInt(id);
+                }
+                ret_list.push(id);
         
         }
         return  ret_list;
@@ -1080,6 +1329,8 @@ D3MSTree.prototype._fixAllNodes = function(){
 
 
 D3MSTree.prototype._alterChildrenPosition =function(node,x_diff,y_diff){
+
+    
                 if (!node.children){
                         return;
                 }
@@ -1266,15 +1517,25 @@ D3MSTree.prototype._dragEnded=function(it){
 
 
 D3MSTree.prototype.createLinksFromNewick=function(node,parent_id){
-        if (node.name == "hypothetical_node"){
-                   this.temp_nodes.push(node.name)
+        if (node.name == "hypothetical_node" || ! node.name){
+                   this.original_nodes.push("hypothetical_node");
+        }
+        else if (node.name == "1" && ! this.translate){
+                 this.original_nodes.push("hypothetical_node");
         }
         else{
-                this.temp_nodes.push("ST"+node.name);
+                var name = node.name;
+                if (this.translate){
+                        name = this.translate[node.name];
+                        if (!name){
+                                name = node.name;
+                        }
+                }
+                this.original_nodes.push(name);
         }
-        var node_id = this.temp_nodes.length-1;
+        var node_id = this.original_nodes.length-1;
         if (node_id !=0){
-                this.temp_links.push({source:parent_id,target:node_id,distance:node.length});
+                this.original_links.push({source:parent_id,target:node_id,distance:node.length});
         }
         if (node.children){
                 for (var index in node.children){
