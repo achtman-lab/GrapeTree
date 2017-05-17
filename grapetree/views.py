@@ -5,11 +5,8 @@ from MSTrees import methods
 
 @app.route("/")
 def index():
-    return render_template('index.html', version=app.config.get('VERSION'))
+    return render_template('MSTree_launch.html', version=app.config.get('VERSION'))
 
-@app.route("/mstree")
-def mst_tree():
-    return render_template('MSTree_launch.html')
 
 @app.route("/maketree")
 def generate_tree():
