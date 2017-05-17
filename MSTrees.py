@@ -8,7 +8,11 @@ params = dict(method='MST',
               neighbor_branch_reconnection='T',
               NJ_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme.exe'), 
               NJ_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-osx'), 
-              NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32') )
+              NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32'),
+              
+              edmonds_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds.exe'), 
+              edmonds_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-osx'), 
+              edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux')              )
 
 class distance_matrix(object) :
     @staticmethod
@@ -67,7 +71,7 @@ class distance_matrix(object) :
 
 class methods(object) :
     @staticmethod
-    def _symmetric(dist) :
+    def _symmetric(dist, **params) :
         g = nx.Graph()
         xs, ys = np.where(dist >= 0)
         edges = [[x, y, dict(weight=dist[x][y])] for x, y in zip(xs, ys) if x < y]
@@ -77,8 +81,8 @@ class methods(object) :
         return [[d[0], d[1], int(d[2]['weight'])] for d in ms.edges(data=True)]
     
     @staticmethod
-    def _asymmetric(dist) :
-        mstree = Popen([os.path.join(os.path.dirname(os.path.realpath(__file__)), 'edmonds')], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in dist.tolist()]))[0]
+    def _asymmetric(dist, **params) :
+        mstree = Popen([params['edmonds_' + platform.system()]], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in dist.tolist()]))[0]
         return [ [int(s), int(t), float(l)] for br in mstree.strip().split() for s,t,l in br.split('\t')]
     @staticmethod
     def _neighbor_branch_reconnection(branches, dist, n_loci) :
@@ -206,7 +210,7 @@ class methods(object) :
         dist = eval('distance_matrix.'+matrix_type)(profiles)
         wdist = eval('distance_matrix.'+edge_weight)(dist)
         
-        tree = eval('methods._'+matrix_type)(wdist)
+        tree = eval('methods._'+matrix_type)(wdist, **params)
         if neighbor_branch_reconnection != 'F' :
             tree = methods._neighbor_branch_reconnection(tree, dist, profiles.shape[1])
         tree = distance_matrix.symmetric(profiles, tree, normalize=False)
