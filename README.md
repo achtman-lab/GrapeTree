@@ -16,7 +16,7 @@ python main.py
 ```
 
 
-##Config
+## Configuration
 Runtime behaviour can be configured in grapetree/config.py 
 
 ## Precompiled binaries 
