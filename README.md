@@ -1,5 +1,26 @@
-<<<<<<< HEAD
-# EnteroMSTree
+# EnteroMSTree - GrapeTree
+
+## Installation 
+EnteroMSTree - GrapeTree requires on Python 2.7 and some additional python modules (listed in requirements.txt), easiest way to install these modules is with pip:
+
+```bash
+pip install -r requirements.txt
+
+```
+
+## Usage
+Running main.py will launch the application. This will run the lightweight webserver 
+```bash
+python main.py
+
+```
+
+
+## Configuration
+Runtime behaviour can be configured in grapetree/config.py 
+
+## Precompiled binaries 
+Binaries will be made available for Windows and MacOSX (see Releases).
 
 
 ## MSTrees.py
@@ -30,30 +51,7 @@
         BSA: MSTrees.py profile=<filename> method=MST matrix_type=asymmetric edge_weight=harmonic neighbor_branch_reconnection=T
         MST: MSTrees.py profile=<filename> method=MST matrix_type=symmetric edge_weight=eBurst neighbor_branch_reconnection=F
         NJ:  MSTrees.py profile=<filename> method=NJ
-=======
-# EnteroMSTree - GrapeTree
 
-## Installation 
-EnteroMSTree - GrapeTree requires on Python 2.7 and some additional python modules (listed in requirements.txt), easiest way to install these modules is with pip:
-
-```bash
-pip install -r requirements.txt
-
-```
-
-## Usage
-Running main.py will launch the application. This will run the lightweight webserver 
-```bash
-python main.py
-
-```
-
-
-## Configuration
-Runtime behaviour can be configured in grapetree/config.py 
-
-## Precompiled binaries 
-Binaries will be made available for Windows and MacOSX (see Releases).
 
 ## License
 Copyright Martin Sergeant, Nabil-Fareed Alikhan, Zhemin Zhou (2017)
