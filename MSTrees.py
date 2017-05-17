@@ -83,7 +83,7 @@ class methods(object) :
     @staticmethod
     def _asymmetric(dist, **params) :
         mstree = Popen([params['edmonds_' + platform.system()]], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in dist.tolist()]))[0]
-        return [ [int(s), int(t), float(l)] for br in mstree.strip().split() for s,t,l in br.split('\t')]
+        return np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int).tolist()
     @staticmethod
     def _neighbor_branch_reconnection(branches, dist, n_loci) :
         def contemporary(a,b,c) :
