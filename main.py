@@ -13,5 +13,5 @@ def open_browser(PORT=5000):
 
 
 if __name__ == "__main__":
-    open_browser()
+    open_browser(app.config.get('PORT'))
     app.run()

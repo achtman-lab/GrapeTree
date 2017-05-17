@@ -1,2 +1,3 @@
 VERSION = '0.0.1'
 DEBUG = True
+PORT = 5000
