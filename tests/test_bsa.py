@@ -9,7 +9,7 @@ def test_bsa_asymetric():
     app_test = app.test_client()
     with open(os.path.join('examples','sim14_005_0_7.profile')) as f:
         test_profile = f.read()
-    with open(os.path.join('examples','examples/sim14_005_0_7.global.nwk')) as f:
+    with open(os.path.join('examples','sim14_005_0_7.global.nwk')) as f:
         test_results = f.read()
     tree =  app_test.post('/maketree', data=dict(profile=test_profile))
     assert str(tree.data) == test_results
@@ -29,7 +29,6 @@ def test_bad_profile():
         test_profile = f.read()
     tree =  app_test.post('/maketree', data=dict(profile=test_profile))
     assert tree.status_code == 500
-
 
 def test_405():
     # maketree must be POST - cause of data size otherwise return 405
