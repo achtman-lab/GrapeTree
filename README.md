@@ -67,4 +67,3 @@ EnteroMSTree - GrapeTree has not been formally published yet. If you use GrapeTr
 
 An extended citation could be:
    MJ Sergeant, NF Alikhan, Z Zhou (2017) "GrapeTree: Phylogenetic visualisation for large genomic datasets", Available: https://github.com/martinSergeant/EnteroMSTree
->>>>>>> origin/master
