@@ -1,5 +1,6 @@
 appdirs==1.4.3
 click==6.7
+colorama==0.3.9
 decorator==4.0.11
 DendroPy==4.2.0
 Flask==0.12.2
@@ -9,6 +10,8 @@ MarkupSafe==1.0
 networkx==1.11
 numpy==1.12.1
 packaging==16.8
+py==1.4.33
 pyparsing==2.2.0
+pytest==3.0.7
 six==1.10.0
 Werkzeug==0.12.2
