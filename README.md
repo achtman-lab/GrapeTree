@@ -23,6 +23,14 @@ Runtime behaviour can be configured in grapetree/config.py
 Binaries will be made available for Windows and MacOSX (see Releases).
 
 
+## Tests
+To run tests, run pytests in the top level directory.
+```bash
+pytest
+
+```
+
+
 ## MSTrees.py
 ### paramters :
         profile: input file. Can be either profile or fasta. Headings start with an '#' will be ignored. 
