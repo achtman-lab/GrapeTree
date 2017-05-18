@@ -9,8 +9,11 @@ with pip:
 
 ```bash
 pip install -r requirements.txt
+chmod +x binaries/
 
 ```
+On Linx or MacOSX you need to make sure the binaries in binaries/ can be executed.
+
 
 ## Usage - Webapplication (GrapeTree)
 Running main.py will launch the application. This will run the lightweight webserver 
@@ -25,14 +28,14 @@ there yourself (usually http://localhost:8000/).
 To view a tree (newick or Nexus), just drag and drop the file into the browser 
 window. 
 
-## Configuration
+### Configuration
 Runtime behaviour can be configured in grapetree/config.py 
 
-## Precompiled binaries 
+### Precompiled binaries 
 Binaries will be made available for Windows and MacOSX (see Releases).
 
 
-## Tests
+### Tests
 To run tests, run pytests in the top level directory.
 ```bash
 pytest

@@ -1,10 +1,9 @@
 import sys
+sys.path.append('c:\\Users\\Nabil\\Dropbox\\py\\EnteroMSTree')
 from grapetree import app
 import pytest
 import os
 
-@pytest.mark.skipif(sys.platform == 'win32', 
-                    reason="Edmonds algorithm is not compiled properly for Windows")
 def test_bsa_asymetric(): 
     app_test = app.test_client()
     with open(os.path.join('examples','sim14_005_0_7.profile')) as f:
@@ -12,7 +11,7 @@ def test_bsa_asymetric():
     with open(os.path.join('examples','sim14_005_0_7.BSA.nwk')) as f:
         test_results = f.read()
     tree =  app_test.post('/maketree', data=dict(profile=test_profile))
-    assert tree.status_code == 200
+    assert str(tree.data).strip() == test_results
 
 def test_bsa_symetric(): 
     app_test = app.test_client()
@@ -42,5 +41,5 @@ def test_params():
     assert app.config.get('PARAMS') is not None
 
 if __name__ == "__main__":
-    test_bsa_symetric()
+    test_bsa_asymetric()
     test_bad_profile()
