@@ -1,30 +1,31 @@
 import sys
 from grapetree import app
 import pytest
+import os
 
 @pytest.mark.skipif(sys.platform == 'win32', 
                     reason="Edmonds algorithm is not compiled properly for Windows")
 def test_bsa_asymetric(): 
     app_test = app.test_client()
-    with open('examples/sim14_005_0_7.profile') as f:
+    with open(os.path.join('examples','sim14_005_0_7.profile')) as f:
         test_profile = f.read()
-    with open('examples/sim14_005_0_7.global.nwk') as f:
+    with open(os.path.join('examples','examples/sim14_005_0_7.global.nwk')) as f:
         test_results = f.read()
     tree =  app_test.post('/maketree', data=dict(profile=test_profile))
     assert str(tree.data) == test_results
 
 def test_bsa_symetric(): 
     app_test = app.test_client()
-    with open('examples/sim14_005_0_7.profile') as f:
+    with open(os.path.join('examples','sim14_005_0_7.profile')) as f:
         test_profile = f.read()
-    with open('examples/sim14_005_0_7.BSA_sym.nwk') as f:
+    with open(os.path.join('examples','sim14_005_0_7.BSA_sym.nwk')) as f:
         test_results = f.read()
     tree =  app_test.post('/maketree', data=dict(profile=test_profile, matrix_type='symmetric'))
     assert str(tree.data).strip() == test_results
 
 def test_bad_profile(): 
     app_test = app.test_client()
-    with open('examples/bad_profile.profile') as f:
+    with open(os.path.join('examples','bad_profile.profile')) as f:
         test_profile = f.read()
     tree =  app_test.post('/maketree', data=dict(profile=test_profile))
     assert tree.status_code == 500
