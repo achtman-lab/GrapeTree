@@ -1,7 +1,4 @@
 from grapetree import app
-import urllib2
-
-
 
 def test_tautology():
     assert True  == True

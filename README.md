@@ -34,7 +34,7 @@ pytest
 
 
 ## MSTrees.py
-### paramters :
+### parameters :
         profile: input file. Can be either profile or fasta. Headings start with an '#' will be ignored. 
         method: MST or NJ
         matrix_type: asymmetric or symmetric

@@ -49,7 +49,6 @@ def install_static():
     shutil.copyfile('MSTree_holder.html',
                     'grapetree/templates/MSTree_launch.html')
 
-
 if __name__ == "__main__":
     try:
         start_time = time.time()
