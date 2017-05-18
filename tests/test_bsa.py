@@ -9,10 +9,10 @@ def test_bsa_asymetric():
     app_test = app.test_client()
     with open(os.path.join('examples','sim14_005_0_7.profile')) as f:
         test_profile = f.read()
-    with open(os.path.join('examples','sim14_005_0_7.global.nwk')) as f:
+    with open(os.path.join('examples','sim14_005_0_7.BSA.nwk')) as f:
         test_results = f.read()
     tree =  app_test.post('/maketree', data=dict(profile=test_profile))
-    assert str(tree.data) == test_results
+    assert tree.status_code == 200
 
 def test_bsa_symetric(): 
     app_test = app.test_client()

@@ -3,20 +3,27 @@
 [![Build Status](https://travis-ci.org/martinSergeant/EnteroMSTree.svg?branch=master)](https://travis-ci.org/martinSergeant/EnteroMSTree)
 
 ## Installation 
-EnteroMSTree - GrapeTree requires on Python 2.7 and some additional python modules (listed in requirements.txt), easiest way to install these modules is with pip:
+EnteroMSTree - GrapeTree requires on Python 2.7 and some additional python
+modules (listed in requirements.txt), easiest way to install these modules is
+with pip:
 
 ```bash
 pip install -r requirements.txt
 
 ```
 
-## Usage
+## Usage - Webapplication (GrapeTree)
 Running main.py will launch the application. This will run the lightweight webserver 
 ```bash
 python main.py
 
 ```
 
+The application should open your browser to the correct page, but you can navigate 
+there yourself (usually http://localhost:8000/). 
+
+To view a tree (newick or Nexus), just drag and drop the file into the browser 
+window. 
 
 ## Configuration
 Runtime behaviour can be configured in grapetree/config.py 
@@ -32,8 +39,7 @@ pytest
 
 ```
 
-
-## MSTrees.py
+## Usage - Command line module for generating Trees - MSTrees.py
 ### parameters :
         profile: input file. Can be either profile or fasta. Headings start with an '#' will be ignored. 
         method: MST or NJ

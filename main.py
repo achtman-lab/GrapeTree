@@ -27,6 +27,7 @@ import shutil
 import traceback
 import time
 import argparse
+import os
 
 __licence__ = 'GPLv3'
 __author__ = 'Martin Sergeant, Nabil-Fareed Alikhan & Zhemin Zhou'
