@@ -1,5 +1,7 @@
 # EnteroMSTree - GrapeTree
 
+[![Build Status](https://travis-ci.org/martinSergeant/EnteroMSTree.svg?branch=master)](https://travis-ci.org/martinSergeant/EnteroMSTree)
+
 ## Installation 
 EnteroMSTree - GrapeTree requires on Python 2.7 and some additional python modules (listed in requirements.txt), easiest way to install these modules is with pip:
 
