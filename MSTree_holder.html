@@ -132,7 +132,7 @@
                <div class = "panel-body" id ='mst-link-menu-panel'>	
                        <label>Link Length</label>
                        <br>
-                       <div id = "slider-linklength" class ="slider-class">  </div>
+                       <div title = "500" id = "slider-linklength" class ="slider-class">  </div>
                        <br>
                         <label><input id ='link-log-scale'type="checkbox"  />Log Scale</label>
                         <br>
@@ -150,7 +150,7 @@
                        <br>
                        <label>Font Size</label>
                        <br>
-                       <div id = "slider-linkfontsize" class = "slider-class"></div>
+                       <div title = "14" id = "slider-linkfontsize" class = "slider-class"></div>
                        <br>
                        <label><input id ='show-link-tooltip' type="checkbox" checked /> Show Tooltip</label>
                </div>
@@ -160,18 +160,18 @@
                <div class = "panel-body" id ='mst-node-menu-panel'>		
                         <label>Node Size</label>
                         <br>
-                        <div id = "slider-nodesize" class = "slider-class"></div>
+                        <div title = "10" id = "slider-nodesize" class = "slider-class"></div>
                         <br>
                         <label>Relative Size</label>
                         <br>
-                        <div id = "slider-relative-nodesize" class = "slider-class"></div>
+                        <div title = "1" id = "slider-relative-nodesize" class = "slider-class"></div>
                         <br>
                         <label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
                         <br>
                         
                         <label>Font Size</label>
                         <br>
-                        <div id = "slider-node-fontsize" class = "slider-class"></div>
+                        <div title = "12" id = "slider-node-fontsize" class = "slider-class"></div>
                         <label>Label Text</label>
                         <!--<select id = 'node-label-text'>
                                 <option value = ''>ST</option>
@@ -194,7 +194,7 @@
                        <button id ='button-collapse-nodes'>Go</button>
                        <br>
                        
-                        <div id = "slider-collapse-nodes" class = "slider-class"></div>
+                        <div title = "0" id = "slider-collapse-nodes" class = "slider-class"></div>
                        
                        <br>
                         <p align='center'>
@@ -211,7 +211,7 @@
                         </p>	
                         <label>Charge</label>
                         <br>
-                        <div id = "slider-charge" class = "slider-class"></div>
+                        <div title = "0" id = "slider-charge" class = "slider-class"></div>
                         <br>
                         <p align='center'>
                                 <button id = 'button-refresh'> Refresh</button>
@@ -937,26 +937,28 @@ window.onload = function (){
         });
         $(".panel-body").hide();
         
-
-     
         $( "#slider-linklength" ).slider({
                 orientation: "horizontal",
                 min:50,
                 max: 10000,
                 value: 500,
-                slide:function(){the_tree.setLinkLength($("#slider-linklength").slider("value"));},
+                slide:function(){the_tree.setLinkLength($("#slider-linklength").slider("value"));
+										$(this).attr("title", $(this).slider("value"));
+				},
                 change: function(e){
                         if (e.originalEvent){
                                 the_tree.setLinkLength($("#slider-linklength").slider("value"));
                         }
-                }              
+                }
         });
+
         $( "#slider-nodesize" ).slider({
                 orientation: "horizontal",
                 min:2,
-                max: 30,
+                max:50,
                 value: 10,
-                slide:function(){the_tree.setNodeSize($("#slider-nodesize").slider("value"));},
+                slide:function(){the_tree.setNodeSize($("#slider-nodesize").slider("value"));
+										$(this).attr("title", $(this).slider("value"));},
                 change: function(e){
                         if (e.originalEvent){
                                 the_tree.setNodeSize($("#slider-nodesize").slider("value"));
@@ -969,7 +971,8 @@ window.onload = function (){
                 max:0.8,
                 value: 0.5,
                 step:0.02,
-                slide:function(){the_tree.setRelativeNodeSize($("#slider-relative-nodesize").slider("value"));},
+                slide:function(){the_tree.setRelativeNodeSize($("#slider-relative-nodesize").slider("value"));
+										$(this).attr("title", $(this).slider("value")*2);},
                 change: function(e){
                         if (e.originalEvent){
                                 the_tree.setRelativeNodeSize($("#slider-relative-nodesize").slider("value"));
@@ -981,7 +984,8 @@ window.onload = function (){
                 min:6,
                 max: 30,
                 value: 12,
-                slide:function(){the_tree.setNodeFontSize($("#slider-node-fontsize").slider("value"));},
+                slide:function(){the_tree.setNodeFontSize($("#slider-node-fontsize").slider("value"));
+									$(this).prop("title", $(this).slider("value"));},
                 change: function(e){
                         if (e.originalEvent){
                                 the_tree.setNodeFontSize($("#slider-node-fontsize").slider("value"));
@@ -993,7 +997,8 @@ window.onload = function (){
                 min:6,
                 max: 30,
                 value: 14,
-                slide:function(){the_tree.setLinkFontSize($("#slider-linkfontsize").slider("value"));},
+                slide:function(){the_tree.setLinkFontSize($("#slider-linkfontsize").slider("value"));
+									$(this).prop("title", $(this).slider("value"));},
                 change: function(e){
                         if (e.originalEvent){
                                 the_tree.setLinkFontSize(($("#slider-linkfontsize").slider("value")));
@@ -1005,9 +1010,17 @@ window.onload = function (){
                 orientation: "horizontal",
                 min:0,
                 max: 30,
-                slide:function(){the_tree.alterCharge($("#slider-charge").slider("value"));},
-                change: function(){the_tree.alterCharge($("#slider-charge ").slider("value"));}
+                slide:function(){the_tree.alterCharge($("#slider-charge").slider("value"));
+									$(this).prop("title", $(this).slider("value"));},
+                change: function(){the_tree.alterCharge($("#slider-charge ").slider("value"));
+									$(this).prop("title", $(this).slider("value"));}
         });
+
+		$("#slider-linklength").tooltip();
+        $( "#slider-nodesize" ).tooltip();
+        $( "#slider-relative-nodesize" ).tooltip();
+        $( "#slider-node-fontsize" ).tooltip();
+        $( "#slider-linkfontsize" ).tooltip();
 
         $("#node-label-text").change(function(e){
                 var val = $(this).val();

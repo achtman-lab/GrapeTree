@@ -1231,7 +1231,7 @@ D3BaseTree.prototype.calculateDateScale= function(){
 		var arr = []
 		for (var strain in this.metadata){
 			if (!this.metadata[strain]['Collection Date']){
-				this.metadata[strain]['Collection Date']='ND';			
+				this.metadata[strain]['Collection Date']='ND';
 			}
 			var date  = this.timeFormat.parse(this.metadata[strain]['Collection Date'] )
 			arr.push(date);
