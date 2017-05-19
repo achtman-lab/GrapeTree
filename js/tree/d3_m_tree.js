@@ -26,6 +26,7 @@ function D3MSTree(element_id,data,callback,height,width){
         D3BaseTree.call(this,element_id,data['metadata'],height,width);
         var self =this;
         this.tempy=1;
+        this.taxon_key=null;
         //d3 force parameters
         this.charge=0;
         this.maxChargeDistance=2000;
@@ -83,63 +84,67 @@ function D3MSTree(element_id,data,callback,height,width){
         this.force_drag = this.d3_force_directed_graph.drag()
         .on('dragstart', function(it){
               self._dragStarted(it);
-       })         
+        })         
         .on('drag', function(it){
               self._dragging(it)
-       })
+        })
         .on('dragend',function(it){
               self._dragEnded(it)
-       });
-        this.node_collapsed_value=0;      
-        this.original_nodes =[];
+        });
+       
+        this.add_collapsed_lengths=true;
+        this.node_collapsed_value=0;
+        
+        this.original_nodes =[]   
         this.original_links =[];
         this.force_nodes = this.d3_force_directed_graph.nodes();
         this.force_links = this.d3_force_directed_graph.links();
-        if (data['nexus']){
-                
-                var obj = this.readNexusFile(data['nexus']);
-                this.translate = obj.translate;
-                this.createLinksFromNewick(obj.root);
-                this._addNodes(this.original_nodes);
-                this._addLinks(this.original_links,this.original_nodes);
-             
-               
-                data['layout_data'] = null;
         
+        if (data['nexus']){          
+                var obj = this.readNexusFile(data['nexus']);
+                this.taxon_key = obj.translate;
+                this.createLinksFromNewick(obj.root); 
+                //possibly layout data specified in the 
+                data['layout_data'] = null;     
         }
         else if (data['nwk']){
-                
+              
                 var root = this.parseNewick(data['nwk']);
                 this.createLinksFromNewick(root);
-                this._addNodes(this.original_nodes);
-                this._addLinks(this.original_links,this.original_nodes);
-               
                 data['layout_data'] = null;
+                
+                //Zhemin' stuff
+                //var nodes = this.parseNewick2(data['nwk']);
+               // this.createLinksFromNewick2(nodes);
+              //  data['layout_data'] = {};
+                //data['layout_data']['node_positions']=this.calculatePositions(nodes);
+                
+              
         }
         else{
                 this.original_nodes=data['nodes'];
                 this.original_links=data['links'];
-                if (data['layout_data'] && data['layout_data']['node_positions']){
-                        this.original_node_positions=data['layout_data']['node_positions'];
-                
-                }
-                if (data['layout_data']){
-                
-                          this.node_collapsed_value=data['layout_data']['nodes_links']['node_collapsed_value'];
-                          if (this.node_collapsed_value){
-                                this._collapseNodes(this.node_collapsed_value,true);                        
-                          }
-                          else{
-                                this._addNodes(data['nodes']);
-                                this._addLinks(data['links'],data['nodes']);
-                          }
-                }
-                else{
-                        this._addNodes(data['nodes']);
-                        this._addLinks(data['links'],data['nodes']);
-                }
-                
         }
+        
+        
+        if (data['layout_data'] && data['layout_data']['node_positions']){
+                this.original_node_positions=data['layout_data']['node_positions'];
+                if (data['layout_data']['nodes_links']){
+                           this.node_collapsed_value=data['layout_data']['nodes_links']['node_collapsed_value'];
+                }
+        }
+      
+         if (callback){
+                callback(this,"Collapsing Nodes:"+this.original_nodes.length);
+        
+        }        
+        this._collapseNodes(this.node_collapsed_value,this.node_collapsed_value);              
+        if (callback){
+                callback(this,"Nodes"+this.force_nodes.length);
+        
+        }
+                       
+                       
         this.root_node=null;
         for (var index in this.force_nodes){
                 var node = this.force_nodes[index];
@@ -150,10 +155,7 @@ function D3MSTree(element_id,data,callback,height,width){
         
         }
         
-        
-        
         this._updateNodeRadii();
-        
         this._start(callback,data['layout_data']);
 };
 
@@ -179,9 +181,7 @@ D3MSTree.prototype._start= function(callback,layout_data){
         });
         
          
-        link_enter.append('text').attr('class', 'distance-label').attr('dy', ".71em").attr('text-anchor', 'middle').attr('font-size', '20px').attr('font-family', 'sans-serif').style('fill', 'gray').style('stroke', 'black').style('stroke-width', '.25px').style('opacity', 1).text(function(it){
-                return it.value;
-        });
+      
         
         this.canvas.selectAll('.node').remove();
         this.node_elements = this.canvas.selectAll('.node').data(this.force_nodes, function(it){
@@ -217,9 +217,9 @@ D3MSTree.prototype._start= function(callback,layout_data){
                 return d3.descending(a.value, b.value);
         });
         this.rendering_time= this.force_nodes.length/10;
-        if (this.rendering_time<15){
+       // if (this.rendering_time<15){
                 this.rendering_time=15;
-        }
+        //}
         if (!layout_data){ 
                 this.charge=-400;
                 this._setLinkDistance();
@@ -233,6 +233,7 @@ D3MSTree.prototype._start= function(callback,layout_data){
                         node.y=Math.random()*1000;
                }
                 this.update_graphics=false;
+                callback(this,"Calculating Layout")
                 setTimeout(function(){	
                         self._untangleGraph(true,self.rendering_time,callback);	
                 },this.rendering_time+1000);
@@ -240,51 +241,59 @@ D3MSTree.prototype._start= function(callback,layout_data){
         }
         else{
                 this.setLayout(layout_data);
+                this._showLinkLabels();
                 this.changeCategory(this.display_category);
                 this._updateGraph(true);
+                this.startForce();
                 this.stopForce();
                 if (callback){
-                        callback();
+                        callback(this,"complete");
                 }
         }
 }
 
 D3MSTree.prototype.collapseNodes= function(max_distance,increase_lengths){
-        this._collapseNodes(max_distance,increase_lengths)
+        this._collapseNodes(max_distance,increase_lengths);
         this._start(null,{"node_positions":this.original_node_positions,"scale":this.scale,"translate":this.translate});
-        this.unfixSelectedNodes(true);        
-        this.refreshGraph();
-        this.fixed_mode=true;
+        //this.unfixSelectedNodes(true);        
+        //this.refreshGraph();
+       
 
 }
 
 D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
-        //store the psoition of the original nodes
+        //store the pooition of the original nodes
         if (this.node_collapsed_value===0){
-                this.original_node_positions={};
+
                 for (var i in this.force_nodes){
                         var node = this.force_nodes[i];
                         this.original_node_positions[node.id]=[node.x,node.y];
                 }
         
         }
-        this._addNodes(this.original_nodes);
-        this._addLinks(this.original_links,this.original_nodes);
+      if (max_distance<=this.node_collapsed_value){
+                this._addNodes(this.original_nodes);
+                this._addLinks(this.original_links,this.original_nodes);
+                this.grouped_nodes={};
+                for (var id in this.original_grouped_nodes){
+                        this.grouped_nodes[id]= this.original_grouped_nodes[id];
+                }
+        
+        }
+      
         
         
         this.node_collapsed_value=max_distance;
         this.force_links.sort(function (link1,link2){
                 return link1.value - link2.value;      
         });
-        this.grouped_nodes={};
-        for (var id in this.original_grouped_nodes){
-                this.grouped_nodes[id]= this.original_grouped_nodes[id];
-        }
-        while (this.force_links[0].value<max_distance){
+        
+   
+        while (this.force_links[0].value<=max_distance){
                 for (var index in this.force_links){
                         var l = this.force_links[index];
                        
-                        if (l.value<max_distance){
+                        if (l.value<=max_distance){
                                 var swap=false;
                                if (l.source.hypothetical && !l.target.hypothetical){                                  
                                      
@@ -357,6 +366,9 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
          for (var i  in this.force_nodes){
                 var node = this.force_nodes[i];
                 var pos = this.original_node_positions[node.id];
+                if (! pos){
+                        continue;
+                }
                 node.x=pos[0];
                 node.px=pos[0];
                 node.y=pos[1];
@@ -412,11 +424,12 @@ D3MSTree.prototype._untangleGraph = function(center,interval,callback){
                 if (self.charge<200){
                         self.gravity=0;
                 }
+              
                 if (self.charge>=-3){
                         self.charge=-3;
                         self.update_graphics=true;
                         self.startForce();
-
+                        callback(self,"Drawing Tree");
                         setTimeout(function(){
                                 self.svg.style("display","block");
                                 self._drawNodes();
@@ -432,16 +445,20 @@ D3MSTree.prototype._untangleGraph = function(center,interval,callback){
                                 self._correctLinkLengths(self.force_links[ii]);
                         
                         }
+                        self._showLinkLabels();
                         self._drawLinks();
                         self.changeCategory(self.display_category);
                         self._updateGraph(true);
-                        self.startForce();
+                        //self.startForce();
                         if (callback){
-                                callback();
+                                callback(self,"complete");
                         }                        
                         },10);
                         return;                     
-                }            
+                }
+                if (callback){
+                        callback(self,"Refining Layout:"+(self.charge/5)*-1);
+                }
                 self.startForce();
                 
                 self._untangleGraph(center,interval,callback);
@@ -533,7 +550,7 @@ D3MSTree.prototype.setLayout = function(layout_data){
         this.setScale(s);
         var translate = layout_data['translate']?layout_data['translate']:[0,0];
         this.setTranslate(translate);
-        this.startForce();
+        //this.startForce();
         this._drawLinks();
 };
 
@@ -595,14 +612,8 @@ D3MSTree.prototype._drawLinks=function(){
         })
         .attr("stroke-width","3px");
         
-        this.link_elements.selectAll(".distance-label").attr("font-size",this.link_font_size)
-                        .style('opacity', function(d){
-                                       if (!self.show_link_labels || d.value >= self.hide_link_length){
-                                                return 0;
-                                       }
-                                       return 1;
-                                }
-                        );
+        this.link_elements.selectAll(".distance-label").attr("font-size",this.link_font_size);
+                       
 }
 
 
@@ -619,13 +630,13 @@ D3MSTree.prototype.changeCategory= function(category){
         
         
         var self = this;
-        var hypo_nodes = this.node_elements.filter(function(d){return d.hypothetical}).
+     /*   var hypo_nodes = this.node_elements.filter(function(d){return d.hypothetical}).
                 selectAll("circle").data(function(parent){
                         return [{cx:parent.x,cy:parent.y}];
                 });
     
         hypo_nodes.enter().append("circle").attr("r",3).style("fill","gray");
-        
+        */
         
         var nodes_existing = this.node_elements.filter(function(d){return !d.hypothetical})
                                                 .selectAll('.node-paths').data(function(it){
@@ -690,7 +701,7 @@ D3MSTree.prototype._setNodeText = function(){
                 return;
         }
         node_text = this.node_elements.filter(function(d){
-                return true;//!d.hypothetical;
+                return !d.hypothetical;
         }).
         append('text').attr('class', 'node-group-number').
         attr('dy', ".71em").attr('text-anchor', 'middle').attr('font-size', this.node_font_size).
@@ -849,7 +860,7 @@ D3MSTree.prototype._addNodes=function(ids){
         for ( var i = 0;i < ids.length; i++) {
                 id = ids[i];
                 var name =id;
-                if (id === "hypothetical_node" || id === "1"){
+                if (id === "hypothetical_node"){
                         name = "_hypo_node_"+i;
                         ids[i]=name;
                 }
@@ -896,10 +907,14 @@ D3MSTree.prototype._addLinks=function(links,ids){
                 });
        }
        this.max_link_distance=0;
+       this.min_link_distance =10000;
        for (var i=0;i< new_links.length;i++) {
                 x = new_links[i];
                 if (x.value > this.max_link_distance){
                        this.max_link_distance=x.value;
+                }
+                if (x.value<this.min_link_distance & x.value !==0){
+                        this.min_link_distance=x.value;
                 }
                 var target_node = this._findNode(x.target);
                 var source_node = this._findNode(x.source);
@@ -1064,7 +1079,7 @@ D3MSTree.prototype.setLinkLength=function(max_length){
                 }
                 this._updateGraph(true);
         }
-        this.startForce();		
+        //this.startForce();		
 };
 /** Sets the font size of the links
 * @param {integer} The font size (in pixels)
@@ -1085,7 +1100,7 @@ D3MSTree.prototype.resetLinkLengths=function(){
                         this._correctLinkLengths(this.force_links[ii]);                              
                 }
                 this._updateGraph(true);
-        this.startForce();
+       // this.startForce();
         
 };
 
@@ -1093,6 +1108,24 @@ D3MSTree.prototype.showLinkLabels = function(show){
         this.show_link_labels = show;       
         this.link_elements.selectAll('.distance-label').transition().style('opacity', show ? 1 : 0);
 };
+
+
+D3MSTree.prototype._showLinkLabels = function(){
+        var self=this;
+        var field =this.node_text_value;
+        this.link_elements.selectAll('text').remove();
+        if (! this.show_link_labels){
+                return;
+        }
+        this.link_elements.append('text').attr('class', 'distance-label').
+                                        attr('dy', ".71em").attr('text-anchor', 'middle').
+                                        attr('font-size', this.link_font_size).attr('font-family', 'sans-serif').
+                                        style('fill', 'gray').style('stroke', 'black').style('stroke-width', '.25px').
+                                        text(function(it){
+                                                 return it.value;
+                                        });
+     
+}
 
 
 
@@ -1312,7 +1345,7 @@ D3MSTree.prototype.fixAllNodes=function(){
         this.fixed_mode=true;
         this._updateGraph(true);	
         //this.change_nodes_to_update();
-        this.startForce();
+        //this.startForce();
 }
 
  
@@ -1513,6 +1546,73 @@ D3MSTree.prototype._dragEnded=function(it){
        this._rotateChildren(it,angle_change,source);
        this._updateGraph();
        this._tagAllChildren(it,false);
+       this.stopForce();
+}
+
+D3MSTree.prototype.calculatePositions = function(nodes) {
+   var node_positions={};
+    var root_dist = [];
+    root_dist.length = nodes.length;
+    var n_tips = 0, min_length = 9999;
+    for (var id=nodes.length-1; id >= 0; id --) {
+        node = nodes[id];
+        if (node['edge_length'] > 0 && node['edge_length'] < min_length) {
+            min_length = node['edge_length'];
+        }
+    }
+    for (var id=nodes.length-1; id >= 0; id --) {
+        node = nodes[id];
+        id == nodes.length-1 ? dist = 0 : dist = root_dist[node['parent']] + node['edge_length'] + min_length/20;
+        root_dist[id] = dist;
+        if (node['children'] == undefined) {
+            n_tips ++;
+        }
+    }
+    var arc_pos = 0, arc_dist = Math.PI * 2 / n_tips;
+    for (var id=0; id < nodes.length; id ++) {
+        node = nodes[id];
+        if (node.children == undefined) {
+            node['polar'] = [root_dist[id], arc_pos];
+            arc_pos += arc_dist;
+        } else {
+            var arc_x = 0.0;
+            for (var jd=0; jd < node['children'].length; jd ++) {
+                j = node['children'][jd];
+                arc_x += nodes[j]['polar'][1];
+            }
+            node['polar'] = [root_dist[id], arc_x / node['children'].length];
+        }
+        console.log(id, node.name, node.children, to_Cartesian(node.polar), node.polar)
+    }
+    for (id=0; id < nodes.length-1; id ++) {
+        node = nodes[id];
+        node.polar = to_Polar(to_Cartesian(node.polar), to_Cartesian(nodes[node.parent].polar))
+        node.polar[0] = node.edge_length + min_length/20;
+        //node.polar[1] -= nodes[node.parent].polar[1]
+    }
+    nodes[nodes.length-1].coordinates = [0,0]
+    var rn = nodes[nodes.length-1];
+    node_positions[rn.name]=[0,0];
+    for (var id=nodes.length-2; id >= 0; id --) {
+        node = nodes[id];
+        //node.polar[1] += to_Cartesian(nodes[node.parent].coordinates)[1];
+        node.coordinates = to_Cartesian(node.polar);
+        node.coordinates[0] += nodes[node.parent].coordinates[0];
+        node.coordinates[1] += nodes[node.parent].coordinates[1];
+        node_positions[node.name]=[node.coordinates[0]*100 ,node.coordinates[1]*100 ]
+        console.log(id, node.name, node.children, node.coordinates, to_Polar(node.coordinates))
+    }
+    console.log(n_tips);
+    return node_positions;
+}
+
+to_Cartesian = function(coord, center=[0, 0]) {
+    var r = coord[0], theta = coord[1];
+    return [r*Math.cos(theta) + center[0], r*Math.sin(theta) + center[1]]
+}
+to_Polar = function(coord, center=[0, 0]) {
+    var x = coord[0] - center[0], y = coord[1] - center[1];
+    return [Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)), Math.atan2(y, x)]
 }
 
 
@@ -1520,13 +1620,13 @@ D3MSTree.prototype.createLinksFromNewick=function(node,parent_id){
         if (node.name == "hypothetical_node" || ! node.name){
                    this.original_nodes.push("hypothetical_node");
         }
-        else if (node.name == "1" && ! this.translate){
+        else if (node.name == "1" && node.children){
                  this.original_nodes.push("hypothetical_node");
         }
         else{
                 var name = node.name;
-                if (this.translate){
-                        name = this.translate[node.name];
+                if (this.taxon_key){
+                        name = this.taxon_key[node.name];
                         if (!name){
                                 name = node.name;
                         }
@@ -1543,6 +1643,37 @@ D3MSTree.prototype.createLinksFromNewick=function(node,parent_id){
                         this.createLinksFromNewick(child,node_id);
                 }
         }
+}
+
+
+D3MSTree.prototype.createLinksFromNewick2=function(nodes){
+        for (var i in nodes){
+                var node = nodes[i];
+                if (node.children){
+                        this.original_nodes.push("_hypo_node_"+i);
+                        node.name = "_hypo_node_"+i;
+                }
+                else{
+                         var name = node.name;
+                         if (this.taxon_key){
+                                name = this.taxon_key[node.name];
+                                if (!name){
+                                        name = node.name;
+                                }
+                        }
+                        this.original_nodes.push(name+"");
+                        
+                
+                }
+                if (node.parent){
+                        this.original_links.push({source:node.parent,target:node.id,distance:node.edge_length})
+                
+                }
+        
+        
+        }
+
+
 }
 
 

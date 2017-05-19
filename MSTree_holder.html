@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html>
 <head>
         
-        <link rel="stylesheet" href="js/jquery-ui-1.11.4/jquery-ui.min.css">
+        <link rel="stylesheet" href='js/jquery-ui-1.11.4/jquery-ui.min.css'>
          <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <style>
                 body{
@@ -93,6 +92,16 @@
                         border-radius: 8px;			
                         pointer-events: none;			
                 }
+                #information-div {
+                position: fixed;
+                 top: 50%;
+                left: 50%;
+                 transform: translate(-50%, -50%);
+                 height:200px;
+                 width:300px;
+                 border-style:solid;
+        
+                }
                         
               
         </style>
@@ -104,7 +113,10 @@
 
 <div id='sidebar'>
         
+        <div id ='information-div'><p  align='center'><img style= 'display:none' id = "waiting-image" src='static/img/icons/ms_waiting_1.gif'><img></p>
+        <p align ='center' style='font-size:14px'><span id = 'waiting-information'><span></p>
         
+        </div>
         
         <label>Colour By:</label>
         <br>
@@ -181,6 +193,9 @@
                         <input type='text' style='width:35px;height:15px' id ='spinner-collapse-nodes'>
                        <button id ='button-collapse-nodes'>Go</button>
                        <br>
+                       
+                        <div id = "slider-collapse-nodes" class = "slider-class"></div>
+                       
                        <br>
                         <p align='center'>
                                 <button onclick ="javascript:the_tree.unfixSelectedNodes()"> Unfix Selected</button>
@@ -262,7 +277,7 @@
 <script src ="js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
 <script charset="utf-8" src="js/main/d3.min.js"></script>
 <script charset="utf-8" src="js/tree/base_tree.js"></script>
-<script charset="utf-8" src="js/tree/d3_m_tree.js?version=0.1409"></script>
+<script charset="utf-8" src="js/tree/d3_m_tree.js"></script>
 
 
 
@@ -369,7 +384,7 @@
         
         
         
-
+        var collapse_scale=1;
         var summaryDialog = null;
         var waitingDialog = null;
         var grid_window=null;
@@ -387,7 +402,7 @@
                                                 the_tree.changeCategory(cc.data("category"));
                                                 
                                         })                                  
-                                        .attr("type","color");
+                                        .attr("type","color").hide();
         $("body").append(legend_colour_chooser);
         
         //a map of group to another map of name to label
@@ -569,17 +584,46 @@
         
         }
         
-        function treeLoaded(){
-                the_tree.legendItemClicked = function(data){    
+        function treeLoaded(tree){
+        legend_colour_chooser.show();
+                tree.legendItemClicked = function(data){    
                         legend_colour_chooser
                         .css({"left":0,"top":0})
                         .val(data.colour)
                         .data({"value":data.value,"category":data.category})
                         .trigger("click");         
                 };
-              
+                
+                var min = tree.min_link_distance;
+                if (min<1){
+                        collapse_scale = 1/min;
+                }
+                var max = (tree.max_link_distance)*collapse_scale;
+                var step = max/100;
+                $( "#slider-collapse-nodes" ).slider({
+                        min:0,
+                        max: max,
+                        value: tree.node_collapsed_value*collapse_scale,
+                        step:step
+              });
+          
+                        tree.centerGraph();
+                
+                $("#information-div").hide();
+                legend_colour_chooser.hide();
+                
+        }
         
-                legend_colour_chooser.css("visibility","hidden");             
+        function treeLoading(tree,msg){
+                if (msg==='complete'){
+                        treeLoaded(tree);
+                }
+                else{
+                
+                $("#waiting-information").text(msg)
+                
+                }
+        
         }
         
         
@@ -618,17 +662,7 @@
                 }
                 reader.readAsText(file);
         }
-        
-        
-        
-        
-   
-        
-        
-        
-        
-        
-        
+         
         function addDataFromFile(file){
                 var reader = new FileReader();
                 reader.onload = function(progressEvent){
@@ -650,18 +684,22 @@
                         
                 }
                 reader.readAsText(file);
-}
+        }
         
         function loadMSTree(data){
+                $("#information-div").show();
+                $("#waiting-image").show();
+                $("#waiting-information").text("Loading Data");
                 the_tree = null;
                 $("#graph-div").empty();
+              setTimeout(function(e){
                 the_tree = new D3MSTree(
-                        "graph-div",data                   
+                        "graph-div",data,function(tree,msg){
+                                treeLoading(tree,msg);
+                        
+                      }                  
                 );
-
-        
-        //set the tooltips
-                the_tree.segmentMouseOver=function(d){
+                 the_tree.segmentMouseOver=function(d){
                         if ($("#show-node-tooltip").prop("checked")){
                                 showToolTip(d.data.type+"("+d.data.value+")");
                         }
@@ -687,7 +725,15 @@
                                                 .text(metadata_options[key]));             
                         }
                 }
-                treeLoaded();
+                
+                
+                
+                },100);
+
+        
+        //set the tooltips
+             
+                
                
      //   var a = $("#metadata-select").clone();
      //   a.attr("id","node-label-text");
@@ -704,6 +750,7 @@
       //  });
         }
  function filesDropped(tree_file,metadata_file,tree_type){
+    
        if (tree_type==='nexus'){
                 loadNexusFile(tree_file,function(){
                         if (metadata_file){
@@ -1037,8 +1084,42 @@ window.onload = function (){
                 max:100
         });
         
+        
+         $( "#slider-collapse-nodes" ).slider({
+                orientation: "horizontal",
+                min:0,
+                max: 100,
+                value: 0,
+                slide:function(){
+                        var val = $("#slider-collapse-nodes").slider("value")/collapse_scale;
+                     
+                      $("#spinner-collapse-nodes").val(val);
+                        
+                        },
+                change: function(e){
+                        if (e.originalEvent){
+                               var val = $("#slider-collapse-nodes").slider("value")/collapse_scale;
+                                   $("#information-div").show();
+                $("#waiting-image").show();
+                $("#waiting-information").text("Loading Data");
+               // the_tree.collapseNodes($("#spinner-collapse-nodes").val(),true);
+                 
+                  setTimeout(function(e){
+                              the_tree.collapseNodes(val);
+                               $("#spinner-collapse-nodes").val(val);
+                                $("#information-div").hide();
+                               },50);
+                        }
+                }
+        });
+        
         $("#button-collapse-nodes").click(function(e){
+                  $("#information-div").show();
+                $("#waiting-image").show();
+                $("#waiting-information").text("Loading Data");
+                
                 the_tree.collapseNodes($("#spinner-collapse-nodes").val(),true);
+                  $("#information-div").hide();
         
         });
         
