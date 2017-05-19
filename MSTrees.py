@@ -1,12 +1,18 @@
 import numpy as np, dendropy as dp, networkx as nx
 from subprocess import Popen, PIPE
-import sys, os, tempfile
+import sys, os, tempfile, platform
 
 params = dict(method='MST',
               matrix_type='asymmetric', 
               edge_weight = 'harmonic', 
               neighbor_branch_reconnection='T',
-              ninja = 'ninja')
+              NJ_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme.exe'), 
+              NJ_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-osx'), 
+              NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32'),
+              
+              edmonds_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds.exe'), 
+              edmonds_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-osx'), 
+              edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux'))
 
 class distance_matrix(object) :
     @staticmethod
@@ -65,7 +71,7 @@ class distance_matrix(object) :
 
 class methods(object) :
     @staticmethod
-    def _symmetric(dist) :
+    def _symmetric(dist, **params) :
         g = nx.Graph()
         xs, ys = np.where(dist >= 0)
         edges = [[x, y, dict(weight=dist[x][y])] for x, y in zip(xs, ys) if x < y]
@@ -75,9 +81,9 @@ class methods(object) :
         return [[d[0], d[1], int(d[2]['weight'])] for d in ms.edges(data=True)]
     
     @staticmethod
-    def _asymmetric(dist) :
-        mstree = Popen([os.path.join(os.path.dirname(os.path.realpath(__file__)), 'edmonds')], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in dist.tolist()]))[0]
-        return [ [int(s), int(t), float(l)] for br in mstree.strip().split() for s,t,l in br.split('\t')]
+    def _asymmetric(dist, **params) :
+        mstree = Popen([params['edmonds_' + platform.system()]], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in dist.tolist()]))[0]
+        return np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int).tolist()
     @staticmethod
     def _neighbor_branch_reconnection(branches, dist, n_loci) :
         def contemporary(a,b,c) :
@@ -165,15 +171,33 @@ class methods(object) :
         return branches
     
     @staticmethod
-    def _network2tree(branches) :
+    def _network2tree(branches, names) :
+        branches.sort(key=lambda x:x[2], reverse=True)
+        branch = []
+        while len(branches) :
+            remain = []
+            in_use = {branches[0][0]:1}
+            for br in branches :
+                if br[0] in in_use :
+                    branch.append(br)
+                    in_use[br[1]] = 1
+                elif br[1] in in_use :
+                    branch.append([br[1], br[0], br[2]])
+                    in_use[br[0]] = 1
+                else :
+                    remain.append(br)
+            branches = remain
+        
         tre = dp.Tree()
         node = tre.seed_node
-        node.taxon = tre.taxon_namespace.new_taxon(label=branches[0][0])
-        node_label = {branches[0][0]:branches[0][0]}
-        for src, tgt, dif in branches :
-            if src != node.taxon.label :
-                node = tre.find_node_with_taxon_label(node_label[src])
-            node_label[tgt] = tgt
+        node.taxon = tre.taxon_namespace.new_taxon(label=branch[0][0])
+        for src, tgt, dif in branch :
+            node = tre.find_node_with_taxon_label(src)
+            n = dp.Node(taxon=node.taxon)
+            node.add_child(n)
+            n.edge_length = 0.0
+            node.__dict__['taxon'] = None
+            
             n = dp.Node(taxon=tre.taxon_namespace.new_taxon(label=tgt))
             node.add_child(n)
             n.edge_length = dif
@@ -186,14 +210,15 @@ class methods(object) :
         dist = eval('distance_matrix.'+matrix_type)(profiles)
         wdist = eval('distance_matrix.'+edge_weight)(dist)
         
-        tree = eval('methods._'+matrix_type)(wdist)
+        tree = eval('methods._'+matrix_type)(wdist, **params)
         if neighbor_branch_reconnection != 'F' :
             tree = methods._neighbor_branch_reconnection(tree, dist, profiles.shape[1])
         tree = distance_matrix.symmetric(profiles, tree, normalize=False)
+        tree = methods._network2tree(tree, names)
         return tree
 
     @staticmethod
-    def ninja(names, profiles, **params) :
+    def NJ(names, profiles, **params) :
         dist = distance_matrix.symmetric(profiles)
         dist_txt = ['    {0}'.format(dist.shape[0])]
         for n, d in enumerate(dist) :
@@ -203,18 +228,71 @@ class methods(object) :
         fin = tempfile.NamedTemporaryFile(delete=False)
         fin.write('\n'.join(dist_txt))
         fin.close()
-        tree = Popen('{ninja} --in_type d {0}'.format(fin.name, **params).split(), stdout=PIPE).communicate()[0]
-        fin.unlink()
+        Popen('{0} -i {1} -m B'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
+        tree = dp.Tree.get_from_path(fin.name + '_fastme_tree.nwk', schema='newick')
+        from glob import glob
+        for fname in glob(fin.name + '*') :
+            os.unlink(fname)
+        for taxon in tree.taxon_namespace :
+            taxon.label = names[int(taxon.label)]
         return tree
 
-if __name__ == '__main__' :
-    # method: PSA, eBurst, ninja
-    params.update(dict([p.split('=') for p in sys.argv[1:]]))
+def nonredundent(names, profiles) :
+    encoded_profile = np.array([np.unique(p, return_inverse=True)[1]+1 for p in profiles.T]).T
+    encoded_profile[(profiles == '-') | (profiles == '0')] = 0
+    
+    names = names[np.lexsort(encoded_profile.T)]
+    profiles = encoded_profile[np.lexsort(encoded_profile.T)]
+    uniqueness = np.concatenate([[1], np.sum(np.diff(profiles, axis=0) != 0, 1) > 0])
+    
+    embeded, utype = [], names[0]
+    for n, u in zip(names, uniqueness) :
+        if u == 0 :
+            embeded.append([utype, n])
+        else :
+            utype = n
+    names = names[uniqueness>0]
+    profiles = profiles[uniqueness>0]
+    return names, profiles, embeded
+
+def backend(**parameters) :
+    '''
+    paramters :
+        profile: input file. Can be either profile or fasta. Headings start with an '#' will be ignored. 
+        method: MST or NJ
+        matrix_type: asymmetric or symmetric
+        edge_weight: harmonic or eBurst
+        neighbor_branch_reconnection: T or F
+    
+    Outputs :
+        A string of a NEWICK tree
+    
+    Examples :
+        To run a Balanced Spanning Arborescence (BSA), use :
+        backend(profile=<filename>, method='MST', matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T')
+    
+        OR simply
+        backend(profile=<filename>)
+        
+        To run a standard minimum spanning tree :
+        backend(profile=<filename>, method='MST', matrix_type='symmetric', edge_weight='eBurst', neighbor_branch_reconnection='F')
+        
+        To run a NJ tree (using FastME 2.0) :
+        backend(profile=<filename>, method='NJ')
+    
+    Can also be called in command line:
+        BSA: MSTrees.py profile=<filename> method=MST matrix_type=asymmetric edge_weight=harmonic neighbor_branch_reconnection=T
+        MST: MSTrees.py profile=<filename> method=MST matrix_type=symmetric edge_weight=eBurst neighbor_branch_reconnection=F
+        NJ:  MSTrees.py profile=<filename> method=NJ
+    '''
+    params.update(parameters)
 
     names = []
     profiles = []
     with open(params['profile']) as fin :
         head = fin.readline()
+        while head.startswith('#') :
+            head = fin.readline()
         if head.startswith('>') :
             names.append(head[1:].strip().split()[0])
             profiles.append([])
@@ -227,14 +305,30 @@ if __name__ == '__main__' :
             for id, p in enumerate(profiles) :
                 profiles[id] = list(''.join(p))
         else :
+            part = head.strip().split()
+            names.append(part[0])
+            profiles.append(part[1:])
             for line in fin :
                 part = line.strip().split()
                 names.append(part[0])
                 profiles.append(part[1:])
-    profiles = np.array(profiles)
-    encoded_profile = np.array([np.unique(p, return_inverse=True)[1]+1 for p in profiles.T]).T
-    encoded_profile[(profiles == 'T') | (profiles == '0')] = 0
 
-    tre = eval('methods.' + params['method'])(names, encoded_profile, **params)
+    names, profiles, embeded = nonredundent(np.array(names), np.array(profiles))
+    tre = eval('methods.' + params['method'])(names, profiles, **params)
     
-    print tre.as_string('newick')
+    for src, tgt in embeded :
+        node = tre.find_node_with_taxon_label(src)
+        n = dp.Node(taxon=node.taxon)
+        node.add_child(n)
+        n.edge_length = 0.0
+        node.__dict__['taxon'] = None
+        
+        n = dp.Node(taxon=tre.taxon_namespace.new_taxon(label=tgt))
+        node.add_child(n)
+        n.edge_length = 0.0
+    
+    return tre.as_string('newick')
+
+if __name__ == '__main__' :
+    tre = backend(**dict([p.split('=') for p in sys.argv[1:]]))
+    print tre

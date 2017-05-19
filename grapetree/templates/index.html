@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EnteroMSTree - GrapeTree version {{version}}</title>
+    <link rel="stylesheet" href="../js/jquery-ui-1.11.4/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../js/bootstrap-theme.css">
+    
+  </head>
+  <body>
+  
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">GrapeTree (version {{version}})</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Dashboard</a></li>
+            <li><a href="#about">Change log</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>  
+    
+    <div class="container theme-showcase" role="main">
+
+         <div class="page-header">
+        <h1>Tasks</h1>
+      </div>
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h3 class="panel-title">Generate a new Tree from a SNP or distance matrix</h3>
+            </div>
+            <div class="panel-body">
+              <div class="form-group">
+              <label for="matrixfile">Tree construction method</label>
+                  <select class="form-control" id="matrixmethod">
+                    <option>PSA</option>
+                    <option>eBurst</option>
+                    <option>ninja</option>
+                  </select>
+                <label for="matrixfile">Location of matrix file</label>
+                <input type="file" class="form-control" id="matrixfile" onclick="jQuery('#matrixfile').click()">
+                <!-- Standard FORM request --->
+                <button type="button" class="btn btn-success" id="matrixbutton">Run!</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h3 class="panel-title">View a tree (Nexus or Newick format)</h3>
+            </div>
+            <div class="panel-body">
+                <label for="treefile">Location of tree file</label>
+                <input type="file" class="form-control" id="treefile" onclick="jQuery('#treefile').click()">
+                <button type="button" class="btn btn-success" id="treebutton">Run!</button>
+            </div>
+          </div>
+        </div><!-- /.col-sm-4 -->
+      </div>
+    </div>
+<script src="js/main/jquery-1.9.1.min.js"></script>
+<script src ="js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#matrixbutton").click(function(){
+        $(this).hide();
+    });
+    
+    $("#treebutton").click(function(){
+        $.post('/mstree')
+        
+    });
+});
+</script>
+    
+  </body>
+</html>
