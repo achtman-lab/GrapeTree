@@ -706,6 +706,9 @@ D3MSTree.prototype.changeCategory= function(category){
 D3MSTree.prototype._drawNodes=function(){
         var self = this;
         this.node_elements.selectAll('.node-paths').attr('d', this.arc).attr('fill', function(it){
+                if (it.data.node_id){
+                        return self.default_colour;
+                }
                  return self.category_colours[it.data.type];
         });
         this.node_elements.selectAll('.halo')
@@ -834,11 +837,25 @@ D3MSTree.prototype._getPieData = function(d, category){
                 }                        
         }
         else{
-                results=[{
-                        value:1,
-                        type:'missing',
-                        idx:d.id               
-                }];      
+                if (this.show_individual_segments){
+                        var strains = this.grouped_nodes[d.id];
+                        for (var i in strains){
+                                results.push({
+                                        value:1,
+                                        type:"node_name",
+                                        idx:d.id,
+                                        node_id:strains[i]
+                                        
+                                });
+                        }
+                }
+                else{
+                        results=[{
+                                value:1,
+                                type:'missing',
+                                idx:d.id               
+                        }];
+                }
         }                
         return this.pie(results);                  
 };
@@ -1151,13 +1168,12 @@ D3MSTree.prototype.resetLinkLengths=function(){
 
 D3MSTree.prototype.showLinkLabels = function(show){
         this.show_link_labels = show;       
-        this.link_elements.selectAll('.distance-label').transition().style('opacity', show ? 1 : 0);
+        this._showLinkLabels();
 };
 
 
 D3MSTree.prototype._showLinkLabels = function(){
         var self=this;
-        var field =this.node_text_value;
         this.link_elements.selectAll('text').remove();
         if (! this.show_link_labels){
                 return;
