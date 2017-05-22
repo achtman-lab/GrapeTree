@@ -99,28 +99,41 @@ function D3MSTree(element_id,data,callback,height,width){
         this.original_links =[];
         this.force_nodes = this.d3_force_directed_graph.nodes();
         this.force_links = this.d3_force_directed_graph.links();
-        
-        if (data['nexus']){          
-                var obj = this.readNexusFile(data['nexus']);
-                this.taxon_key = obj.translate;
-                this.createLinksFromNewick(obj.root); 
-                //possibly layout data specified in the 
-                data['layout_data'] = null;     
-        }
-        else if (data['nwk']){
-              
-                var root = this.parseNewick(data['nwk']);
+        var positions = null;
+        if (data['nexus'] || data['nwk']){
+                var root = null;
+                if(data['nexus']){
+                        var obj = this.readNexusFile(data['nexus']);
+                        this.taxon_key = obj.translate;
+                        root =obj.root; 
+                }
+                else{
+                        root = this.parseNewick(data['nwk']);   
+                }
                 this.createLinksFromNewick(root);
-                data['layout_data'] = null;
-                
-                //Zhemin' stuff
-                //var nodes = this.parseNewick2(data['nwk']);
-               // this.createLinksFromNewick2(nodes);
-              //  data['layout_data'] = {};
-                //data['layout_data']['node_positions']=this.calculatePositions(nodes);
-                
+                var radialTree = d3.layout.tree()
+                .size([360,400 ])
+                .separation(function(a, b) {
+                        return (a.parent == b.parent ? 1 : 2) / a.depth;
+                });
+                var nodes = radialTree.nodes(root);
+                // this.calculateX(0,root);
+               
+                 positions={};
+                 for (var i in nodes){
+                        var node = nodes[i];
+                        var x_y = this.getRadialCoordinates(node.x,node.y)
+                        var name = node.name;
+                        if (this.taxon_key && !name.startsWith("_hypo_")){
+                                name = this.taxon_key[name];
+                        }              
+                        positions[name]=[x_y[0],x_y[1]];
+                 }
+                data['layout_data']= null;
               
+               
         }
+     
         else{
                 this.original_nodes=data['nodes'];
                 this.original_links=data['links'];
@@ -134,17 +147,16 @@ function D3MSTree(element_id,data,callback,height,width){
                 }
         }
       
-         if (callback){
+        if (callback){
                 callback(this,"Collapsing Nodes:"+this.original_nodes.length);
         
-        }        
+        }
+        
         this._collapseNodes(this.node_collapsed_value,this.node_collapsed_value);              
         if (callback){
                 callback(this,"Nodes"+this.force_nodes.length);
-        
         }
-                       
-                       
+                                   
         this.root_node=null;
         for (var index in this.force_nodes){
                 var node = this.force_nodes[index];
@@ -156,11 +168,35 @@ function D3MSTree(element_id,data,callback,height,width){
         }
         
         this._updateNodeRadii();
-        this._start(callback,data['layout_data']);
+        this._start(callback,data['layout_data'],positions);
+};
+
+D3MSTree.prototype.getRadialCoordinates= function(angle,radius){
+          var c0 = Math.cos(angle = (angle- 90) / 180 * Math.PI),
+                        s0 = Math.sin(angle);
+                return [radius*c0,radius*s0];
+};
+
+D3MSTree.prototype.calculateX =function(len,node){
+        var length = len;
+       
+        if (node.length){
+              length=len+node.length;
+        }
+        node.y=length;
+        
+      
+        var children = node.children;
+        if (children){
+                for (var i in children){
+                       
+                        this.calculateX(length,children[i]);
+                }                  
+        }                
 };
 
 
-D3MSTree.prototype._start= function(callback,layout_data){
+D3MSTree.prototype._start= function(callback,layout_data,positions){
        var self = this;
        //add the links
        this.canvas.selectAll('g.link').remove();
@@ -229,9 +265,18 @@ D3MSTree.prototype._start= function(callback,layout_data){
                 //for some reason need to give random positions, otherwise leads to stack 
                 for (var i in this.force_nodes){
                         var node=this.force_nodes[i];
-                      node.x=Math.random()*1000;
-                        node.y=Math.random()*1000;
+                        if (positions){
+                                var pos = positions[node.id];
+                                node.x=pos[0];
+                                node.y=pos[1];
+                        
+                        }
+                        else{
+                                node.x=Math.random()*1000;
+                                node.y=Math.random()*1000;
+                        }
                }
+               
                 this.update_graphics=false;
                 callback(this,"Calculating Layout")
                 setTimeout(function(){	
@@ -630,13 +675,13 @@ D3MSTree.prototype.changeCategory= function(category){
         
         
         var self = this;
-     /*   var hypo_nodes = this.node_elements.filter(function(d){return d.hypothetical}).
+        var hypo_nodes = this.node_elements.filter(function(d){return d.hypothetical}).
                 selectAll("circle").data(function(parent){
                         return [{cx:parent.x,cy:parent.y}];
                 });
     
         hypo_nodes.enter().append("circle").attr("r",3).style("fill","gray");
-        */
+        
         
         var nodes_existing = this.node_elements.filter(function(d){return !d.hypothetical})
                                                 .selectAll('.node-paths').data(function(it){
@@ -1221,6 +1266,7 @@ D3MSTree.prototype.alterCharge=function(amount){
 
 D3MSTree.prototype._correctLinkLengths= function(it){
         //this.stop_force();
+         
         var source  =it.source;
         var target =it.target;
         var x_dif = target.x-source.x;
@@ -1234,7 +1280,8 @@ D3MSTree.prototype._correctLinkLengths= function(it){
         target.y = source.y+(y_dif*factor);	
         target.px= target.x;
         target.py =target.y
-        this._alterChildrenPosition(target,target.x-old_x,target.y-old_y);	
+        this._alterChildrenPosition(target,target.x-old_x,target.y-old_y);
+        
 }
 
 
@@ -1617,11 +1664,10 @@ to_Polar = function(coord, center=[0, 0]) {
 
 
 D3MSTree.prototype.createLinksFromNewick=function(node,parent_id){
-        if (node.name == "hypothetical_node" || ! node.name){
-                   this.original_nodes.push("hypothetical_node");
-        }
-        else if (node.name == "1" && node.children){
-                 this.original_nodes.push("hypothetical_node");
+       
+        if (node.children){
+                 this.original_nodes.push("_hypo_node_"+ this.original_nodes.length);
+                 node.name = "_hypo_node_"+ (this.original_nodes.length-1);
         }
         else{
                 var name = node.name;
