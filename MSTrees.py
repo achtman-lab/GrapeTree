@@ -258,7 +258,7 @@ def nonredundent(names, profiles) :
 def backend(**parameters) :
     '''
     paramters :
-        profile: input file. Can be either profile or fasta. Headings start with an '#' will be ignored. 
+        profile: input file or the content of the file as a string. Can be either profile or fasta. Headings start with an '#' will be ignored. 
         method: MST or NJ
         matrix_type: asymmetric or symmetric
         edge_weight: harmonic or eBurst
@@ -287,31 +287,29 @@ def backend(**parameters) :
     '''
     params.update(parameters)
 
-    names = []
-    profiles = []
-    with open(params['profile']) as fin :
-        head = fin.readline()
-        while head.startswith('#') :
-            head = fin.readline()
-        if head.startswith('>') :
-            names.append(head[1:].strip().split()[0])
-            profiles.append([])
-            for line in fin :
-                if line.startswith('>') :
-                    names.append(line.strip().split()[0])
-                    profiles.append([])
-                else :
-                    profiles[-1].extend(line.strip().split())
-            for id, p in enumerate(profiles) :
-                profiles[id] = list(''.join(p))
-        else :
-            part = head.strip().split()
+    names, profiles = [], []
+    fin = open(params['profile']).readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
+        
+    for line_id, line in enumerate(fin) :
+        if line.startswith('#') :
+            continue
+        fmt = 'fasta' if head.startswith('>') else 'profile'
+        break
+    
+    if fmt == 'fasta' :
+        for line in fin[(line_id-1):] :
+            if line.startswith('>') :
+                names.append(line.strip().split()[0])
+                profiles.append([])
+            else :
+                profiles[-1].extend(line.strip().split())
+        for id, p in enumerate(profiles) :
+            profiles[id] = list(''.join(p))
+    else :
+        for line in fin :
+            part = line.strip().split('\t')
             names.append(part[0])
             profiles.append(part[1:])
-            for line in fin :
-                part = line.strip().split()
-                names.append(part[0])
-                profiles.append(part[1:])
 
     names, profiles, embeded = nonredundent(np.array(names), np.array(profiles))
     tre = eval('methods.' + params['method'])(names, profiles, **params)
