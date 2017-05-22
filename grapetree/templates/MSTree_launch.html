@@ -2,7 +2,7 @@
 <html>
 <head>
         
-        <link rel="stylesheet" href="js/jquery-ui-1.11.4/jquery-ui.min.css">
+        <link rel="stylesheet" href='js/jquery-ui-1.11.4/jquery-ui.min.css'>
          <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <style>
                 body{
@@ -92,6 +92,17 @@
                         border-radius: 8px;			
                         pointer-events: none;			
                 }
+           
+                 #welcome-div {
+                position: fixed;
+                 top: 50%;
+                left: 50%;
+                 transform: translate(-50%, -50%);
+                 height:400px;
+                 width:600px;
+                 #border-style:solid;
+        
+                }
                         
               
         </style>
@@ -99,11 +110,60 @@
 
 </head>
 <body>
+<!--information divs-->
+<div id = 'welcome-div'>
+<p align='center'><h2>
+<b>G</b>rape <b>T</b>ree
+</h2>
+</p>
+To get started Drag and drop files into the browser window
+<h4>Trees or Profile Data</h4>
+<ul>
+<li><b>Phlogenetic trees</b> These can be nexus or nwk format and can have any file extension apart from
+.txt,.csv,.profile and .json
+</li>
+<li>
+<b>Profile Files (.profile)</b> These are tab delimited text with columns as alleles and strains as rows (see the exanples).
+This requires the local server to be running
+</li>
+<li><b>Custom Format(.json)</b> Files genereated by this program which contain 
+the tree data as well as display parameters and any metadata
+</li>
+</ul>
+<h4>Metadata</h4>
+<ul>
+<li>
+<b>Metadata files(.txt or.csv)</b> The file should have 
+one column ID which corresponds to the node identifier the tree. Multiple records can be linked to the
+same node i.e have the same ID
+</li>
+</ul>
+</div>
+
+
+<div id ='information-div'class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <p  align='center'><img id ='waiting-image' src= '/js/img/ms_waiting_1.gif'></img></p>
+      </div>
+      <div class="modal-body">
+        <p id ='waiting-information'>One fine body&hellip;</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
 
 
 <div id='sidebar'>
-        
-        
+ 
         
         <label>Colour By:</label>
         <br>
@@ -160,12 +220,8 @@
                         <br>
                         <div id = "slider-node-fontsize" class = "slider-class"></div>
                         <label>Label Text</label>
-                        <!--<select id = 'node-label-text'>
-                                <option value = ''>ST</option>
-                                <option value = 'cat'>Category</option>
-                                <option value = 'Name' >Strain Name</option>
-                        <select>-->
-                        <div id = 'metadata-placeholder'></div>
+                        <select id = 'node-label-text'><option value="">default</option></select>
+                      
                         <br>
                         <label><input id ='show-node-tooltip' type="checkbox" checked /> Show Tooltip</label>
                         <br>
@@ -180,6 +236,9 @@
                         <input type='text' style='width:35px;height:15px' id ='spinner-collapse-nodes'>
                        <button id ='button-collapse-nodes'>Go</button>
                        <br>
+                       
+                        <div id = "slider-collapse-nodes" class = "slider-class"></div>
+                       
                        <br>
                         <p align='center'>
                                 <button onclick ="javascript:the_tree.unfixSelectedNodes()"> Unfix Selected</button>
@@ -207,36 +266,31 @@
                 <div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Add Data</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
                 <div class = "panel-body" id ='mst-data-menu-panel'>	
                 
-                         <p align='center'>
-                                <button id = 'button-load-nwk'> Load Nwk File</button>
-                        </p>
+                       
                           <p align='center'>
                                 <button id = 'button-load-meta'> Load Metadata</button>
                         </p>
                         
-                        <label>Custom Field&nbsp;&nbsp;&nbsp;</label>
-                        <input  size="11" id ="add-custom-field-input">
-                        <span  id ="add-custom-field-icon" onclick="addCustomField()" class='add-data-icon glyphicon glyphicon-plus'></span>
+                        <label>Add Field&nbsp;&nbsp;&nbsp;</label>
+                        <input  size="11" id ="add-extra-field-input">
+                        <span  id ="add-custom-field-icon" onclick="addExtraField()" class='add-data-icon glyphicon glyphicon-plus'></span>
                         <br>
                         
-                        <label>Custom  Value &nbsp;&nbsp;&nbsp;</label>
-                        Field<select style ="width:120px" id="custom-field-select"></select>
-                        Value<input size="11" id ="add-custom-value-input">
-                        <span  id ="add-custom-value-icon"  onclick="addCustomValue()" class='add-data-icon glyphicon glyphicon-plus'></span>
+                        <label>Add Values To Selected;</label>
+                        Field<select style ="width:120px" id="add-new-values-select"></select>
+                        Value<input size="11" id ="add-new-values-input">
+                        <span  id ="add-new-values-icon"  onclick="addNewValues()" class='add-data-icon glyphicon glyphicon-plus'></span>
                         <br>
-                
-                        <label>Upload Values &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;</label>
-                        <p align="center">
-                        <span  id ="download-metadata-icon"  onclick="downloadMetadata()" class="upload-download-icon glyphicon glyphicon-download"></span>
-                        <span  id ="upload-metadata-icon"  class="upload-download-icon glyphicon glyphicon-upload"></span>
-                        </p>                                      
+                                          
                 </div>
         </div>
       
 
           
       
-        
+        <p align='center'>
+               <button id = 'button-load-nwk'> Load Nwk File</button>
+        </p>
         
         <p align='center'>
                 <button onclick = 'javascript:the_tree.clearSelection()'> Clear Selection</button>
@@ -253,15 +307,19 @@
         </p>          
 </div>
 
-<div id = "graph-div" class="graph-overlay"></div>
+<div id = "graph-div" class="graph-overlay">
+
+
+</div>
 
 
         
 <script src="js/main/jquery-1.9.1.min.js"></script>
 <script src ="js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
+<script src ="js/main/bootstrap.min.js"></script>
 <script charset="utf-8" src="js/main/d3.min.js"></script>
 <script charset="utf-8" src="js/tree/base_tree.js"></script>
-<script charset="utf-8" src="js/tree/d3_m_tree.js?version=0.1409"></script>
+<script charset="utf-8" src="js/tree/d3_m_tree.js"></script>
 
 
 
@@ -368,7 +426,7 @@
         
         
         
-
+        var collapse_scale=1;
         var summaryDialog = null;
         var waitingDialog = null;
         var grid_window=null;
@@ -386,7 +444,8 @@
                                                 the_tree.changeCategory(cc.data("category"));
                                                 
                                         })                                  
-                                        .attr("type","color");
+                                        .attr("type","color").hide();
+        
         $("body").append(legend_colour_chooser);
         
         //a map of group to another map of name to label
@@ -394,7 +453,7 @@
         var new_metadata_fields=[];
         var locus_label ="";
         var file_chooser = new MSFileChooser(".nwk");
-        
+        var current_metadata_file = null;
         
         
                 
@@ -411,77 +470,17 @@
                 Enterobase.showSaveDialog(text,"tree.json");
         }
         
-        function uploadMetadata(file){
-                var reader = new FileReader();
-                reader.onload = function(progressEvent){
-                        var metadata={};
-                        var lines =  this.result.split(/\r\n|\r|\n/g);
-                        var headers =  lines[0].split("\"").join("").split("\t");
-                        var header_index= {};
-                        var barcode_column= 0;
-                        var is_headers =false;
-                        for (var index in headers){
-                                if (headers[index]=="Barcode"){
-                                        barcode_column= parseInt(index);
-                                }
-                                if (metadata_options['Custom Fields'][headers[index]]){
-                                        header_index[index]=headers[index];
-                                        is_headers=true;
-                                
-                                }
-                        }
-                        if (! is_headers){
-                                Enterobase.modalAlert("No Headers match any custom fields");
-                                return;
-                        
-                        }
+      
+        
+      
+        
+        function addMetadataOptions(value,label){
+                if (!metadata_options[value]){
+                        metadata_options[value]=label;
+                        $("#metadata-select").append($("<option>").attr("value",value).text(label));
+                        $("#node-label-text").append($("<option>").attr("value",value).text(label));
+                        $("#add-new-values-select").append($("<option>").attr("value",value).text(label));
                 
-                        for(var n= 1; n < lines.length; n++){ //>
-                                
-                                var values =  lines[n].split("\"").join("").split("\t");
-                                var barcode = values[barcode_column];
-                                if (!barcode){
-                                        continue;
-                                }
-                                var id  = Enterobase.decodeBarcode(barcode);
-                                metadata[id]={}
-                                for (var index in header_index){
-                                        metadata[id][header_index[index]]= values[index]		
-                                }			
-                        }
-                        the_tree.addMetadata(metadata);
-                };
-          reader.readAsText(file);
-        }
-        
-        function displayErrorMessage(msg){
-                Enterobase.modalAlert(msg);
-        }
-        
-        function setMetadataOptions(data){
-                var sel = $("#metadata-select");
-                sel.empty();
-                for (var group in data){
-                        //remove from AddExperimentalData
-                        $("#scheme-data option").filter(function(){
-                                return this.text==group;
-                        }).remove();
-                        
-                        var opt_group = $("<optgroup>").attr("label",group);
-                        sel.append(opt_group);
-                        metadata_options[group]={};
-                        var group_options = data[group];
-                        for (var val in group_options){
-                                opt_group.append($("<option>")
-                                        .attr("value",val)
-                                        .text(group_options[val]));
-                                metadata_options[group][val]=group_options[val];
-                                if (group === 'Custom Fields'){
-                                        $("#custom-field-select").append($("<option>")
-                                                .attr("value",val)
-                                                .text(group_options[val]));
-                                }
-                        }			
                 }
         }
         
@@ -505,252 +504,287 @@
         
         
         
-        function addCustomValue(){
-                var value = $("#add-custom-value-input").val();
+        function addNewValues(){
+                var value = $("#add-new-values-input").val();
                 if (! value){
                         return;
                 }
                 var ids = the_tree.getSelectedIDs();
                 var len = ids.length;
-                if (len ===0){
-                        Enterobase.modalAlert("There are no nodes selected in the Tree");
+                if (len ===0){      
                         return;
                 
+                }  
+                var field = $("#add-new-values-select").val();
+	
+                var meta = {};
+                for (var i in ids){
+                        var id = ids[i];
+                        var obj={}
+                        obj[field]=value;
+                        meta[id]=obj;
+                
                 }
-                else{
-                        var field = $("#custom-field-select").val();
-                        if (new_metadata_fields.indexOf(field)===-1){
-                                new_metadata_fields.push(field);
-                        }		
-                        var meta = {};
-                        for (var i in ids){
-                                var id = ids[i];
-                                var obj={}
-                                obj[field]=value;
-                                meta[id]=obj;
-                        
-                        }
-                        the_tree.addMetadata(meta);
-                        the_tree.changeCategory(field);	
-                }
+                the_tree.addMetadata(meta);
+                the_tree.changeCategory(field);         
         }	
         
         
-        function addCustomField(){
-                var name = $("#add-custom-field-input").val();
+        function addExtraField(){
+                var name = $("#add-extra-field-input").val();
                 if (!name){
                         return;
                 }
-                var opt_group= null;
-                var sel = $("#metadata-select");
-                if (!metadata_options['Custom Fields']){
-                        metadata_options['Custom Fields']={}
-                        opt_group = $("<optgroup>").attr("label","Custom Fields");
-                        sel.append(opt_group);
-                
-                }
-                else{
-                        opt_group = $("[label='Custom Fields']");
-                
-                }	
-                opt_group.append($("<option>")
-                .attr("value",name)
-                .text(name));
-                $("#custom-field-select").append($("<option>")
-                .attr("value",name)
-                .text(name));
-                metadata_options["Custom Fields"][name]=name;
-                new_metadata_fields.push(name);
-                $("#add-custom-field-input").val("");
-                
-                Enterobase.modalAlert("A new Field has been added. You can associate values for this field with strains by uploading a file "+
-                                                   "or you can associate values with nodes by selecting them and adding a custom value");
-        
+                addMetadataOptions(name,name);
+                $("#metadata-select").val(name);
+                $("#add-new-values-select").val(name);
+                the_tree.changeCategory(name);
+              
         }
         
-        function treeLoaded(){
-                the_tree.legendItemClicked = function(data){    
+        function treeLoaded(tree){
+                
+                tree.legendItemClicked = function(data){    
                         legend_colour_chooser
                         .css({"left":0,"top":0})
                         .val(data.colour)
                         .data({"value":data.value,"category":data.category})
                         .trigger("click");         
                 };
-              
-        
-                legend_colour_chooser.css("visibility","hidden");             
-        }
-        
-        
-        function loadNewickFile(file,callback){               
-                var reader = new FileReader();
-                reader.onload = function(progressEvent){
-                        var data ={nwk:this.result};
-                        loadMSTree(data);
-                        if (callback){
-                                callback();
-                        }
+             
+                
+                var min = tree.min_link_distance;
+                if (min<1){
+                        collapse_scale = 1/min;
                 }
-                reader.readAsText(file);
-        }
-        
-        function loadNexusFile(file,callback){
-                var reader = new FileReader();
-                reader.onload = function(progressEvent){
-                        var data ={nexus:this.result};
-                        loadMSTree(data);    
-                        if (callback){
-                                callback();
-                        }
+                var max = (tree.max_link_distance)*collapse_scale;
+                var step = max/100;
+                $( "#slider-collapse-nodes" ).slider({
+                        min:0,
+                        max: max,
+                        value: tree.node_collapsed_value*collapse_scale,
+                        step:step
+              });
+          
+                        tree.centerGraph();
+                if (current_metadata_file){
+                       
+                        loadMetadataFile(current_metadata_file);                
                 }
-                reader.readAsText(file);
+                 $("#waiting-information").text("Complete. Tree has "+tree.force_nodes.length+" nodes");
+                 $("#waiting-image").attr("src","js/img/ms_complete_1.png");
+               // legend_colour_chooser.hide();
+                
         }
         
-        function loadJSONFile(file,callback){
-                var reader = new FileReader();
-                reader.onload = function(progressEvent){
-                        var data =JSON.parse(this.result);
-                        loadMSTree(data);    
-                        if (callback){
-                                callback();
-                        }
+        function treeLoading(tree,msg){
+                if (msg==='complete'){
+                        treeLoaded(tree);
                 }
-                reader.readAsText(file);
+                else{
+                        
+                        $("#waiting-information").text(msg)
+                
+                }
+        
         }
         
         
+        function loadTreeFile(file){
+              showLoadingDialog("Processing "+file.name)
+              //give time to dialog to display
+              setTimeout(function(){
+                        readFile(file,function(tree){
+                                 var data={};
+                                 if (file.name.endsWith("json")){
+                                     data =JSON.parse(tree);      
+                                 } 
+                                 else if (tree.startsWith("#NEXUS")){
+                                         data['nexus']=tree;
+                                 }
+                                 else{
+                                         data['nwk']=tree;
+                                 }
+                                 loadMSTree(data)                
+                        });
+                },500);
+        }
+        
+        function readFile(file,callback){
+                var reader = new FileReader();
+                reader.onload = function(progressEvent){                    
+                        callback(this.result);
+                }
+                reader.readAsText(file); 
+        }
         
         
+       
+        
+        function loadFailed(msg){
+                $("#waiting-image").attr("src","js/img/ms_failed_1.png");
+                $("#waiting-information").text(msg);
+        }
+         
    
         
-        
-        
-        
-        
-        
-        function addDataFromFile(file){
-                var reader = new FileReader();
-                reader.onload = function(progressEvent){
-                        var data =JSON.parse(this.result);
-                       /* var new_identifiers=[];
-                        for (var index in data['identifiers']){
-                                var list = data['identifiers'][index];
-                                if (list.length===0){
-                                        new_identifiers.push("hypothetical_node");
-                                }
-                                else{
-                                        new_identifiers.push("ST"+list[0]);
-                                
-                                }
-                        }
-                        data["identifiers"]=new_identifiers;
-                        */
-                        loadMSTree({data:data});
-                        
-                }
-                reader.readAsText(file);
-}
-        
         function loadMSTree(data){
+              
+                $("#waiting-information").text("Loading Data");
                 the_tree = null;
-                $("#graph-div").empty();
-                the_tree = new D3MSTree(
-                        "graph-div",data                   
-                );
-
-        
-        //set the tooltips
-                the_tree.segmentMouseOver=function(d){
-                        if ($("#show-node-tooltip").prop("checked")){
-                                showToolTip(d.data.type+"("+d.data.value+")");
-                        }
-                };
-                the_tree.segmentMouseOut=function(d){
-                        hideToolTip();	
-                };
-                the_tree.linkMouseOver=function(d){
-                        if ($("#show-link-tooltip").prop("checked")){
-                                showToolTip("length:"+d.value);
-                        }
+                //need a a slight time delay as the above messages will not render untill it is too late
+              
+                //setTimeout(function(e){
+                try{
+                        the_tree = new D3MSTree(
+                        "graph-div",data,function(tree,msg){
+                                treeLoading(tree,msg);
                         
-                };
-                the_tree.linkMouseOut=function(d){
-                        hideToolTip();	
-                };
-                the_tree.resize();
-                if (data['metadata_options']){
-                        metadata_options=data['metadata_options'];
-                        for (var key in metadata_options){
-                                $("#metadata-select").append($("<option>")
-                                               .attr("value",key)
-                                                .text(metadata_options[key]));             
+                        });
+                      
+                        the_tree.segmentMouseOver=function(d){
+                                if ($("#show-node-tooltip").prop("checked")){
+                                        var display = d.data.type;
+                                        if (display === 'missing'){
+                                                display = d.data.idx;
+                                        }
+                                        showToolTip(display+"("+d.data.value+")");
+                                }
+                        };
+                        the_tree.segmentMouseOut=function(d){
+                                 hideToolTip();	
+                        };
+                        the_tree.linkMouseOver=function(d){
+                                if ($("#show-link-tooltip").prop("checked")){
+                                        showToolTip("length:"+d.value);
+                                }
+                        
+                        };
+                        the_tree.linkMouseOut=function(d){
+                                hideToolTip();	
+                        };
+                        the_tree.resize();
+                        if (data['metadata_options']){
+                              
+                                for (var key in data['metadata_options']){
+                                       addMetadataOptions(key,data['metadata_options'][key]);      
+                                }
                         }
+                }catch(e){
+                       console.log(e.message)
+                       loadFailed("The file could not be read. Plase check the format");
+                
                 }
-                treeLoaded();
-               
-     //   var a = $("#metadata-select").clone();
-     //   a.attr("id","node-label-text");
-        
-      //  $("#metadata-placeholder").append(a);
-      //  a.prepend($("<option>").attr("value","Name").text("Strain Name"));
-     //   a.prepend($("<option>").attr("value","node_id").text("ST"));
-     
-     //   a.val("ST");
-    //     a.change(function(e){
-  //              var val = $(this).val();
-        
- //               the_tree.setNodeText(val);
-      //  });
+                
+              //  },100);
         }
- function filesDropped(tree_file,metadata_file,tree_type){
-       if (tree_type==='nexus'){
-                loadNexusFile(tree_file,function(){
-                        if (metadata_file){
-                             loadMetadataFile(metadata_file);
-                        }
-                });
-       
-       }
-       else if (tree_type==='newick'){
-                loadNewickFile(tree_file,function(){
-                        if (metadata_file){
-                             loadMetadataFile(metadata_file);
-                        }
-                });
-           
-       }
-       else if (tree_type==='json'){
-                loadJSONFile(tree_file);     
-       }
+        
+        
+        
+ function filesDropped(files){
+       var tree_file=null;
+       current_metadata_file=null;
+       var profile_file =null
+       for (var i=0;i<files.length;i++){
+                var file = files[i];
+                var file_name =file['name'];
+                var suffix = file_name.split(".");
+                suffix = suffix[suffix.length-1];                   
+                if (suffix==='txt' || suffix === 'csv'){
+                        current_metadata_file=file  
+                }
+                else if (suffix==='profile'){
+                        profile_file=file;
+                }
+                else{
+                      tree_file=file;     
+                }
+        }      
+        if (profile_file){
+                processProfileFile(profile_file);
+        }
+        else{
+                
+                loadTreeFile(tree_file)
+        }
  }
  
  
  
+ function processProfileFile(profile_file){
+       showLoadingDialog("Reading Profile File");
+        readFile(profile_file,function(profile){
+              try{
+                $.ajax({
+                        method: "POST",
+                        url: "/maketree",
+                        data: {profile:profile}
+                }).done(function(result){
+                       loadMSTree({"nwk":result});          
+               }).fail(function( jqXHR, textStatus){
+                        console.log(textStatus);
+                        loadFailed("There server returned an error. Is the profile file in the right format");
+               
+               });
+               }catch(e){
+                        loadFailed("The server could not be contacted");
+               }
+                $("#waiting-information").text("Computing Tree");
+        });
+ };
+ 
+ function showLoadingDialog(msg){
+        $("#welcome-div").hide();
+        $("#graph-div").empty();
+        $("#metadata-select").empty();
+        $("#node-label-text").empty().append($("<option>").val("").text("default"));
+        $("#add-new-values-select").empty();
+        metadata_options={};
+        $("#information-div").modal("show");
+        $("#waiting-image").attr("src","js/img/ms_waiting_1.gif").show();
+        $("#waiting-information").text(msg);
+ 
+ 
+ }
+ 
+ 
+ 
+ 
+ 
  function loadMetadataFile(file){
-        MSCSCReader(file,"\t",function(msg,lines,header_index){
+        var dl = "\t"
+        if (file.name.endsWith(".csv")){
+                dl=",";
+        }
+        MSCSCReader(file,dl,function(msg,lines,header_index){
                 var meta={};
                 for (var i in lines){
                         var line = lines[i];
                         meta[line['ID']]=line;
-                      
+                       
                 }
                 the_tree.addMetadata(meta);
+                var category = null;
                 for (var i in header_index){
                         var header = header_index[i];
-                        if (!metadata_options[header]){
-                                metadata_options[header]=header;
-                                $("#metadata-select").append($("<option>")
-                                               .attr("value",header)
-                                                .text(header));                      
+                        if (header !== 'ID'){
+                                addMetadataOptions(header,header);
+                                if (!category){
+                                        category=header;
+                                }
                         }
-                }   
+                        
+                }
+                $("metadata-select").val(category);
+                the_tree.changeCategory(category);
+                
         });
  }
 
 
 
 window.onload = function (){
-         document.title =  tree_name;
+        //allow dragging and dropping files
         $("#graph-div").on('dragover',function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -761,44 +795,16 @@ window.onload = function (){
                 e.stopPropagation();
                 }
         )
-       
         .on("drop",function(e){
                 e.originalEvent.stopPropagation();
                 e.originalEvent.preventDefault();
                 var files = e.originalEvent.dataTransfer.files;
-        
-                var tree_file=null;
-                var metadata_file = null;
-                var tree_type=null;
-                for (var i=0;i<files.length;i++){
-                        var file = files[i];
-                        var file_name =file['name'];
-                        var suffix = file_name.split(".");
-                        suffix = suffix[suffix.length-1];
-                        if (suffix === 'nwk' || suffix ==='nex' || suffix ==='tre'){
-                                tree_file=file;
-                                tree_type='nexus';
-                                if (suffix==='nwk'){
-                                        tree_type= 'newick';                           
-                                }                    
-                        }
-                        if (suffix==='txt'){
-                                metadata_file=file  
-                        }
-                        if (suffix==='json'){
-                                tree_type="json";
-                                tree_file=file;
-                        }
-                }
-                if (tree_file){
-                        filesDropped(tree_file,metadata_file,tree_type)
-                }
-        
+                filesDropped(files);             
         });
         
                 
        
-                
+        
         $("#upload-metadata-icon").click(function(e){
                 if (!metadata_options['Custom Fields']){
                         Enterobase.modalAlert("Please add a custom field before uplaoding a file containing values for this field");
@@ -813,6 +819,9 @@ window.onload = function (){
         $("#metadata-select").on("change",function(e){
                 the_tree.changeCategory($(this).val());
         });
+        $("#node-label-text").change(function(e){
+               the_tree.setNodeText($(this).val());
+        });
         
         $(window).resize(function(){
                 var winh = ($(window).height())-15;
@@ -825,44 +834,6 @@ window.onload = function (){
         $(window).trigger("resize");
         
        
-        $("#mst-save-layout").click(function(e){
-                var data = the_tree.getLayout();
-                var layout_data =JSON.stringify(data);
-                var metadata= the_tree.getMetadata();
-                var new_metadata = null;
-                
-                if (new_metadata_fields.length>0){
-                        var new_metadata={};
-                        for (var index in metadata){
-                                var item = metadata[index];
-                                var sid = item['StrainID'];
-                                
-                                for (var index2 in new_metadata_fields){
-                                        if (!new_metadata[sid]){
-                                                new_metadata[sid]={};
-                                        }
-                                        var name = new_metadata_fields[index2];
-                                        var value = item[name];
-                                        if (value || value ===0){
-                                                new_metadata[sid][name]=value;
-                                        }
-                                }
-                        }
-                }
-                           
-                var options = JSON.stringify(metadata_options);
-                var to_send = {
-                        id:tree_id,
-                        layout_data:layout_data,
-                        metadata_options:options,
-                        current_metadata:$("#metadata-select").val()
-                };
-                if (new_metadata){
-                        to_send.metadata=JSON.stringify(new_metadata);
-                }
-                
-          
-        });
         $("#mst-download-svg").click(function(e){
                 the_tree.downloadSVG(tree_name);
         });
@@ -961,13 +932,7 @@ window.onload = function (){
                 change: function(){the_tree.alterCharge($("#slider-charge ").slider("value"));}
         });
 
-        $("#node-label-text").change(function(e){
-                var val = $(this).val();
-                if (val ==="cat"){
-                        val = the_tree.display_category;
-                }
-                the_tree.setNodeText(val);
-        });
+        
         
         $("#spinner-maxlinklength").spinner({
                 min:100,
@@ -1036,15 +1001,39 @@ window.onload = function (){
                 max:100
         });
         
+        
+         $( "#slider-collapse-nodes" ).slider({
+                orientation: "horizontal",
+                min:0,
+                max: 100,
+                value: 0,
+                slide:function(){
+                        var val = $("#slider-collapse-nodes").slider("value")/collapse_scale;
+                                $("#spinner-collapse-nodes").val(val);
+                        },
+                change: function(e){
+                        if (e.originalEvent){
+                               var val = $("#slider-collapse-nodes").slider("value")/collapse_scale;
+                                the_tree.collapseNodes(val);
+                               $("#spinner-collapse-nodes").val(val);
+                        }
+                }
+        });
+        
         $("#button-collapse-nodes").click(function(e){
+                  $("#information-div").show();
+                $("#waiting-image").show();
+                $("#waiting-information").text("Loading Data");
+                
                 the_tree.collapseNodes($("#spinner-collapse-nodes").val(),true);
+                  $("#information-div").hide();
         
         });
         
         $("#save-tree-json").click(function(e){
                 var obj= the_tree.getTreeAsObject();
                 obj['metadata_options']=metadata_options;
-                saveTextAsFile(JSON.stringify(obj));
+                saveTextAsFile(JSON.stringify(obj),"ms_tree.json");
         
         });
         

@@ -35,9 +35,10 @@ def generate_tree():
         for id, p in enumerate(profiles) :
             profiles[id] = list(''.join(p))
     else:
-        for line in profile_list:
-            part = line.strip().split()
-            if len(part) > 0:
+        for line in profile_list[1:]:
+            part = line.strip().split("\t")
+            if len(part) > 0 and part[0]:
+                
                 names.append(part[0])
                 profiles.append(part[1:])
     try:
