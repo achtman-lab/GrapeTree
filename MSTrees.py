@@ -1,6 +1,6 @@
 import numpy as np, dendropy as dp, networkx as nx
 from subprocess import Popen, PIPE
-import sys, os, tempfile, platform
+import sys, os, tempfile, platform, re
 
 params = dict(method='MST',
               matrix_type='asymmetric', 
@@ -310,7 +310,8 @@ def backend(**parameters) :
             part = line.strip().split('\t')
             names.append(part[0])
             profiles.append(part[1:])
-
+    for id, n in enumerate(names) :
+        names[id] = re.sub(r'[\(\)\ \,\"\';]', '_', n)
     names, profiles, embeded = nonredundent(np.array(names), np.array(profiles))
     tre = eval('methods.' + params['method'])(names, profiles, **params)
     
