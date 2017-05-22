@@ -325,8 +325,21 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                 }
         
         }
+        var node2link = {};
+        for (index in this.force_links){
+                var link = this.force_links[index];
+                if (! node2link[link.source.id]) {
+                        node2link[link.source.id] = [link];
+                } else {
+                        node2link[link.source.id].push(link);
+                }
+                if (! node2link[link.target.id]) {
+                        node2link[link.target.id] = [link];
+                } else {
+                        node2link[link.target.id].push(link);
+                }
+        }
       
-        
         
         this.node_collapsed_value=max_distance;
         this.force_links.sort(function (link1,link2){
@@ -334,90 +347,78 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
         });
         
    
-        while (this.force_links[0].value<=max_distance){
-                for (var index in this.force_links){
-                        var l = this.force_links[index];
-                       
-                        if (l.value<=max_distance){
-                                var swap=false;
-                               if (l.source.hypothetical && !l.target.hypothetical){                                  
-                                     
-                                       swap=true;
-                               }
-                               l.remove=true;
-                                l.target.remove=true;
-                           
-                                if (!l.source.hypothetical && !l.target.hypothetical){
-                                        this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
+        for (var index in this.force_links){
+                var l = this.force_links[index];
+
+                if (l.value<=max_distance){
+                        l.remove=l.target.remove=true;
+
+                        if (!l.source.hypothetical && !l.target.hypothetical){
+                                this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
+                        }
+                        var increase=l.value
+
+                        if (increase_lengths){
+                                var sister_links = this._getLinksWithSource(node2link, l.source.id,l.target.id);
+                                for (var i in sister_links){
+                                        var ln = sister_links[i];                                     
+                                        ln.value+=increase;
                                 }
-                                var increase=l.value
-                               
-                                
+                        }
+                        for (var i in l.source.children){
+                                if (l.source.children[i].id===l.target.id){
+                                        l.source.children.splice(i,1);
+                                        break;
+                                }
+                        }
+
+                        for (var i in l.target.children){
+                                var child = l.target.children[i];
+                                l.source.children.push(child);
+                                child.parent = l.source;
+                        }
                         
-                                if (increase_lengths){
-                                        var sister_links = this._getLinksWithSource(l.source.id,l.target.id);
-                                        for (var i in sister_links){
-                                                var ln = sister_links[i];                                     
-                                                ln.value+=increase;
-                                        }
-                                }
-                                for (var i in l.target.children){
-                                        var child = l.target.children[i];
-                                        l.source.children.push(child);
-                                        child.parent = l.source;
-                                }
-                                var index_to_remove=0;
-                                for (var i in l.source.children){
-                                        if (l.source.children[i].id===l.target.id){
-                                                index_to_remove=i;
-                                                break;
-                                        }
-                                }
-                                l.source.children.splice(index_to_remove,1);
-                                var child_links = this._getLinksWithSource(l.target.id);
-                                for (var i in child_links){
-                                         var ln = child_links[i];                             
-                                         ln.source=l.source;
-                                         if (increase_lengths){
-                                                ln.value+=increase;
-                                        }
-                                }
-                                if (swap){
-                                        delete l.source.hypothetical
-                                        l.source.id =l.target.id;
-                                }
-                        }            
-                }
-                var temp_force_nodes=this.force_nodes.filter(function( obj ) {
-                        return ! obj.remove;
-                });
-                
-                var temp_force_links= this.force_links.filter(function( obj ) {
-                        return ! obj.remove;
-                })
-                .sort(function (link1,link2){
-                        return link1.value - link2.source;      
-                });
-                this.force_nodes.length=0;
-                for (var i in temp_force_nodes){
-                        this.force_nodes.push(temp_force_nodes[i]);
-                }
-                this.force_links.length=0;
-                for (var i in temp_force_links){
-                        this.force_links.push(temp_force_links[i])
-                }
-              
+                        var child_links = this._getLinksWithSource(node2link, l.target.id, l.source.id);
+                        for (var i in child_links){
+                                 var ln = child_links[i];                             
+                                 ln.source=l.source;
+                                 node2link[l.source.id].push(ln);
+                        }
+
+                        if (l.source.hypothetical && !l.target.hypothetical){
+                                delete l.source.hypothetical;
+                                node2link[l.target.id] = node2link[l.target.id].concat(node2link[l.source.id])
+                                l.source.id =l.target.id;
+                        }
+                }            
         }
+        var temp_force_nodes=this.force_nodes.filter(function( obj ) {
+                return ! obj.remove;
+        });
+
+        var temp_force_links= this.force_links.filter(function( obj ) {
+                return ! obj.remove;
+        })
+        .sort(function (link1,link2){
+                return link1.value - link2.value;      
+        });
+        this.force_nodes.length=0;
+        for (var i in temp_force_nodes){
+                this.force_nodes.push(temp_force_nodes[i]);
+        }
+        this.force_links.length=0;
+        for (var i in temp_force_links){
+                this.force_links.push(temp_force_links[i]);
+        }
+              
          for (var i  in this.force_nodes){
                 var node = this.force_nodes[i];
                 var pos = this.original_node_positions[node.id];
                 if (! pos){
                         continue;
                 }
-                node.x=pos[0];
-                node.px=pos[0];
-                node.y=pos[1];
-                node.py=pos[1];
+                node.x=node.px=pos[0];
+                node.y=node.py=pos[1];
         
         }
         this._updateNodeRadii();
@@ -426,24 +427,18 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
 
 
 
-D3MSTree.prototype._getLinksWithSource =function(source_id,exclude_target_id){
-        var links=[];
-        for (index in this.force_links){
-                var link = this.force_links[index];
-                if (link.source.id === source_id){
-                        if (exclude_target_id ===link.target.id){
-                                continue;
+D3MSTree.prototype._getLinksWithSource =function(node2link, source_id, exclude_target_id){
+        var links = [];
+        if (exclude_target_id) {
+                for (index in node2link[source_id]) {
+                        var link = node2link[source_id][index];
+                        if (link.source.id != exclude_target_id && link.target.id != exclude_target_id) {
+                                links.push(link)
                         }
-                        links.push(link)
                 }
-        
         }
         return links;
-
 }
-
-
-
 
 D3MSTree.prototype._getLinkDistance = function(source_id,target_id){
         for (var i in this.force_links){
