@@ -144,15 +144,17 @@ function D3MSTree(element_id,data,callback,height,width){
                 this.original_node_positions=data['layout_data']['node_positions'];
                 if (data['layout_data']['nodes_links']){
                            this.node_collapsed_value=data['layout_data']['nodes_links']['node_collapsed_value'];
+                } else {
+                        this.node_collapsed_value=1e-8;
                 }
-        }
+        } 
       
         if (callback){
                 callback(this,"Collapsing Nodes:"+this.original_nodes.length);
         
         }
         
-        this._collapseNodes(this.node_collapsed_value,this.node_collapsed_value);              
+        this._collapseNodes(this.node_collapsed_value, this.node_collapsed_value);              
         if (callback){
                 callback(this,"Nodes"+this.force_nodes.length);
         }
