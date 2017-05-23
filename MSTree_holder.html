@@ -722,7 +722,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                                        addMetadataOptions(key,data['metadata_options'][key]);      
                                 }
                         }
-			if (data['layout_data']){
+			if (data['layout_data'] && data['layout_data']['nodes_links']){
 				setControlPanel(data['layout_data']['nodes_links'])
 			}
 			else{
@@ -730,7 +730,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 				setControlPanel(default_control_panel_values);
 			}
                 }catch(e){
-                       console.log(e.message)
+                       console.log(e.message);
+		       console.log(e.stacktrace);
                        loadFailed("The file could not be read. Plase check the format");
                 
                 }
