@@ -50,7 +50,7 @@ def install_static():
     shutil.copyfile('MSTree_holder.html',
                     'grapetree/templates/MSTree_launch.html')
 
-if __name__ == "__main__":
+def main() :
     try:
         start_time = time.time()
         desc = __doc__.split('\n\n')[1].strip()
@@ -87,3 +87,6 @@ if __name__ == "__main__":
         print str(e)
         traceback.print_exc()
         os._exit(1)
+
+if __name__ == "__main__":
+	main();

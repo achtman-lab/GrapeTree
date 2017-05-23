@@ -193,7 +193,7 @@ same node i.e have the same ID
                        <input type='text' style='width:35px;height:15px' id ='spinner-maxlinklength'>
                        <button id ='button-setmaxlinklength'>Go</button>
                        <br>
-                       <label><input id ='show-link-labels'type="checkbox" checked /> Link Labels</label>
+                       <label><input id ='show-link-labels'type="checkbox" /> Link Labels</label>
                        <br>
                        <label>Font Size</label>
                        <br>
@@ -928,7 +928,7 @@ window.onload = function (){
         $( "#slider-linklength" ).slider({
                 orientation: "horizontal",
                 min:50,
-                max: 10000,
+                max: 50000,
                 value: 500,
                 slide:function(){the_tree.setLinkLength($("#slider-linklength").slider("value"));
 										$(this).attr("title", $(this).slider("value"));

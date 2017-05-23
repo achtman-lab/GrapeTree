@@ -3,11 +3,16 @@ from subprocess import Popen, PIPE
 import sys, os, tempfile, platform, re
 
 params = dict(method='MST',
-              
-              
+              matrix_type='asymmetric', 
+              edge_weight = 'harmonic', 
+              neighbor_branch_reconnection='T',
+              NJ_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme.exe'), 
+              NJ_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-osx'), 
+              NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32'),
               edmonds_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds.exe'), 
               edmonds_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-osx'), 
-              edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux'))
+              edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux')
+			 )
 
 class distance_matrix(object) :
     @staticmethod
@@ -302,7 +307,7 @@ def backend(**parameters) :
         for id, p in enumerate(profiles) :
             profiles[id] = list(''.join(p))
     else :
-        for line in fin[1:] :
+        for line in fin[(line_id-1):] :
             part = line.strip().split('\t')
             if not part[0]:
                 continue
