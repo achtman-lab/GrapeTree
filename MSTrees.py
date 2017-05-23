@@ -307,7 +307,7 @@ def backend(**parameters) :
         for id, p in enumerate(profiles) :
             profiles[id] = list(''.join(p))
     else :
-        for line in fin[1:] :
+        for line in fin[(line_id-1):] :
             part = line.strip().split('\t')
             if not part[0]:
                 continue
