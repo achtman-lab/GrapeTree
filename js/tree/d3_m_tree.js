@@ -23,6 +23,7 @@ D3MSTree.prototype.constructor = D3MSTree;
 * @param {integer} width - the initial width  (optional)
 */
 function D3MSTree(element_id,data,callback,height,width){
+        
         D3BaseTree.call(this,element_id,data['metadata'],height,width);
         var self =this;
         this.tempy=1;
@@ -110,8 +111,11 @@ function D3MSTree(element_id,data,callback,height,width){
                 else{
                         root = this.parseNewick(data['nwk']);   
                 }
+                
                 this.createLinksFromNewick(root);
-                var radialTree = d3.layout.tree()
+                data['layout_data']= {'node_positions':this.greedy_layout(root)};
+
+                /*var radialTree = d3.layout.tree()
                 .size([360,400 ])
                 .separation(function(a, b) {
                         return (a.parent == b.parent ? 1 : 2) / a.depth;
@@ -129,12 +133,8 @@ function D3MSTree(element_id,data,callback,height,width){
                         }              
                         positions[name]=[x_y[0],x_y[1]];
                  }
-                data['layout_data']= null;
-              
-               
-        }
-     
-        else{
+                data['layout_data']= null;*/
+        } else {
                 this.original_nodes=data['nodes'];
                 this.original_links=data['links'];
         }
@@ -170,6 +170,122 @@ function D3MSTree(element_id,data,callback,height,width){
         this._updateNodeRadii();
         this._start(callback,data['layout_data'],positions);
 };
+
+D3MSTree.prototype.greedy_layout = function(tree) {
+        nodes = _traverse(tree);
+        // determine minimum params
+        var min_radial = 99999.0, min_angle = 0.0;
+        for (id in nodes) {
+                node = nodes[id];
+                if (node.length > 0 && node.length < min_radial) {
+                        min_radial = node.length;
+                }
+                if (! node.children) {
+                        min_angle += 1;
+                }
+        }
+        min_radial = min_radial/10, min_angle = Math.PI / min_angle*5;
+        // get radius of descendents
+        for (var id = nodes.length-1; id >= 0; id --) {
+                node = nodes[id];
+                node.spacing = min_angle;
+
+                if (! node.children) {
+                        node.des_span = [min_radial, min_angle];
+                } else {
+                        var radial_sum = 0, angle_sum = 0; 
+                        for (var jd in node.children) {
+                                child = node.children[jd];
+                                if (Math.cos(Math.PI - child.des_span[1]) > child.des_span[0] / (child.length+min_radial) ) {
+                                        if (child.des_span[0] < child.length+min_radial) {
+                                                var span = [child.length+min_radial, Math.asin(child.des_span[0] / child.length+min_radial)];
+                                        } else {
+                                                var span = to_Polar(to_Cartesian(child.des_span), [-(child.length + min_radial), 0]);
+                                                span[0] = child.des_span[0];
+                                        }
+                                } else {
+                                        var span = to_Polar(to_Cartesian(child.des_span), [-(child.length + min_radial), 0]);
+                                        if (span[0] < child.length+min_radial) {
+                                                span[0] = child.length+min_radial;
+                                        }
+                                }
+                                child.self_span = [span[0], span[1]];
+                                angle_sum += span[1] + min_angle;
+                                radial_sum += span[0] * (span[1]+min_angle);
+                        }
+                        node.des_span = [radial_sum/angle_sum, angle_sum];
+                }
+        }
+        nodes[0].anc_span = [0, 0];
+        // get radius of ancestral
+        for (var id=1; id < nodes.length; ++id) {
+                node = nodes[id];
+                var radial_sum = node.parent.anc_span[0]*node.parent.anc_span[1], angle_sum = node.parent.anc_span[1];
+                for (var jd=0; jd < node.parent.children.length; jd ++) {
+                        sister = node.parent.children[jd];
+                        if (sister.name != node.name) {
+                                radial_sum += sister.self_span[0]*sister.self_span[1], angle_sum += sister.self_span[1];
+                        }
+                }
+                var span = [radial_sum/angle_sum, angle_sum];
+                if (Math.cos(Math.PI - span[1]) > span[0] / (node.length + min_radial)) {
+                        if (span[0] < node.length+min_radial) {
+                                var anc_span = [node.length+min_radial, Math.sin(span[0]/node.length+min_radial)];
+                        } else {
+                                var anc_span = to_Polar(to_Cartesian(span), [-(node.length + min_radial), 0]);
+                                anc_span[0] = span[0];
+                        }
+                } else {
+                        var anc_span = to_Polar(to_Cartesian(span), [-(node.length + min_radial), 0]);
+                        if (anc_span[0] < node.length+min_radial) {
+                                anc_span[0] = node.length+min_radial;
+                        }
+                }
+                node.anc_span = [anc_span[0], anc_span[1]];
+        }
+        /// dynamic update local nodes
+        // convert to cartesian
+        nodes[0].polar = [0, 0];
+        nodes[0].coordinates = [0, 0];
+        coordinates = {};
+        coordinates[nodes[0].name] = nodes[0].coordinates;
+        for (var id=0; id < nodes.length; ++id) {
+                node = nodes[id];
+                var initial_angle = -node.des_span[1];
+                if (node.children) {
+                        for (var jd=0; jd < node.children.length; ++ jd) {
+                                child = node.children[jd];
+                                child.polar = [child.length + min_radial, initial_angle + child.self_span[1] + min_angle + node.polar[1]];
+                                initial_angle += (child.self_span[1] + min_angle)*2;
+                                child.coordinates = to_Cartesian(child.polar);
+                                child.coordinates[0] += node.coordinates[0], child.coordinates[1] += node.coordinates[1];
+                        }
+                }
+                console.log(node);
+                coordinates[node.name] = node.coordinates;
+                
+        }
+        console.log(nodes);
+        return coordinates;
+}
+
+_traverse = function(tree) {
+        nodes = [tree];
+        for (id in tree['children']) {
+            tree['children'][id]['parent'] = tree;
+            nodes = nodes.concat(_traverse(tree['children'][id]));
+        }
+        return nodes;
+}
+to_Cartesian = function(coord, center=[0, 0]) {
+    var r = coord[0], theta = coord[1];
+    return [r*Math.cos(theta) + center[0], r*Math.sin(theta) + center[1]];
+}
+to_Polar = function(coord, center=[0, 0]) {
+    var x = coord[0] - center[0], y = coord[1] - center[1];
+    return [Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)), Math.atan2(y, x)];
+}
+
 
 D3MSTree.prototype.getRadialCoordinates= function(angle,radius){
           var c0 = Math.cos(angle = (angle- 90) / 180 * Math.PI),
