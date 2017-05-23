@@ -463,11 +463,11 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                         node2link[link.target.id].push(link);
                 }
         }
-      
+
         
         this.node_collapsed_value=max_distance;
         this.force_links.sort(function (link1,link2){
-                return link1.value - link2.value;      
+                return link1.value - link2.value;
         });
         
    
@@ -480,15 +480,8 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                         if (!l.source.hypothetical && !l.target.hypothetical){
                                 this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
                         }
-                        var increase=l.value
+                        var increase=l.value;
 
-                        if (increase_lengths){
-                                var sister_links = this._getLinksWithSource(node2link, l.source.id,l.target.id);
-                                for (var i in sister_links){
-                                        var ln = sister_links[i];                                     
-                                        ln.value+=increase;
-                                }
-                        }
                         for (var i in l.source.children){
                                 if (l.source.children[i].id===l.target.id){
                                         l.source.children.splice(i,1);
@@ -506,6 +499,9 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                         for (var i in child_links){
                                  var ln = child_links[i];                             
                                  ln.source=l.source;
+                                 if (l.target.hypothetical) {
+                                         ln.value += increase;
+                                 }
                                  node2link[l.source.id].push(ln);
                         }
 
@@ -556,7 +552,7 @@ D3MSTree.prototype._getLinksWithSource =function(node2link, source_id, exclude_t
         if (exclude_target_id) {
                 for (index in node2link[source_id]) {
                         var link = node2link[source_id][index];
-                        if (link.source.id != exclude_target_id && link.target.id != exclude_target_id) {
+                        if (! link['remove'] && link.source.id != exclude_target_id && link.target.id != exclude_target_id) {
                                 links.push(link)
                         }
                 }
@@ -1302,7 +1298,7 @@ D3MSTree.prototype._showLinkLabels = function(){
                                         attr('font-size', this.link_font_size).attr('font-family', 'sans-serif').
                                         style('fill', 'gray').style('stroke', 'black').style('stroke-width', '.25px').
                                         text(function(it){
-                                                 return it.value;
+                                                 return it.value.toPrecision(2);
                                         });
      
 }
