@@ -141,7 +141,7 @@ function D3MSTree(element_id,data,callback,height,width){
         
         }
         
-        this._collapseNodes(this.node_collapsed_value, this.node_collapsed_value);              
+        this._collapseNodes(this.node_collapsed_value, data['layout_data']['node_positions']);
         if (callback){
                 callback(this,"Nodes"+this.force_nodes.length);
         }
@@ -163,17 +163,17 @@ function D3MSTree(element_id,data,callback,height,width){
 D3MSTree.prototype.greedy_layout = function(nodes) {
         
         // determine minimum params
-        var min_radial = 99999.0, min_angle = 0.0;
+        var max_radial = 0.0, min_angle = 0.0;
         for (id in nodes) {
                 node = nodes[id];
-                if (node.length > 0 && node.length < min_radial) {
-                        min_radial = node.length;
+                if (node.length > max_radial) {
+                        max_radial = node.length;
                 }
                 if (! node.children) {
                         min_angle += 1;
                 }
         }
-        min_radial = min_radial/10, min_angle = Math.PI / min_angle;
+        min_radial = max_radial/30, min_angle = Math.PI / min_angle;
         //console.log(min_angle);
         for (var ite = 0; ite < 10; ++ ite) {
                 // get radius of descendents
@@ -196,7 +196,7 @@ D3MSTree.prototype.greedy_layout = function(nodes) {
                                         child.self_span = [span[0], span[1]];
                                         angle_sum += span[1] + min_angle;
                                         radial_sum += span[0] * (span[1]+min_angle);
-                                        if (span[0] > radial_sum) radial_sum = span[0];
+                                        //if (span[0] > radial_sum) radial_sum = span[0];
                                 }
                                 node.des_span = [radial_sum/angle_sum, angle_sum];
                                 if (node.des_span[1] > Math.PI) {
@@ -250,18 +250,29 @@ D3MSTree.prototype.greedy_layout = function(nodes) {
         coordinates[nodes[0].id] = nodes[0].coordinates;
         for (var id=0; id < nodes.length; ++id) {
                 node = nodes[id];
-                var initial_angle = -node.des_span[1];
-                if (node.children) {
+                coordinates[node.id] = node.coordinates;
+                if (id > 0) {
+                        var initial_angle = -node.des_span[1];
+                        if (node.children) {
+                                for (var jd=0; jd < node.children.length; ++ jd) {
+                                        child = node.children[jd];
+                                        child.polar = [child.length + min_radial, initial_angle + child.self_span[1] + min_angle + node.polar[1]];
+                                        initial_angle += (child.self_span[1] + min_angle)*2;
+                                        child.coordinates = to_Cartesian(child.polar);
+                                        child.coordinates[0] += node.coordinates[0], child.coordinates[1] += node.coordinates[1];
+                                }
+                        }
+                } else {
+                        var gap = Math.max(0, (Math.PI - node.des_span[1]) / node.children.length);
+                        var initial_angle = 0;
                         for (var jd=0; jd < node.children.length; ++ jd) {
                                 child = node.children[jd];
                                 child.polar = [child.length + min_radial, initial_angle + child.self_span[1] + min_angle + node.polar[1]];
-                                initial_angle += (child.self_span[1] + min_angle)*2;
+                                initial_angle += (child.self_span[1] + min_angle + gap)*2;
                                 child.coordinates = to_Cartesian(child.polar);
                                 child.coordinates[0] += node.coordinates[0], child.coordinates[1] += node.coordinates[1];
                         }
                 }
-                coordinates[node.id] = node.coordinates;
-                
         }
         return coordinates;
 }
@@ -413,22 +424,23 @@ D3MSTree.prototype._start= function(callback,layout_data,positions){
 }
 
 D3MSTree.prototype.collapseNodes= function(max_distance,increase_lengths){
-        this._collapseNodes(max_distance,increase_lengths);
-        this._start(null,{"node_positions":this.original_node_positions,"scale":this.scale,"translate":this.translate});
+        layout = JSON.parse(JSON.stringify(this.original_node_positions));
+        this._collapseNodes(max_distance, layout);
+        this._start(null,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
         //this.unfixSelectedNodes(true);        
         //this.refreshGraph();
        
 
 }
 
-D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
+D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         //store the pooition of the original nodes
         if (this.node_collapsed_value===0){   
                 for (var i in this.force_nodes){
                         var node = this.force_nodes[i];
                         this.original_node_positions[node.id]=[node.x,node.y];
                 }
-        
+                layout = JSON.parse(JSON.stringify(this.original_node_positions));
         }
 
       if (max_distance<=this.node_collapsed_value){
@@ -441,7 +453,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                 }
         
         }
-        var node2link = {};
+        var node2link = {}, anc_link = {};
    
         for (index in this.force_links){
                 var link = this.force_links[index];
@@ -450,11 +462,10 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                 } else {
                         node2link[link.source.id].push(link);
                 }
-                if (! node2link[link.target.id]) {
-                        node2link[link.target.id] = [link];
-                } else {
-                        node2link[link.target.id].push(link);
+                if (! link.target.children) {
+                        node2link[link.target.id] = [];
                 }
+                anc_link[link.target.id] = link;
              
         }
 
@@ -465,7 +476,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                 return link1.value - link2.value;
         });
         
-   
+        if (1) {
         for (var index in this.force_links){
                 var l = this.force_links[index];
 
@@ -490,23 +501,28 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                                 child.parent = l.source;
                         }
                         
-                        var child_links = this._getLinksWithSource(node2link, l.target.id, l.source.id);
+                        var child_links = node2link[l.target.id];
                         for (var i in child_links){
-                                 var ln = child_links[i];                             
-                                 ln.source=l.source;
-                                 if (l.target.hypothetical) {
-                                         ln.value += increase;
+                                 var ln = child_links[i];
+                                 if (! ln.remove) {
+                                         ln.source=l.source;
+                                         if (l.target.hypothetical) {
+                                                 ln.value += increase;
+                                         }
+                                         node2link[l.source.id].push(ln);
                                  }
-                                 node2link[l.source.id].push(ln);
                         }
 
                         if (l.source.hypothetical && !l.target.hypothetical){
                                 delete l.source.hypothetical;
-                                node2link[l.target.id] = node2link[l.target.id].concat(node2link[l.source.id])
+                                node2link[l.target.id] = node2link[l.target.id].concat(node2link[l.source.id]);
+                                if (anc_link[l.source.id]) anc_link[l.source.id].value += increase;
+                                anc_link[l.target.id] = anc_link[l.source.id];
+                                layout[l.target.id] = layout[l.source.id];
                                 l.source.id =l.target.id;
                         }
                 }            
-        }
+        }}
         var temp_force_nodes=this.force_nodes.filter(function( obj ) {
                 return ! obj.remove;
         });
