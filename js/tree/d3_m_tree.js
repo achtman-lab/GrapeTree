@@ -163,17 +163,17 @@ function D3MSTree(element_id,data,callback,height,width){
 D3MSTree.prototype.greedy_layout = function(nodes) {
         
         // determine minimum params
-        var min_radial = 99999.0, min_angle = 0.0;
+        var max_radial = 0.0, min_angle = 0.0;
         for (id in nodes) {
                 node = nodes[id];
-                if (node.length > 0 && node.length < min_radial) {
-                        min_radial = node.length;
+                if (node.length > max_radial) {
+                        max_radial = node.length;
                 }
                 if (! node.children) {
                         min_angle += 1;
                 }
         }
-        min_radial = min_radial/10, min_angle = Math.PI / min_angle;
+        min_radial = max_radial/30, min_angle = Math.PI / min_angle;
         //console.log(min_angle);
         for (var ite = 0; ite < 10; ++ ite) {
                 // get radius of descendents
@@ -196,7 +196,6 @@ D3MSTree.prototype.greedy_layout = function(nodes) {
                                         child.self_span = [span[0], span[1]];
                                         angle_sum += span[1] + min_angle;
                                         radial_sum += span[0] * (span[1]+min_angle);
-                                        if (span[0] > radial_sum) radial_sum = span[0];
                                 }
                                 node.des_span = [radial_sum/angle_sum, angle_sum];
                                 if (node.des_span[1] > Math.PI) {
