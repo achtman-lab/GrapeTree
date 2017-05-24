@@ -73,7 +73,7 @@ pytest
 
 
 ## License
-Copyright Martin Sergeant, Nabil-Fareed Alikhan, Zhemin Zhou (2017)
+Copyright Warwick University
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose. See the GNU General Public License for more details.
@@ -85,4 +85,4 @@ You should have received a copy of the GNU General Public License along with thi
 EnteroMSTree - GrapeTree has not been formally published yet. If you use GrapeTree please cite the website directly: https://github.com/martinSergeant/EnteroMSTree.
 
 An extended citation could be:
-   MJ Sergeant, NF Alikhan, Z Zhou (2017) "GrapeTree: Phylogenetic visualisation for large genomic datasets", Available: https://github.com/martinSergeant/EnteroMSTree
+Z Zhou,  MJ Sergeant, NF Alikhan, M Achtman  (2017) "GrapeTree: Phylogenetic visualisation for large genomic datasets", Available: https://github.com/martinSergeant/EnteroMSTree
