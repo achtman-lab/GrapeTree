@@ -123,19 +123,19 @@ To get started Drag and drop files into the browser window
 .txt,.csv,.profile and .json
 </li>
 <li>
-<b>Profile Files (.profile)</b> These are tab delimited text with columns as alleles and strains as rows (see the exanples).
+<b>Profile Files (.profile)</b> These are tab delimited text with columns as alleles and strains as rows (see the examples).
 This requires the local server to be running
 </li>
 <li><b>Custom Format(.json)</b> Files genereated by this program which contain 
-the tree data as well as display parameters and any metadata
+the tree data as well as display information and any metadata
 </li>
 </ul>
 <h4>Metadata</h4>
 <ul>
 <li>
 <b>Metadata files(.txt or.csv)</b> The file should have 
-one column ID which corresponds to the node identifier the tree. Multiple records can be linked to the
-same node i.e have the same ID
+one column 'ID' which corresponds to the node identifier in the tree. Multiple records can be linked to the
+same node i.e have the same ID but then the file must have a coulmn 'Name' in which every entry is unique
 </li>
 </ul>
 </div>
@@ -730,7 +730,8 @@ same node i.e have the same ID
 				setControlPanel(default_control_panel_values);
 			}
                 }catch(e){
-                       console.log(e.message)
+                       console.log(e.message);
+		       console.log(e.stacktrace);
                        loadFailed("The file could not be read. Plase check the format");
                 
                 }
@@ -823,9 +824,15 @@ same node i.e have the same ID
         }
         MSCSCReader(file,dl,function(msg,lines,header_index){
                 var meta={};
+		
                 for (var i in lines){
                         var line = lines[i];
-                        meta[line['ID']]=line;
+			if (line['Name']){
+				meta[line['Name']]=line;
+			}
+			else{
+				meta[line['ID']]=line;
+			}
                        
                 }
                 the_tree.addMetadata(meta);

@@ -61,10 +61,6 @@ def main() :
                             version='%(prog)s ' + __version__)
         parser.add_argument('-o', '--output', action='store',
                             help='output prefix')
-#        parser.add_argument ('arg1', action='store', type=int,
-#        help='First positional argument (INT)')
-#        parser.add_argument ('arg2', action='store',
-#        help='2nd positional argument (STRING)')
         args = parser.parse_args()
         if args.verbose:
             print "Executing @ " + time.asctime()
