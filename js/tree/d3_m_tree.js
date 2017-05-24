@@ -452,7 +452,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                 }
         
         }
-        var node2link = {};
+        var node2link = {}, anc_link = {};
    
         for (index in this.force_links){
                 var link = this.force_links[index];
@@ -461,11 +461,10 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                 } else {
                         node2link[link.source.id].push(link);
                 }
-                if (! node2link[link.target.id]) {
-                        node2link[link.target.id] = [link];
-                } else {
-                        node2link[link.target.id].push(link);
+                if (! link.target.children) {
+                        node2link[link.target.id] = [];
                 }
+                anc_link[link.target.id] = link;
              
         }
 
@@ -501,19 +500,23 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                                 child.parent = l.source;
                         }
                         
-                        var child_links = this._getLinksWithSource(node2link, l.target.id, l.source.id);
+                        var child_links = node2link[l.target.id];
                         for (var i in child_links){
-                                 var ln = child_links[i];                             
-                                 ln.source=l.source;
-                                 if (l.target.hypothetical) {
-                                         ln.value += increase;
+                                 var ln = child_links[i];
+                                 if (! ln.remove) {
+                                         ln.source=l.source;
+                                         if (l.target.hypothetical) {
+                                                 ln.value += increase;
+                                         }
+                                         node2link[l.source.id].push(ln);
                                  }
-                                 node2link[l.source.id].push(ln);
                         }
 
                         if (l.source.hypothetical && !l.target.hypothetical){
                                 delete l.source.hypothetical;
-                                node2link[l.target.id] = node2link[l.target.id].concat(node2link[l.source.id])
+                                node2link[l.target.id] = node2link[l.target.id].concat(node2link[l.source.id]);
+                                anc_link[l.source.id].value += increase;
+                                anc_link[l.target.id] = anc_link[l.source.id];
                                 l.source.id =l.target.id;
                         }
                 }            
