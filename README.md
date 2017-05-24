@@ -1,6 +1,8 @@
 # EnteroMSTree - GrapeTree
 
 This is a stand alone version of the tree viewer in Enterobase (http://enterobase.warwick.ac.uk)
+It consists of an HTML and JavaScrript front end for viewing and manipulating trees 
+and a backend written in Python and C for calculations.
 
 
 ## Installation 
@@ -14,6 +16,9 @@ chmod +x binaries/
 
 ```
 On Linx or MacOSX you need to make sure the binaries in binaries/ can be executed.
+
+If you just one to view and manupulate trees, without processing profile/fasta files,
+it can simply be run by opening MSTree_holder.html in a browser.
 
 
 ## Usage - Webapplication (GrapeTree)
