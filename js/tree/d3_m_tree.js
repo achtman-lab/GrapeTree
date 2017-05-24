@@ -196,6 +196,7 @@ D3MSTree.prototype.greedy_layout = function(nodes) {
                                         child.self_span = [span[0], span[1]];
                                         angle_sum += span[1] + min_angle;
                                         radial_sum += span[0] * (span[1]+min_angle);
+                                        //if (span[0] > radial_sum) radial_sum = span[0];
                                 }
                                 node.des_span = [radial_sum/angle_sum, angle_sum];
                                 if (node.des_span[1] > Math.PI) {
@@ -267,8 +268,7 @@ D3MSTree.prototype.greedy_layout = function(nodes) {
                         for (var jd=0; jd < node.children.length; ++ jd) {
                                 child = node.children[jd];
                                 child.polar = [child.length + min_radial, initial_angle + child.self_span[1] + min_angle + node.polar[1]];
-                                initial_angle += (child.self_span[1] + min_angle)*2;
-                                initial_angle += (child.self_span[1] + min_angle )*2;
+                                initial_angle += (child.self_span[1] + min_angle + gap)*2;
                                 child.coordinates = to_Cartesian(child.polar);
                                 child.coordinates[0] += node.coordinates[0], child.coordinates[1] += node.coordinates[1];
                         }
@@ -476,7 +476,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                 return link1.value - link2.value;
         });
         
-   
+        if (1) {
         for (var index in this.force_links){
                 var l = this.force_links[index];
 
@@ -517,7 +517,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                                 l.source.id =l.target.id;
                         }
                 }            
-        }
+        }}
         var temp_force_nodes=this.force_nodes.filter(function( obj ) {
                 return ! obj.remove;
         });
