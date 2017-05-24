@@ -1,6 +1,7 @@
 # EnteroMSTree - GrapeTree
 
-[![Build Status](https://travis-ci.org/martinSergeant/EnteroMSTree.svg?branch=master)](https://travis-ci.org/martinSergeant/EnteroMSTree)
+This is a stand alone version of the tree viewer in Enterobase (http://enterobase.warwick.ac.uk)
+
 
 ## Installation 
 EnteroMSTree - GrapeTree requires on Python 2.7 and some additional python
