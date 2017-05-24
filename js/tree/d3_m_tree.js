@@ -141,7 +141,7 @@ function D3MSTree(element_id,data,callback,height,width){
         
         }
         
-        this._collapseNodes(this.node_collapsed_value, this.node_collapsed_value);              
+        this._collapseNodes(this.node_collapsed_value, data['layout_data']['node_positions']);
         if (callback){
                 callback(this,"Nodes"+this.force_nodes.length);
         }
@@ -424,22 +424,23 @@ D3MSTree.prototype._start= function(callback,layout_data,positions){
 }
 
 D3MSTree.prototype.collapseNodes= function(max_distance,increase_lengths){
-        this._collapseNodes(max_distance,increase_lengths);
-        this._start(null,{"node_positions":this.original_node_positions,"scale":this.scale,"translate":this.translate});
+        layout = JSON.parse(JSON.stringify(this.original_node_positions));
+        this._collapseNodes(max_distance, layout);
+        this._start(null,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
         //this.unfixSelectedNodes(true);        
         //this.refreshGraph();
        
 
 }
 
-D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
+D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         //store the pooition of the original nodes
         if (this.node_collapsed_value===0){   
                 for (var i in this.force_nodes){
                         var node = this.force_nodes[i];
                         this.original_node_positions[node.id]=[node.x,node.y];
                 }
-        
+                layout = JSON.parse(JSON.stringify(this.original_node_positions));
         }
 
       if (max_distance<=this.node_collapsed_value){
@@ -517,6 +518,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                                 node2link[l.target.id] = node2link[l.target.id].concat(node2link[l.source.id]);
                                 if (anc_link[l.source.id]) anc_link[l.source.id].value += increase;
                                 anc_link[l.target.id] = anc_link[l.source.id];
+                                layout[l.target.id] = layout[l.source.id];
                                 l.source.id =l.target.id;
                         }
                 }            
