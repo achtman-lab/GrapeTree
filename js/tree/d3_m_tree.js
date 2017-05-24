@@ -23,6 +23,7 @@ D3MSTree.prototype.constructor = D3MSTree;
 * @param {integer} width - the initial width  (optional)
 */
 function D3MSTree(element_id,data,callback,height,width){
+        
         D3BaseTree.call(this,element_id,data['metadata'],height,width);
         var self =this;
         this.tempy=1;
@@ -110,33 +111,19 @@ function D3MSTree(element_id,data,callback,height,width){
                 else{
                         root = this.parseNewick(data['nwk']);   
                 }
+                
                 this.createLinksFromNewick(root);
-                var radialTree = d3.layout.tree()
-                .size([360,400 ])
-                .separation(function(a, b) {
-                        return (a.parent == b.parent ? 1 : 2) / a.depth;
-                });
-                var nodes = radialTree.nodes(root);
-                // this.calculateX(0,root);
-               
-                 positions={};
-                 for (var i in nodes){
-                        var node = nodes[i];
-                        var x_y = this.getRadialCoordinates(node.x,node.y)
-                        var name = node.name;
-                        if (this.taxon_key && !name.startsWith("_hypo_")){
-                                name = this.taxon_key[name];
-                        }              
-                        positions[name]=[x_y[0],x_y[1]];
-                 }
-                data['layout_data']= null;
+                var nodes = _traverse(root);
+                data['layout_data']= {'node_positions':this.greedy_layout(nodes)};
+
               
-               
-        }
-     
-        else{
+        } else {
                 this.original_nodes=data['nodes'];
                 this.original_links=data['links'];
+        }
+        for (var i in this.original_nodes){
+                var name = this.original_nodes[i];
+                this.grouped_nodes[name]=[name];
         }
         
         
@@ -144,15 +131,17 @@ function D3MSTree(element_id,data,callback,height,width){
                 this.original_node_positions=data['layout_data']['node_positions'];
                 if (data['layout_data']['nodes_links']){
                            this.node_collapsed_value=data['layout_data']['nodes_links']['node_collapsed_value'];
+                } else {
+                        this.node_collapsed_value=1e-8;
                 }
-        }
+        } 
       
         if (callback){
                 callback(this,"Collapsing Nodes:"+this.original_nodes.length);
         
         }
         
-        this._collapseNodes(this.node_collapsed_value,this.node_collapsed_value);              
+        this._collapseNodes(this.node_collapsed_value, this.node_collapsed_value);              
         if (callback){
                 callback(this,"Nodes"+this.force_nodes.length);
         }
@@ -170,6 +159,130 @@ function D3MSTree(element_id,data,callback,height,width){
         this._updateNodeRadii();
         this._start(callback,data['layout_data'],positions);
 };
+
+D3MSTree.prototype.greedy_layout = function(nodes) {
+        
+        // determine minimum params
+        var min_radial = 99999.0, min_angle = 0.0;
+        for (id in nodes) {
+                node = nodes[id];
+                if (node.length > 0 && node.length < min_radial) {
+                        min_radial = node.length;
+                }
+                if (! node.children) {
+                        min_angle += 1;
+                }
+        }
+        min_radial = min_radial/10, min_angle = Math.PI / min_angle;
+        //console.log(min_angle);
+        for (var ite = 0; ite < 10; ++ ite) {
+                // get radius of descendents
+                for (var id = nodes.length-1; id >= 0; id --) {
+                        node = nodes[id];
+                        if (! node.children) {
+                                node.des_span = [min_radial, min_angle];
+                        } else {
+                                var radial_sum = 0, angle_sum = 0; 
+                                for (var jd in node.children) {
+                                        child = node.children[jd];
+                                        if (Math.cos(Math.PI - child.des_span[1]) > child.des_span[0] / (child.length+min_radial) ) {
+                                                if (child.des_span[0] < child.length+min_radial) {
+                                                        var span = [child.length+min_radial, Math.asin(child.des_span[0] / child.length+min_radial)];
+                                                }
+                                        } else {
+                                                var span = to_Polar(to_Cartesian(child.des_span), [-(child.length + min_radial), 0]);
+                                                span[0] = Math.max(span[0], child.length+min_radial, child.des_span[0]);
+                                        }
+                                        child.self_span = [span[0], span[1]];
+                                        angle_sum += span[1] + min_angle;
+                                        radial_sum += span[0] * (span[1]+min_angle);
+                                        if (span[0] > radial_sum) radial_sum = span[0];
+                                }
+                                node.des_span = [radial_sum/angle_sum, angle_sum];
+                                if (node.des_span[1] > Math.PI) {
+                                        node.des_span[1] = Math.PI;
+                                }
+                        }
+                }
+                
+                // get radius of ancestral
+                max_span = nodes[0].des_span[1];
+                nodes[0].anc_span = [0, 0];
+                for (var id=1; id < nodes.length; ++id) {
+                        node = nodes[id];
+                        var radial_sum = node.parent.anc_span[0]*node.parent.anc_span[1], angle_sum = node.parent.anc_span[1];
+                        for (var jd=0; jd < node.parent.children.length; jd ++) {
+                                sister = node.parent.children[jd];
+                                if (sister.id != node.id) {
+                                        radial_sum += sister.self_span[0]*sister.self_span[1], angle_sum += sister.self_span[1];
+                                }
+                        }
+                        var span = [radial_sum/angle_sum, angle_sum];
+                        if (Math.cos(Math.PI - span[1]) > span[0] / (node.length + min_radial)) {
+                                if (span[0] < node.length+min_radial) {
+                                        var anc_span = [node.length+min_radial, Math.sin(span[0]/node.length+min_radial)];
+                                } else {
+                                        var anc_span = to_Polar(to_Cartesian(span), [-(node.length + min_radial), 0]);
+                                        anc_span[0] = span[0];
+                                }
+                        } else {
+                                var anc_span = to_Polar(to_Cartesian(span), [-(node.length + min_radial), 0]);
+                                if (anc_span[0] < node.length+min_radial) {
+                                        anc_span[0] = node.length+min_radial;
+                                }
+                        }
+                        node.anc_span = [anc_span[0], anc_span[1]];
+                        if (node.anc_span[1] + node.des_span[1] > max_span) {
+                                max_span = node.anc_span[1] + node.des_span[1];
+                        }
+                }
+                if (Math.PI > max_span && Math.PI < 1.1 * max_span) {
+                        break;
+                }
+                min_angle = (Math.PI / max_span) * min_angle;
+                //console.log(min_angle);
+        }
+        /// dynamic update local nodes
+        // convert to cartesian
+        nodes[0].polar = [0, 0];
+        nodes[0].coordinates = [0, 0];
+        coordinates = {};
+        coordinates[nodes[0].id] = nodes[0].coordinates;
+        for (var id=0; id < nodes.length; ++id) {
+                node = nodes[id];
+                var initial_angle = -node.des_span[1];
+                if (node.children) {
+                        for (var jd=0; jd < node.children.length; ++ jd) {
+                                child = node.children[jd];
+                                child.polar = [child.length + min_radial, initial_angle + child.self_span[1] + min_angle + node.polar[1]];
+                                initial_angle += (child.self_span[1] + min_angle)*2;
+                                child.coordinates = to_Cartesian(child.polar);
+                                child.coordinates[0] += node.coordinates[0], child.coordinates[1] += node.coordinates[1];
+                        }
+                }
+                coordinates[node.id] = node.coordinates;
+                
+        }
+        return coordinates;
+}
+
+_traverse = function(tree) {
+        nodes = [tree];
+        for (id in tree['children']) {
+            tree['children'][id]['parent'] = tree;
+            nodes = nodes.concat(_traverse(tree['children'][id]));
+        }
+        return nodes;
+}
+to_Cartesian = function(coord, center=[0, 0]) {
+    var r = coord[0], theta = coord[1];
+    return [r*Math.cos(theta) + center[0], r*Math.sin(theta) + center[1]];
+}
+to_Polar = function(coord, center=[0, 0]) {
+    var x = coord[0] - center[0], y = coord[1] - center[1];
+    return [Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)), Math.atan2(y, x)];
+}
+
 
 D3MSTree.prototype.getRadialCoordinates= function(angle,radius){
           var c0 = Math.cos(angle = (angle- 90) / 180 * Math.PI),
@@ -219,12 +332,13 @@ D3MSTree.prototype._start= function(callback,layout_data,positions){
          
       
         
-        this.canvas.selectAll('.node').remove();
+        //this.canvas.selectAll('.node').remove();
         this.node_elements = this.canvas.selectAll('.node').data(this.force_nodes, function(it){
                 return it.id;
         });
         
         //nodes
+        this.node_elements.exit().remove();
         var new_node_elements = this.node_elements.enter().append('g').attr('class', "node mst-element").attr('id', function(it){
                 return it.id;
         });
@@ -232,7 +346,7 @@ D3MSTree.prototype._start= function(callback,layout_data,positions){
         new_node_elements.append('text').attr('class', 'link-label').attr('text-anchor', 'middle').attr('font-size', '14px').attr('font-family', 'sans-serif').style('fill', 'gray').style('stroke', 'black').style('stroke-width', '.25px').style('opacity', 1).text(function(it){
                 return it.id;
         });
-       
+      
         new_node_elements.call(this.force_drag).
         on('dblclick', function(it){
             
@@ -241,6 +355,7 @@ D3MSTree.prototype._start= function(callback,layout_data,positions){
         });
         
         //initially update all
+        this.node_elements = this.canvas.selectAll('.node')
         this.links_to_display = this.link_elements.filter(function(e){return true;});
         this.nodes_to_display = this.node_elements.filter(function(e){return true;});
         this.d3_force_directed_graph.on('tick', function(){		
@@ -308,142 +423,141 @@ D3MSTree.prototype.collapseNodes= function(max_distance,increase_lengths){
 
 D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
         //store the pooition of the original nodes
-        if (this.node_collapsed_value===0){
-
+        if (this.node_collapsed_value===0){   
                 for (var i in this.force_nodes){
                         var node = this.force_nodes[i];
                         this.original_node_positions[node.id]=[node.x,node.y];
                 }
         
         }
+
       if (max_distance<=this.node_collapsed_value){
                 this._addNodes(this.original_nodes);
                 this._addLinks(this.original_links,this.original_nodes);
                 this.grouped_nodes={};
-                for (var id in this.original_grouped_nodes){
-                        this.grouped_nodes[id]= this.original_grouped_nodes[id];
+                for (var i in this.original_nodes){
+                        var name = this.original_nodes[i];
+                        this.grouped_nodes[name]= [name];
                 }
         
         }
-      
-        
+        var node2link = {};
+   
+        for (index in this.force_links){
+                var link = this.force_links[index];
+                if (! node2link[link.source.id]) {
+                        node2link[link.source.id] = [link];
+                } else {
+                        node2link[link.source.id].push(link);
+                }
+                if (! node2link[link.target.id]) {
+                        node2link[link.target.id] = [link];
+                } else {
+                        node2link[link.target.id].push(link);
+                }
+             
+        }
+
+
         
         this.node_collapsed_value=max_distance;
         this.force_links.sort(function (link1,link2){
-                return link1.value - link2.value;      
+                return link1.value - link2.value;
         });
         
    
-        while (this.force_links[0].value<=max_distance){
-                for (var index in this.force_links){
-                        var l = this.force_links[index];
-                       
-                        if (l.value<=max_distance){
-                                var swap=false;
-                               if (l.source.hypothetical && !l.target.hypothetical){                                  
-                                     
-                                       swap=true;
-                               }
-                               l.remove=true;
-                                l.target.remove=true;
-                           
-                                if (!l.source.hypothetical && !l.target.hypothetical){
-                                        this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
+        for (var index in this.force_links){
+                var l = this.force_links[index];
+
+                if (l.value<=max_distance){
+                        l.remove=l.target.remove=true;
+
+                        if (!l.source.hypothetical && !l.target.hypothetical){
+                                this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
+                        }
+                        var increase=l.value;
+
+                        for (var i in l.source.children){
+                                if (l.source.children[i].id===l.target.id){
+                                        l.source.children.splice(i,1);
+                                        break;
                                 }
-                                var increase=l.value
-                               
-                                
+                        }
+
+                        for (var i in l.target.children){
+                                var child = l.target.children[i];
+                                l.source.children.push(child);
+                                child.parent = l.source;
+                        }
                         
-                                if (increase_lengths){
-                                        var sister_links = this._getLinksWithSource(l.source.id,l.target.id);
-                                        for (var i in sister_links){
-                                                var ln = sister_links[i];                                     
-                                                ln.value+=increase;
-                                        }
-                                }
-                                for (var i in l.target.children){
-                                        var child = l.target.children[i];
-                                        l.source.children.push(child);
-                                        child.parent = l.source;
-                                }
-                                var index_to_remove=0;
-                                for (var i in l.source.children){
-                                        if (l.source.children[i].id===l.target.id){
-                                                index_to_remove=i;
-                                                break;
-                                        }
-                                }
-                                l.source.children.splice(index_to_remove,1);
-                                var child_links = this._getLinksWithSource(l.target.id);
-                                for (var i in child_links){
-                                         var ln = child_links[i];                             
-                                         ln.source=l.source;
-                                         if (increase_lengths){
-                                                ln.value+=increase;
-                                        }
-                                }
-                                if (swap){
-                                        delete l.source.hypothetical
-                                        l.source.id =l.target.id;
-                                }
-                        }            
-                }
-                var temp_force_nodes=this.force_nodes.filter(function( obj ) {
-                        return ! obj.remove;
-                });
-                
-                var temp_force_links= this.force_links.filter(function( obj ) {
-                        return ! obj.remove;
-                })
-                .sort(function (link1,link2){
-                        return link1.value - link2.source;      
-                });
-                this.force_nodes.length=0;
-                for (var i in temp_force_nodes){
-                        this.force_nodes.push(temp_force_nodes[i]);
-                }
-                this.force_links.length=0;
-                for (var i in temp_force_links){
-                        this.force_links.push(temp_force_links[i])
-                }
-              
+                        var child_links = this._getLinksWithSource(node2link, l.target.id, l.source.id);
+                        for (var i in child_links){
+                                 var ln = child_links[i];                             
+                                 ln.source=l.source;
+                                 if (l.target.hypothetical) {
+                                         ln.value += increase;
+                                 }
+                                 node2link[l.source.id].push(ln);
+                        }
+
+                        if (l.source.hypothetical && !l.target.hypothetical){
+                                delete l.source.hypothetical;
+                                node2link[l.target.id] = node2link[l.target.id].concat(node2link[l.source.id])
+                                l.source.id =l.target.id;
+                        }
+                }            
         }
-         for (var i  in this.force_nodes){
+        var temp_force_nodes=this.force_nodes.filter(function( obj ) {
+                return ! obj.remove;
+        });
+
+        var temp_force_links= this.force_links.filter(function( obj ) {
+                return ! obj.remove;
+        });
+       // var node_lengths={};
+        this.force_links.length=0;
+        for (var i in temp_force_links){
+                this.force_links.push(temp_force_links[i]);
+                  // node_lengths[temp_force_links[i].target.id]=link.value;
+        }
+   
+        this.force_nodes.length=0;
+        for (var i in temp_force_nodes){
+                var t_node = temp_force_nodes[i];
+             //   t_node.length=node_lengths[t_node.id];
+                this.force_nodes.push(t_node);
+        }
+     
+     /*   var positions = this.greedy_layout(this.force_nodes);    
+        for (var i  in this.force_nodes){
                 var node = this.force_nodes[i];
-                var pos = this.original_node_positions[node.id];
+                var pos = positions[node.id];
                 if (! pos){
                         continue;
                 }
-                node.x=pos[0];
-                node.px=pos[0];
-                node.y=pos[1];
-                node.py=pos[1];
+                node.x=node.px=pos[0];
+                node.y=node.py=pos[1];
         
         }
+        */
         this._updateNodeRadii();
         
 };
 
 
 
-D3MSTree.prototype._getLinksWithSource =function(source_id,exclude_target_id){
-        var links=[];
-        for (index in this.force_links){
-                var link = this.force_links[index];
-                if (link.source.id === source_id){
-                        if (exclude_target_id ===link.target.id){
-                                continue;
+D3MSTree.prototype._getLinksWithSource =function(node2link, source_id, exclude_target_id){
+        var links = [];
+        if (exclude_target_id) {
+                for (index in node2link[source_id]) {
+                        var link = node2link[source_id][index];
+                        if (! link['remove'] && link.source.id != exclude_target_id && link.target.id != exclude_target_id) {
+                                links.push(link)
                         }
-                        links.push(link)
                 }
-        
         }
         return links;
-
 }
-
-
-
 
 D3MSTree.prototype._getLinkDistance = function(source_id,target_id){
         for (var i in this.force_links){
@@ -706,6 +820,9 @@ D3MSTree.prototype.changeCategory= function(category){
 D3MSTree.prototype._drawNodes=function(){
         var self = this;
         this.node_elements.selectAll('.node-paths').attr('d', this.arc).attr('fill', function(it){
+                if (it.data.node_id){
+                        return self.default_colour;
+                }
                  return self.category_colours[it.data.type];
         });
         this.node_elements.selectAll('.halo')
@@ -725,6 +842,7 @@ D3MSTree.prototype.setNodeText = function(value){
         this._setNodeText();
 }
 
+
 D3MSTree.prototype.getTreeAsObject=function(){
         var obj = {
                 links:this.original_links,
@@ -734,7 +852,6 @@ D3MSTree.prototype.getTreeAsObject=function(){
                 initial_category:this.display_category
         }
         return obj;
-
 
 }
 
@@ -754,11 +871,12 @@ D3MSTree.prototype._setNodeText = function(){
                 return "translate(0," + -self.node_font_size / 3 + ")";
         }).text(function(it){                
                 if (field && field !== "node_id"){
-                        var id_list=self.grouped_nodes[it.id];
-                        if (id_list){                               
-                                var display = self.metadata[id_list[0]][field];
-                                return display?display:"ND";
+                        var meta_ids = self.metadata_map[it.id];
+                        if (meta_ids){
+                                var display = self.metadata[meta_ids[0]][field];
+                                return display?display:"ND"; 
                         }
+                    
                         else{
                                 return "ND";
                         }                    
@@ -783,15 +901,36 @@ D3MSTree.prototype._calculateArc=function(){
 D3MSTree.prototype._getPieData = function(d, category){
         var results =[];
         if (category){
-                var strains = this.grouped_nodes[d.id];
+                //get all nodes assocaited with the master
+                var node_ids = this.grouped_nodes[d.id];
+                //get all the strains 
+                var strains=[];
+                for (var i in node_ids){
+                        var id= node_ids[i];
+                        if (this.metadata_map[id]){
+                                strains = strains.concat(this.metadata_map[id]);
+                        
+                        }
+                        else{
+                               strains.push("missing");
+                        
+                        }
+                }
                 var type_counts={}
                 for (i in strains) {
                         strain = strains[i];
-                        strain_metadata = this.metadata[strain];
-                        if (strain_metadata == null) {
-                                console.log('genome', strain, strain_metadata);
-                        } 
+                       
+                        if (strain == "missing") {
+                              var missing = type_counts['missing']
+                                if (!missing){
+                                        type_counts['missing']=1;                                
+                                }
+                                else{
+                                        type_counts['missing']++;   
+                                }   
+                        }
                         else {
+                                strain_metadata = this.metadata[strain];
                                 var value = strain_metadata[category];                  
                                 if (!value){
                                         var missing = type_counts['missing']
@@ -834,11 +973,25 @@ D3MSTree.prototype._getPieData = function(d, category){
                 }                        
         }
         else{
-                results=[{
-                        value:1,
-                        type:'missing',
-                        idx:d.id               
-                }];      
+                if (this.show_individual_segments){
+                        var strains = this.grouped_nodes[d.id];
+                        for (var i in strains){
+                                results.push({
+                                        value:1,
+                                        type:"node_name",
+                                        idx:d.id,
+                                        node_id:strains[i]
+                                        
+                                });
+                        }
+                }
+                else{
+                        results=[{
+                                value:1,
+                                type:'missing',
+                                idx:d.id               
+                        }];
+                }
         }                
         return this.pie(results);                  
 };
@@ -878,8 +1031,17 @@ D3MSTree.prototype._updateGraph = function(all){
 D3MSTree.prototype._updateNodeRadii=function(){
         for (var i in this.force_nodes){
                 node = this.force_nodes[i];
-                var arr = this.grouped_nodes[node.id]
-                var len = arr?arr.length:1
+                var len=0;
+                var arr = this.grouped_nodes[node.id];
+                for (var ii in arr){
+                       var meta=this.metadata_map[arr[ii]];
+                       if (meta){
+                                len+=meta.length;
+                       }
+                       else{
+                                len++;
+                       }
+                }
                 var  radius =  Math.pow(len, this.size_power)*this.base_node_size;
                 this.node_radii[node.id]=radius;
         }
@@ -889,8 +1051,17 @@ D3MSTree.prototype._updateNodeRadii=function(){
 D3MSTree.prototype._saveNodeRadii=function(){
         for (var i in this.force_nodes){
                 node = this.force_nodes[i];
-                var arr = this.grouped_nodes[node.id]
-                var len = arr?arr.length:1
+                var len=0;
+                var arr = this.grouped_nodes[node.id];
+                for (var ii in arr){
+                       var meta=this.metadata_map[arr[ii]];
+                       if (meta){
+                                len+=meta.length;
+                       }
+                       else{
+                                len++;
+                       }
+                }
                 var  radius =  Math.pow(len, this.size_power)*this.base_node_size;
                 this.previous_node_radii[node.id]=radius;
         }
@@ -917,14 +1088,7 @@ D3MSTree.prototype._addNodes=function(ids){
                  if (id === "hypothetical_node" || id.startsWith("_hypo_node_")){
                         node['hypothetical']=true;
                  }
-                 else{
-                        if (!this.original_grouped_nodes[id]){
-                                
-                                this.original_grouped_nodes[id]=[id];
-                                this.grouped_nodes[id]=[id];
-                                this.metadata[id]={};
-                        }
-                 }
+                
                 this.force_nodes.push(node);    
         }
 }
@@ -937,7 +1101,15 @@ D3MSTree.prototype._findNode=function(id){
               }     
        }
 }
+//update node sizes in case nodes represent more than one entity
+D3MSTree.prototype.addMetadata=function(metadata){
+        D3BaseTree.prototype.addMetadata.call(this,metadata);
+        if (this.original_nodes){
+                this.setNodeSize(this.base_node_size);
+        }
+        
 
+}
 
 
 D3MSTree.prototype._addLinks=function(links,ids){
@@ -1151,13 +1323,12 @@ D3MSTree.prototype.resetLinkLengths=function(){
 
 D3MSTree.prototype.showLinkLabels = function(show){
         this.show_link_labels = show;       
-        this.link_elements.selectAll('.distance-label').transition().style('opacity', show ? 1 : 0);
+        this._showLinkLabels();
 };
 
 
 D3MSTree.prototype._showLinkLabels = function(){
         var self=this;
-        var field =this.node_text_value;
         this.link_elements.selectAll('text').remove();
         if (! this.show_link_labels){
                 return;
@@ -1167,7 +1338,7 @@ D3MSTree.prototype._showLinkLabels = function(){
                                         attr('font-size', this.link_font_size).attr('font-family', 'sans-serif').
                                         style('fill', 'gray').style('stroke', 'black').style('stroke-width', '.25px').
                                         text(function(it){
-                                                 return it.value;
+                                                 return it.value.toPrecision(2);
                                         });
      
 }
@@ -1214,11 +1385,7 @@ D3MSTree.prototype._nodeSizeAltered= function(){
 D3MSTree.prototype.getSelectedIDs=function(){
         var selected = [];
         for (i = 0; i<this.force_nodes.length;i++) {
-                var node = this.force_nodes[i];
-                if (node.selected){
-                        var group = this.grouped_nodes[node.id];
-                        selected=selected.concat(group)  
-                }
+                selected=seleceted.concat(this._getIDsForNode);
         }
         ret_list=[]
         for (var i in selected){
@@ -1477,11 +1644,26 @@ D3MSTree.prototype._unfixAllChildNodes=function(node,count){
 };	
    
 
+D3MSTree.prototype._getIDsForNode= function(node_id){
+        var ids=[]
+        for (var ii in group){
+              var list = this.metadata_map[group[ii]];
+              if (list){
+                      ids = ids.concat(list);
+              
+              }
+              else{
+                      ids.push(group[ii]);
+              }
+        }
+        return ids;
+};
+
 D3MSTree.prototype.highlightIDs = function (IDs){
-        this.clearSelection();
+       this.clearSelection();
        var self = this;
        this._addHalos(function(d){
-                        var group = self.grouped_nodes[d.id];
+                        var group = self.getIDsForNode(d.id)
                         for (var i=0;i<IDs.length;i++){
                                 if (group.indexOf(IDs[i]) !== -1){
                                         return true;
@@ -1596,78 +1778,11 @@ D3MSTree.prototype._dragEnded=function(it){
        this.stopForce();
 }
 
-D3MSTree.prototype.calculatePositions = function(nodes) {
-   var node_positions={};
-    var root_dist = [];
-    root_dist.length = nodes.length;
-    var n_tips = 0, min_length = 9999;
-    for (var id=nodes.length-1; id >= 0; id --) {
-        node = nodes[id];
-        if (node['edge_length'] > 0 && node['edge_length'] < min_length) {
-            min_length = node['edge_length'];
-        }
-    }
-    for (var id=nodes.length-1; id >= 0; id --) {
-        node = nodes[id];
-        id == nodes.length-1 ? dist = 0 : dist = root_dist[node['parent']] + node['edge_length'] + min_length/20;
-        root_dist[id] = dist;
-        if (node['children'] == undefined) {
-            n_tips ++;
-        }
-    }
-    var arc_pos = 0, arc_dist = Math.PI * 2 / n_tips;
-    for (var id=0; id < nodes.length; id ++) {
-        node = nodes[id];
-        if (node.children == undefined) {
-            node['polar'] = [root_dist[id], arc_pos];
-            arc_pos += arc_dist;
-        } else {
-            var arc_x = 0.0;
-            for (var jd=0; jd < node['children'].length; jd ++) {
-                j = node['children'][jd];
-                arc_x += nodes[j]['polar'][1];
-            }
-            node['polar'] = [root_dist[id], arc_x / node['children'].length];
-        }
-        console.log(id, node.name, node.children, to_Cartesian(node.polar), node.polar)
-    }
-    for (id=0; id < nodes.length-1; id ++) {
-        node = nodes[id];
-        node.polar = to_Polar(to_Cartesian(node.polar), to_Cartesian(nodes[node.parent].polar))
-        node.polar[0] = node.edge_length + min_length/20;
-        //node.polar[1] -= nodes[node.parent].polar[1]
-    }
-    nodes[nodes.length-1].coordinates = [0,0]
-    var rn = nodes[nodes.length-1];
-    node_positions[rn.name]=[0,0];
-    for (var id=nodes.length-2; id >= 0; id --) {
-        node = nodes[id];
-        //node.polar[1] += to_Cartesian(nodes[node.parent].coordinates)[1];
-        node.coordinates = to_Cartesian(node.polar);
-        node.coordinates[0] += nodes[node.parent].coordinates[0];
-        node.coordinates[1] += nodes[node.parent].coordinates[1];
-        node_positions[node.name]=[node.coordinates[0]*100 ,node.coordinates[1]*100 ]
-        console.log(id, node.name, node.children, node.coordinates, to_Polar(node.coordinates))
-    }
-    console.log(n_tips);
-    return node_positions;
-}
-
-to_Cartesian = function(coord, center=[0, 0]) {
-    var r = coord[0], theta = coord[1];
-    return [r*Math.cos(theta) + center[0], r*Math.sin(theta) + center[1]]
-}
-to_Polar = function(coord, center=[0, 0]) {
-    var x = coord[0] - center[0], y = coord[1] - center[1];
-    return [Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)), Math.atan2(y, x)]
-}
-
-
 D3MSTree.prototype.createLinksFromNewick=function(node,parent_id){
        
         if (node.children){
                  this.original_nodes.push("_hypo_node_"+ this.original_nodes.length);
-                 node.name = "_hypo_node_"+ (this.original_nodes.length-1);
+                 node.id = "_hypo_node_"+ (this.original_nodes.length-1);
         }
         else{
                 var name = node.name;
@@ -1676,8 +1791,10 @@ D3MSTree.prototype.createLinksFromNewick=function(node,parent_id){
                         if (!name){
                                 name = node.name;
                         }
+                        
                 }
                 this.original_nodes.push(name);
+                node.id = name;
         }
         var node_id = this.original_nodes.length-1;
         if (node_id !=0){
@@ -1731,7 +1848,7 @@ D3MSTree.prototype.brushEnded=function(extent){
                         d.selected=true;
                 }
                 return selected;
-        }).attr("class","selected");
+        }).classed("selected","true");
      
        this._addHalos(function(d){return d.selected},5,"red");
 }

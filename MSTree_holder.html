@@ -123,19 +123,19 @@ To get started Drag and drop files into the browser window
 .txt,.csv,.profile and .json
 </li>
 <li>
-<b>Profile Files (.profile)</b> These are tab delimited text with columns as alleles and strains as rows (see the exanples).
+<b>Profile Files (.profile)</b> These are tab delimited text with columns as alleles and strains as rows (see the examples).
 This requires the local server to be running
 </li>
 <li><b>Custom Format(.json)</b> Files genereated by this program which contain 
-the tree data as well as display parameters and any metadata
+the tree data as well as display information and any metadata
 </li>
 </ul>
 <h4>Metadata</h4>
 <ul>
 <li>
 <b>Metadata files(.txt or.csv)</b> The file should have 
-one column ID which corresponds to the node identifier the tree. Multiple records can be linked to the
-same node i.e have the same ID
+one column 'ID' which corresponds to the node identifier in the tree. Multiple records can be linked to the
+same node i.e have the same ID but then the file must have a coulmn 'Name' in which every entry is unique
 </li>
 </ul>
 </div>
@@ -179,7 +179,7 @@ same node i.e have the same ID
                <div class = "panel-body" id ='mst-link-menu-panel'>	
                        <label>Link Length</label>
                        <br>
-                       <div id = "slider-linklength" class ="slider-class">  </div>
+                       <div title = "500" id = "slider-linklength" class ="slider-class">  </div>
                        <br>
                         <label><input id ='link-log-scale'type="checkbox"  />Log Scale</label>
                         <br>
@@ -193,11 +193,11 @@ same node i.e have the same ID
                        <input type='text' style='width:35px;height:15px' id ='spinner-maxlinklength'>
                        <button id ='button-setmaxlinklength'>Go</button>
                        <br>
-                       <label><input id ='show-link-labels'type="checkbox" checked /> Link Labels</label>
+                       <label><input id ='show-link-labels'type="checkbox" /> Link Labels</label>
                        <br>
                        <label>Font Size</label>
                        <br>
-                       <div id = "slider-linkfontsize" class = "slider-class"></div>
+                       <div title = "14" id = "slider-linkfontsize" class = "slider-class"></div>
                        <br>
                        <label><input id ='show-link-tooltip' type="checkbox" checked /> Show Tooltip</label>
                </div>
@@ -207,18 +207,18 @@ same node i.e have the same ID
                <div class = "panel-body" id ='mst-node-menu-panel'>		
                         <label>Node Size</label>
                         <br>
-                        <div id = "slider-nodesize" class = "slider-class"></div>
+                        <div title = "10" id = "slider-nodesize" class = "slider-class"></div>
                         <br>
                         <label>Relative Size</label>
                         <br>
-                        <div id = "slider-relative-nodesize" class = "slider-class"></div>
+                        <div title = "1" id = "slider-relative-nodesize" class = "slider-class"></div>
                         <br>
                         <label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
                         <br>
                         
                         <label>Font Size</label>
                         <br>
-                        <div id = "slider-node-fontsize" class = "slider-class"></div>
+                        <div title = "12" id = "slider-node-fontsize" class = "slider-class"></div>
                         <label>Label Text</label>
                         <select id = 'node-label-text'><option value="">default</option></select>
                       
@@ -237,7 +237,7 @@ same node i.e have the same ID
                        <button id ='button-collapse-nodes'>Go</button>
                        <br>
                        
-                        <div id = "slider-collapse-nodes" class = "slider-class"></div>
+                        <div title = "0" id = "slider-collapse-nodes" class = "slider-class"></div>
                        
                        <br>
                         <p align='center'>
@@ -254,7 +254,7 @@ same node i.e have the same ID
                         </p>	
                         <label>Charge</label>
                         <br>
-                        <div id = "slider-charge" class = "slider-class"></div>
+                        <div title = "0" id = "slider-charge" class = "slider-class"></div>
                         <br>
                         <p align='center'>
                                 <button id = 'button-refresh'> Refresh</button>
@@ -263,7 +263,7 @@ same node i.e have the same ID
                 </div>
         </div>
         <div id = 'add-data-panel' class='panel panel-default'>	
-                <div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Add Data</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+                <div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Metadata</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
                 <div class = "panel-body" id ='mst-data-menu-panel'>	
                 
                        
@@ -287,9 +287,9 @@ same node i.e have the same ID
       
 
           
-      
+       <br>
         <p align='center'>
-               <button id = 'button-load-nwk'> Load Nwk File</button>
+               <button id = 'button-load-nwk'> Load Tree File</button>
         </p>
         
         <p align='center'>
@@ -427,12 +427,29 @@ same node i.e have the same ID
         
         
         var collapse_scale=1;
-        var summaryDialog = null;
         var waitingDialog = null;
-        var grid_window=null;
-        var loadingAllelesDialog = null;
         var the_tree = null;
         var tree_name="";
+	
+	var default_control_panel_values={
+		max_link_scale:500,
+		base_node_size:10,
+		max_link_length:"",
+		size_power:0.5,
+		log_link_scale:false,
+		show_individual_segments:false,
+		link_font_size:14,
+		show_link_labels:true,
+		show_node_labels:true,
+		node_font_size:12,
+		hide_link_length:"",
+		node_collapsed_value:0	
+	};
+	
+		
+		
+		
+		
         var tooltip_div =d3.select("body")
                                         .append("div")	
                                         .attr("class", "tooltip")				
@@ -571,7 +588,7 @@ same node i.e have the same ID
                        
                         loadMetadataFile(current_metadata_file);                
                 }
-                 $("#waiting-information").text("Complete. Tree has "+the_tree.force_nodes.length+" nodes");
+                 $("#waiting-information").text("Complete. Tree has "+tree.force_nodes.length+" nodes");
                  $("#waiting-image").attr("src","js/img/ms_complete_1.png");
                // legend_colour_chooser.hide();
                 
@@ -625,6 +642,43 @@ same node i.e have the same ID
                 $("#waiting-image").attr("src","js/img/ms_failed_1.png");
                 $("#waiting-information").text(msg);
         }
+	
+	function setControlPanel(data){
+		   
+		$("#slider-linklength").slider("value",data['max_link_scale']);
+		$("#slider-nodesize").slider("value",data['base_node_size']);
+		if (data['max_link_length']){
+			$("#spinner-maxlinklength").val(data['max_link_length']);			
+		}
+		if (data['size_power']){
+			$("#slider-relative-nodesize").slider("value",data['size_power']);			
+		}
+		if (data['log_link_scale']){
+			$('#link-log-scale').prop('checked', true);
+		}
+		if (data['show_individual_segments']){
+			$("#show-individual-segments").prop("checked",true);
+		}
+		if (data['link_font_size']){
+			$("#slider-link-fontsize").slider("value",data['link_font_size']);
+		}
+		var sll =true;
+		if (data['show_link_labels']===false){
+			sll= false;
+		}
+		
+		$("#show-link-labels").prop("checked",sll);
+		$("#show-node-labels").prop("checked",data['show_node_labels']);
+		if (data['node_font_size']){
+			$("#slider-node-fontsize").slider("value",data['node_font_size']);			
+		}
+		if (data['hide_link_length']){
+			$("#spinner-hide-link-length").val(data['hide-link-length']);			
+		}
+		$( "#slider-collapse-nodes" ).slider("value",data["node_collapsed_value"]);
+				
+	
+	}
          
    
         
@@ -632,9 +686,7 @@ same node i.e have the same ID
               
                 $("#waiting-information").text("Loading Data");
                 the_tree = null;
-                //need a a slight time delay as the above messages will not render untill it is too late
-              
-                //setTimeout(function(e){
+               
                 try{
                         the_tree = new D3MSTree(
                         "graph-div",data,function(tree,msg){
@@ -645,8 +697,8 @@ same node i.e have the same ID
                         the_tree.segmentMouseOver=function(d){
                                 if ($("#show-node-tooltip").prop("checked")){
                                         var display = d.data.type;
-                                        if (display === 'missing'){
-                                                display = d.data.idx;
+                                        if (d.data.node_id){
+                                                display = d.data.node_id;
                                         }
                                         showToolTip(display+"("+d.data.value+")");
                                 }
@@ -664,20 +716,28 @@ same node i.e have the same ID
                                 hideToolTip();	
                         };
                         the_tree.resize();
-                        if (data['metadata_options']){
+			if (data['metadata_options']){
                               
                                 for (var key in data['metadata_options']){
                                        addMetadataOptions(key,data['metadata_options'][key]);      
                                 }
                         }
+			if (data['layout_data'] && data['layout_data']['nodes_links']){
+				setControlPanel(data['layout_data']['nodes_links'])
+			}
+			else{
+			
+				setControlPanel(default_control_panel_values);
+			}
                 }catch(e){
-                       console.log(e.message)
+                       console.log(e.message);
+		       console.log(e.stacktrace);
                        loadFailed("The file could not be read. Plase check the format");
                 
                 }
+	}
                 
-              //  },100);
-        }
+              
         
         
         
@@ -703,10 +763,16 @@ same node i.e have the same ID
         if (profile_file){
                 processProfileFile(profile_file);
         }
-        else{
+        else if (tree_file){
                 
                 loadTreeFile(tree_file)
         }
+	else if (current_metadata_file){
+		if (the_tree){
+			loadMetadataFile(current_metadata_file);
+		}
+	
+	}
  }
  
  
@@ -758,9 +824,15 @@ same node i.e have the same ID
         }
         MSCSCReader(file,dl,function(msg,lines,header_index){
                 var meta={};
+		
                 for (var i in lines){
                         var line = lines[i];
-                        meta[line['ID']]=line;
+			if (line['Name']){
+				meta[line['Name']]=line;
+			}
+			else{
+				meta[line['ID']]=line;
+			}
                        
                 }
                 the_tree.addMetadata(meta);
@@ -852,7 +924,7 @@ window.onload = function (){
                         $("#"+id+"-panel").toggle("50");
                         icon.attr("class","glyphicon glyphicon-menu-down"); 
                         $(".open-menu-panel").toggle("50");
-                        $(".open-menu-panel").parent().find(".glyphicon").attr("class","glyphicon glyphicon-menu-right"); 
+                        $(".open-menu-panel").parent().find(".glyphicon-menu-down").attr("class","glyphicon glyphicon-menu-right"); 
                         $(".open-menu-panel").removeClass("open-menu-panel");
                         $("#"+id+"-panel").addClass("open-menu-panel");
                 }
@@ -860,26 +932,28 @@ window.onload = function (){
         });
         $(".panel-body").hide();
         
-
-     
         $( "#slider-linklength" ).slider({
                 orientation: "horizontal",
                 min:50,
-                max: 10000,
+                max: 50000,
                 value: 500,
-                slide:function(){the_tree.setLinkLength($("#slider-linklength").slider("value"));},
+                slide:function(){the_tree.setLinkLength($("#slider-linklength").slider("value"));
+										$(this).attr("title", $(this).slider("value"));
+				},
                 change: function(e){
                         if (e.originalEvent){
                                 the_tree.setLinkLength($("#slider-linklength").slider("value"));
                         }
-                }              
+                }
         });
+
         $( "#slider-nodesize" ).slider({
                 orientation: "horizontal",
                 min:2,
-                max: 30,
+                max:50,
                 value: 10,
-                slide:function(){the_tree.setNodeSize($("#slider-nodesize").slider("value"));},
+                slide:function(){the_tree.setNodeSize($("#slider-nodesize").slider("value"));
+										$(this).attr("title", $(this).slider("value"));},
                 change: function(e){
                         if (e.originalEvent){
                                 the_tree.setNodeSize($("#slider-nodesize").slider("value"));
@@ -892,7 +966,8 @@ window.onload = function (){
                 max:0.8,
                 value: 0.5,
                 step:0.02,
-                slide:function(){the_tree.setRelativeNodeSize($("#slider-relative-nodesize").slider("value"));},
+                slide:function(){the_tree.setRelativeNodeSize($("#slider-relative-nodesize").slider("value"));
+										$(this).attr("title", $(this).slider("value")*2);},
                 change: function(e){
                         if (e.originalEvent){
                                 the_tree.setRelativeNodeSize($("#slider-relative-nodesize").slider("value"));
@@ -904,7 +979,8 @@ window.onload = function (){
                 min:6,
                 max: 30,
                 value: 12,
-                slide:function(){the_tree.setNodeFontSize($("#slider-node-fontsize").slider("value"));},
+                slide:function(){the_tree.setNodeFontSize($("#slider-node-fontsize").slider("value"));
+									$(this).prop("title", $(this).slider("value"));},
                 change: function(e){
                         if (e.originalEvent){
                                 the_tree.setNodeFontSize($("#slider-node-fontsize").slider("value"));
@@ -916,7 +992,8 @@ window.onload = function (){
                 min:6,
                 max: 30,
                 value: 14,
-                slide:function(){the_tree.setLinkFontSize($("#slider-linkfontsize").slider("value"));},
+                slide:function(){the_tree.setLinkFontSize($("#slider-linkfontsize").slider("value"));
+									$(this).prop("title", $(this).slider("value"));},
                 change: function(e){
                         if (e.originalEvent){
                                 the_tree.setLinkFontSize(($("#slider-linkfontsize").slider("value")));
@@ -928,11 +1005,27 @@ window.onload = function (){
                 orientation: "horizontal",
                 min:0,
                 max: 30,
-                slide:function(){the_tree.alterCharge($("#slider-charge").slider("value"));},
-                change: function(){the_tree.alterCharge($("#slider-charge ").slider("value"));}
+                slide:function(){the_tree.alterCharge($("#slider-charge").slider("value"));
+									$(this).prop("title", $(this).slider("value"));},
+                change: function(){the_tree.alterCharge($("#slider-charge ").slider("value"));
+									$(this).prop("title", $(this).slider("value"));}
         });
 
-        
+
+	/*$("#slider-linklength").tooltip();
+        $( "#slider-nodesize" ).tooltip();
+        $( "#slider-relative-nodesize" ).tooltip();
+        $( "#slider-node-fontsize" ).tooltip();
+        $( "#slider-linkfontsize" ).tooltip();
+	*/
+        $("#node-label-text").change(function(e){
+                var val = $(this).val();
+                if (val ==="cat"){
+                        val = the_tree.display_category;
+                }
+                the_tree.setNodeText(val);
+        });
+
         
         $("#spinner-maxlinklength").spinner({
                 min:100,
@@ -981,17 +1074,17 @@ window.onload = function (){
         });
         
         $("#button-load-nwk").click(function(e){
-                file_chooser.setFilter(".nwk");
+                file_chooser.setFilter("");
                 file_chooser.showOpenDialog(function(files){
-                        loadNewickFile(files[0]);
+                        filesDropped(files);
                 
                 });
         });
         
           $("#button-load-meta").click(function(e){
-                file_chooser.setFilter(".txt");
+                file_chooser.setFilter(".txt,.csv");
                 file_chooser.showOpenDialog(function(files){
-                        loadMetadataFile(files[0]);
+                        filesDropped(files);
                 });
         });
         

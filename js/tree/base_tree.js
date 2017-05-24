@@ -806,6 +806,7 @@ function D3BaseTree(element_id,metadata,height,width){
 	this.metadata={};
 	this.original_grouped_nodes={};
 	this.grouped_nodes={};
+	this.metadata_map={};
 	if (metadata){
 		this.addMetadata(metadata);
 	}
@@ -981,24 +982,22 @@ D3BaseTree.prototype.parseNewick2 = function (tre_string, nodes = [], parent=nul
 * {55:{colour:"red"}
 */
 D3BaseTree.prototype.addMetadata=function(metadata){
-
 	for (var id in metadata){
-		var item = metadata[id];
-		if (!this.metadata[id]){	
-			var node_id = item['ID'];
-			var list = this.grouped_nodes[node_id];
-			var orig_list = this.original_grouped_nodes[node_id];
-			if (! list){
-		       		list=[];
-				orig_list=[];
-				this.grouped_nodes[node_id]=list;
-				this.original_grouped_nodes[node_id] = orig_list;
+		var item =this.metadata[id];
+		var node_id = metadata[id]['ID'];
+		
+		if (!item){
+			if (! node_id){
+				continue;
 			}
-			if (list.indexOf(id)===-1){
-				list.push(id);
-				orig_list.push(id);
+			var list = this.metadata_map[node_id];
+			if (!list){
+				list=[];
+				this.metadata_map[node_id]=list;
 			}
-			this.metadata[id]=item;
+			list.push(id);
+			this.metadata[id]=metadata[id];
+			
 		}
 		else{
 			for (var key in item){
@@ -1231,7 +1230,7 @@ D3BaseTree.prototype.calculateDateScale= function(){
 		var arr = []
 		for (var strain in this.metadata){
 			if (!this.metadata[strain]['Collection Date']){
-				this.metadata[strain]['Collection Date']='ND';			
+				this.metadata[strain]['Collection Date']='ND';
 			}
 			var date  = this.timeFormat.parse(this.metadata[strain]['Collection Date'] )
 			arr.push(date);

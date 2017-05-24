@@ -1,6 +1,6 @@
 import numpy as np, dendropy as dp, networkx as nx
 from subprocess import Popen, PIPE
-import sys, os, tempfile, platform
+import sys, os, tempfile, platform, re
 
 params = dict(method='MST',
               matrix_type='asymmetric', 
@@ -9,10 +9,10 @@ params = dict(method='MST',
               NJ_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme.exe'), 
               NJ_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-osx'), 
               NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32'),
-              
               edmonds_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds.exe'), 
               edmonds_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-osx'), 
-              edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux'))
+              edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux')
+			 )
 
 class distance_matrix(object) :
     @staticmethod
@@ -258,7 +258,7 @@ def nonredundent(names, profiles) :
 def backend(**parameters) :
     '''
     paramters :
-        profile: input file. Can be either profile or fasta. Headings start with an '#' will be ignored. 
+        profile: input file or the content of the file as a string. Can be either profile or fasta. Headings start with an '#' will be ignored. 
         method: MST or NJ
         matrix_type: asymmetric or symmetric
         edge_weight: harmonic or eBurst
@@ -287,32 +287,35 @@ def backend(**parameters) :
     '''
     params.update(parameters)
 
-    names = []
-    profiles = []
-    with open(params['profile']) as fin :
-        head = fin.readline()
-        while head.startswith('#') :
-            head = fin.readline()
-        if head.startswith('>') :
-            names.append(head[1:].strip().split()[0])
-            profiles.append([])
-            for line in fin :
-                if line.startswith('>') :
-                    names.append(line.strip().split()[0])
-                    profiles.append([])
-                else :
-                    profiles[-1].extend(line.strip().split())
-            for id, p in enumerate(profiles) :
-                profiles[id] = list(''.join(p))
-        else :
-            part = head.strip().split()
+
+    names, profiles = [], []
+    fin = open(params['profile']).readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
+        
+    for line_id, line in enumerate(fin) :
+        if line.startswith('#') :
+            continue
+        fmt = 'fasta' if line.startswith('>') else 'profile'
+        break
+    
+    if fmt == 'fasta' :
+        for line in fin[(line_id-1):] :
+            if line.startswith('>') :
+                names.append(line.strip().split()[0])
+                profiles.append([])
+            else :
+                profiles[-1].extend(line.strip().split())
+        for id, p in enumerate(profiles) :
+            profiles[id] = list(''.join(p))
+    else :
+        for line in fin[(line_id-1):] :
+            part = line.strip().split('\t')
+            if not part[0]:
+                continue
             names.append(part[0])
             profiles.append(part[1:])
-            for line in fin :
-                part = line.strip().split()
-                names.append(part[0])
-                profiles.append(part[1:])
-
+            
+    for id, n in enumerate(names) :
+        names[id] = re.sub(r'[\(\)\ \,\"\';]', '_', n)
     names, profiles, embeded = nonredundent(np.array(names), np.array(profiles))
     tre = eval('methods.' + params['method'])(names, profiles, **params)
     
