@@ -38,8 +38,12 @@ def generate_tree():
         for line in profile_list:
             part = line.strip().split()
             if len(part) > 0:
-                names.append(part[0])
-                profiles.append(part[1:])
+                if part[0] in names:
+                    part[0] += '1'
+                if len(part[1:]) == len(profile_list[0].strip().split()[1:]):
+                    names.append(part[0])
+                    profiles.append(part[1:])
+
     try:
         names, profiles, embeded = nonredundent(np.array(names), np.array(profiles))
         tre = eval('methods.' + params['method'])(names, profiles, **params)
