@@ -515,7 +515,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,increase_lengths){
                         if (l.source.hypothetical && !l.target.hypothetical){
                                 delete l.source.hypothetical;
                                 node2link[l.target.id] = node2link[l.target.id].concat(node2link[l.source.id]);
-                                anc_link[l.source.id].value += increase;
+                                if (anc_link[l.source.id]) anc_link[l.source.id].value += increase;
                                 anc_link[l.target.id] = anc_link[l.source.id];
                                 l.source.id =l.target.id;
                         }
