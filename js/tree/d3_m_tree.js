@@ -249,18 +249,30 @@ D3MSTree.prototype.greedy_layout = function(nodes) {
         coordinates[nodes[0].id] = nodes[0].coordinates;
         for (var id=0; id < nodes.length; ++id) {
                 node = nodes[id];
-                var initial_angle = -node.des_span[1];
-                if (node.children) {
+                coordinates[node.id] = node.coordinates;
+                if (id > 0) {
+                        var initial_angle = -node.des_span[1];
+                        if (node.children) {
+                                for (var jd=0; jd < node.children.length; ++ jd) {
+                                        child = node.children[jd];
+                                        child.polar = [child.length + min_radial, initial_angle + child.self_span[1] + min_angle + node.polar[1]];
+                                        initial_angle += (child.self_span[1] + min_angle)*2;
+                                        child.coordinates = to_Cartesian(child.polar);
+                                        child.coordinates[0] += node.coordinates[0], child.coordinates[1] += node.coordinates[1];
+                                }
+                        }
+                } else {
+                        var gap = Math.max(0, (Math.PI - node.des_span[1]) / node.children.length);
+                        var initial_angle = 0;
                         for (var jd=0; jd < node.children.length; ++ jd) {
                                 child = node.children[jd];
                                 child.polar = [child.length + min_radial, initial_angle + child.self_span[1] + min_angle + node.polar[1]];
                                 initial_angle += (child.self_span[1] + min_angle)*2;
+                                initial_angle += (child.self_span[1] + min_angle )*2;
                                 child.coordinates = to_Cartesian(child.polar);
                                 child.coordinates[0] += node.coordinates[0], child.coordinates[1] += node.coordinates[1];
                         }
                 }
-                coordinates[node.id] = node.coordinates;
-                
         }
         return coordinates;
 }
