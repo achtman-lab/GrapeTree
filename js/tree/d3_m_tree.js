@@ -131,9 +131,10 @@ function D3MSTree(element_id,data,callback,height,width){
         if (data['layout_data'] && data['layout_data']['node_positions']){
                 this.original_node_positions=data['layout_data']['node_positions'];
                 if (data['layout_data']['nodes_links']){
-                           this.node_collapsed_value=data['layout_data']['nodes_links']['node_collapsed_value'];
+                           var to_collapse = this.node_collapsed_value=data['layout_data']['nodes_links']['node_collapsed_value'];
                 } else {
-                        this.node_collapsed_value=1e-8;
+                        var to_collapse = 1e-8;
+                        this.node_collapsed_value=0;
                 }
         } 
       
@@ -142,7 +143,7 @@ function D3MSTree(element_id,data,callback,height,width){
         
         }
         
-        this._collapseNodes(this.node_collapsed_value, data['layout_data']['node_positions']);
+        this._collapseNodes(to_collapse, data['layout_data']['node_positions']);
         if (callback){
                 callback(this,"Nodes"+this.force_nodes.length);
         }
@@ -178,22 +179,25 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale=500, node_size=10)
                 min_angle += node.size;
         }
         var node_scale = Math.sqrt(node_size);
-        var min_radial = max_radial*node_scale/link_scale, min_angle = Math.PI / min_angle;
+        var min_radial = max_radial*node_scale/link_scale, min_angle = Math.PI / min_angle, ite = 0;
         //console.log(min_angle);
-        for (var ite = 0; ite < 10; ++ ite) {
+        while (1) {
                 // get radius of descendents
                 for (var id = nodes.length-1; id >= 0; id --) {
                         node = nodes[id];
+                        var span1 = [min_radial*Math.sqrt(node.size), min_angle*Math.sqrt(node.size)];
                         if (! node.children || node.children.length == 0) {
-                                node.des_span = [min_radial*node.size, min_angle*node.size];
+                                node.des_span = span1;
                         } else {
                                 var radial_sum = 0, angle_sum = 0; 
                                 for (var jd in node.children) {
                                         child = node.children[jd];
+                                        if (! child.des_span) 
+                                                continue;
                                         self_radial = min_radial * Math.sqrt(node.size);
                                         if (Math.cos(Math.PI - child.des_span[1]) > child.des_span[0] / (child.length+self_radial) ) {
                                                 if (child.des_span[0] < child.length+self_radial) {
-                                                        var span = [child.length+self_radial, Math.asin(child.des_span[0] / child.length+self_radial)];
+                                                        var span = [child.length+self_radial, Math.asin(child.des_span[0] / (child.length+self_radial))];
                                                 }
                                         } else {
                                                 var span = to_Polar(to_Cartesian(child.des_span), [-(child.length + self_radial), 0]);
@@ -201,10 +205,11 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale=500, node_size=10)
                                         }
                                         child.self_span = [span[0], span[1]];
                                         angle_sum += span[1] + min_angle;
-                                        radial_sum += span[0] * (span[1]+min_angle);
+                                        // radial_sum += span[0] * (span[1]+min_angle);
                                         if (span[0] > radial_sum) radial_sum = span[0];
                                 }
-                                node.des_span = [radial_sum, angle_sum];
+                                var span2 = [radial_sum, angle_sum];
+                                node.des_span = [Math.max(span1[0], span2[0]), Math.max(span1[1], span2[1])];
                                 if (node.des_span[1] > Math.PI) {
                                         node.des_span[1] = Math.PI;
                                 }
@@ -244,11 +249,11 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale=500, node_size=10)
                                 max_span = node.anc_span[1] + node.des_span[1];
                         }
                 }
-                if (Math.PI > max_span && Math.PI < 1.1 * max_span) {
+                ite ++;
+                if ((Math.PI >= max_span && (Math.PI < 1.1 * max_span || ite > 10)) || ite > 30) {
                         break;
                 }
                 min_angle = (Math.PI / max_span) * min_angle;
-                //console.log(min_angle);
         }
         /// dynamic update local nodes
         // convert to cartesian
@@ -393,7 +398,7 @@ D3MSTree.prototype._start= function(callback,layout_data,positions){
         this.svg.selectAll('.mst-element').sort(function(a, b){
                 return d3.descending(a.value, b.value);
         });
-        this.rendering_time= this.force_nodes.length/10;
+        //this.rendering_time= this.force_nodes.length/10;
        // if (this.rendering_time<15){
                 this.rendering_time=15;
         //}
@@ -450,17 +455,16 @@ D3MSTree.prototype.collapseNodes= function(max_distance,increase_lengths){
 
 D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         //store the pooition of the original nodes
-        this.previous_node_positions={};
         if (this.node_collapsed_value===0){   
                 for (var i in this.force_nodes){
                         var node = this.force_nodes[i];
-                        this.original_node_positions[node.id]=[node.x,node.y];
+                        layout[node.id] = this.original_node_positions[node.id]=[node.x,node.y];
                 }
                 // layout = JSON.parse(JSON.stringify(this.original_node_positions));
 
         }
 
-        if (max_distance<=this.node_collapsed_value){
+        if (max_distance<=this.node_collapsed_value || (! this.force_nodes) || this.force_nodes.length == 0){
                 this._addNodes(this.original_nodes);
                 this._addLinks(this.original_links,this.original_nodes);
                 this.grouped_nodes={};
@@ -468,12 +472,9 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                         var name = this.original_nodes[i];
                         this.grouped_nodes[name]= [name];
                 }
-        
         }
-
         var node2link = {}, anc_link = {};
 
-   
         for (index in this.force_links){
                 var link = this.force_links[index];
                 if (! node2link[link.source.id]) {
@@ -488,14 +489,10 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
              
         }
 
-
-        
-        this.node_collapsed_value=max_distance;
         this.force_links.sort(function (link1,link2){
                 return link1.value - link2.value;
         });
         
-        if (1) {
         for (var index in this.force_links){
                 var l = this.force_links[index];
 
@@ -525,25 +522,28 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                                  var ln = child_links[i];
                                  if (! ln.remove) {
                                          ln.source=l.source;
-                                         if (l.target.hypothetical) {
-                                                 ln.value += increase;
-                                         }
+                                         if (l.target.hypothetical) ln.value += increase;
                                          node2link[l.source.id].push(ln);
                                  }
                         }
 
                         if (l.source.hypothetical && !l.target.hypothetical){
                                 delete l.source.hypothetical;
-                                if (node2link[l.source.id]) 
+                                if (node2link[l.source.id]) {
+                                       for (var id in node2link[l.source.id]) 
+                                                node2link[l.source.id][id].value += increase;
                                        node2link[l.target.id] = (node2link[l.target.id] ? node2link[l.target.id].concat(node2link[l.source.id]) : node2link[l.source.id]);
+                                }
                                 if (anc_link[l.source.id]) anc_link[l.source.id].value += increase;
                                 anc_link[l.target.id] = anc_link[l.source.id];
-                                layout[l.target.id] = layout[l.source.id];
+                                if (max_distance > this.node_collapsed_value) layout[l.target.id] = layout[l.source.id];
                                 l.source.id =l.target.id;
                             
                         }
                 }            
-        }}
+        }
+        this.node_collapsed_value=max_distance;
+
         var temp_force_nodes=this.force_nodes.filter(function( obj ) {
                 return ! obj.remove;
         });
@@ -569,10 +569,6 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 node.size = ((this.grouped_nodes[node.id]) ? this.grouped_nodes[node.id].length : 0);
                 if (anc_link[node.id]) 
                         node.length = anc_link[node.id].value;
-        }
-        new_layout = this.greedy_layout(this.force_nodes, this.max_link_scale, this.base_node_size);
-        for (var id in new_layout) {
-                layout[id] = new_layout[id];
         }
         this._updateNodeRadii();
         
@@ -1230,13 +1226,9 @@ D3MSTree.prototype._getLink=function(target_node){
  };
  
  D3MSTree.prototype.refreshGraph = function(callback){
-        this.charge=-400;	
-        var self=this;
-        this.svg.style("display","none");
-        this.startForce();		
-        setTimeout(function(){			
-                self._untangleGraph(false,1,callback);			
-        },1000);
+        layout = this.greedy_layout(this.force_nodes, this.max_link_scale, this.base_node_size);
+        this._updateNodeRadii();
+        this._start(callback,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
 }
 
 D3MSTree.prototype._centerGraph = function(){

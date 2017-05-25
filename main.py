@@ -81,7 +81,7 @@ def main() :
     except Exception, e:
         print 'ERROR, UNEXPECTED EXCEPTION'
         print str(e)
-        traceback.print_exc()
+        traceback.print_exc()	
         os._exit(1)
 
 if __name__ == "__main__":

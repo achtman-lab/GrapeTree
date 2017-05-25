@@ -1049,11 +1049,7 @@ window.onload = function (){
                 }	
         });
         $("#button-refresh").click(function(){	
-                waitingDialog =  new Enterobase.ModalWaitingDialog("Updating Graph",null,"/static/js/table/images/waiting.gif");	
-                the_tree.refreshGraph(function(){
-                        waitingDialog.close();
-                        $( "#slider-charge" ).slider("value",3)
-                });			
+                the_tree.refreshGraph();			
         });
         $("#show-link-labels").click(function(e){			
                 the_tree.showLinkLabels($(this).is(":checked"))	
