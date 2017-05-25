@@ -988,7 +988,7 @@ D3BaseTree.prototype.addMetadata=function(metadata){
 		
 		if (!item){
 			if (! node_id){
-				continue;
+				node_id=id;
 			}
 			var list = this.metadata_map[node_id];
 			if (!list){
@@ -1000,8 +1000,8 @@ D3BaseTree.prototype.addMetadata=function(metadata){
 			
 		}
 		else{
-			for (var key in item){
-				this.metadata[id][key]=item[key];
+			for (var key in metadata[id]){
+				this.metadata[id][key]=metadata[id][key];
 			}		
 		}	
 	}
