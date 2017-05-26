@@ -185,97 +185,61 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale=500, node_size=10)
         for (var id in nodes) {
                 node = nodes[id];
                 if (! node.size) {
-                        node.size = (node.children && node.children.length > 0 ? 1 : 0.1);
+                        node.size = (node.children && node.children.length > 0 ? 0.01 : 1);
                 }
         }
-        var max_radial = 0.0, min_angle = 0.0;
+        var max_radial = 0.0, min_arc = 0.0;
         for (var id in nodes) {
                 node = nodes[id];
                 if (node.length > max_radial) {
                         max_radial = node.length;
                 }
-                min_angle += node.size;
+                min_arc += node.size;
         }
-        var node_scale = Math.sqrt(node_size);
-        var min_radial = 2*max_radial*node_scale/link_scale, min_angle = Math.PI / min_angle, ite = 0;
-        while (1) {
+        var min_radial = max_radial/link_scale * (2*Math.sqrt(node_size));
+        var min_arc = min_radial * Math.PI / min_arc;
+        var records = [];
+        for (var ite=0; ite <21; ite ++) {
+                var max_span = 0;
                 // get radius of descendents
                 for (var id = nodes.length-1; id >= 0; id --) {
                         node = nodes[id];
-                        var span1 = [min_radial*Math.sqrt(node.size), min_angle*Math.sqrt(node.size)];
-                        if (! node.children || node.children.length == 0) {
-                                node.des_span = span1;
-                        } else {
-                                var radial_sum = 0, angle_sum = 0; 
-                                for (var jd in node.children) {
-                                        child = node.children[jd];
-                                        if (! child.des_span) 
-                                                continue;
-                                        self_radial = min_radial * Math.sqrt(node.size);
-                                        if (Math.cos(Math.PI - child.des_span[1]) > child.des_span[0] / (child.length+self_radial) ) {
-                                                if (child.des_span[0] < child.length+self_radial) {
-                                                        var span = [child.length+self_radial, Math.asin(child.des_span[0] / (child.length+self_radial))];
-                                                }
-                                        } else {
-                                                var span = to_Polar(to_Cartesian(child.des_span), [-(child.length + self_radial), 0]);
-                                                span[0] = Math.max(span[0], child.length+self_radial, child.des_span[0]);
-                                        }
-                                        child.self_span = [span[0], span[1]];
-                                        angle_sum += span[1] + min_angle;
-                                        //radial_sum += span[0] * (span[1]+min_angle);
-                                        if (span[0] > radial_sum) radial_sum = span[0];
-                                }
-                                var span2 = [radial_sum, angle_sum];
-                                node.des_span = [Math.max(span1[0], span2[0]), Math.max(span1[1], span2[1])];
-                                if (node.des_span[1] > Math.PI) {
-                                        node.des_span[1] = Math.PI;
-                                }
-                        }
-                }
-                
-                // get radius of ancestral
-                var max_span = nodes[0].des_span[1];
-                nodes[0].anc_span = [0, 0];
-                for (var id=1; id < nodes.length; ++id) {
-                        node = nodes[id];
-                        self_radial = min_radial * Math.sqrt(node.size);
+                        var span1 = [min_radial*Math.sqrt(node.size), min_arc / min_radial]; // node span
 
-                        var radial_sum = node.parent.anc_span[0], angle_sum = node.parent.anc_span[1];
-                        for (var jd=0; jd < node.parent.children.length; jd ++) {
-                                sister = node.parent.children[jd];
-                                if (sister.id != node.id) {
-                                        if (sister.self_span[0] > radial_sum) {
-                                                radial_sum = sister.self_span[0];
-                                                angle_sum += sister.self_span[1];
+                        var radial_sum = 0, angle_sum = 0;  // descending span
+                        for (var jd in node.children) {
+                                child = node.children[jd];
+                                if (! child.des_span) continue;
+                                self_radial = min_radial * Math.sqrt(node.size) + child.length;
+                                if (Math.cos(Math.PI - child.des_span[1]) > child.des_span[0] / self_radial ) {
+                                        if (child.des_span[0] < self_radial) {
+                                                var span = [self_radial, Math.asin(child.des_span[0] / self_radial)];
                                         }
-                                }
-                        }
-                        var span = [radial_sum, angle_sum];
-                        if (Math.cos(Math.PI - span[1]) > span[0] / (node.length + self_radial)) {
-                                if (span[0] < node.length+self_radial) {
-                                        var anc_span = [node.length+self_radial, Math.sin(span[0]/node.length+self_radial)];
                                 } else {
-                                        var anc_span = to_Polar(to_Cartesian(span), [-(node.length + self_radial), 0]);
-                                        anc_span[0] = span[0];
+                                        var span = to_Polar(to_Cartesian(child.des_span), [-self_radial, 0]);
+                                        span[0] = Math.max(span[0], self_radial, child.des_span[0]);
                                 }
-                        } else {
-                                var anc_span = to_Polar(to_Cartesian(span), [-(node.length + self_radial), 0]);
-                                if (anc_span[0] < node.length+self_radial) {
-                                        anc_span[0] = node.length+self_radial;
-                                }
+                                child.self_span = [span[0], span[1]];
+                                angle_sum += span[1] + min_arc/span[0];
+                                if (span[0] > radial_sum) radial_sum = span[0];
                         }
-                        node.anc_span = [anc_span[0], anc_span[1]];
-                        if (node.anc_span[1] + node.des_span[1] > max_span) {
-                                max_span = node.anc_span[1] + node.des_span[1];
-                        }
+                        var span2 = [radial_sum, angle_sum];
+                        node.des_span = [Math.max(span1[0], span2[0]), Math.max(span1[1], span2[1])];
+						node.des_angle = span2[1];
+                        if (node.des_span[1] > max_span) max_span = node.des_span[1];
+                        if (node.des_span[1] > Math.PI) node.des_span[1] = Math.PI;
                 }
-                ite ++;
-                if ((Math.PI >= max_span && (Math.PI < 1.05 * max_span || ite > 20)) || ite > 50) {
-                        break;
+                if (Math.PI >= max_span) {
+                        records.push(min_arc);
+                        if (Math.PI < 1.05 * max_span) break;
                 }
-                min_angle = (Math.PI / max_span) * min_angle;
+                if (ite == 19) {
+                        records.sort(function (r1, r2) {return (r2-r1);});
+                        min_arc = records[0];
+                } else {
+                        min_arc = (Math.PI / max_span) * min_arc;
+                }
         }
-        /// dynamic update local nodes
         // convert to cartesian
         nodes[0].polar = [0, 0];
         nodes[0].coordinates = [0, 0];
@@ -286,21 +250,14 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale=500, node_size=10)
                 self_radial = min_radial * Math.sqrt(node.size);
                 coordinates[node.id] = node.coordinates;
                 if (id > 0) {
-                        var initial_angle = -node.des_span[1];
-                        if (node.children) {
-                                for (var jd=0; jd < node.children.length; ++ jd) {
-                                        child = node.children[jd];
-                                        child.polar = [child.length + self_radial, initial_angle + child.self_span[1] + min_angle + node.polar[1]];
-                                        initial_angle += (child.self_span[1] + min_angle)*2;
-                                        child.coordinates = to_Cartesian(child.polar);
-                                        child.coordinates[0] += node.coordinates[0], child.coordinates[1] += node.coordinates[1];
-                                }
-                        }
+                        var initial_angle = -node.des_angle, gap = 0;
                 } else {
-                        var gap = Math.max(0, (Math.PI - node.des_span[1]) / node.children.length);
-                        var initial_angle = 0;
+                        var initial_angle = 0, gap = Math.max(0, (Math.PI - node.des_angle) / node.children.length);
+                }
+                if (node.children) {
                         for (var jd=0; jd < node.children.length; ++ jd) {
-                                child = node.children[jd];
+                                var child = node.children[jd];
+                                var min_angle = min_arc/child.self_span[0];
                                 child.polar = [child.length + self_radial, initial_angle + child.self_span[1] + min_angle + node.polar[1]];
                                 initial_angle += (child.self_span[1] + min_angle + gap)*2;
                                 child.coordinates = to_Cartesian(child.polar);
@@ -374,9 +331,6 @@ D3MSTree.prototype._start= function(callback,layout_data,positions){
                 self.linkMouseOut(d);
         });
         
-         
-      
-        
         //this.canvas.selectAll('.node').remove();
         this.node_elements = this.canvas.selectAll('.node').data(this.force_nodes, function(it){
                 return it.id;
@@ -394,7 +348,6 @@ D3MSTree.prototype._start= function(callback,layout_data,positions){
       
         new_node_elements.call(this.force_drag).
         on('dblclick', function(it){
-            
         }).on('mouseup', function(it){
                 if (!self.is_dragging){
                         var ids = self._getIDsForNode(it.id);
@@ -595,7 +548,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
      
         for (var id in this.force_nodes) {
                 node = this.force_nodes[id];
-                node.size = ((this.grouped_nodes[node.id]) ? this.grouped_nodes[node.id].length : 0.1);
+                node.size = (node.hypothetical ? 0.01 : this.grouped_nodes[node.id].length);
                 if (anc_link[node.id]) 
                         node.length = anc_link[node.id].value;
         }
@@ -1264,6 +1217,7 @@ D3MSTree.prototype._getLink=function(target_node){
         layout = this.greedy_layout(this.force_nodes, this.max_link_scale, this.base_node_size);
         this._updateNodeRadii();
         this._start(callback,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
+        this.centerGraph();
 }
 
 D3MSTree.prototype._centerGraph = function(){
