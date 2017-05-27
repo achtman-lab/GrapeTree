@@ -12,7 +12,7 @@ params = dict(method='MST',
               edmonds_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds.exe'),
               edmonds_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-osx'),
               edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux')
-			 )
+              )
 
 class distance_matrix(object) :
     @staticmethod
@@ -30,7 +30,7 @@ class distance_matrix(object) :
         return distances
     @staticmethod
     def symmetric(profiles, links=None, normalize=True, count_absence=0) :
-        presences = np.ones(shape=profiles.shape) if count_absence else (profiles > 0)
+        presences = np.ones(shape=profiles.shape, dtype=int) if count_absence else (profiles > 0)
         if links is None :
             distances = np.zeros(shape=[profiles.shape[0], profiles.shape[0]])
             if normalize is True :
