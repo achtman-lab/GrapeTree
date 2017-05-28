@@ -2,10 +2,11 @@ import numpy as np, dendropy as dp, networkx as nx
 from subprocess import Popen, PIPE
 import sys, os, tempfile, platform, re
 
-params = dict(method='MST',
-              matrix_type='asymmetric',
-              edge_weight = 'harmonic',
-              neighbor_branch_reconnection='T',
+params = dict(method='BASA', # MST , NJ
+              matrix_type='symmetric',
+              edge_weight = 'eBurst',
+              missing_data = 'pair_delete', # complete_delete , absolute_distance , as_allele
+              neighbor_branch_reconnection='F',
               NJ_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme.exe'),
               NJ_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-osx'),
               NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32'),
@@ -16,10 +17,10 @@ params = dict(method='MST',
 
 class distance_matrix(object) :
     @staticmethod
-    def asymmetric(profiles, normalize=True) :
+    def asymmetric(profiles, missing_data = 'pair_delete') :
         distances = np.zeros(shape=[profiles.shape[0], profiles.shape[0]])
-        presences = profiles > 0
-        if normalize is True :
+        presences = (profiles > 0)
+        if missing_data not in ('absolute_distance', ) :
             for id, (profile, presence) in enumerate(zip(profiles, presences)) :
                 diffs = np.sum(((profiles != profile) & presence), axis=1) * float(presence.size)/np.sum(presence)
                 distances[:, id] = diffs
@@ -29,11 +30,17 @@ class distance_matrix(object) :
                 distances[:, id] = diffs
         return distances
     @staticmethod
-    def symmetric(profiles, links=None, normalize=True, count_absence=0) :
-        presences = np.ones(shape=profiles.shape, dtype=int) if count_absence else (profiles > 0)
+    def symmetric(profiles, links=None, missing_data = 'pair_delete') :
+        if missing_data in ('as_allele', ) :
+            presences = np.ones(shape=profiles.shape, dtype=int) 
+        elif missing_data in ('pair_delete', 'absolute_distance') :
+            presences = (profiles > 0)
+        else :
+            presences = np.repeat(np.sum(profiles >0, 0) >= profiles.shape[0], profiles.shape[0]).reshape([profiles.shape[1], profiles.shape[0]]).T
+        
         if links is None :
             distances = np.zeros(shape=[profiles.shape[0], profiles.shape[0]])
-            if normalize is True :
+            if missing_data in ('pair_delete',) :
                 for id, (profile, presence) in enumerate(zip(profiles, presences)) :
                     comparable = (presences[:id] * presence)
                     diffs = np.sum((profiles[:id] != profile) & comparable, axis=1) * float(presence.size) / np.sum(comparable, axis=1)
@@ -44,12 +51,8 @@ class distance_matrix(object) :
                     distances[:id, id] = distances[id, :id] = diffs
             return distances
         else :
-            if normalize is True :
-                return [ [ s, t, np.sum((profiles[s] != profiles[t]) & presences[s] & presences[t]) * normalize(presences.shape[1]) / np.sum(presences[s] & presences[t]) ] \
-                         for s, t, d in links ]
-            else :
-                return [ [ s, t, np.sum((profiles[s] != profiles[t]) & presences[s] & presences[t]) ] \
-                         for s, t, d in links ]
+            return [ [ s, t, np.sum((profiles[s] != profiles[t]) & presences[s] & presences[t]) ] \
+                     for s, t, d in links ]
     @staticmethod
     def harmonic(dist) :
         conn_weights = dist.shape[0] / np.sum(1.0/(dist + 0.1), 1)
@@ -207,20 +210,21 @@ class methods(object) :
         return tre
 
     @staticmethod
-    def MST(names, profiles, matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T', **params) :
-        dist = eval('distance_matrix.'+matrix_type)(profiles)
+    def MST(names, profiles, matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T', missing_data='pair_delete', **params) :
+        
+        dist = eval('distance_matrix.'+matrix_type)(profiles, missing_data = missing_data)
         wdist = eval('distance_matrix.'+edge_weight)(dist)
 
         tree = eval('methods._'+matrix_type)(wdist, **params)
         if neighbor_branch_reconnection != 'F' :
             tree = methods._neighbor_branch_reconnection(tree, dist, profiles.shape[1])
-        tree = distance_matrix.symmetric(profiles, tree, normalize=False)
+        tree = distance_matrix.symmetric(profiles, tree, missing_data= missing_data)
         tree = methods._network2tree(tree, names)
         return tree
 
     @staticmethod
-    def NJ(names, profiles, **params) :
-        dist = distance_matrix.symmetric(profiles)
+    def NJ(names, profiles, missing_data='pair_delete', **params) :
+        dist = distance_matrix.symmetric(profiles, missing_data = missing_data)
         dist_txt = ['    {0}'.format(dist.shape[0])]
         for n, d in enumerate(dist) :
             dist_txt.append('{0!s:10} {1}'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])))
@@ -238,7 +242,7 @@ class methods(object) :
             taxon.label = names[int(taxon.label)]
         return tree
 
-def nonredundent(names, profiles) :
+def nonredundant(names, profiles) :
     encoded_profile = np.array([np.unique(p, return_inverse=True)[1]+1 for p in profiles.T]).T
     encoded_profile[(profiles == '-') | (profiles == '0')] = 0
 
@@ -269,25 +273,31 @@ def backend(**parameters) :
         A string of a NEWICK tree
 
     Examples :
-        To run a Balanced Spanning Arborescence (BSA), use :
-        backend(profile=<filename>, method='MST', matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T')
+        To run a Balanced Spanning Arborescence (BASA), use :
+        backend(profile=<filename>, method='BASA')
 
         OR simply
         backend(profile=<filename>)
 
         To run a standard minimum spanning tree :
-        backend(profile=<filename>, method='MST', matrix_type='symmetric', edge_weight='eBurst', neighbor_branch_reconnection='F')
+        backend(profile=<filename>, method='MST')
 
         To run a NJ tree (using FastME 2.0) :
         backend(profile=<filename>, method='NJ')
 
     Can also be called in command line:
-        BSA: MSTrees.py profile=<filename> method=MST matrix_type=asymmetric edge_weight=harmonic neighbor_branch_reconnection=T
-        MST: MSTrees.py profile=<filename> method=MST matrix_type=symmetric edge_weight=eBurst neighbor_branch_reconnection=F
+        BASA: MSTrees.py profile=<filename> method=BASA
+        MST: MSTrees.py profile=<filename> method=MST
         NJ:  MSTrees.py profile=<filename> method=NJ
     '''
     params.update(parameters)
-
+    if params['method'] == 'BASA' :
+        params.update(dict(
+            method = 'MST', 
+            matrix_type = 'asymmetric', 
+            edge_weight = 'harmonic', 
+            neighbor_branch_reconnection = 'T'
+        ))
 
     names, profiles = [], []
     fin = open(params['profile']).readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
@@ -317,7 +327,7 @@ def backend(**parameters) :
 
     for id, n in enumerate(names) :
         names[id] = re.sub(r'[\(\)\ \,\"\';]', '_', n)
-    names, profiles, embeded = nonredundent(np.array(names), np.array(profiles))
+    names, profiles, embeded = nonredundant(np.array(names), np.array(profiles))
     tre = eval('methods.' + params['method'])(names, profiles, **params)
 
     for src, tgt in embeded :
