@@ -453,12 +453,12 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         for (index in this.force_links){
                 var link = this.force_links[index];
                 if (! node2link[link.source.id]) {
-                        node2link[link.source.id] = [link];
-                } else {
-                        node2link[link.source.id].push(link);
+                        node2link[link.source.id] = {};
                 }
-                if (! link.target.children) {
-                        node2link[link.target.id] = [];
+                node2link[link.source.id][link.target.id] = link;
+                
+                if (! node2link[link.target.id]) {
+                        node2link[link.target.id] = {};
                 }
                 anc_link[link.target.id] = link;
              
@@ -499,22 +499,19 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                                  if (! ln.remove) {
                                          ln.source=l.source;
                                          if (l.target.hypothetical) ln.value += increase;
-                                         node2link[l.source.id].push(ln);
+                                         node2link[l.source.id][i] = ln;
                                  }
                         }
 
                         if (l.source.hypothetical && !l.target.hypothetical){
                                 delete l.source.hypothetical;
                                 if (node2link[l.source.id]) {
-                                       to_add = {};
                                        for (var id in node2link[l.source.id]) {
                                                ln = node2link[l.source.id][id];
-                                               if (! ln.remove ) to_add[ln.target.id] = 1;
+                                               if (! ln.remove) 
+                                                        ln.value += increase;
+                                                        node2link[l.target.id][id] = ln;
                                        }
-                                       for (id in to_add) 
-                                               anc_link[id].value += increase;
-                                       
-                                       node2link[l.target.id] = (node2link[l.target.id] ? node2link[l.target.id].concat(node2link[l.source.id]) : node2link[l.source.id]);
                                 }
                                 if (anc_link[l.source.id]) anc_link[l.source.id].value += increase;
                                 anc_link[l.target.id] = anc_link[l.source.id];
