@@ -3,8 +3,18 @@ D3MSTree.prototype.constructor = D3MSTree;
 
 /**
 * @typedef {Object} InitialData
-* @property {list} -a load of nodes
-*
+* An object describing the tree. Either nodes and links or nwk or nexus or layout_data 
+* are the only required properties,
+* the rest will be set as default
+* @property {list} nodes A list of node names ['ST131','ST11']
+* @property {list} links A list of objects containing source,target and distance , where source and targets 
+* are indexes to the nodes list e.g. [{source:0,target:1,distance:10},...]
+* @property {string} nwk A tree in newick format
+* @property {string} nexus A tree in nexus format
+* @property {string} layout_algorithm The initial algorithm to work out node positions. Can be either 'force' or
+* 'greedy'. Default is 'greedy'
+* @property {LayoutData} layout_data Data describing the layout
+* @property {string} initial_category The initial category to display in the tree. Default is none
 */
 
 /**
@@ -12,13 +22,9 @@ D3MSTree.prototype.constructor = D3MSTree;
 * @extends D3BaseTree
 * @param {string} element_id - The id of the container for the tree
 * @param {InitialData} data -An  object containing the following 
-*<ul>
-*  <li>metadata- An object of metadata id  to key/value metadata e.g {23:{"strain":"bob","country":"Egypt",ID:"ST131"},....} </li>
-* <li>nodes - A list of node names ['ST131','ST11'] if the node represents a hypothetical node then the name should be  'hypothetical_node' </li>
-*  <li> links  - A list of source / target / values , where source and targets are indexes to the nodes list e.g. [{source:0,target:1,value:10},...]</li>
-* <li> layoutdata - An object containing the layoudata
-* </ul>
-* @param {function} callback The function to be called when the set up is finished (optional)
+* @param {function} callback The function to be called when the set up is finished (optional).
+* The callback is passed the tree object and a message describing the state of initialisation.
+* The message will be 'complete' when the tree is finished
 * @param {integer} height - the initial height (optional)
 * @param {integer} width - the initial width  (optional)
 */
@@ -43,6 +49,12 @@ function D3MSTree(element_id,data,callback,height,width){
         this.node_radii={};
         this.previous_node_radii={};
         this.node_clicked_listeners=[];
+        this.link_clicked_listeners=[];
+        this.segment_over_listeners=[];
+        this.segment_out_listeners=[];
+        this.link_over_listeners=[];
+        this.link_out_listeners=[];
+        
         //Any link with a value above this will have be as long as _max_link_scale
         this.max_link_length=10000;
         //the length in pixels of the longest link
@@ -131,7 +143,7 @@ function D3MSTree(element_id,data,callback,height,width){
         }
         var positions = null;
         if (data['layout_data']){
-                positions = data['layout_data']['node_positions']
+                positions = data['layout_data']['node_positions'];
         
         }
         
@@ -149,6 +161,7 @@ function D3MSTree(element_id,data,callback,height,width){
                 callback(this,"Collapsing Nodes:"+this.original_nodes.length);
         
         }
+        
         if (data['layout_algorithm']=='force'){
                 to_collapse=0;
         }
@@ -156,6 +169,13 @@ function D3MSTree(element_id,data,callback,height,width){
         this._collapseNodes(to_collapse, positions);
         if (callback){
                 callback(this,"Nodes"+this.force_nodes.length);
+        }
+        //links and nodes given without initial positions 
+        if (data['layout_algorithm']!=='force' && ! positions && !data['nwk'] && !data['nexus']){
+              
+                positions =  this.greedy_layout(this.force_nodes, this.max_link_scale, this.base_node_size); 
+                data['layout_data']={"node_positions":positions};
+                this.original_node_positions = positions;
         }
                                    
         this.root_node=null;
@@ -177,10 +197,12 @@ function D3MSTree(element_id,data,callback,height,width){
         }
         
         //this._updateNodeRadii();
-        this._start(callback,data['layout_data'],positions);
+        this._start(callback,data['layout_data']);
 };
 
-D3MSTree.prototype.greedy_layout = function(nodes, link_scale=500, node_size=10) {
+D3MSTree.prototype.greedy_layout = function(nodes, link_scale, node_size) {
+        link_scale = link_scale ===undefined?500:link_scale;
+        node_size = node_size ===undefined?10:node_size;
         // determine minimum params
         for (var id in nodes) {
                 node = nodes[id];
@@ -276,42 +298,21 @@ _traverse = function(tree) {
         }
         return nodes;
 }
-to_Cartesian = function(coord, center=[0, 0]) {
+to_Cartesian = function(coord, center) {
+    center = center===undefined?[0,0]:center;
     var r = coord[0], theta = coord[1];
     return [r*Math.cos(theta) + center[0], r*Math.sin(theta) + center[1]];
 }
-to_Polar = function(coord, center=[0, 0]) {
+to_Polar = function(coord, center) {
+    center = center===undefined?[0,0]:center;
     var x = coord[0] - center[0], y = coord[1] - center[1];
     return [Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)), Math.atan2(y, x)];
 }
 
 
-D3MSTree.prototype.getRadialCoordinates= function(angle,radius){
-          var c0 = Math.cos(angle = (angle- 90) / 180 * Math.PI),
-                        s0 = Math.sin(angle);
-                return [radius*c0,radius*s0];
-};
-
-D3MSTree.prototype.calculateX =function(len,node){
-        var length = len;
-       
-        if (node.length){
-              length=len+node.length;
-        }
-        node.y=length;
-        
-      
-        var children = node.children;
-        if (children){
-                for (var i in children){
-                       
-                        this.calculateX(length,children[i]);
-                }                  
-        }                
-};
 
 
-D3MSTree.prototype._start= function(callback,layout_data,positions){
+D3MSTree.prototype._start= function(callback,layout_data){
        var self = this;
        //add the links
        this.canvas.selectAll('g.link').remove();
@@ -322,16 +323,24 @@ D3MSTree.prototype._start= function(callback,layout_data,positions){
                 return it.source.id + "-" + it.target.id;
         }).attr('class', "link mst-element");
         
-        link_enter.append('line').on("click",function(d){
-                self.linkClicked();
-        }).on("mouseover",function(d){
-                self.linkMouseOver(d);
-        
-        }).on("mouseout",function(d){
-                self.linkMouseOut(d);
+        link_enter.append('line')
+        .on("click",function(d){
+                 for (var i in self.link_clicked_listeners){
+                        self.link_clicked_listeners[i](d);    
+                }
+        })
+        .on("mouseover",function(d){
+                for (var i in self.link_over_listeners){
+                        self.link_over_listeners[i](d);    
+                }
+        })
+        .on("mouseout",function(d){
+                 for (var i in self.link_out_listeners){
+                        self.link_out_listeners[i](d);       
+                }
         });
         
-        //this.canvas.selectAll('.node').remove();
+
         this.node_elements = this.canvas.selectAll('.node').data(this.force_nodes, function(it){
                 return it.id;
         });
@@ -384,16 +393,8 @@ D3MSTree.prototype._start= function(callback,layout_data,positions){
                 //for some reason need to give random positions, otherwise leads to stack 
                 for (var i in this.force_nodes){
                         var node=this.force_nodes[i];
-                        if (positions){
-                                var pos = positions[node.id];
-                                node.x=pos[0];
-                                node.y=pos[1];
-                        
-                        }
-                        else{
-                                node.x=Math.random()*1000;
-                                node.y=Math.random()*1000;
-                        }
+                        node.x=Math.random()*1000;
+                        node.y=Math.random()*1000;
                }
                
                 this.update_graphics=false;
@@ -416,12 +417,17 @@ D3MSTree.prototype._start= function(callback,layout_data,positions){
         }
 }
 
-D3MSTree.prototype.collapseNodes= function(max_distance,increase_lengths){
+
+/**
+* Collapses the nodes in the tree. If any link between two nodes is less than or
+* equal to max_distance, the nodes will be collapsed into one.
+* @param {number} max_distance All nodes equal or below this distance apart will be collapsed
+*/
+D3MSTree.prototype.collapseNodes= function(max_distance){
         layout = JSON.parse(JSON.stringify(this.original_node_positions));
         this._collapseNodes(max_distance, layout);
         this._start(null,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
-        //this.unfixSelectedNodes(true);        
-        //this.refreshGraph();
+        
        
 
 }
@@ -498,8 +504,11 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                                  var ln = child_links[i];
                                  if (! ln.remove) {
                                          ln.source=l.source;
-                                         if (l.target.hypothetical) ln.value += increase;
-                                         node2link[l.source.id][i] = ln;
+                                         if (l.target.hypothetical){
+                                                ln.value += increase;
+                                                ln.original_value=ln.value;
+                                         } 
+                                         node2link[l.source.id].push(ln);
                                  }
                         }
 
@@ -513,7 +522,11 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                                                         node2link[l.target.id][id] = ln;
                                        }
                                 }
-                                if (anc_link[l.source.id]) anc_link[l.source.id].value += increase;
+                                if (anc_link[l.source.id]) {
+                                        anc_link[l.source.id].value += increase;
+                                        anc_link[l.source.id].original_value += increase;
+                                        
+                                }
                                 anc_link[l.target.id] = anc_link[l.source.id];
                                 if (max_distance > this.node_collapsed_value && layout) layout[l.target.id] = layout[l.source.id];
                                 l.source.id =l.target.id;
@@ -663,21 +676,43 @@ D3MSTree.prototype.stopForce = function(){
 };
         
 
-
+/**
+* @typedef {Object} LayoutData
+* @property {object} node_positions A dictionary of node id to an array of x,y co-ordinate e.g.
+* {node_a:[23,76],node_b:[65,75]}
+* @property {object} node_links a dictionary of the following
+* <ul>
+* <li><b>max_link_length</b> The maxiumum length of a link . Any link over this distance
+* will be corrected to this length and displayed as dotted.</li>
+* <li><b>max_link_scale</b> Controls the length that each link is displayed. The links will be
+* scaled (in pixels) between this value and 0 </li>
+* <li><b>log_link_scale</b> If true - link length will be altered to the power of 0.8. Default is false </li>
+* <li><b>link_font_size</b> The size in pixels of link labels. Default is 10 </li>
+* <li><b>show_link_labels</b> Determines whether the distance labels on links are present. Default is false</li>
+* <li><b>hide_link_length</b> All links over this length will not be displayed. Default is infinity </li>
+* <li><b>base_node_size </b> The base size of the nodes. Default is 10 </li>
+* <li><b>show_node_labels</b> Determines  whether node labels are present. Default true </li>
+* <li><b>node_font_size</b> Controls the size (in pixels) of node labels. Default is 14 </li>
+* <li><b>size_power</b> Controls the size of the nodes. Nodes, will have a radius which equal to number 
+* of items associated with the node to the power of size_power multiplied by base_node_size
+* Default value is 0.5 </li>
+* <li><b>show_individual_segments</b> If true then every single component of the node will have its own 'wedge'
+* even those in the same category (although they will be the same colour). Default is false.</li>
+* <li><b>node_collapsed_value</b> Nodes connecting by links with a distance equal or below this value 
+* will be collapsed. Default is 0</li>
+* <li><b>custom_colours</b> A dictionary of categories to value/colour pairs e.g.
+* {category1:{value_1:"blue",value_2:"red",..},"category_2":{....},...}
+* <li><b>scale</b> The scale factor (1.0 being normal size)</li>
+* <li><b>translate</b> The offset of the tree an array of x.y co-ordinate e.g. [30.-20] </b></li>
+* </ul>
+*/
 
 /**
 * Updates the tree with the supplied data. Any paramater not supplied will be default
-* @param {object} layout _data - An  object containing the following:
-* node_positions: a dictionary of node id to an array of x,y co-ordinate e.g.
-* {ST234:[23,76],ST455:[65,75]}
-* node_links: a dictionary of the following
-* max_link_scale : The length in pixels of the longest link
-* size_power: The size of nodes representing multiple datapoints are calculated by number of points to the power of this value
-* base_node_size: The radius in pixels of a nodes 
-* max_link_length: Any links with a value over this will be trimmed to this length 
-* scale: The scale factor (1.0 being normal size)
-* translate: The offset of the tree an array of x.y co-ordinate e.g. [30.-20]
+* @param {LayoutData} layout _data - An  object describing the layout of the tree
 */
+
+
 D3MSTree.prototype.setLayout = function(layout_data){
         if  (layout_data['node_positions']){
                 for (var i in this.force_nodes){
@@ -791,7 +826,11 @@ D3MSTree.prototype._drawLinks=function(){
 }
 
 
-//
+/**
+* Changes the category displayed
+* @param {string} category The category to display. If no category
+* is given then the node IDs will be displayed
+*/
 D3MSTree.prototype.changeCategory= function(category){
         if (! category){
                 this.display_category=null;
@@ -822,9 +861,13 @@ D3MSTree.prototype.changeCategory= function(category){
         
        this.node_elements.selectAll('.node-paths')
         .on("mouseover",function(d){
-                self.segmentMouseOver(d);
+                for (var i in self.segment_over_listeners){
+                        self.segment_over_listeners[i](d);    
+                }
         }).on("mouseout",function(d){
-                self.segmentMouseOut(d);
+                 for (var i in self.segment_out_listeners){
+                        self.segment_out_listeners[i](d);    
+                }        
         })
         .style("stroke","black");      
         this._drawNodes();
@@ -851,11 +894,7 @@ D3MSTree.prototype._drawNodes=function(){
                 });
 };
 
-D3MSTree.prototype.setNodeText = function(value){
-    
-        this.node_text_value=value;
-        this._setNodeText();
-}
+
 
 
 D3MSTree.prototype.getTreeAsObject=function(){
@@ -1108,7 +1147,7 @@ D3MSTree.prototype._addNodes=function(ids){
                       value:-1,
                       selected:false
                 };
-                 if (id === "hypothetical_node" || id.startsWith("_hypo_node_")){
+                 if (id === "hypothetical_node" || id.substring(0,6)==="_hypo_"){
                         node['hypothetical']=true;
                  }
                 
@@ -1161,7 +1200,8 @@ D3MSTree.prototype._addLinks=function(links,ids){
                 var link = {
                        source: source_node,
                        target: target_node,
-                       value: x.value
+                       value: x.value,
+                       original_value:x.value
                 };
                 this.force_links.push(link)
         }
@@ -1187,13 +1227,14 @@ D3MSTree.prototype._getLink=function(target_node){
         }	
 }
 
-/** Internally sets the actual length of the link to be acurate to the supplied value
-* If not in fixed mode than this may not be strictly adhered
-*/
- D3MSTree.prototype._setLinkDistance=function(){
+
+ D3MSTree.prototype._setLinkDistance=function(strict){
         var self= this;
         this.link_elements.each(function(d){			
                 var length =  self.node_radii[d.source.id] + self.node_radii[d.target.id];
+                if (strict){
+                        d.value=d.original_value;
+                }
                 var line_len = d.value;
                 if (self.max_link_length){
                         if (line_len>self.max_link_length){
@@ -1280,7 +1321,11 @@ D3MSTree.prototype.clearSelection= function(){
         
 };
 
-
+/**
+Sets the maximum length of any link. Any links over the value supplied
+will be reduced to the maximum length and displayed as dotted lines
+@param {number} amount The maximum link length
+*/
 D3MSTree.prototype.setMaxLinkLength=function(amount){
         var self=this;
         amount = parseFloat(amount);
@@ -1298,11 +1343,9 @@ D3MSTree.prototype.setMaxLinkLength=function(amount){
         this._updateGraph(true);
 };
 
-/** Sets the length of the links
-* @param {integer} max_length - This  specifies the maximum length of the links in pixels
-* The longest link will be this length and the rest scaled between this value and 1
-* If in fixed mode, node lengths will be exact, otherwise the force algorithm may not be able to acheieve the 
-* correct length
+/** Sets the relative length of the all links.
+* @param {integer} max_length - This  specifies length of longest  link in pixels
+* All other links will be scaled between this value and 1
 */
 D3MSTree.prototype.setLinkLength=function(max_length){		
         this.max_link_scale=max_length;
@@ -1328,12 +1371,14 @@ D3MSTree.prototype.setLinkFontSize = function(size){
 };
 
 /** 
-resets the link lenghts to accurately reflect the supplied value
+Resets all link lenghts to accurately reflect the original value.
 */
 D3MSTree.prototype.resetLinkLengths=function(){
-        this._setLinkDistance();
+        this._setLinkDistance(true);
         this.stopForce();        
                 for (var ii in this.force_links){
+                        var link = this.force_links[ii];
+                        link.value = link.original_value;
                         this._correctLinkLengths(this.force_links[ii]);                              
                 }
                 this._updateGraph(true);
@@ -1341,6 +1386,10 @@ D3MSTree.prototype.resetLinkLengths=function(){
         
 };
 
+
+/** Determines whether to show distance labels on links
+* @param {boolean} true or false
+*/
 D3MSTree.prototype.showLinkLabels = function(show){
         this.show_link_labels = show;       
         this._showLinkLabels();
@@ -1358,7 +1407,7 @@ D3MSTree.prototype._showLinkLabels = function(){
                                         attr('font-size', this.link_font_size).attr('font-family', 'sans-serif').
                                         style('fill', 'gray').style('stroke', 'black').style('stroke-width', '.25px').
                                         text(function(it){
-                                                 return it.value.toPrecision(2);
+                                                 return it.original_value.toPrecision(2);
                                         });
                                         
         this.link_elements.selectAll('text').attr('x', function(it){
@@ -1372,7 +1421,10 @@ D3MSTree.prototype._showLinkLabels = function(){
 }
 
 
-
+/** Sets the base node size. The radius of the node is calculated by the
+* log of the number of items represented by the node multipled by base node size
+* @param {number} node_size The base node size
+*/
 D3MSTree.prototype.setNodeSize = function(node_size){
         this._saveNodeRadii();
         this.base_node_size=node_size;	 
@@ -1381,6 +1433,11 @@ D3MSTree.prototype.setNodeSize = function(node_size){
        
 };
 
+
+/** Sets the relative node size. Default is 0.5, The smaller the number, the smaller
+* nodes will be that represent many items
+* @param {number} factor The size_power value used in node size calculation
+*/
 D3MSTree.prototype.setRelativeNodeSize = function(factor){
         this._saveNodeRadii();
         this.size_power=factor;
@@ -1409,7 +1466,11 @@ D3MSTree.prototype._nodeSizeAltered= function(){
 
 
 
-
+/**
+Returns all the selected IDs of the selected node
+* @returns {list} All the selected IDs, these may be the ids of the nodes or
+* if the node is assocaited with items, the ID of all the items in the node
+*/
 D3MSTree.prototype.getSelectedIDs=function(){
         var selected = [];
         for (i = 0; i<this.force_nodes.length;i++) {
@@ -1433,6 +1494,12 @@ D3MSTree.prototype.getSelectedIDs=function(){
 
 
 
+/** If true each individual item in the node will have its own 'wedge' even if it 
+* is the same category (although it is the same colour). This useful to guage the
+* size of the node, but if nodes represent 100's of items, will slow down the
+* rendering of the tree
+* @param {boolean} true or false
+*/
 D3MSTree.prototype.showIndividualSegments= function(show){
         this.show_individual_segments=show;
         this.changeCategory(this.display_category);
@@ -1440,22 +1507,41 @@ D3MSTree.prototype.showIndividualSegments= function(show){
 
 };
 
+
+
+/** Sets the size of node labels in pixels
+* @param {number} node label font size in pixels
+*/
 D3MSTree.prototype.setNodeFontSize = function(size){
         this.node_font_size=size;
         this._setNodeText();
 };
 
-
+/**
+* Sets the label to display on the node.
+* @param {string} value The name of a the category whose values will be displayed.
+* if 'node_id' is given then the node id will be displayed.
+*/
 D3MSTree.prototype.setNodeText = function(value){
         this.node_text_value = value;
         this._setNodeText();
 };
 
+/**
+* Determines wheteher node labels will be present
+* @param {boolean} show Either true or false
+*/
 D3MSTree.prototype.showNodeLabels = function(show){
         this.show_node_labels= show;
         this._setNodeText();
 };
 
+
+/**
+* If nodes are unfixed (i.e. they are being positioned by the force algorithm)
+* the supplied value specifies the repelling force between each node
+* @param {number} amount the repelling force between each node (or attraction if amount is posotive)
+*/
 D3MSTree.prototype.alterCharge=function(amount){
         this.charge = amount*-1;
         this.startForce();
@@ -1556,6 +1642,12 @@ D3MSTree.prototype._updateNodesToDisplay = function(tag){
 
 }
 
+/** This will cause all nodes to be acted upon by the 'force' algorithm
+* and will alter their position. Nodes will spread out and link lengths
+* may no longer be accurate
+* @param {boolean} If true all nodes will be released, otherwise just
+* the selected ones
+*/
 D3MSTree.prototype.unfixSelectedNodes= function(all){
         for (i = 0; i<this.force_nodes.length;i++) {
         var node = this.force_nodes[i];
@@ -1575,6 +1667,9 @@ D3MSTree.prototype.unfixSelectedNodes= function(all){
         this.startForce(true);
 }
 
+/** This fixes all nodes and stops the 'force' algorithm from updating
+* their position
+*/
 D3MSTree.prototype.fixAllNodes=function(){
         this.stopForce();
         for (var index in this.force_nodes){
@@ -1584,7 +1679,10 @@ D3MSTree.prototype.fixAllNodes=function(){
         }
         for (var ii in this.force_links){
                 var link = this.force_links[ii];
-                link.link_distance= this._getActualLinkLength(link);
+                var link_distance = this._getActualLinkLength(link);
+                link.link_distance= link_distance;
+                var value = link_distance-this.node_radii[link.source.id]-this.node_radii[link.target.id];
+                link.value = this.distance_scale.invert(value)
                                 
         }
         this.fixed_mode=true;
@@ -1646,6 +1744,10 @@ D3MSTree.prototype._rotateChildren =function (node,angle_change,center){
 
 }
 
+
+/** Hides all links which have a length above the value supplied
+* @param {number} max_length The length above which links will be hidden
+*/
 D3MSTree.prototype.setHideLinkLength=function(max_length){
         this.hide_link_length=max_length;
         this._drawLinks();
@@ -1691,6 +1793,12 @@ D3MSTree.prototype._getIDsForNode= function(node_id){
         return ids;
 };
 
+/** All nodes whose ID in is the supplied list will have a large yellow
+* halo around them.
+* @param {list} IDs A list of IDs to higlight, the IDs will be either be the IDs
+* of items associated with a node or the ids of the node. Even if only one ID
+* is present in the node, then the whole node will be highlighted.
+*/
 D3MSTree.prototype.highlightIDs = function (IDs){
        this.clearSelection();
        var self = this;
@@ -1843,36 +1951,56 @@ D3MSTree.prototype.createLinksFromNewick=function(node,parent_id){
 }
 
 
-D3MSTree.prototype.createLinksFromNewick2=function(nodes){
-        for (var i in nodes){
-                var node = nodes[i];
-                if (node.children){
-                        this.original_nodes.push("_hypo_node_"+i);
-                        node.name = "_hypo_node_"+i;
-                }
-                else{
-                         var name = node.name;
-                         if (this.taxon_key){
-                                name = this.taxon_key[node.name];
-                                if (!name){
-                                        name = node.name;
-                                }
-                        }
-                        this.original_nodes.push(name+"");
-                        
-                
-                }
-                if (node.parent){
-                        this.original_links.push({source:node.parent,target:node.id,distance:node.edge_length})
-                
-                }
-          
-        }
-}
-
+/** Adds a listener to the node, which is called when the node is clicked
+* @param {function} func A callback which is called when a node is clicked
+* The functions is supplied the actual node and a list of IDs associated 
+* with the node e.g. addNodeClickedListener(function(node,ids){...});
+*/
 D3MSTree.prototype.addNodeClickedListener=function(func){
         this.node_clicked_listeners.push(func);
 }
+/** Adds a listener to the node segment, which is called when the mouse is over the segment
+* @param {function} func A callback which is called when a  segment is mouse overed
+* The functions is supplied the segment e.g. addLinkOverListener(function(segment){...});
+*/
+D3MSTree.prototype.addSegmentOverListener=function(func){
+        this.segment_over_listeners.push(func);
+}
+/** Adds a listener to the node segment, which is called when the mouse leaves the segment
+* @param {function} func A callback which is called when the mouse leaves the segment
+* The functions is supplied the segment e.g. addLinkOverListener(function(segment){...});
+*/
+D3MSTree.prototype.addSegmentOutListener=function(func){
+        this.segment_out_listeners.push(func);
+}
+
+
+/** Adds a listener to the link, which is called when the link is clicked
+* @param {function} func A callback which is called when a link is clicked
+* The functions is supplied the link e.g. addLinkClickedListener(function(link){...});
+*/
+D3MSTree.prototype.addLinkClickedListener=function(func){
+        this.link_clicked_listeners.push(func);
+}
+/** Adds a listener to the node, which is called when the mouse is over the link
+* @param {function} func A callback which is called when a link is mouse overed
+* The functions is supplied the link e.g. addLinkOverListener(function(link){...});
+*/
+D3MSTree.prototype.addLinkOverListener=function(func){
+        this.link_over_listeners.push(func);
+}
+/** Adds a listener to the node, which is called when the mouse leaves the link
+* @param {function} func A callback which is called when the mouse leaves the link
+* The functions is supplied the link e.g. addLinkOverListener(function(link){...});
+*/
+D3MSTree.prototype.addLinkOutListener=function(func){
+        this.link_out_listeners.push(func);
+}
+
+
+
+
+
 
 //brush functions
 D3MSTree.prototype.brushEnded=function(extent){
