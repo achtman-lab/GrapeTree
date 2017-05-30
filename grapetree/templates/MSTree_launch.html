@@ -262,7 +262,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         
                 </div>
         </div>
-        <div id = 'add-data-panel' class='panel panel-default'>	
+   
+	<div id = 'add-data-panel' class='panel panel-default'>	
                 <div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Metadata</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
                 <div class = "panel-body" id ='mst-data-menu-panel'>	
                 
@@ -284,7 +285,48 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                                           
                 </div>
         </div>
-      
+	<div id = 'param-panel' class='panel panel-default'>	
+	   <div class ='panel-heading mst-menu-title' id= 'mst-param-menu'> <b id>Parameters</b><span id = 'mst-param-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+	   <div class = "panel-body" id ='mst-param-menu-panel'>	
+		   <label>Method</label>
+		   <br>
+		   <select id ='method-select'>
+			   <option value='MST'>MST</option>
+			   <option value='NJ'>NJ</option>
+		   </select>
+		   <br>
+		   <label>Matrix Type</label>
+		   <br>
+		   <select id ='matrix-select'>
+			   <option value='asymmetric'>Asymmetric</option>
+			   <option value='symmetric'>Symmetric</option>
+		   </select>
+		   <br>
+		   <label>Edge Wieight</label>
+		   <br>
+		   <select id = 'edge-weight-select'>
+			   <option value='harmonic'>Harmonic</option>
+			   <option value='eBurst'>eBurst</option>
+		   </select>
+		   <br>
+		   <label>Neighbor Branch Reconnection</label>
+		   <br>
+		   <select id = 'branch-select'>
+			   <option value='T'>True</option>
+			   <option value='F'>False</option>
+		   </select>
+		   <label>Layout Algorithm</label>
+		   <br>
+		   <select id = 'layout-select'>
+			   <option value='greedy'>Greedy</option>
+			   <option value='force'>Force</option>
+		   </select>
+		   
+		  
+				       
+	   </div>
+	</div>
+ 
 
           
        <br>
@@ -423,6 +465,11 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                     }
                 }).append(save);
         };
+	
+	function getSuffix(name){
+		var arr = name.split(".");
+		return arr[arr.length-1];
+	}
         
         
         
@@ -613,14 +660,17 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
               setTimeout(function(){
                         readFile(file,function(tree){
                                  var data={};
-                                 if (file.name.endsWith("json")){
+				 var suffix = getSuffix(file.name);
+                                 if (suffix === 'json'){
                                      data =JSON.parse(tree);      
                                  } 
-                                 else if (tree.startsWith("#NEXUS")){
+                                 else if (tree.substring(0,6)==="#NEXUS"){
                                          data['nexus']=tree;
+					 data['layout_algorithm']=$("#layout-select").val();
                                  }
                                  else{
                                          data['nwk']=tree;
+					 data['layout_algorithm']=$("#layout-select").val();
                                  }
                                  loadMSTree(data)                
                         });
@@ -694,7 +744,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         
                         });
                       
-                        the_tree.segmentMouseOver=function(d){
+                        the_tree.addSegmentOverListener(function(d){
                                 if ($("#show-node-tooltip").prop("checked")){
                                         var display = d.data.type;
                                         if (d.data.node_id){
@@ -702,19 +752,19 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                                         }
                                         showToolTip(display+"("+d.data.value+")");
                                 }
-                        };
-                        the_tree.segmentMouseOut=function(d){
+                        });
+                        the_tree.addSegmentOutListener(function(d){
                                  hideToolTip();	
-                        };
-                        the_tree.linkMouseOver=function(d){
+                        });
+                        the_tree.addLinkOverListener(function(d){
                                 if ($("#show-link-tooltip").prop("checked")){
                                         showToolTip("length:"+d.value);
                                 }
                         
-                        };
-                        the_tree.linkMouseOut=function(d){
+                        });
+                        the_tree.addLinkOutListener(function(d){
                                 hideToolTip();	
-                        };
+                        });
                         the_tree.resize();
 			if (data['metadata_options']){
                               
@@ -784,9 +834,15 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 $.ajax({
                         method: "POST",
                         url: "/maketree",
-                        data: {profile:profile}
+                        data: {
+				profile:profile,
+				method:$("#method-select").val(),
+				matrix_type:$("#matrix-select").val(),
+				edge_weight:$("#edge-weight-select").val(),
+				neighbor_branch_reconnection:$("#branch-select").val()
+				}
                 }).done(function(result){
-                       loadMSTree({"nwk":result});          
+                       loadMSTree({"nwk":result,"layout_algorithm":$("#layout-select").val()});          
                }).fail(function( jqXHR, textStatus){
                         console.log(textStatus);
                         loadFailed("There server returned an error. Is the profile file in the right format");
@@ -818,8 +874,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
  
  
  function loadMetadataFile(file){
-        var dl = "\t"
-        if (file.name.endsWith(".csv")){
+        var dl = "\t";
+	var suffix =  getSuffix(file.name)
+        if (suffix==='csv'){
                 dl=",";
         }
         MSCSCReader(file,dl,function(msg,lines,header_index){

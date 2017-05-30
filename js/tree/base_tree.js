@@ -1,9 +1,4 @@
-/**
- * Very basic NEXUS parser
- *
- * Supports TREES block
- *
- */
+
  
 //--------------------------------------------------------------------------------------------------
 // http://stackoverflow.com/questions/1303646/check-whether-variable-is-number-or-string-in-javascript
@@ -901,7 +896,6 @@ D3BaseTree.prototype.readNexusFile = function (text){
 
 
 
-
 /**
 * Adds metadata to the tree 
 * @param {object} metadata - An object containing id to a list of key value pairs
@@ -938,7 +932,11 @@ D3BaseTree.prototype.addMetadata=function(metadata){
 }
 	
 
-
+/**
+* Resizes the tree components based on the size of the container
+* This method is automtically called if the window is resized,
+* but should be called if the container is resized manually
+*/
 
 D3BaseTree.prototype.resize=function(){
 	this.width = this.container.width();
@@ -1022,6 +1020,11 @@ D3BaseTree.prototype._changeCategory=function(category){
 	this.updateLegend(category);
 }
 
+/**
+* Retreives metadata
+* @returns {object} An object containing id to a list of key value pairs
+* e.g. {55:{name:"bob",colour:"blue",ID:"node_3"},{....},...}
+*/
 D3BaseTree.prototype.getMetadata=function(){
 	return this.metadata;
 };           
@@ -1035,7 +1038,10 @@ D3BaseTree.prototype.getAllIDs=function(){
 	return ids;
 }
 
-
+/**
+* Hide/Show the menu
+* @param {boolean} show If true the menu will be shown
+*/
 D3BaseTree.prototype.showLegend= function (show){
 	this.show_legend=show;
 	if (show){
@@ -1146,7 +1152,12 @@ D3BaseTree.prototype.updateLegend = function(title){
 		
 };
 	
-
+/**
+* Sets the colour for a value in a category e.g. setColour("Country","France","blue")
+* @param {string} category The name of the field (category)
+* @param {string} value The name of the value
+* @param {string} colour The colour to set (usual fomration)
+ */
 D3BaseTree.prototype.setColour=function(category,value,colour){
 	var cat = this.custom_colours[category];
 	if (!cat){
@@ -1218,6 +1229,7 @@ D3BaseTree.prototype._keyDown= function(e){
 			.x(this.zoom.x())
 			.y(this.zoom.y())
 			.on("brushstart",function(){
+				$(".extent").css( {stroke:"#fff","fill-opacity":".125","shape-rendering": "crispEdges"});
 				self.brushStarted()
 			})
 			.on("brush", function() {
@@ -1237,7 +1249,9 @@ D3BaseTree.prototype._keyDown= function(e){
 	}
 };
 
-
+/**
+Downloads the current tree in svg format
+*/
 D3BaseTree.prototype.downloadSVG=function(name){
 	//attach legend to svg
 	this.legend_div.show();
