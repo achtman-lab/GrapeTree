@@ -508,7 +508,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                                                 ln.value += increase;
                                                 ln.original_value=ln.value;
                                          } 
-                                         node2link[l.source.id].push(ln);
+                                      node2link[l.source.id][i] = ln;
                                  }
                         }
 
@@ -736,6 +736,7 @@ D3MSTree.prototype.setLayout = function(layout_data){
                 this.link_font_size = data['link_font_size']?data['link_font_size']:this.link_font_size
                 this.distance_scale= d3.scale.linear().domain([0,this.max_link_distance]).range([0,this.max_link_scale]);
                 this.show_link_labels =  data['show_link_labels'];
+		this.node_text_value=data['node_text_value'];
                 this.node_font_size = data['node_font_size']?data['node_font_size']:this.node_font_size
                 this.show_individual_segments=data['show_individual_segments'];
                 if (data['show_node_labels']===undefined){
@@ -790,7 +791,8 @@ D3MSTree.prototype.getLayout=function(){
                 custom_colours:this.custom_colours,
                 hide_link_length:this.hide_link_length,
                 show_individual_segments:this.show_individual_segments,
-                node_collapsed_value:this.node_collapsed_value
+                node_collapsed_value:this.node_collapsed_value,
+		node_text_value:this.node_text_value
                 
         };
         if (this.log_link_scale){
@@ -1192,7 +1194,7 @@ D3MSTree.prototype._addLinks=function(links,ids){
                 if (x.value > this.max_link_distance){
                        this.max_link_distance=x.value;
                 }
-                if (x.value<this.min_link_distance & x.value !==0){
+                if (x.value<this.min_link_distance & x.value >0){
                         this.min_link_distance=x.value;
                 }
                 var target_node = this._findNode(x.target);
