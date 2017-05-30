@@ -235,6 +235,7 @@ class methods(object) :
         fin.close()
         Popen('{0} -i {1} -m B'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
         tree = dp.Tree.get_from_path(fin.name + '_fastme_tree.nwk', schema='newick')
+        tree.reroot_at_midpoint()
         from glob import glob
         for fname in glob(fin.name + '*') :
             os.unlink(fname)
