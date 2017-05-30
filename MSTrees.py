@@ -37,7 +37,7 @@ class distance_matrix(object) :
             presences = (profiles > 0)
         else :
             presences = np.repeat(np.sum(profiles >0, 0) >= profiles.shape[0], profiles.shape[0]).reshape([profiles.shape[1], profiles.shape[0]]).T
-        
+
         if links is None :
             distances = np.zeros(shape=[profiles.shape[0], profiles.shape[0]])
             if missing_data in ('pair_delete',) :
@@ -100,8 +100,8 @@ class methods(object) :
             v = 1-((n_loci-a)*(n_loci-c)/n_loci+(n_loci-b))/2/n_loci
             s21, s22 = 1+a*v/(b-2*n_loci*v), 1+c*v/(b-2*n_loci*v)
 
-            p1 = 2*a*np.log(s11) + (n_loci-a)*np.log(1-s11*s11) + (b+c)*np.log(s11*s12) + (2*n_loci-b-c)*np.log(1-s11*s12)
-            p2 = a*np.log(s21) + (n_loci-a)*np.log(1-s21) + b*np.log(s21*s22) + (n_loci-b)*np.log(1-s21*s22) + c*np.log(s22) + (n_loci-c)*np.log(1-s22)
+            p1 = a*np.log(1-s11*s11) + (n_loci-a)*np.log(s11*s11) + (b+c)*np.log(1-s11*s12) + (2*n_loci-b-c)*np.log(s11*s12)
+            p2 = a*np.log(1-s21) + (n_loci-a)*np.log(s21) + b*np.log(1-s21*s22) + (n_loci-b)*np.log(s21*s22) + c*np.log(1-s22) + (n_loci-c)*np.log(s22)
             return p1 >= p2
 
         if n_loci is None :
@@ -211,7 +211,7 @@ class methods(object) :
 
     @staticmethod
     def MST(names, profiles, matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T', missing_data='pair_delete', **params) :
-        
+
         dist = eval('distance_matrix.'+matrix_type)(profiles, missing_data = missing_data)
         wdist = eval('distance_matrix.'+edge_weight)(dist)
 
