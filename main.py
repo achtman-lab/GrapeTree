@@ -66,7 +66,7 @@ def main() :
             print "Executing @ " + time.asctime()
         install_static()
         open_browser(app.config.get('PORT'))
-        app.run(port=app.config.get('PORT'))
+        app.run(port=app.config.get('PORT'))	
         if args.verbose:
             print "Ended @ " + time.asctime()
         if args.verbose:
