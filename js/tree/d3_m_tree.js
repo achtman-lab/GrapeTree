@@ -226,7 +226,7 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale, node_size) {
         var min_radial = max_radial/link_scale * (2*Math.sqrt(node_size));
         var min_arc = min_radial * Math.PI / min_arc;
         
-        for (var iteration=0; iteration < 10; iteration ++) {
+        for (var iteration=0; iteration < 20; iteration ++) {
                 var records = [];
                 var max_span = [[], 0];
                 for (var ite=0; ite <11; ite ++) {
@@ -277,7 +277,7 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale, node_size) {
                                 min_arc = (Math.PI / max_span[1]) * min_arc;
                         }
                 }
-                if (iteration==9) max_span[0] = [0];
+                if (iteration==19) max_span[0] = [0];
                 for (var ii in max_span[0]) {
                         id = max_span[0][ii];
                         _ite_assign(nodes[id], min_arc);
