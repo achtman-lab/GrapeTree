@@ -271,6 +271,10 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                           <p align='center'>
                                 <button id = 'button-load-meta'> Load Metadata</button>
                         </p>
+			
+			<label>Search</label>
+			<br>
+			<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
                         
                         <label>Add Field&nbsp;&nbsp;&nbsp;</label>
                         <input  size="11" id ="add-extra-field-input">
@@ -1182,7 +1186,19 @@ window.onload = function (){
         $("#center-graph-button").click(function(e){
              the_tree.centerGraph();
         
-        })
+        });
+	
+	$("#search-metadata-icon").click(function(e){
+		var keyword= $("#search-metadata-input").val();
+		if (!keyword){
+			return;
+		}
+		var ids = the_tree.searchMetadata(keyword);
+		the_tree.highlightNodes(ids);
+	
+	
+	
+	});
         
         
         

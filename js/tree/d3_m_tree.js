@@ -3,9 +3,8 @@ D3MSTree.prototype.constructor = D3MSTree;
 
 /**
 * @typedef {Object} InitialData
-* An object describing the tree. Either nodes and links or nwk or nexus or layout_data 
-* are the only required properties,
-* the rest will be set as default
+* An object describing the tree. Either nodes and links or nwk or nexus
+* are the only required properties,the rest will be set as default
 * @property {list} nodes A list of node names ['ST131','ST11']
 * @property {list} links A list of objects containing source,target and distance , where source and targets 
 * are indexes to the nodes list e.g. [{source:0,target:1,distance:10},...]
@@ -13,15 +12,17 @@ D3MSTree.prototype.constructor = D3MSTree;
 * @property {string} nexus A tree in nexus format
 * @property {string} layout_algorithm The initial algorithm to work out node positions. Can be either 'force' or
 * 'greedy'. Default is 'greedy'
-* @property {LayoutData} layout_data Data describing the layout
-* @property {string} initial_category The initial category to display in the tree. Default is none
+* @property {LayoutData} layout_data Data describing the layout. If none is supplied default
+* values will be supplied and the specified algorithm will calculate the initial layout
+* @property {object} metadata The metadata for the tree - see {@link D3MSTree#addMetadata} 
+* @property {string} initial_category The initial category to display in the tree - see {@link D3MSTree#changeCategory}
 */
 
 /**
 * @constructor
 * @extends D3BaseTree
-* @param {string} element_id - The id of the container for the tree
-* @param {InitialData} data -An  object containing the following 
+* @param {string} element_id The id of the container for the tree
+* @param {InitialData} data An  object containing the following 
 * @param {function} callback The function to be called when the set up is finished (optional).
 * The callback is passed the tree object and a message describing the state of initialisation.
 * The message will be 'complete' when the tree is finished
@@ -655,6 +656,7 @@ D3MSTree.prototype._untangleGraph = function(center,interval,callback){
 
 D3MSTree.prototype.startForce = function(use_node_force){
                 var self=this;
+		var link_strength=10;
                 this.d3_force_directed_graph
                         .gravity(this.gravity)
                         .linkDistance(function(d){
@@ -666,7 +668,7 @@ D3MSTree.prototype.startForce = function(use_node_force){
                                 }
                                 return self.charge;			
                         })
-                        .linkStrength(10)
+                        .linkStrength(link_strength)
                         .size([this.width, this.height])
                         .start();
 };
@@ -693,6 +695,7 @@ D3MSTree.prototype.stopForce = function(){
 * <li><b>base_node_size </b> The base size of the nodes. Default is 10 </li>
 * <li><b>show_node_labels</b> Determines  whether node labels are present. Default true </li>
 * <li><b>node_font_size</b> Controls the size (in pixels) of node labels. Default is 14 </li>
+* <li><b>node_text_value</b> The category to display on the node label. Default is none (node id is shown) </li>
 * <li><b>size_power</b> Controls the size of the nodes. Nodes, will have a radius which equal to number 
 * of items associated with the node to the power of size_power multiplied by base_node_size
 * Default value is 0.5 </li>
@@ -766,7 +769,7 @@ D3MSTree.prototype.setLayout = function(layout_data){
 
 /**
 * Returns the  data describing the current tree's layout
-* @returns {object} layout _data - @see D3MSTree#setLayout
+* @returns {LayoutData} layout _data Data describing the layout of the tree
 */
 D3MSTree.prototype.getLayout=function(){   
         var node_positions={};
@@ -895,6 +898,19 @@ D3MSTree.prototype._drawNodes=function(){
                         return d.halo_colour;
                 });
 };
+
+/**
+* Alters the length of the link to the supplied value
+* @param {object} link  The link object to alter
+* @param {number} length The new length of thr link
+*/
+D3MSTree.prototype.setIndividualLinkLength= function(link,length){
+	link.value=length;
+	this._setLinkDistance();
+	this._correctLinkLengths(link);
+	this._updateGraph(true);
+	
+}
 
 
 
@@ -1390,7 +1406,7 @@ D3MSTree.prototype.resetLinkLengths=function(){
 
 
 /** Determines whether to show distance labels on links
-* @param {boolean} true or false
+* @param {boolean} show true or false
 */
 D3MSTree.prototype.showLinkLabels = function(show){
         this.show_link_labels = show;       
@@ -1647,7 +1663,7 @@ D3MSTree.prototype._updateNodesToDisplay = function(tag){
 /** This will cause all nodes to be acted upon by the 'force' algorithm
 * and will alter their position. Nodes will spread out and link lengths
 * may no longer be accurate
-* @param {boolean} If true all nodes will be released, otherwise just
+* @param {boolean} all If true all nodes will be released, otherwise just
 * the selected ones
 */
 D3MSTree.prototype.unfixSelectedNodes= function(all){
@@ -1795,15 +1811,19 @@ D3MSTree.prototype._getIDsForNode= function(node_id){
         return ids;
 };
 
-/** All nodes whose ID in is the supplied list will have a large yellow
-* halo around them.
+/** All nodes which contain metadata that has  ID in is the supplied list 
+* will have a large halo around them.
 * @param {list} IDs A list of IDs to higlight, the IDs will be either be the IDs
-* of items associated with a node or the ids of the node. Even if only one ID
-* is present in the node, then the whole node will be highlighted.
+* of items associated with a node or the id of the node (if a one to one relationship)
+* Even if only one ID is present in the node, then the whole node will be highlighted.
+* @param {string} color The color of the halo (default yellow)
 */
-D3MSTree.prototype.highlightIDs = function (IDs){
+D3MSTree.prototype.highlightIDs = function (IDs,color){
        this.clearSelection();
        var self = this;
+       if (!color){
+		color="yellow"
+       }
        this._addHalos(function(d){
                         var group = self.getIDsForNode(d.id)
                         for (var i=0;i<IDs.length;i++){
@@ -1813,8 +1833,30 @@ D3MSTree.prototype.highlightIDs = function (IDs){
                         }
                         return false;
 
-        },22,"yellow");
+        },22,color);
       
+}
+
+
+/** All nodes with the id in supplied list will have a large yellow
+* halo around them.
+* @param {list} IDs A list of nodes  IDs to higlight, 
+* @param {string} color The color of the halo (default yellow)
+*/
+D3MSTree.prototype.highlightNodes = function(node_ids,color){
+	this.clearSelection();
+	var self = this;
+	if (!color){
+		color="yellow"
+	}
+	this._addHalos(function(d){
+		if (node_ids.indexOf(d.id)!==-1){
+			return true;
+		}
+		return false;
+
+        },22,color);
+
 }
 
 
