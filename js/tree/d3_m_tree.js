@@ -129,7 +129,7 @@ function D3MSTree(element_id,data,callback,height,width){
                 this.createLinksFromNewick(root);
                 if (data['layout_algorithm']!=='force'){
                         var nodes = _traverse(root);
-                        data['layout_data']= {'node_positions':this.greedy_layout(nodes)};
+                        data['layout_data']= {'node_positions':this.greedy_layout(nodes, this.max_link_scale, this.base_node_size)};
                 }
 
               
@@ -201,19 +201,13 @@ function D3MSTree(element_id,data,callback,height,width){
 };
 
 D3MSTree.prototype.greedy_layout = function(nodes, link_scale, node_size) {
-        link_scale = link_scale ===undefined?500:link_scale;
-        node_size = node_size ===undefined?10:node_size;
-
         hashCode = function(s){
                 return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
         }
         // determine minimum params
         for (var id in nodes) {
                 node = nodes[id];
-                if (! node.size) {
-                        node.size = (node.children && node.children.length > 0 ? 0.01 : 1);
-                }
-                delete node.spacing;
+                if (! node.size) node.size = (node.children && node.children.length > 0 ? 0.01 : 1);
         }
         var max_radial = 0.0, min_arc = 0.0;
         for (var id in nodes) {
@@ -312,6 +306,8 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale, node_size) {
                                 child.coordinates[0] += node.coordinates[0], child.coordinates[1] += node.coordinates[1];
                         }
                 }
+                delete node.spacing, delete node.des_angle, delete node.des_span, delete node.polar, delete node.coordinates;
+
         }
         return coordinates;
 }
@@ -478,8 +474,6 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                                 layout[node.id] = this.original_node_positions[node.id]=[node.x,node.y];
                         }
                 }
-                // layout = JSON.parse(JSON.stringify(this.original_node_positions));
-
         }
 
         if (max_distance<=this.node_collapsed_value || (! this.force_nodes) || this.force_nodes.length == 0){
@@ -2044,6 +2038,9 @@ D3MSTree.prototype.addLinkOutListener=function(func){
 
 //brush functions
 D3MSTree.prototype.brushEnded=function(extent){
+        if (extent[0][0] == extent[1][0] && extent[0][1] == extent[1][1]) {
+                return this.clearSelection();
+        }
         this.node_elements.filter(function(d){
                 var selected =(extent[0][0] <= d.x && d.x < extent[1][0] && extent[0][1] <= d.y && d.y < extent[1][1]);
                 if (selected){

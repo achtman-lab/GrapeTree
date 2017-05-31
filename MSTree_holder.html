@@ -901,12 +901,12 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		
                 for (var i in lines){
                         var line = lines[i];
-			if (line['Name']){
-				meta[line['Name']]=line;
-			}
-			else{
-				meta[line['ID']]=line;
-			}
+						if (line['Name']){
+							meta[line['Name']]=line;
+						}
+						else if (line['ID']){
+							meta[line['ID']]=line;
+						}
                        
                 }
                 the_tree.addMetadata(meta);
