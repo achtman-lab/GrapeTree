@@ -773,10 +773,7 @@ D3BaseTree.prototype.constructor=D3BaseTree;
 *  The base class for trees
 * @constructor
 * @param {string} element_id - The id of the container for the tree
-* @param {object} metadata - (optional )An object with the following format
-* <pre>
-*	{object_id:{ID:"node_id",key:"value",....},......}
-* </pre>
+* @param {object} metadata - (optional ) An object describing the trees metadata see {@link D3BaseTree#addMetadata}
 * @param {integer} height - the initial height. The container will be reisized to this height. If absent, the height of the container will be used
 * @param {integer} width - the initial width. The container will be reisized to this width If absent, the width of the container will be used
 *
@@ -898,12 +895,32 @@ D3BaseTree.prototype.readNexusFile = function (text){
 
 /**
 * Adds metadata to the tree 
-* @param {object} metadata - An object containing id to a list of key value pairs
-* If the id does not exist , then an ID property is required which is the ID of node
-* If the ID does exist than new properties will be added or existing ones altered
-* {55:{name:"bob",colour:"blue",ID:"node_3"},{....},...}
-*  To update 
-* {55:{colour:"red"}
+* @param {object} metadata - An object containing id to a list of key value pairs.If there is
+* a one to one relationship beteween the nodes and metadata, then the id should correspond 
+* to the node id e,g,
+* <pre>
+* {
+*	node_a:{year:"1987",color:"red"},
+*	node_b:{.....}
+*	,....
+* } 
+* </pre>
+* If a node reprsents several entities e.g.an ST has several strins, then an ID property is required,
+* which is the ID of node e.g.
+* <pre>
+* {
+	strain_a:{year:"1988",virulence:"high",ID:"ST27"},
+	strain_b:{year:"1987",virulence:"low",ID:"ST27"},
+	strain_c:{year:"1989",virulence:"medium",ID:"ST28"},
+	....
+* }
+* </pre>
+* If the id already exists, than new properties will be added or existing ones altered e.g.
+* <pre>
+* {
+* strain_a:{year:"1999",new_category:"value1"}
+* }
+* </pre>
 */
 D3BaseTree.prototype.addMetadata=function(metadata){
 	for (var id in metadata){
@@ -1022,13 +1039,50 @@ D3BaseTree.prototype._changeCategory=function(category){
 
 /**
 * Retreives metadata
-* @returns {object} An object containing id to a list of key value pairs
-* e.g. {55:{name:"bob",colour:"blue",ID:"node_3"},{....},...}
+* @returns {object} An object containing id to a list of key value pairs see {@link D3BaseTree#addMetadata}
+
 */
 D3BaseTree.prototype.getMetadata=function(){
 	return this.metadata;
 };           
 
+/**
+* Searches the node names (ids) and all metadata values associated 
+* with the node for the keyword
+* @param {string} keyword The word to use for the search
+* @returns {list} All the node ids where the keyword was found
+*/
+D3BaseTree.prototype.searchMetadata=function(keyword){
+	var ids = [];
+	for (var id in this.grouped_nodes){
+		var contains = false;
+		var list = this.grouped_nodes[id];
+		for (var i in list){
+			if((list[i]+"").includes(keyword)){
+				ids.push(id);			
+				break;
+			}
+			var meta_id = this.metadata_map[list[i]];
+			if (meta_id){
+				var metadata= this.metadata[meta_id];
+				var contains = false
+				for (var key in metadata){
+					if (metadata[key].includes(keyword)){
+						ids.push(id);
+						contains=true;
+						break;
+					}
+				}
+				if (contains){
+					break;
+				}
+			}
+		}
+		
+	}
+	return ids;
+
+}
 
 D3BaseTree.prototype.getAllIDs=function(){
 	var ids =[];

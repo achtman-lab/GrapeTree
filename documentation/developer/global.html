@@ -162,7 +162,7 @@
 <dd>
     
     <div class="description">
-        An object describing the tree. Either nodes and links or nwk or nexus or layout_data are the only required properties,the rest will be set as default
+        An object describing the tree. Either nodes and links or nwk or nexusare the only required properties,the rest will be set as default
     </div>
     
 
@@ -346,7 +346,31 @@
 
             
 
-            <td class="description last">Data describing the layout</td>
+            <td class="description last">Data describing the layout. If none is supplied defaultvalues will be supplied and the specified algorithm will calculate the initial layout</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>metadata</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The metadata for the tree - see <a href="D3MSTree.html#addMetadata">D3MSTree#addMetadata</a></td>
         </tr>
 
     
@@ -370,7 +394,7 @@
 
             
 
-            <td class="description last">The initial category to display in the tree. Default is none</td>
+            <td class="description last">The initial category to display in the tree - see <a href="D3MSTree.html#changeCategory">D3MSTree#changeCategory</a></td>
         </tr>
 
     
@@ -514,7 +538,7 @@
 
             
 
-            <td class="description last">a dictionary of the following<ul><li><b>max_link_length</b> The maxiumum length of a link . Any link over this distancewill be corrected to this length and displayed as dotted.</li><li><b>max_link_scale</b> Controls the length that each link is displayed. The links will bescaled (in pixels) between this value and 0 </li><li><b>log_link_scale</b> If true - link length will be altered to the power of 0.8. Default is false </li><li><b>link_font_size</b> The size in pixels of link labels. Default is 10 </li><li><b>show_link_labels</b> Determines whether the distance labels on links are present. Default is false</li><li><b>hide_link_length</b> All links over this length will not be displayed. Default is infinity </li><li><b>base_node_size </b> The base size of the nodes. Default is 10 </li><li><b>show_node_labels</b> Determines  whether node labels are present. Default true </li><li><b>node_font_size</b> Controls the size (in pixels) of node labels. Default is 14 </li><li><b>size_power</b> Controls the size of the nodes. Nodes, will have a radius which equal to number of items associated with the node to the power of size_power multiplied by base_node_sizeDefault value is 0.5 </li><li><b>show_individual_segments</b> If true then every single component of the node will have its own 'wedge'even those in the same category (although they will be the same colour). Default is false.</li><li><b>node_collapsed_value</b> Nodes connecting by links with a distance equal or below this value will be collapsed. Default is 0</li><li><b>custom_colours</b> A dictionary of categories to value/colour pairs e.g.{category1:{value_1:"blue",value_2:"red",..},"category_2":{....},...}<li><b>scale</b> The scale factor (1.0 being normal size)</li><li><b>translate</b> The offset of the tree an array of x.y co-ordinate e.g. [30.-20] </b></li></ul></td>
+            <td class="description last">a dictionary of the following<ul><li><b>max_link_length</b> The maxiumum length of a link . Any link over this distancewill be corrected to this length and displayed as dotted.</li><li><b>max_link_scale</b> Controls the length that each link is displayed. The links will bescaled (in pixels) between this value and 0 </li><li><b>log_link_scale</b> If true - link length will be altered to the power of 0.8. Default is false </li><li><b>link_font_size</b> The size in pixels of link labels. Default is 10 </li><li><b>show_link_labels</b> Determines whether the distance labels on links are present. Default is false</li><li><b>hide_link_length</b> All links over this length will not be displayed. Default is infinity </li><li><b>base_node_size </b> The base size of the nodes. Default is 10 </li><li><b>show_node_labels</b> Determines  whether node labels are present. Default true </li><li><b>node_font_size</b> Controls the size (in pixels) of node labels. Default is 14 </li><li><b>node_text_value</b> The category to display on the node label. Default is none (node id is shown) </li><li><b>size_power</b> Controls the size of the nodes. Nodes, will have a radius which equal to number of items associated with the node to the power of size_power multiplied by base_node_sizeDefault value is 0.5 </li><li><b>show_individual_segments</b> If true then every single component of the node will have its own 'wedge'even those in the same category (although they will be the same colour). Default is false.</li><li><b>node_collapsed_value</b> Nodes connecting by links with a distance equal or below this value will be collapsed. Default is 0</li><li><b>custom_colours</b> A dictionary of categories to value/colour pairs e.g.{category1:{value_1:"blue",value_2:"red",..},"category_2":{....},...}<li><b>scale</b> The scale factor (1.0 being normal size)</li><li><b>translate</b> The offset of the tree an array of x.y co-ordinate e.g. [30.-20] </b></li></ul></td>
         </tr>
 
     
@@ -611,7 +635,7 @@
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
 	
-		on 2017-05-30T15:22:35+01:00
+		on 2017-05-31T14:30:46+01:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

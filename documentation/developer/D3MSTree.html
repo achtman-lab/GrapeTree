@@ -784,7 +784,11 @@
 
             
 
-            <td class="description last">An object containing id to a list of key value pairsIf the id does not exist , then an ID property is required which is the ID of nodeIf the ID does exist than new properties will be added or existing ones altered{55:{name:"bob",colour:"blue",ID:"node_3"},{....},...} To update {55:{colour:"red"}</td>
+            <td class="description last">An object containing id to a list of key value pairs.If there isa one to one relationship beteween the nodes and metadata, then the id should correspond to the node id e,g,<pre>{	node_a:{year:"1987",color:"red"},	node_b:{.....}	,....} </pre>If a node reprsents several entities e.g.an ST has several strins, then an ID property is required,which is the ID of node e.g.<pre>{
+	strain_a:{year:"1988",virulence:"high",ID:"ST27"},
+	strain_b:{year:"1987",virulence:"low",ID:"ST27"},
+	strain_c:{year:"1989",virulence:"medium",ID:"ST28"},
+	....}</pre>If the id already exists, than new properties will be added or existing ones altered e.g.<pre>{strain_a:{year:"1999",new_category:"value1"}}</pre></td>
         </tr>
 
     
@@ -1873,7 +1877,7 @@
     
             
 <div class="param-desc">
-    layout _data - @see D3MSTree#setLayout
+    layout _data Data describing the layout of the tree
 </div>
 
 
@@ -1884,7 +1888,7 @@
     </dt>
     <dd>
         
-<span class="param-type">object</span>
+<span class="param-type"><a href="global.html#LayoutData">LayoutData</a></span>
 
 
 
@@ -1984,7 +1988,7 @@
     
             
 <div class="param-desc">
-    An object containing id to a list of key value pairse.g. {55:{name:"bob",colour:"blue",ID:"node_3"},{....},...}
+    An object containing id to a list of key value pairs see <a href="D3BaseTree.html#addMetadata">D3BaseTree#addMetadata</a>
 </div>
 
 
@@ -2114,7 +2118,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="highlightIDs"><span class="type-signature"></span>highlightIDs(IDs)</h4>
+    <h4 class="name" id="highlightIDs"><span class="type-signature"></span>highlightIDs(IDs, color)</h4>
     
     
 </dt>
@@ -2122,7 +2126,7 @@
 
     
     <div class="description">
-        All nodes whose ID in is the supplied list will have a large yellowhalo around them.
+        All nodes which contain metadata that has  ID in is the supplied list will have a large halo around them.
     </div>
     
 
@@ -2174,7 +2178,183 @@
 
             
 
-            <td class="description last">A list of IDs to higlight, the IDs will be either be the IDsof items associated with a node or the ids of the node. Even if only one IDis present in the node, then the whole node will be highlighted.</td>
+            <td class="description last">A list of IDs to higlight, the IDs will be either be the IDsof items associated with a node or the id of the node (if a one to one relationship)Even if only one ID is present in the node, then the whole node will be highlighted.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>color</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The color of the halo (default yellow)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="highlightNodes"><span class="type-signature"></span>highlightNodes(IDs, color)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        All nodes with the id in supplied list will have a large yellowhalo around them.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>IDs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">list</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A list of nodes  IDs to higlight,</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>color</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The color of the halo (default yellow)</td>
         </tr>
 
     
@@ -2399,6 +2579,167 @@
     
 
     
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="searchMetadata"><span class="type-signature"></span>searchMetadata(keyword)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Searches the node names (ids) and all metadata values associated with the node for the keyword
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>keyword</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The word to use for the search</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+	<dt class="inherited-from method-doc-label method-doc-details-label">Inherited From:</dt>
+	<dd class="inherited-from">
+		<ul class="dummy">
+			<li>
+				<a href="D3BaseTree.html#searchMetadata">D3BaseTree#searchMetadata</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    All the node ids where the keyword was found
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">list</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
 </dd>
@@ -2653,6 +2994,158 @@
             
 
             <td class="description last">The length above which links will be hidden</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="setIndividualLinkLength"><span class="type-signature"></span>setIndividualLinkLength(link, length)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Alters the length of the link to the supplied value
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>link</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The link object to alter</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>length</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The new length of thr link</td>
         </tr>
 
     
@@ -4308,7 +4801,7 @@ will be reduced to the maximum length and displayed as dotted lines
             
 <hr>
 <dt>
-    <h4 class="name" id="showLinkLabels"><span class="type-signature"></span>showLinkLabels(true)</h4>
+    <h4 class="name" id="showLinkLabels"><span class="type-signature"></span>showLinkLabels(show)</h4>
     
     
 </dt>
@@ -4351,7 +4844,7 @@ will be reduced to the maximum length and displayed as dotted lines
 
         <tr>
             
-                <td class="name"><code>true</code></td>
+                <td class="name"><code>show</code></td>
             
 
             <td class="type">
@@ -4368,7 +4861,7 @@ will be reduced to the maximum length and displayed as dotted lines
 
             
 
-            <td class="description last">or false</td>
+            <td class="description last">true or false</td>
         </tr>
 
     
@@ -4564,7 +5057,7 @@ will be reduced to the maximum length and displayed as dotted lines
             
 <hr>
 <dt>
-    <h4 class="name" id="unfixSelectedNodes"><span class="type-signature"></span>unfixSelectedNodes(If)</h4>
+    <h4 class="name" id="unfixSelectedNodes"><span class="type-signature"></span>unfixSelectedNodes(all)</h4>
     
     
 </dt>
@@ -4607,7 +5100,7 @@ will be reduced to the maximum length and displayed as dotted lines
 
         <tr>
             
-                <td class="name"><code>If</code></td>
+                <td class="name"><code>all</code></td>
             
 
             <td class="type">
@@ -4624,7 +5117,7 @@ will be reduced to the maximum length and displayed as dotted lines
 
             
 
-            <td class="description last">true all nodes will be released, otherwise justthe selected ones</td>
+            <td class="description last">If true all nodes will be released, otherwise justthe selected ones</td>
         </tr>
 
     
@@ -4738,7 +5231,7 @@ will be reduced to the maximum length and displayed as dotted lines
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
 	
-		on 2017-05-30T15:22:35+01:00
+		on 2017-05-31T14:30:46+01:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
