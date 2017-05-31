@@ -99,7 +99,7 @@ function D3MSTree(element_id,data,callback,height,width){
         this.force_drag = this.d3_force_directed_graph.drag()
         .on('dragstart', function(it){
               self._dragStarted(it);
-        })         
+        })
         .on('drag', function(it){
               self._dragging(it)
         })
@@ -501,69 +501,64 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 anc_link[link.target.id] = link;
              
         }
+        var links = this.force_links;
+        while(true) {
+                links = links.filter(function(l){return (!l.remove && l.value <= max_distance);});
+                if (links.length <= 0) break;
+                var l = links.reduce(function(prev, curr){ 
+                        return prev.value < curr.value ? prev : curr; 
+                });
+                l.remove=l.target.remove=true;
 
-        this.force_links.sort(function (link1,link2){
-                return link1.value - link2.value;
-        });
-        
+                if (!l.source.hypothetical && !l.target.hypothetical){
+                        this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
+                }
+                var increase=l.value;
 
-        for (var index in this.force_links){
-                var l = this.force_links[index];
-
-                if (l.value<=max_distance){
-                        l.remove=l.target.remove=true;
-
-                        if (!l.source.hypothetical && !l.target.hypothetical){
-                                this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
+                for (var i in l.source.children){
+                        if (l.source.children[i].id===l.target.id){
+                                l.source.children.splice(i,1);
+                                break;
                         }
-                        var increase=l.value;
+                }
 
-                        for (var i in l.source.children){
-                                if (l.source.children[i].id===l.target.id){
-                                        l.source.children.splice(i,1);
-                                        break;
-                                }
-                        }
+                for (var i in l.target.children){
+                        var child = l.target.children[i];
+                        l.source.children.push(child);
+                        child.parent = l.source;
+                }
 
-                        for (var i in l.target.children){
-                                var child = l.target.children[i];
-                                l.source.children.push(child);
-                                child.parent = l.source;
-                        }
-                        
-                        var child_links = node2link[l.target.id];
-                        for (var i in child_links){
-                                 var ln = child_links[i];
-                                 if (! ln.remove) {
-                                         ln.source=l.source;
-                                         if (l.target.hypothetical){
+                var child_links = node2link[l.target.id];
+                for (var i in child_links){
+                         var ln = child_links[i];
+                         if (! ln.remove) {
+                                 ln.source=l.source;
+                                 if (l.target.hypothetical){
+                                        ln.value += increase;
+                                        ln.original_value=ln.value;
+                                 } 
+                                 node2link[l.source.id][ln.target.id] = ln;
+                         }
+                }
+
+                if (l.source.hypothetical && !l.target.hypothetical){
+                        delete l.source.hypothetical;
+                        if (node2link[l.source.id]) {
+                               for (var id in node2link[l.source.id]) {
+                                       ln = node2link[l.source.id][id];
+                                       if (! ln.remove) 
                                                 ln.value += increase;
-                                                ln.original_value=ln.value;
-                                         } 
-                                         node2link[l.source.id][ln.target.id] = ln;
-                                 }
+                                                node2link[l.target.id][id] = ln;
+                               }
                         }
+                        if (anc_link[l.source.id]) {
+                                anc_link[l.source.id].value += increase;
+                                anc_link[l.source.id].original_value += increase;
 
-                        if (l.source.hypothetical && !l.target.hypothetical){
-                                delete l.source.hypothetical;
-                                if (node2link[l.source.id]) {
-                                       for (var id in node2link[l.source.id]) {
-                                               ln = node2link[l.source.id][id];
-                                               if (! ln.remove) 
-                                                        ln.value += increase;
-                                                        node2link[l.target.id][id] = ln;
-                                       }
-                                }
-                                if (anc_link[l.source.id]) {
-                                        anc_link[l.source.id].value += increase;
-                                        anc_link[l.source.id].original_value += increase;
-                                        
-                                }
-                                anc_link[l.target.id] = anc_link[l.source.id];
-                                if (max_distance > this.node_collapsed_value && layout) layout[l.target.id] = layout[l.source.id];
-                                l.source.id =l.target.id;
-                            
                         }
+                        anc_link[l.target.id] = anc_link[l.source.id];
+                        if (max_distance > this.node_collapsed_value && layout) layout[l.target.id] = layout[l.source.id];
+                        l.source.id =l.target.id;
                 }            
         }
         this.node_collapsed_value=max_distance;
@@ -770,7 +765,7 @@ D3MSTree.prototype.setLayout = function(layout_data){
                 this.link_font_size = data['link_font_size']?data['link_font_size']:this.link_font_size
                 this.distance_scale= d3.scale.linear().domain([0,this.max_link_distance]).range([0,this.max_link_scale]);
                 this.show_link_labels =  data['show_link_labels'];
-		this.node_text_value=data['node_text_value'];
+		        this.node_text_value=data['node_text_value'];
                 this.node_font_size = data['node_font_size']?data['node_font_size']:this.node_font_size
                 this.show_individual_segments=data['show_individual_segments'];
                 if (data['show_node_labels']===undefined){
@@ -1910,7 +1905,7 @@ D3MSTree.prototype._dragStarted= function(it){
                var parent = it.parent;
                this.drag_link =this._getLink(it);
        }
-                
+
        it.fixed=true;
        it.tagged=true;
        //tag all children and highlight        
