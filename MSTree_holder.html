@@ -241,6 +241,10 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                        
                        <br>
                         <p align='center'>
+                                <button id = 'button-refresh'> Refresh</button>
+                        </p>
+						<hr>
+                        <p align='center'>
                                 <button onclick ="javascript:the_tree.unfixSelectedNodes()"> Unfix Selected</button>
                         </p>
                         <p align='center'>
@@ -256,10 +260,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         <br>
                         <div title = "0" id = "slider-charge" class = "slider-class"></div>
                         <br>
-                        <p align='center'>
-                                <button id = 'button-refresh'> Refresh</button>
-                        </p>
-                        
                 </div>
         </div>
    
@@ -291,30 +291,44 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		   <label>Method</label>
 		   <br>
 		   <select id ='method-select'>
+			   <option value='BASA'>BASA</option>
 			   <option value='MST'>MST</option>
 			   <option value='NJ'>NJ</option>
 		   </select>
-		   <br>
+		   <div id = "MST-option" style="display:none;">
+		   <hr>
 		   <label>Matrix Type</label>
 		   <br>
 		   <select id ='matrix-select'>
-			   <option value='asymmetric'>Asymmetric</option>
 			   <option value='symmetric'>Symmetric</option>
+			   <option value='asymmetric'>Asymmetric</option>
 		   </select>
+		   <div id = "symmetric-option">
+		   <hr>
+		   <label>Missing data</label>
 		   <br>
+		   <select id = 'missing-data'>
+			   <option value='pair_delete'>ignore</option>
+			   <option value='complete_delete'>ignore whole loci</option>
+			   <option value='as_allele'>treated as an allele</option>
+		   </select>
+		   <hr>
+		   </div>
 		   <label>Edge Wieight</label>
 		   <br>
 		   <select id = 'edge-weight-select'>
-			   <option value='harmonic'>Harmonic</option>
 			   <option value='eBurst'>eBurst</option>
+			   <option value='harmonic'>Harmonic</option>
 		   </select>
 		   <br>
 		   <label>Neighbor Branch Reconnection</label>
 		   <br>
 		   <select id = 'branch-select'>
-			   <option value='T'>True</option>
 			   <option value='F'>False</option>
+			   <option value='T'>True</option>
 		   </select>
+		   </div>
+		   <hr>
 		   <label>Layout Algorithm</label>
 		   <br>
 		   <select id = 'layout-select'>
@@ -331,7 +345,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
           
        <br>
         <p align='center'>
-               <button id = 'button-load-nwk'> Load Tree File</button>
+               <button id = 'button-load-nwk'> Load Tree/Profile File</button>
         </p>
         
         <p align='center'>
@@ -841,7 +855,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 				method:$("#method-select").val(),
 				matrix_type:$("#matrix-select").val(),
 				edge_weight:$("#edge-weight-select").val(),
-				neighbor_branch_reconnection:$("#branch-select").val()
+				neighbor_branch_reconnection:$("#branch-select").val(),
+				missing_data:$("#missing-data").val()
 				}
                 }).done(function(result){
                        loadMSTree({"nwk":result,"layout_algorithm":$("#layout-select").val()});          
@@ -1184,8 +1199,15 @@ window.onload = function (){
         
         })
         
+        $("#method-select").change(function(e) {
+			if ($(this).val() == "MST") $("#MST-option").show();
+			else $("#MST-option").hide();
+		})
         
-        
+        $("#matrix-select").change(function(e) {
+			if ($(this).val() == "symmetric") $("#symmetric-option").show();
+			else $("#symmetric-option").hide();
+		})
   
         
   

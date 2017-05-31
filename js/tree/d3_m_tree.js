@@ -1726,6 +1726,7 @@ D3MSTree.prototype.fixAllNodes=function(){
                 link.value = this.distance_scale.invert(value)
                                 
         }
+        this.resetLinkLengths();
         this.fixed_mode=true;
         this._updateGraph(true);	
         //this.change_nodes_to_update();
