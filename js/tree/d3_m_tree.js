@@ -1899,9 +1899,16 @@ D3MSTree.prototype._dragStarted= function(it){
        }
       
        this.stopForce();
-       if (!it.parent){
+       /*if (!it.parent){
               this.drag_orig_xy=[it.x,it.y];
               return;
+       }*/
+       if (!it.parent) {
+               var parent = it.children[0];
+               this.drag_link =this._getLink(parent);
+       } else {
+               var parent = it.parent;
+               this.drag_link =this._getLink(it);
        }
                 
        it.fixed=true;
@@ -1913,10 +1920,9 @@ D3MSTree.prototype._dragStarted= function(it){
        }).selectAll(".node-paths").style("stroke","red").attr("stroke-width","3px");
        this._updateNodesToDisplay("tagged");
        
-       this.drag_link =this._getLink(it);
-       var x_dif = it.x-it.parent.x
-       var y_dif = it.y-it.parent.y;
-       this.drag_source=it.parent;
+       var x_dif = it.x-parent.x
+       var y_dif = it.y-parent.y;
+       this.drag_source=parent;
        this.initial_drag_angle= Math.atan2(y_dif,x_dif);
        this.drag_radius = Math.sqrt((x_dif*x_dif)+(y_dif*y_dif));               
 };
@@ -1926,13 +1932,13 @@ D3MSTree.prototype._dragging= function(it){
         if (! this.fixed_mode){
               return;
        }
-       if (!it.parent){
+       /*if (!it.parent){
               it.x=this.drag_orig_xy[0];
               it.y =this.drag_orig_xy[1];
               it.px=it.x;
               it.py=it.y;
               return;
-       }
+       }*/
        it.px += d3.event.dx;
        it.py += d3.event.dy;
        it.x += d3.event.dx;
@@ -1967,9 +1973,9 @@ D3MSTree.prototype._dragEnded=function(it){
        if (! this.fixed_mode){
               return;
        }
-       if (!it.parent){	       
+       /*if (!it.parent){	       
               return;
-       }
+       }*/
        var source  = this.drag_source;
        
        var target = it;
