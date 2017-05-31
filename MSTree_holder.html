@@ -1085,13 +1085,6 @@ window.onload = function (){
 									$(this).prop("title", $(this).slider("value"));}
         });
 
-
-	/*$("#slider-linklength").tooltip();
-        $( "#slider-nodesize" ).tooltip();
-        $( "#slider-relative-nodesize" ).tooltip();
-        $( "#slider-node-fontsize" ).tooltip();
-        $( "#slider-linkfontsize" ).tooltip();
-	*/
         $("#node-label-text").change(function(e){
                 var val = $(this).val();
                 if (val ==="cat"){
@@ -1180,11 +1173,7 @@ window.onload = function (){
         });
         
         $("#button-collapse-nodes").click(function(e){
-                
-                
-	the_tree.collapseNodes($("#spinner-collapse-nodes").val());
-                
-        
+			the_tree.collapseNodes($("#spinner-collapse-nodes").val());
         });
         
         $("#save-tree-json").click(function(e){
@@ -1208,9 +1197,11 @@ window.onload = function (){
 			if ($(this).val() == "symmetric") $("#symmetric-option").show();
 			else $("#symmetric-option").hide();
 		})
-  
-        
-  
+		
+		$("#graph-div").on('dblclick', function(e){
+		    if (the_tree) the_tree.clearSelection();
+       })
+
 };
 </script>
 </body>

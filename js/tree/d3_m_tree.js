@@ -394,9 +394,7 @@ D3MSTree.prototype._start= function(callback,layout_data){
                 return it.id;
         });
       
-        new_node_elements.call(this.force_drag).
-        on('dblclick', function(it){
-        }).on('mouseup', function(it){
+        new_node_elements.call(this.force_drag).on('mouseup', function(it){
                 if (!self.is_dragging){
                         var ids = self._getIDsForNode(it.id);
                         for (var i in self.node_clicked_listeners){
