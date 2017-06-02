@@ -32,7 +32,7 @@ class distance_matrix(object) :
     @staticmethod
     def symmetric(profiles, links=None, missing_data = 'pair_delete') :
         if missing_data in ('as_allele', ) :
-            presences = np.ones(shape=profiles.shape, dtype=int) 
+            presences = np.ones(shape=profiles.shape, dtype=int)
         elif missing_data in ('pair_delete', 'absolute_distance') :
             presences = (profiles > 0)
         else :
@@ -235,7 +235,6 @@ class methods(object) :
         fin.close()
         Popen('{0} -i {1} -m B'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
         tree = dp.Tree.get_from_path(fin.name + '_fastme_tree.nwk', schema='newick')
-        tree.reroot_at_midpoint()
         from glob import glob
         for fname in glob(fin.name + '*') :
             os.unlink(fname)
@@ -251,12 +250,14 @@ def nonredundant(names, profiles) :
     profiles = encoded_profile[np.lexsort(encoded_profile.T)]
     uniqueness = np.concatenate([[1], np.sum(np.diff(profiles, axis=0) != 0, 1) > 0])
 
-    embeded, utype = [], names[0]
+    embeded = {names[0]:[]}
+    embeded_group = embeded[names[0]]
     for n, u in zip(names, uniqueness) :
         if u == 0 :
-            embeded.append([utype, n])
+            embeded_group.append(n)
         else :
-            utype = n
+            embeded[n] = [n];
+            embeded_group = embeded[n];
     names = names[uniqueness>0]
     profiles = profiles[uniqueness>0]
     return names, profiles, embeded
@@ -294,9 +295,9 @@ def backend(**parameters) :
     params.update(parameters)
     if params['method'] == 'BASA' :
         params.update(dict(
-            method = 'MST', 
-            matrix_type = 'asymmetric', 
-            edge_weight = 'harmonic', 
+            method = 'MST',
+            matrix_type = 'asymmetric',
+            edge_weight = 'harmonic',
             neighbor_branch_reconnection = 'T'
         ))
 
@@ -326,23 +327,16 @@ def backend(**parameters) :
             names.append(part[0])
             profiles.append(part[1:])
 
-    for id, n in enumerate(names) :
-        names[id] = re.sub(r'[\(\)\ \,\"\';]', '_', n)
+    names = [re.sub(r'[\(\)\ \,\"\';]', '_', n) for n in names]
     names, profiles, embeded = nonredundant(np.array(names), np.array(profiles))
     tre = eval('methods.' + params['method'])(names, profiles, **params)
 
-    for src, tgt in embeded :
-        node = tre.find_node_with_taxon_label(src)
-        n = dp.Node(taxon=node.taxon)
-        node.add_child(n)
-        n.edge_length = 0.0
-        node.__dict__['taxon'] = None
+    for taxon in tre.taxon_namespace :
+        embeded_group = embeded[taxon.label]
+        if len(embeded) > 1 :
+            taxon.label = '({0}:0)'.format(':0,'.join(embeded_group))
 
-        n = dp.Node(taxon=tre.taxon_namespace.new_taxon(label=tgt))
-        node.add_child(n)
-        n.edge_length = 0.0
-
-    return tre.as_string('newick')
+    return tre.as_string('newick').replace("'", "")
 
 if __name__ == '__main__' :
     tre = backend(**dict([p.split('=') for p in sys.argv[1:]]))
