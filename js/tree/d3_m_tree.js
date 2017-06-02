@@ -230,7 +230,7 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale, node_size) {
                         for (var id = nodes.length-1; id >= 0; id --) {
                                 node = nodes[id];
                                 if (node.spacing) continue ;
-                                var span1 = [min_radial*Math.sqrt(node.size), min_arc / min_radial]; // node span
+                                var span1 = [min_radial*Math.sqrt(node.size), min_arc*Math.sqrt(node.size) / min_radial]; // node span
                                 var radial_sum = 0, angle_sum = 0;  // descending span
                                 for (var jd in node.children) {
                                         child = node.children[jd];
@@ -499,9 +499,28 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 var l = links.reduce(function(prev, curr){ 
                         return prev.value < curr.value ? prev : curr; 
                 }); */
-        this.force_links.sort(function(l1, l2) {return l1 - l2;})
+        this.force_links.sort(function(l1, l2) {return l1.value - l2.value;});
+        var link_len = [];
         for (var index in this.force_links) {
+                link_len.push(this.force_links[index].value);
+        }
+
+        var skipped_links = [];
+        for (var index=0; index < this.force_links.length; index ++) {
                 l = this.force_links[index];
+                if (l.value > link_len[index]) {
+                        if (l.value <= max_distance) {
+                                skipped_links.push(l);
+                                skipped_links.sort(function(l1, l2) {return l1.value-l2.value;});
+                        }
+                        continue;
+                } else {
+                        if (skipped_links.length > 0 && l.value > skipped_links[0].value) {
+                                index -= 1;
+                                l = skipped_links[0];
+                                skipped_links.splice(0, 1);
+                        }
+                }
                 if (l.value > max_distance) continue;
                 l.remove=l.target.remove=true;
 
