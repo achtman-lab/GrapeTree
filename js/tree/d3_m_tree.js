@@ -481,85 +481,72 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 this._addNodes(this.original_nodes);
                 this._addLinks(this.original_links,this.original_nodes);
                 this.grouped_nodes={};
-                for (var i in this.original_nodes){
-                        var name = this.original_nodes[i];
-                        this.grouped_nodes[name]= [name];
+                for (var i in this.force_nodes){
+                        var node =this.force_nodes[i];
+                        this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
                 }
         }
-        var node2link = {}, anc_link = {};
+        //var node2link = {}, anc_link = {};
 
         for (index in this.force_links){
                 var link = this.force_links[index];
-                if (! node2link[link.source.id]) {
-                        node2link[link.source.id] = {};
-                }
-                node2link[link.source.id][link.target.id] = link;
-                
-                if (! node2link[link.target.id]) {
-                        node2link[link.target.id] = {};
-                }
-                anc_link[link.target.id] = link;
-             
+                link.target.link = link;
         }
-        var links = this.force_links;
+        /*var links = this.force_links;
         while(true) {
                 links = links.filter(function(l){return (!l.remove && l.value <= max_distance);});
                 if (links.length <= 0) break;
                 var l = links.reduce(function(prev, curr){ 
                         return prev.value < curr.value ? prev : curr; 
-                });
+                }); */
+        this.force_links.sort(function(l1, l2) {return l1 - l2;})
+        for (var index in this.force_links) {
+                l = this.force_links[index];
+                if (l.value > max_distance) continue;
                 l.remove=l.target.remove=true;
 
-                if (!l.source.hypothetical && !l.target.hypothetical){
-                        this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
-                }
+                this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
                 var increase=l.value;
 
                 for (var i in l.source.children){
-                        if (l.source.children[i].id===l.target.id){
+                        if (l.source.children[i].id === l.target.id){
                                 l.source.children.splice(i,1);
                                 break;
                         }
                 }
-
-                for (var i in l.target.children){
-                        var child = l.target.children[i];
-                        l.source.children.push(child);
+                
+                var to_add = [];
+                for (var id in l.target.children) {
+                        var child = l.target.children[id];
+                        to_add.push(child);
                         child.parent = l.source;
-                }
 
-                var child_links = node2link[l.target.id];
-                for (var i in child_links){
-                         var ln = child_links[i];
-                         if (! ln.remove) {
-                                 ln.source=l.source;
-                                 if (l.target.hypothetical){
-                                        ln.value += increase;
-                                        ln.original_value=ln.value;
-                                 } 
-                                 node2link[l.source.id][ln.target.id] = ln;
-                         }
+                        var ln = child.link;
+                        ln.source = l.source;
+                        if (l.target.hypothetical) {
+                                ln.value += increase;
+                                ln.original_value = ln.value;
+                        }
                 }
 
                 if (l.source.hypothetical && !l.target.hypothetical){
                         delete l.source.hypothetical;
-                        if (node2link[l.source.id]) {
-                               for (var id in node2link[l.source.id]) {
-                                       ln = node2link[l.source.id][id];
-                                       if (! ln.remove) 
-                                                ln.value += increase;
-                                                node2link[l.target.id][id] = ln;
-                               }
+                        for (var id in l.source.children) {
+                                ln = l.source.children[id].link;
+                                ln.value += increase;
+                                ln.original_value += increase;
                         }
-                        if (anc_link[l.source.id]) {
-                                anc_link[l.source.id].value += increase;
-                                anc_link[l.source.id].original_value += increase;
 
+                        if (l.source.link) {
+                                l.source.link.value += increase;
+                                l.source.link.original_value += increase;
                         }
-                        anc_link[l.target.id] = anc_link[l.source.id];
                         if (max_distance > this.node_collapsed_value && layout) layout[l.target.id] = layout[l.source.id];
                         l.source.id =l.target.id;
-                }            
+                }
+                for (var id in to_add) {
+                        l.source.children.push(to_add[id]);
+                }
         }
         this.node_collapsed_value=max_distance;
 
@@ -586,27 +573,14 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         for (var id in this.force_nodes) {
                 node = this.force_nodes[id];
                 node.size = (node.hypothetical ? 0.01 : this.grouped_nodes[node.id].length);
-                if (anc_link[node.id]) 
-                        node.length = anc_link[node.id].value;
+                if (node.link) 
+                        node.length = node.link.value;
         }
         this._updateNodeRadii();
         
 };
 
 
-
-D3MSTree.prototype._getLinksWithSource =function(node2link, source_id, exclude_target_id){
-        var links = [];
-        if (exclude_target_id) {
-                for (index in node2link[source_id]) {
-                        var link = node2link[source_id][index];
-                        if (! link['remove'] && link.source.id != exclude_target_id && link.target.id != exclude_target_id) {
-                                links.push(link)
-                        }
-                }
-        }
-        return links;
-}
 
 D3MSTree.prototype._getLinkDistance = function(source_id,target_id){
         for (var i in this.force_links){
@@ -1224,13 +1198,19 @@ D3MSTree.prototype._addLinks=function(links,ids){
        for (var i in links){
                 link = links[i];
                 new_links.push({
-                       value:link['distance'],
+                       value:link['distance'] > 0 ? link['distance'] : 0,
                        source:ids[link['source']],
                        target:ids[link['target']]      
                 });
        }
        this.max_link_distance=0;
        this.min_link_distance =10000;
+       _findNode = {};
+       for (var i in this.force_nodes){
+              n=this.force_nodes[i];
+              _findNode[n.id] = n;
+       }
+
        for (var i=0;i< new_links.length;i++) {
                 x = new_links[i];
                 if (x.value > this.max_link_distance){
@@ -1239,8 +1219,8 @@ D3MSTree.prototype._addLinks=function(links,ids){
                 if (x.value<this.min_link_distance & x.value >0){
                         this.min_link_distance=x.value;
                 }
-                var target_node = this._findNode(x.target);
-                var source_node = this._findNode(x.source);
+                var target_node = _findNode[x.target];
+                var source_node = _findNode[x.source];
                 var link = {
                        source: source_node,
                        target: target_node,
