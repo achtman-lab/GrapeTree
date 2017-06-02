@@ -1893,16 +1893,16 @@ D3MSTree.prototype._dragStarted= function(it){
        }
       
        this.stopForce();
-       /*if (!it.parent){
-              this.drag_orig_xy=[it.x,it.y];
-              return;
-       }*/
        if (!it.parent) {
                var parent = it.children[0];
                this.drag_link =this._getLink(parent);
        } else {
                var parent = it.parent;
                this.drag_link =this._getLink(it);
+       }
+       if (!this.drag_link){
+              this.drag_orig_xy=[it.x,it.y];
+              return;
        }
 
        it.fixed=true;
@@ -1926,13 +1926,13 @@ D3MSTree.prototype._dragging= function(it){
         if (! this.fixed_mode){
               return;
        }
-       /*if (!it.parent){
+       if (!this.drag_link){
               it.x=this.drag_orig_xy[0];
               it.y =this.drag_orig_xy[1];
               it.px=it.x;
               it.py=it.y;
               return;
-       }*/
+       }
        it.px += d3.event.dx;
        it.py += d3.event.dy;
        it.x += d3.event.dx;
@@ -1967,9 +1967,9 @@ D3MSTree.prototype._dragEnded=function(it){
        if (! this.fixed_mode){
               return;
        }
-       /*if (!it.parent){	       
+       if (!this.drag_link){	       
               return;
-       }*/
+       }
        var source  = this.drag_source;
        
        var target = it;
