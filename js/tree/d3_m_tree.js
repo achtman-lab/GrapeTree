@@ -506,22 +506,24 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         }
 
         var skipped_links = [];
-        for (var index=0; index < this.force_links.length; index ++) {
-                l = this.force_links[index];
-                if (l.value > link_len[index]) {
+        for (var index=0; index < this.force_links.length + 1; index ++) {
+                var l = this.force_links[index];
+                if (l && l.value > link_len[index]) {
                         if (l.value <= max_distance) {
                                 skipped_links.push(l);
-                                skipped_links.sort(function(l1, l2) {return l1.value-l2.value;});
                         }
                         continue;
                 } else {
-                        if (skipped_links.length > 0 && l.value > skipped_links[0].value) {
-                                index -= 1;
-                                l = skipped_links[0];
-                                skipped_links.splice(0, 1);
+                        if (skipped_links.length > 0) {
+                                skipped_links.sort(function(l1, l2) {return l1.value-l2.value;});
+                                if(!l || l.value > skipped_links[0].value) {
+                                        index -= 1;
+                                        l = skipped_links[0];
+                                        skipped_links.splice(0, 1);
+                                }
                         }
                 }
-                if (l.value > max_distance) continue;
+                if (!l || l.value > max_distance) continue;
                 l.remove=l.target.remove=true;
 
                 this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
