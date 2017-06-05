@@ -286,6 +286,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	   <div class ='panel-heading mst-menu-title' id= 'mst-param-menu'> <b id>Parameters</b><span id = 'mst-param-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
 	   <div class = "panel-body" id ='mst-param-menu-panel'>	
 		   <label>Method</label>
+		   <div id='method-activate'></div>
 		   <br>
 		   <select id ='method-select'>
 			   <option value='BASA'>BASA</option>
@@ -856,9 +857,12 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 }).done(function(result){
                        loadMSTree({"nwk":result,"layout_algorithm":$("#layout-select").val()});          
                }).fail(function( jqXHR, textStatus){
-                        console.log(textStatus);
-                        loadFailed("There server returned an error. Is the profile file in the right format");
-               
+						if (jqXHR.status == 405 || jqXHR.status == 404) {
+							loadFailed("Cannot reach the backend. Please use a FREE standalone version to calculate a tree.");
+						} else {
+							console.log(textStatus);
+							loadFailed("There server returned an error. Is the profile file in the right format");
+						}
                });
                }catch(e){
                         loadFailed("The server could not be contacted");
@@ -1203,8 +1207,28 @@ window.onload = function (){
 		$("#graph-div").on('dblclick', function(e){
 		    if (the_tree) the_tree.clearSelection();
        })
-
+		try_backend();
 };
+
+function try_backend(){
+  try{
+	$.ajax({
+			method: "POST",
+			url: "/maketree",
+	}).done(function(result){})
+	.fail(function( jqXHR, textStatus){
+		if (jqXHR.status != 406) {
+			document.getElementById("method-activate").innerHTML = "Tree construction is not functional in a demo.";
+			document.getElementById("method-select").innerHTML = "";
+			document.getElementById("method-select").disabled = true;
+		}
+    });
+   }catch(e){
+		document.getElementById("method-activate").innerHTML = "Tree construction is not functional in a demo.";
+		document.getElementById("method-select").innerHTML = "";
+		document.getElementById("method-select").disabled = true;
+   }
+ };
 </script>
 </body>
 </html>

@@ -16,6 +16,8 @@ def generate_tree():
         params = app.config.get('PARAMS')
         # method: PSA, eBurst, ninja
         params.update(dict(request.form))
+        if 'profile' not in params :
+            return make_response('', 204)
         # Handle any lists
         for param in params:
             if isinstance(params[param], list):
