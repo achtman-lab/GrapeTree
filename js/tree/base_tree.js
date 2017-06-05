@@ -1314,6 +1314,7 @@ D3BaseTree.prototype.downloadSVG=function(name){
 	$("#mst-svg").append(leg);
 	leg.attr("transform","translate("+x+",5)");
 	var svgData = $("#mst-svg")[0].outerHTML;
+	var svgData = ['<svg xmlns="http://www.w3.org/2000/svg" ', svgData.substring(5,9999999)].join('');
 	var svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
 	var svgUrl = URL.createObjectURL(svgBlob);
 	var downloadLink = document.createElement("a");
