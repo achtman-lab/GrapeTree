@@ -160,11 +160,13 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 
 
 
-
-
 <div id='sidebar'>
- 
-        
+<p>
+<a href="https://enterobase.warwick.ac.uk"><img src="/js/img/enterobase.PNG" alt="GrapeTree" style="width:40px;height:45px;"></a>    |    
+<a href="https://github.com/martinSergeant/EnteroMSTree"><img src="/js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>
+<h3 id="headertag" style="font-family: times, serif; font-size:12pt; font-style:italic">GrapeTree</h3>
+</p>
+<br>
         <label>Colour By:</label>
         <br>
         <select style="width:140px" id= 'metadata-select'></select>
@@ -240,9 +242,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         <div id = "slider-collapse-nodes" class = "slider-class"></div>
                        
                        <br>
-                        <p align='center'>
-                                <button id = 'button-refresh'> Refresh</button>
-                        </p>
 						<hr>
                         <p align='center'>
                                 <button onclick ="javascript:the_tree.unfixSelectedNodes()"> Unfix Selected</button>
@@ -266,12 +265,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	<div id = 'add-data-panel' class='panel panel-default'>	
                 <div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Metadata</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
                 <div class = "panel-body" id ='mst-data-menu-panel'>	
-                
-                       
-                          <p align='center'>
-                                <button id = 'button-load-meta'> Load Metadata</button>
-                        </p>
-			
 			<label>Search</label>
 			<br>
 			<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
@@ -345,19 +338,22 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	   </div>
 	</div>
  
-
-          
-       <br>
-        <p align='center'>
-               <button id = 'button-load-nwk'> Load Tree/Profile File</button>
-        </p>
-        
-        <p align='center'>
-                <button onclick = 'javascript:the_tree.clearSelection()'> Clear Selection</button>
-        </p>
+		<br>
+		<p align='center'>
+				<button id = 'button-refresh'> Refresh</button>
+		</p>
          <p align = 'center'>
                 <button id ="center-graph-button">Center Graph</button>
         </p> 
+		<hr>
+
+        <p align='center'>
+				<button id = 'button-load-nwk'> Load Tree/Profile File</button>
+        </p>
+	    <p align='center'>
+				<button id = 'button-load-meta'> Load Metadata</button>
+		</p>
+		<hr>
         <p align = 'center'>
                 <button id ="save-tree-json">Save Tree</button>
         </p>       
@@ -828,10 +824,12 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 				else if (head_line.indexOf("\t") >= 0 || head_line.indexOf(">") >= 0 || (head_line.indexOf("#") == 0 && head_line.indexOf("#NEXUS") < 0 && head_line.indexOf("#nexus") < 0 )) {
 					profile_file=this.file;
 					processProfileFile(profile_file);
+					document.getElementById("headertag").innerHTML = this.file.name;
 				}
 				else {
 					tree_file = this.file;
 					loadTreeFile(tree_file);
+					document.getElementById("headertag").innerHTML = this.file.name;
 				}
 			};
 			reader.file = file;
