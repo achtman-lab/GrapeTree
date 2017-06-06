@@ -1054,11 +1054,12 @@ D3BaseTree.prototype.getMetadata=function(){
 */
 D3BaseTree.prototype.searchMetadata=function(keyword){
 	var ids = [];
+	var exp = new RegExp(keyword,"i");
 	for (var id in this.grouped_nodes){
 		var contains = false;
 		var list = this.grouped_nodes[id];
 		for (var i in list){
-			if((list[i]+"").includes(keyword)){
+			if((list[i]+"").match(exp)){
 				ids.push(id);			
 				break;
 			}
@@ -1067,7 +1068,7 @@ D3BaseTree.prototype.searchMetadata=function(keyword){
 				var metadata= this.metadata[meta_id];
 				var contains = false
 				for (var key in metadata){
-					if (metadata[key].includes(keyword)){
+					if (metadata[key].match(exp)){
 						ids.push(id);
 						contains=true;
 						break;

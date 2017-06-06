@@ -22,7 +22,7 @@ D3MSTree.prototype.constructor = D3MSTree;
 * @constructor
 * @extends D3BaseTree
 * @param {string} element_id The id of the container for the tree
-* @param {InitialData} data An  object containing the following 
+* @param {InitialData} data An  object containing the tree's data
 * @param {function} callback The function to be called when the set up is finished (optional).
 * The callback is passed the tree object and a message describing the state of initialisation.
 * The message will be 'complete' when the tree is finished
@@ -551,6 +551,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                                                ln = node2link[l.source.id][id];
                                                if (! ln.remove) 
                                                         ln.value += increase;
+							ln.original_value+=increase;
                                                         node2link[l.target.id][id] = ln;
                                        }
                                 }
@@ -944,7 +945,9 @@ D3MSTree.prototype.setIndividualLinkLength= function(link,length){
 }
 
 
-
+/** Returns the tree as an object {@link InitialData}, suitiable for use in the trees constructor
+* @returns {InitialData} An object descibing the tree
+*/
 
 D3MSTree.prototype.getTreeAsObject=function(){
         var obj = {
@@ -1339,7 +1342,7 @@ D3MSTree.prototype._centerGraph = function(){
         else{
                scale = (this.height/(maxY-minY));
         }
-        this.setScale(scale);
+        this.setScale(scale*0.8);
         this.setTranslate([0,0]);
 }
  
@@ -1734,7 +1737,7 @@ D3MSTree.prototype.fixAllNodes=function(){
                 link.value = this.distance_scale.invert(value)
                                 
         }
-        this.resetLinkLengths();
+        this._setLinkDistance();
         this.fixed_mode=true;
         this._updateGraph(true);	
         //this.change_nodes_to_update();
