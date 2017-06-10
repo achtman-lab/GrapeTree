@@ -1026,22 +1026,6 @@ D3BaseTree.prototype._changeCategory=function(category){
 		if (!val && val !==0){
 			continue;
 		}
-		if (!this.category_colours[val]){
-			if (cust_col){
-				if (cust_col[val]){
-					this.category_colours[val]=cust_col[val];
-					colour_count++;
-					continue;
-				}	
-			}
-			if (colour_count<len){
-				this.category_colours[val]=this.legend_colours[colour_count];
-				colour_count++;
-			}
-			else{
-				this.category_colours[val]='grey'; 		
-			}
-		}
 		if (!cat_count[val]){
 			cat_count[val]=1;
 		}
@@ -1064,7 +1048,6 @@ D3BaseTree.prototype._changeCategory=function(category){
 			this.category_colours[val]=cust_col[val];
 			colour_count++;
 			continue;
->>>>>>> a5988b6c2aae4473dcd4dc7ebcf0387a325de871
 		}	
 		if (colour_count<len){
 			this.category_colours[val]=this.legend_colours[colour_count];
@@ -1109,7 +1092,7 @@ D3BaseTree.prototype.searchMetadata=function(keyword, key){
 				var metadata= this.metadata[meta_id];
 				var contains = false
 				//for (var key in metadata){
-					if (metadata[key].match(keyword)){
+					if (metadata[key].match(exp)){
 						ids.push(id);
 						contains=true;
 						break;
