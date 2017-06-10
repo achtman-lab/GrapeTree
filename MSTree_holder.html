@@ -858,7 +858,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                        loadMSTree({"nwk":result,"layout_algorithm":$("#layout-select").val()});          
                }).fail(function( jqXHR, textStatus){
 						if (jqXHR.status == 405 || jqXHR.status == 404) {
-							loadFailed("Cannot reach the backend. Please use a FREE standalone version to calculate a tree.");
+							loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/martinSergeant/EnteroMSTree/");
 						} else {
 							console.log(textStatus);
 							loadFailed("There server returned an error. Is the profile file in the right format");
