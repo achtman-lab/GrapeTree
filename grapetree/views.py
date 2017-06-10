@@ -34,5 +34,3 @@ def generate_tree():
     except Exception as e:
         return make_response(str(e), 500)
     
-  
-   
