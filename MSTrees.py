@@ -2,7 +2,7 @@ import numpy as np, dendropy as dp, networkx as nx
 from subprocess import Popen, PIPE
 import sys, os, tempfile, platform, re
 
-params = dict(method='BASA', # MST , NJ
+params = dict(method='MSTreeV2', # MSTree , NJ
               matrix_type='symmetric',
               edge_weight = 'eBurst',
               missing_data = 'pair_delete', # complete_delete , absolute_distance , as_allele
@@ -167,8 +167,6 @@ class methods(object) :
                 groups[group_id[src]].extend(groups.pop(tid, []))
                 childrens[src].append(tgt)
                 childrens[tgt].append(src)
-                weights[src] -= 1
-                weights[tgt] -= 1
                 i += 1
             else :
                 branches[i:] = sorted(branches[i:], key=lambda br:br[2])
@@ -210,7 +208,7 @@ class methods(object) :
         return tre
 
     @staticmethod
-    def MST(names, profiles, matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T', missing_data='pair_delete', **params) :
+    def MSTree(names, profiles, matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T', missing_data='pair_delete', **params) :
 
         dist = eval('distance_matrix.'+matrix_type)(profiles, missing_data = missing_data)
         wdist = eval('distance_matrix.'+edge_weight)(dist)
@@ -266,7 +264,7 @@ def backend(**parameters) :
     '''
     paramters :
         profile: input file or the content of the file as a string. Can be either profile or fasta. Headings start with an '#' will be ignored.
-        method: MST or NJ
+        method: MSTreeV2, MSTree or NJ
         matrix_type: asymmetric or symmetric
         edge_weight: harmonic or eBurst
         neighbor_branch_reconnection: T or F
@@ -275,27 +273,27 @@ def backend(**parameters) :
         A string of a NEWICK tree
 
     Examples :
-        To run a Balanced Spanning Arborescence (BASA), use :
-        backend(profile=<filename>, method='BASA')
+        To run MSTreeV2, use :
+        backend(profile=<filename>, method='MSTreeV2')
 
         OR simply
         backend(profile=<filename>)
 
         To run a standard minimum spanning tree :
-        backend(profile=<filename>, method='MST')
+        backend(profile=<filename>, method='MSTree')
 
         To run a NJ tree (using FastME 2.0) :
         backend(profile=<filename>, method='NJ')
 
     Can also be called in command line:
-        BASA: MSTrees.py profile=<filename> method=BASA
-        MST: MSTrees.py profile=<filename> method=MST
+        MSTreeV2: MSTrees.py profile=<filename> method=MSTreeV2
+        MSTree: MSTrees.py profile=<filename> method=MSTree
         NJ:  MSTrees.py profile=<filename> method=NJ
     '''
     params.update(parameters)
-    if params['method'] == 'BASA' :
+    if params['method'] == 'MSTreeV2' :
         params.update(dict(
-            method = 'MST',
+            method = 'MSTree',
             matrix_type = 'asymmetric',
             edge_weight = 'harmonic',
             neighbor_branch_reconnection = 'T'

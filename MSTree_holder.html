@@ -338,7 +338,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                                           
                 </div>
         </div>
+
 	
+
  
 	<br>
 	<p align='center'>
@@ -904,7 +906,7 @@ function showModalForParams(){
                        loadMSTree({"nwk":result,"layout_algorithm":$("#layout-select").val()});          
                }).fail(function( jqXHR, textStatus){
 						if (jqXHR.status == 405 || jqXHR.status == 404) {
-							loadFailed("Cannot reach the backend. Please use a FREE standalone version to calculate a tree.");
+							loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/martinSergeant/EnteroMSTree/");
 						} else {
 							console.log(textStatus);
 							loadFailed("There server returned an error. Is the profile file in the right format");
@@ -1246,7 +1248,7 @@ window.onload = function (){
 	});
         
         $("#method-select").change(function(e) {
-			if ($(this).val() == "MST") $("#MST-option").show();
+			if ($(this).val() == "MSTree") $("#MST-option").show();
 			else $("#MST-option").hide();
 		})
         
