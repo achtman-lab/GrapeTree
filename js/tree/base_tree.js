@@ -947,7 +947,17 @@ D3BaseTree.prototype.addMetadata=function(metadata){
 		}	
 	}
 }
-	
+/**
+* Deletes the specified category from all metadata
+* @param {string} The category to delete
+*/
+D3BaseTree.prototype.removeCategory=function(category){
+	for (var key in this.metadata){
+		var item = this.metadata[key];
+		delete item[category];
+	}
+}
+
 
 /**
 * Resizes the tree components based on the size of the container
@@ -1007,7 +1017,7 @@ D3BaseTree.prototype.setTranslate=function(x_y){
 D3BaseTree.prototype._changeCategory=function(category){
 	var cust_col = this.custom_colours[category]
 	this.display_category = category;
-	var items = {};
+	var cat_count={};
 	var colour_count=0;
 	this.category_colours={};
 	var len = this.legend_colours.length;
@@ -1031,7 +1041,38 @@ D3BaseTree.prototype._changeCategory=function(category){
 			else{
 				this.category_colours[val]='grey'; 		
 			}
+		}
+		if (!cat_count[val]){
+			cat_count[val]=1;
+		}
+		else{
+			cat_count[val]++;
+		}
+	}
+	cat_count_list=[]
+	for (var val in cat_count){
+		cat_count_list.push([val,cat_count[val]]);
+		
+	}
+	cat_count_list.sort(function(a,b){
+		return b[1]-b[1];
+	});
+	var cust_col= this.custom_colours[category];
+	for (var i in cat_count_list){
+		var val = cat_count_list[i][0];
+		if (cust_col && cust_col[val]){
+			this.category_colours[val]=cust_col[val];
+			colour_count++;
+			continue;
+>>>>>>> a5988b6c2aae4473dcd4dc7ebcf0387a325de871
 		}	
+		if (colour_count<len){
+			this.category_colours[val]=this.legend_colours[colour_count];
+			colour_count++;
+		}
+		else{
+			this.category_colours[val]='white'; 		
+		}
 	}
 	this.category_colours["missing"] = this.default_colour;
 	this.updateLegend(category);
@@ -1054,11 +1095,12 @@ D3BaseTree.prototype.getMetadata=function(){
 */
 D3BaseTree.prototype.searchMetadata=function(keyword, key){
 	var ids = [];
+	var exp = new RegExp(keyword,"i");
 	for (var id in this.grouped_nodes){
 		var contains = false;
 		var list = this.grouped_nodes[id];
 		for (var i in list){
-			if((list[i]+"").includes(keyword)){
+			if((list[i]+"").match(exp)){
 				ids.push(id);			
 				break;
 			}
@@ -1067,7 +1109,7 @@ D3BaseTree.prototype.searchMetadata=function(keyword, key){
 				var metadata= this.metadata[meta_id];
 				var contains = false
 				//for (var key in metadata){
-					if (metadata[key].includes(keyword)){
+					if (metadata[key].match(keyword)){
 						ids.push(id);
 						contains=true;
 						break;
@@ -1129,6 +1171,9 @@ D3BaseTree.prototype.updateLegend = function(title){
 		legend_data=[];
 		
 		for (var group in this.category_colours) {
+			if (this.category_colours[group]=='white'){
+				continue;
+			}
 			datum = {
 				group: group,
 				group_colour:this.category_colours[group]
