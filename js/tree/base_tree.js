@@ -947,7 +947,17 @@ D3BaseTree.prototype.addMetadata=function(metadata){
 		}	
 	}
 }
-	
+/**
+* Deletes the specified category from all metadata
+* @param {string} The category to delete
+*/
+D3BaseTree.prototype.removeCategory=function(category){
+	for (var key in this.metadata){
+		var item = this.metadata[key];
+		delete item[category];
+	}
+}
+
 
 /**
 * Resizes the tree components based on the size of the container
@@ -1007,7 +1017,7 @@ D3BaseTree.prototype.setTranslate=function(x_y){
 D3BaseTree.prototype._changeCategory=function(category){
 	var cust_col = this.custom_colours[category]
 	this.display_category = category;
-	var items = {};
+	var cat_count={};
 	var colour_count=0;
 	this.category_colours={};
 	var len = this.legend_colours.length;
@@ -1016,22 +1026,36 @@ D3BaseTree.prototype._changeCategory=function(category){
 		if (!val && val !==0){
 			continue;
 		}
-		if (!this.category_colours[val]){
-			if (cust_col){
-				if (cust_col[val]){
-					this.category_colours[val]=cust_col[val];
-					colour_count++;
-					continue;
-				}	
-			}
-			if (colour_count<len){
-				this.category_colours[val]=this.legend_colours[colour_count];
-				colour_count++;
-			}
-			else{
-				this.category_colours[val]='black'; 		
-			}
+		if (!cat_count[val]){
+			cat_count[val]=1;
+		}
+		else{
+			cat_count[val]++;
+		}
+	}
+	cat_count_list=[]
+	for (var val in cat_count){
+		cat_count_list.push([val,cat_count[val]]);
+		
+	}
+	cat_count_list.sort(function(a,b){
+		return b[1]-b[1];
+	});
+	var cust_col= this.custom_colours[category];
+	for (var i in cat_count_list){
+		var val = cat_count_list[i][0];
+		if (cust_col && cust_col[val]){
+			this.category_colours[val]=cust_col[val];
+			colour_count++;
+			continue;
 		}	
+		if (colour_count<len){
+			this.category_colours[val]=this.legend_colours[colour_count];
+			colour_count++;
+		}
+		else{
+			this.category_colours[val]='white'; 		
+		}
 	}
 	this.category_colours["missing"] = this.default_colour;
 	this.updateLegend(category);
@@ -1130,6 +1154,9 @@ D3BaseTree.prototype.updateLegend = function(title){
 		legend_data=[];
 		
 		for (var group in this.category_colours) {
+			if (this.category_colours[group]=='white'){
+				continue;
+			}
 			datum = {
 				group: group,
 				group_colour:this.category_colours[group]
@@ -1315,6 +1342,7 @@ D3BaseTree.prototype.downloadSVG=function(name){
 	$("#mst-svg").append(leg);
 	leg.attr("transform","translate("+x+",5)");
 	var svgData = $("#mst-svg")[0].outerHTML;
+	var svgData = ['<svg xmlns="http://www.w3.org/2000/svg" ', svgData.substring(5,9999999)].join('');
 	var svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
 	var svgUrl = URL.createObjectURL(svgBlob);
 	var downloadLink = document.createElement("a");
