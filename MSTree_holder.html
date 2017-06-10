@@ -289,8 +289,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		   <div id='method-activate'></div>
 		   <br>
 		   <select id ='method-select'>
-			   <option value='BASA'>BASA</option>
-			   <option value='MST'>MST</option>
+			   <option value='MSTreeV2'>MSTreeV2</option>
+			   <option value='MSTree'>MSTree</option>
 			   <option value='NJ'>NJ</option>
 		   </select>
 		   <div id = "MST-option" style="display:none;">
@@ -1195,7 +1195,7 @@ window.onload = function (){
 	});
         
         $("#method-select").change(function(e) {
-			if ($(this).val() == "MST") $("#MST-option").show();
+			if ($(this).val() == "MSTree") $("#MST-option").show();
 			else $("#MST-option").hide();
 		})
         
