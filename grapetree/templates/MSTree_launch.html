@@ -271,7 +271,10 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         <div title = "12" id = "slider-node-fontsize" class = "slider-class"></div>
                         <label>Label Text</label>
                         <select id = 'node-label-text'><option value="">default</option></select>
-                      
+               			<label>Search in Label</label>
+						<br>
+						<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
+
                         <br>
                         <label><input id ='show-node-tooltip' type="checkbox" checked /> Show Tooltip</label>
                         <br>
@@ -320,10 +323,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	<div id = 'add-data-panel' class='panel panel-default'>	
                 <div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Metadata</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
                 <div class = "panel-body" id ='mst-data-menu-panel'>	
-			<label>Search</label>
-			<br>
-			<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
-                        
                         <label>Add Field&nbsp;&nbsp;&nbsp;</label>
                         <input  size="11" id ="add-extra-field-input">
                         <span  id ="add-custom-field-icon" onclick="addExtraField()" class='add-data-icon glyphicon glyphicon-plus'></span>
@@ -338,9 +337,68 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                                           
                 </div>
         </div>
+<<<<<<< HEAD
+	<div id = 'param-panel' class='panel panel-default'>	
+	   <div class ='panel-heading mst-menu-title' id= 'mst-param-menu'> <b id>Parameters</b><span id = 'mst-param-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+	   <div class = "panel-body" id ='mst-param-menu-panel'>	
+		   <label>Method</label>
+		   <div id='method-activate'></div>
+		   <br>
+		   <select id ='method-select'>
+			   <option value='MSTreeV2'>MSTreeV2</option>
+			   <option value='MSTree'>MSTree</option>
+			   <option value='NJ'>NJ</option>
+		   </select>
+		   <div id = "MST-option" style="display:none;">
+		   <hr>
+		   <label>Matrix Type</label>
+		   <br>
+		   <select id ='matrix-select'>
+			   <option value='symmetric'>Symmetric</option>
+			   <option value='asymmetric'>Asymmetric</option>
+		   </select>
+		   <div id = "symmetric-option">
+		   <hr>
+		   <label>Missing data</label>
+		   <br>
+		   <select id = 'missing-data'>
+			   <option value='pair_delete'>ignore</option>
+			   <option value='complete_delete'>ignore whole loci</option>
+			   <option value='as_allele'>treated as an allele</option>
+		   </select>
+		   <hr>
+		   </div>
+		   <label>Edge Wieight</label>
+		   <br>
+		   <select id = 'edge-weight-select'>
+			   <option value='eBurst'>eBurst</option>
+			   <option value='harmonic'>Harmonic</option>
+		   </select>
+		   <br>
+		   <label>Neighbor Branch Reconnection</label>
+		   <br>
+		   <select id = 'branch-select'>
+			   <option value='F'>False</option>
+			   <option value='T'>True</option>
+		   </select>
+		   </div>
+		   <hr>
+		   <label>Layout Algorithm</label>
+		   <br>
+		   <select id = 'layout-select'>
+			   <option value='greedy'>Greedy</option>
+			   <option value='force'>Force</option>
+		   </select>
+		   
+		  
+				       
+	   </div>
+	</div>
+=======
 
 	
 
+>>>>>>> a5988b6c2aae4473dcd4dc7ebcf0387a325de871
  
 	<br>
 	<p align='center'>
@@ -1233,7 +1291,7 @@ window.onload = function (){
 		if (!keyword){
 			return;
 		}
-		var ids = the_tree.searchMetadata(keyword);
+		var ids = the_tree.searchMetadata(keyword, $("#node-label-text").val());
 		the_tree.highlightNodes(ids);
 	});
 	

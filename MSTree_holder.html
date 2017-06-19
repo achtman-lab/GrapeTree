@@ -270,8 +270,11 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         <br>
                         <div title = "12" id = "slider-node-fontsize" class = "slider-class"></div>
                         <label>Label Text</label>
-                        <select id = 'node-label-text'><option value="">default</option></select>
-                      
+                        <select id = 'node-label-text'><option value="">ID</option></select>
+               			<label>Search in Label</label>
+						<br>
+						<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
+
                         <br>
                         <label><input id ='show-node-tooltip' type="checkbox" checked /> Show Tooltip</label>
                         <br>
@@ -320,10 +323,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	<div id = 'add-data-panel' class='panel panel-default'>	
                 <div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Metadata</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
                 <div class = "panel-body" id ='mst-data-menu-panel'>	
-			<label>Search</label>
-			<br>
-			<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
-                        
                         <label>Add Field&nbsp;&nbsp;&nbsp;</label>
                         <input  size="11" id ="add-extra-field-input">
                         <span  id ="add-custom-field-icon" onclick="addExtraField()" class='add-data-icon glyphicon glyphicon-plus'></span>
@@ -1233,7 +1232,7 @@ window.onload = function (){
 		if (!keyword){
 			return;
 		}
-		var ids = the_tree.searchMetadata(keyword);
+		var ids = the_tree.searchMetadata(keyword, $("#node-label-text").val());
 		the_tree.highlightNodes(ids);
 	});
 	
