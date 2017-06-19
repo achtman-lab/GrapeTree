@@ -156,9 +156,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		   <div id='method-activate'></div>
 		   <br>
 		   <select id ='method-select'>
-			   <option value='BASA'>BASA</option>
-			   <option value='MST'>MST</option>
-			   <option value='NJ'>NJ</option>
+			   <option value='MSTreeV2'>MSTreeV2</option>
+			   <option value='MSTree'>MSTree</option>
+			   <option value='NJ'>Neighbour Joining</option>
 		   </select>
 		   <div id = "MST-option" style="display:none;">
 		   <hr>
@@ -270,7 +270,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         <br>
                         <div title = "12" id = "slider-node-fontsize" class = "slider-class"></div>
                         <label>Label Text</label>
-                        <select id = 'node-label-text'><option value="">default</option></select>
+                        <select id = 'node-label-text'><option value="">ID</option></select>
                			<label>Search in Label</label>
 						<br>
 						<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
@@ -337,68 +337,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                                           
                 </div>
         </div>
-<<<<<<< HEAD
-	<div id = 'param-panel' class='panel panel-default'>	
-	   <div class ='panel-heading mst-menu-title' id= 'mst-param-menu'> <b id>Parameters</b><span id = 'mst-param-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
-	   <div class = "panel-body" id ='mst-param-menu-panel'>	
-		   <label>Method</label>
-		   <div id='method-activate'></div>
-		   <br>
-		   <select id ='method-select'>
-			   <option value='MSTreeV2'>MSTreeV2</option>
-			   <option value='MSTree'>MSTree</option>
-			   <option value='NJ'>NJ</option>
-		   </select>
-		   <div id = "MST-option" style="display:none;">
-		   <hr>
-		   <label>Matrix Type</label>
-		   <br>
-		   <select id ='matrix-select'>
-			   <option value='symmetric'>Symmetric</option>
-			   <option value='asymmetric'>Asymmetric</option>
-		   </select>
-		   <div id = "symmetric-option">
-		   <hr>
-		   <label>Missing data</label>
-		   <br>
-		   <select id = 'missing-data'>
-			   <option value='pair_delete'>ignore</option>
-			   <option value='complete_delete'>ignore whole loci</option>
-			   <option value='as_allele'>treated as an allele</option>
-		   </select>
-		   <hr>
-		   </div>
-		   <label>Edge Wieight</label>
-		   <br>
-		   <select id = 'edge-weight-select'>
-			   <option value='eBurst'>eBurst</option>
-			   <option value='harmonic'>Harmonic</option>
-		   </select>
-		   <br>
-		   <label>Neighbor Branch Reconnection</label>
-		   <br>
-		   <select id = 'branch-select'>
-			   <option value='F'>False</option>
-			   <option value='T'>True</option>
-		   </select>
-		   </div>
-		   <hr>
-		   <label>Layout Algorithm</label>
-		   <br>
-		   <select id = 'layout-select'>
-			   <option value='greedy'>Greedy</option>
-			   <option value='force'>Force</option>
-		   </select>
-		   
-		  
-				       
-	   </div>
-	</div>
-=======
 
 	
 
->>>>>>> a5988b6c2aae4473dcd4dc7ebcf0387a325de871
  
 	<br>
 	<p align='center'>
@@ -674,7 +615,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 the_tree.addMetadata(meta);
                 the_tree.changeCategory(field);
 		the_tree.clearSelection();
-        }	
+        }
         
         
         function addExtraField(){
@@ -893,13 +834,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		var reader = new FileReader();
 		reader.onload = function(progressEvent){
 			var head_line = this.result.split(/[\n\r]/)[0];
-			if (head_line.indexOf("ID") >= 0) {
-				var dl = (head_line.indexOf(",") >= 0 ? "," : "\t");
-				current_metadata_file=[this.file, dl];
-				metadata_file_name = this.file.name;
-				if (the_tree) loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);
-			}
-			else if (head_line.indexOf("\t") >= 0 || head_line.indexOf(">") >= 0 || (head_line.indexOf("#") == 0 && head_line.indexOf("#NEXUS") < 0 && head_line.indexOf("#nexus") < 0 )) {
+			
+			if ((head_line.startsWith(">")  || (head_line.startsWith("#")) && ! head_line.startsWith("#NEXUS") && !head_line.startsWith("#nexus"))) {
 				if (cannot_connect){
 					loadFailed("Cannot Connect to the backend server");
 					return;
@@ -913,6 +849,13 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 				$("#modal-title").show().text("Parameters For Tree Creation");
 				$("#waiting-information").hide();
 				document.getElementById("headertag").innerHTML = this.file.name;
+			}
+			
+			else if ((head_line.indexOf(",") >=0 || head_line.indexOf("\t")>=0) && !head_line.startsWith("(") && !head_line.startsWith("{")) {
+				var dl = (head_line.indexOf(",") >= 0 ? "," : "\t");
+				current_metadata_file=[this.file, dl];
+				metadata_file_name = this.file.name;
+				if (the_tree) loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);
 			}
 			else {
 				tree_file = this.file;
@@ -991,9 +934,23 @@ function showModalForParams(){
  function loadMetadataFile(file, dl){
         MSCSCReader(file,dl,function(msg,lines,header_index){
                 var meta={};
+		var id_name='ID';
+		var exp = new RegExp("ID","i");
+		for (var i in header_index){
+                        var header = header_index[i];
+			if (header.match(exp)){
+				id_name=header;
+				header_index[i]='ID';
+				break;
+			}
+		}
 		
                 for (var i in lines){
                         var line = lines[i];
+			if (id_name !== 'ID'){
+				line['ID']=line[id_name];
+				delete line[id_name];
+			}
 			if (line['Name']){
 				meta[line['Name']]=line;
 			}
