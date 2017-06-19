@@ -14,14 +14,14 @@
                       
                         position: absolute;
                         top:10px;
-                        left:170px;
+                        left:180px;
                         
                 }
                 
                 #sidebar {
                         position:absolute;
                         top:10px;
-                        width:170px;
+                        width:180px;
                         margin-left:5px;
                 }
                 .brush .extent {
@@ -227,11 +227,11 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		 <div class='panel panel-default'  style ="margin-bottom:2px">	
 				   <div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Links</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 				   <div class = "panel-body" id ='mst-link-menu-panel'>	
-						   <label>Link Length</label>
+						   <label>Link Length&nbsp;</label><input type='text' style='width:30px;height:15px' id ='spinner-linklength'>
 						   <br>
 						   <div title = "500" id = "slider-linklength" class ="slider-class">  </div>
 						   <br>
-							<label><input id ='link-log-scale'type="checkbox"  />Log Scale</label>
+							<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
 							<br>
 							<label>Hide Links Over:</label>
 							<br>
@@ -245,11 +245,11 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 						   <br>
 						   <label><input id ='show-link-labels'type="checkbox" /> Link Labels</label>
 						   <br>
-						   <label>Font Size</label>
+						   <label>Font Size&nbsp;</label><input type='text' style='width:30px;height:15px' id ='spinner-linkfontsize'>
 						   <br>
-						   <div title = "14" id = "slider-linkfontsize" class = "slider-class"></div>
+						   <div id = "slider-linkfontsize" class = "slider-class"></div>
 						   <br>
-						   <label><input id ='show-link-tooltip' type="checkbox" checked /> Show Tooltip</label>
+						   <label><input id ='show-link-tooltip' type="checkbox" checked /> Mouseover info</label>
 				   </div>
 		   </div>
 		   <div class='panel panel-default'>	
@@ -275,9 +275,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 							<label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
 							<br>
 							
-							<label>Font Size</label>
+							<label>Font Size&nbsp;</label><input type='text' style='width:30px;height:15px' id ='spinner-node-fontsize'>
 							<br>
-							<div title = "12" id = "slider-node-fontsize" class = "slider-class"></div>
+							<div id = "slider-node-fontsize" class = "slider-class"></div>
 							<label>Label Text</label>
 							<select id = 'node-label-text'><option value="">ID</option></select>
 							<label>Search in Label</label>
@@ -285,15 +285,15 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 							<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
 
 							<br>
-							<label><input id ='show-node-tooltip' type="checkbox" checked /> Show Tooltip</label>
+							<label><input id ='show-node-tooltip' type="checkbox" checked /> Mouseover info</label>
 							<br>
-							<label><input id ='show-individual-segments' type="checkbox" /> Show All Segments</label>
+							<label><input id ='show-individual-segments' type="checkbox" /> Seperate Strains</label>
 					</div>
 			</div>
 			<div class='panel panel-default'>	
 					<div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Layout</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
 					<div class = "panel-body" id ='mst-layout-menu-panel'>
-							  <label>Collapse Nodes::</label>
+							  <label>Collapse Nodes:</label>
 							<br>
 							<input type='text' style='width:80px;height:20px' id ='spinner-collapse-nodes'>
 						   <button id ='button-collapse-nodes'>Go</button>
@@ -302,25 +302,23 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 							<div id = "slider-collapse-nodes" class = "slider-class"></div>
 						   
 						   <br>
-				<hr>
+							<hr>
 							<p align='center'>
-									<button onclick ="javascript:the_tree.unfixSelectedNodes()"> Unfix Selected</button>
+									<button onclick = 'javascript:the_tree.unfixSelectedNodes(true)' > Auto-adjust Layout</button>
 							</p>
 							<p align='center'>
-									<button onclick = 'javascript:the_tree.unfixSelectedNodes(true)' > Start Local Optimal Layout</button>
+									<button onclick ="javascript:the_tree.unfixSelectedNodes()"> Adjust On Selected</button>
 							</p>
 							<p align='center'>
-									<button onclick = 'the_tree.fixAllNodes()' > End Local Optimal Layout</button>
+									<button id="stopAdjustment"> Stop Adjustment</button>
 							</p>
-							<p align='center'>
-									<button onclick = 'the_tree.resetLinkLengths()' > Correct Links</button>
-							</p>	
-							<label>Charge</label>
+							<label><input id ='correct_link_length' type="checkbox" checked /> Reset Branch Length</label>
+							<label>Adjustment speed</label>
 							<br>
 							<div title = "0" id = "slider-charge" class = "slider-class"></div>
 							<br>
 
-			   <label>Initial Layout Algorithm</label>
+			   <label>Initial Layout Method</label>
 			   <br>
 			   <select id = 'layout-select'>
 				   <option value='greedy'>Greedy</option>
@@ -361,6 +359,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 
 		<p align = 'center'>
 			<button id ="save-tree-json">Save GrapeTree</button>
+		</p>
+		<p align = 'center'>
+			<button id ="save-tree-nwk">Save to Newick Tree</button>
 		</p>
 		<p align = 'center'>
 			<button id ="mst-download-svg">Download SVG</button>
@@ -728,7 +729,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	
 	function setControlPanel(data){
 		   
-		$("#slider-linklength").slider("value",data['max_link_scale']);
+		$("#slider-linklength").slider("value",Math.log(data['max_link_scale'])*10.0);
+		$("#spinner-linklength").val(data['max_link_scale']);
 		$("#slider-nodesize").slider("value",data['base_node_size']);
 		if (data['max_link_length']){
 			$("#spinner-maxlinklength").val(data['max_link_length']);			
@@ -743,7 +745,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			$("#show-individual-segments").prop("checked",true);
 		}
 		if (data['link_font_size']){
-			$("#slider-link-fontsize").slider("value",data['link_font_size']);
+			$("#slider-linkfontsize").slider("value",data['link_font_size']);
+			$("#spinner-linkfontsize").spinner("value",data['link_font_size']);
 		}
 		var sll =true;
 		if (data['show_link_labels']===false){
@@ -754,6 +757,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		$("#show-node-labels").prop("checked",data['show_node_labels']);
 		if (data['node_font_size']){
 			$("#slider-node-fontsize").slider("value",data['node_font_size']);			
+			$("#spinner-node-fontsize").spinner("value",data['node_font_size']);
 		}
 		if (data['hide_link_length']){
 			$("#spinner-hide-link-length").val(data['hide-link-length']);			
@@ -1000,7 +1004,9 @@ window.onload = function (){
         });
         
                 
-       
+        $("#stopAdjustment").click(function(e) {
+			the_tree.fixAllNodes( document.getElementById("correct_link_length").checked );
+	    });
         
         $("#upload-metadata-icon").click(function(e){
                 if (!metadata_options['Custom Fields']){
@@ -1062,19 +1068,38 @@ window.onload = function (){
         
         $( "#slider-linklength" ).slider({
                 orientation: "horizontal",
-                min:50,
-                max: 50000,
-                value: 500,
-                slide:function(){the_tree.setLinkLength($("#slider-linklength").slider("value"));
-										$(this).attr("title", $(this).slider("value"));
+                min: 30,
+                max: 120,
+                value: 62,
+                slide:function(){
+					var brlen = Math.exp($(this).slider("value")/10.0);
+					$("#spinner-linklength").spinner('value', brlen);
 				},
                 change: function(e){
                         if (e.originalEvent){
-                                the_tree.setLinkLength($("#slider-linklength").slider("value"));
+							var brlen = Math.exp($(this).slider("value")/10.0);
+							$("#spinner-linklength").spinner('value', brlen);
                         }
                 }
         });
+		$("#spinner-linklength").spinner({
+			min: 100,
+			max: 100000,
+			value: 500,
+			step: 20,
+			spin: function(e) {
+				var brlen = parseInt($(this).val());
+				$( "#slider-linklength" ).slider('value', Math.log(brlen)*10.0);
+				the_tree.setLinkLength(brlen);
+			},
+			change: function(e) {
+				var brlen = parseInt($(this).val());
+				$( "#slider-linklength" ).slider('value', Math.log(brlen)*10.0);
+				the_tree.setLinkLength(brlen);
+			}
 
+		});
+		
         $( "#slider-nodesize" ).slider({
                 orientation: "horizontal",
                 min:2,
@@ -1107,27 +1132,57 @@ window.onload = function (){
                 min:6,
                 max: 30,
                 value: 12,
-                slide:function(){the_tree.setNodeFontSize($("#slider-node-fontsize").slider("value"));
-									$(this).prop("title", $(this).slider("value"));},
+                slide:function(){
+					$("#spinner-node-fontsize").spinner('value', $(this).slider("value"));
+				},
                 change: function(e){
                         if (e.originalEvent){
-                                the_tree.setNodeFontSize($("#slider-node-fontsize").slider("value"));
+                                $("#spinner-node-fontsize").spinner('value', $(this).slider("value"));
                         }
                 }
         });
+		$("#spinner-node-fontsize").spinner({
+			min: 6,
+			max: 30,
+			value: 12,
+			change: function(e) {
+				$( "#slider-node-fontsize" ).slider('value', parseInt($(this).val()));
+				the_tree.setNodeFontSize(parseInt($(this).val()));
+			},
+			spin: function(e) {
+				$( "#slider-node-fontsize" ).slider('value', parseInt($(this).val()));
+				the_tree.setNodeFontSize(parseInt($(this).val()));
+			}
+		});
+
         $( "#slider-linkfontsize" ).slider({
                 orientation: "horizontal",
                 min:6,
                 max: 30,
                 value: 14,
-                slide:function(){the_tree.setLinkFontSize($("#slider-linkfontsize").slider("value"));
-									$(this).prop("title", $(this).slider("value"));},
+                slide:function(){
+									$("#spinner-linkfontsize").spinner('value', $("#slider-linkfontsize").slider("value"));
+								},
                 change: function(e){
                         if (e.originalEvent){
-                                the_tree.setLinkFontSize(($("#slider-linkfontsize").slider("value")));
+								$("#spinner-linkfontsize").spinner('value', $("#slider-linkfontsize").slider("value"));
                         }
                 }
         });
+		$("#spinner-linkfontsize").spinner({
+			min: 6,
+			max: 30,
+			value: 14,
+			change: function(e) {
+				$( "#slider-linkfontsize" ).slider('value', parseInt($(this).val()));
+				the_tree.setLinkFontSize(parseInt($(this).val()));
+			},
+			spin: function(e) {
+				$( "#slider-linkfontsize" ).slider('value', parseInt($(this).val()));
+				the_tree.setLinkFontSize(parseInt($(this).val()));
+			}
+		});
+
         
         $( "#slider-charge" ).slider({
                 orientation: "horizontal",
@@ -1241,7 +1296,14 @@ window.onload = function (){
                 saveTextAsFile(JSON.stringify(obj),"ms_tree.json");
         
         });
+
+        $("#save-tree-nwk").click(function(e){
+                var newick= the_tree.getTreeAsNewick();
+                saveTextAsFile(newick,"ms_tree.nwk");
         
+        });
+		
+
         $("#center-graph-button").click(function(e){
              the_tree.centerGraph();
         

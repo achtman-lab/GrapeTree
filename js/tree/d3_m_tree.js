@@ -137,11 +137,15 @@ function D3MSTree(element_id,data,callback,height,width){
         } else {
                 this.original_nodes=data['nodes'];
                 this.original_links=data['links'];
+				this.newickTree=data['newickTree'];
         }
         for (var i in this.original_nodes){
                 var name = this.original_nodes[i];
                 this.grouped_nodes[name]=[name];
+                this.metadata[name] = {"ID":name};
+                this.metadata_map[name] = [name];
         }
+
         var positions = null;
         if (data['layout_data']){
                 positions = data['layout_data']['node_positions'];
@@ -171,6 +175,7 @@ function D3MSTree(element_id,data,callback,height,width){
         if (callback){
                 callback(this,"Nodes"+this.force_nodes.length);
         }
+
         //links and nodes given without initial positions 
         if (data['layout_algorithm']!=='force' && ! positions && !data['nwk'] && !data['nexus']){
               
@@ -441,7 +446,8 @@ D3MSTree.prototype._start= function(callback,layout_data){
         else{
                 this.setLayout(layout_data);
                 this._showLinkLabels();
-                this.changeCategory(this.display_category);
+                //this.changeCategory(this.display_category);
+                this.changeCategory("ID", true);
                 this._updateGraph(true);
                 this.startForce();
                 this.stopForce();
@@ -857,14 +863,14 @@ D3MSTree.prototype._drawLinks=function(){
 * @param {string} category The category to display. If no category
 * is given then the node IDs will be displayed
 */
-D3MSTree.prototype.changeCategory= function(category){
+D3MSTree.prototype.changeCategory= function(category, not_shown){
         if (! category){
                 this.display_category=null;
                 this.category_colours['missing']=this.default_colour;
         
         }
         else{
-                this._changeCategory(category);
+                this._changeCategory(category, not_shown);
         }
         
         
@@ -944,10 +950,15 @@ D3MSTree.prototype.getTreeAsObject=function(){
                 nodes:this.original_nodes,
                 layout_data:this.getLayout(),
                 metadata:this.metadata,
-                initial_category:this.display_category
+                initial_category:this.display_category,
+				newickTree:this.newickTree
         }
         return obj;
 
+}
+
+D3MSTree.prototype.getTreeAsNewick=function(){
+	return this.newickTree;
 }
 
 D3MSTree.prototype._setNodeText = function(){
@@ -1717,7 +1728,7 @@ D3MSTree.prototype.unfixSelectedNodes= function(all){
 /** This fixes all nodes and stops the 'force' algorithm from updating
 * their position
 */
-D3MSTree.prototype.fixAllNodes=function(){
+D3MSTree.prototype.fixAllNodes=function(resetLength){
         this.stopForce();
         for (var index in this.force_nodes){
                 var node = this.force_nodes[index];   
@@ -1737,6 +1748,10 @@ D3MSTree.prototype.fixAllNodes=function(){
         this._updateGraph(true);	
         //this.change_nodes_to_update();
         //this.startForce();
+        if (resetLength == true) {
+			this.resetLinkLengths();
+		}
+
 }
 
  

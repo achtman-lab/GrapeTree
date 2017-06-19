@@ -866,6 +866,7 @@ function D3BaseTree(element_id,metadata,height,width){
 }
 
 D3BaseTree.prototype.parseNewick =  function (a){
+	this.newickTree = a;
 	for(var e=[],r={},s=a.split(/\s*(;|\(|\)|,|:)\s*/),t=0;t<s.length;t++){
 		var n=s[t];
 		switch(n){
@@ -944,7 +945,7 @@ D3BaseTree.prototype.addMetadata=function(metadata){
 			for (var key in metadata[id]){
 				this.metadata[id][key]=metadata[id][key];
 			}		
-		}	
+		}
 	}
 }
 /**
@@ -1014,7 +1015,7 @@ D3BaseTree.prototype.setTranslate=function(x_y){
 }
 
 
-D3BaseTree.prototype._changeCategory=function(category){
+D3BaseTree.prototype._changeCategory=function(category, not_shown){
 	var cust_col = this.custom_colours[category]
 	this.display_category = category;
 	var cat_count={};
@@ -1044,6 +1045,10 @@ D3BaseTree.prototype._changeCategory=function(category){
 	var cust_col= this.custom_colours[category];
 	for (var i in cat_count_list){
 		var val = cat_count_list[i][0];
+		if (not_shown) {
+			this.category_colours[val]='white';
+			continue;
+		}
 		if (cust_col && cust_col[val]){
 			this.category_colours[val]=cust_col[val];
 			colour_count++;
@@ -1058,7 +1063,9 @@ D3BaseTree.prototype._changeCategory=function(category){
 		}
 	}
 	this.category_colours["missing"] = this.default_colour;
-	this.updateLegend(category);
+	if (!not_shown) {
+		this.updateLegend(category);
+	}
 }
 
 /**

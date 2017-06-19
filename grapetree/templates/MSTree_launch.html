@@ -14,14 +14,14 @@
                       
                         position: absolute;
                         top:10px;
-                        left:170px;
+                        left:180px;
                         
                 }
                 
                 #sidebar {
                         position:absolute;
                         top:10px;
-                        width:170px;
+                        width:180px;
                         margin-left:5px;
                 }
                 .brush .extent {
@@ -210,159 +210,163 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 
 <div id='sidebar'>
 <p>
-<a href="https://enterobase.warwick.ac.uk"><img src="js/img/enterobase.png" alt="Enterobase" style="width:40px;height:45px;"></a>    |    
-<a href="https://github.com/martinSergeant/EnteroMSTree"><img src="js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>
+<a href="https://enterobase.warwick.ac.uk" target = '_blank'><img src="js/img/enterobase.png" alt="Enterobase" style="width:40px;height:45px;"></a>    |    
+<a href="https://github.com/martinSergeant/EnteroMSTree" target = '_blank'><img src="js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>
 <h3 id="headertag" style="font-family: times, serif; font-size:12pt; font-style:italic">GrapeTree</h3>
 </p>
 <br>
-        <label>Colour By:</label>
-        <br>
-        <select style="width:140px" id= 'metadata-select'></select>
-        
-        <p align = 'center'>
-        <span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
-        <span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
-        </p>
-        
-     <div class='panel panel-default'  style ="margin-bottom:2px">	
-               <div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Links</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
-               <div class = "panel-body" id ='mst-link-menu-panel'>	
-                       <label>Link Length</label>
-                       <br>
-                       <div title = "500" id = "slider-linklength" class ="slider-class">  </div>
-                       <br>
-                        <label><input id ='link-log-scale'type="checkbox"  />Log Scale</label>
-                        <br>
-                        <label>Hide Links Over:</label>
-                        <br>
-                        <input type='text' style='width:35px;height:15px' id ='spinner-hide-link-length'>
-                       <button id ='button-hide-link-length'>Go</button>
-                       <br>
-                       <label>Max Link Length:</label>
-                       <br>
-                       <input type='text' style='width:35px;height:15px' id ='spinner-maxlinklength'>
-                       <button id ='button-setmaxlinklength'>Go</button>
-                       <br>
-                       <label><input id ='show-link-labels'type="checkbox" /> Link Labels</label>
-                       <br>
-                       <label>Font Size</label>
-                       <br>
-                       <div title = "14" id = "slider-linkfontsize" class = "slider-class"></div>
-                       <br>
-                       <label><input id ='show-link-tooltip' type="checkbox" checked /> Show Tooltip</label>
-               </div>
-       </div>
-       <div class='panel panel-default'>	
-               <div class ='panel-heading mst-menu-title' id= 'mst-node-menu'> <b id>Nodes</b><span id = 'mst-node-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
-               <div class = "panel-body" id ='mst-node-menu-panel'>		
-                        <label>Node Size</label>
-                        <br>
-                        <div title = "10" id = "slider-nodesize" class = "slider-class"></div>
-                        <br>
-                        <label>Relative Size</label>
-                        <br>
-                        <div title = "1" id = "slider-relative-nodesize" class = "slider-class"></div>
-                        <br>
-                        <label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
-                        <br>
-                        
-                        <label>Font Size</label>
-                        <br>
-                        <div title = "12" id = "slider-node-fontsize" class = "slider-class"></div>
-                        <label>Label Text</label>
-                        <select id = 'node-label-text'><option value="">ID</option></select>
-               			<label>Search in Label</label>
-						<br>
-						<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
-
-                        <br>
-                        <label><input id ='show-node-tooltip' type="checkbox" checked /> Show Tooltip</label>
-                        <br>
-                        <label><input id ='show-individual-segments' type="checkbox" /> Show All Segments</label>
-                </div>
-        </div>
-        <div class='panel panel-default'>	
-                <div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Layout</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
-                <div class = "panel-body" id ='mst-layout-menu-panel'>
-                          <label>Collapse Nodes::</label>
-                        <br>
-                        <input type='text' style='width:80px;height:20px' id ='spinner-collapse-nodes'>
-                       <button id ='button-collapse-nodes'>Go</button>
-                       <br>
-                       
-                        <div id = "slider-collapse-nodes" class = "slider-class"></div>
-                       
-                       <br>
-			<hr>
-                        <p align='center'>
-                                <button onclick ="javascript:the_tree.unfixSelectedNodes()"> Unfix Selected</button>
-                        </p>
-                        <p align='center'>
-                                <button onclick = 'javascript:the_tree.unfixSelectedNodes(true)' > Unfix All</button>
-                        </p>
-                        <p align='center'>
-                                <button onclick = 'the_tree.fixAllNodes()' > Fix All</button>
-                        </p>
-                        <p align='center'>
-                                <button onclick = 'the_tree.resetLinkLengths()' > Correct Links</button>
-                        </p>	
-                        <label>Charge</label>
-                        <br>
-                        <div title = "0" id = "slider-charge" class = "slider-class"></div>
-                        <br>
-
-		   <label>Initial Layout Algorithm</label>
-		   <br>
-		   <select id = 'layout-select'>
-			   <option value='greedy'>Greedy</option>
-			   <option value='force'>Force</option>
-		   </select>
-                </div>
-        </div>
-   
-	<div id = 'add-data-panel' class='panel panel-default'>	
-                <div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Metadata</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
-                <div class = "panel-body" id ='mst-data-menu-panel'>	
-                        <label>Add Field&nbsp;&nbsp;&nbsp;</label>
-                        <input  size="11" id ="add-extra-field-input">
-                        <span  id ="add-custom-field-icon" onclick="addExtraField()" class='add-data-icon glyphicon glyphicon-plus'></span>
-                        <br>
-                        
-                        <label>Edit Metadata</label>
-			<br>
-                        Field<select style ="width:120px" id="add-new-values-select"></select><span    onclick="deleteMetadataCategory()" class='add-data-icon glyphicon glyphicon-remove'></span>
-                        Add Value To Selected<input size="11" id ="add-new-values-input">
-                        <span  id ="add-new-values-icon"  onclick="addNewValues()" class='add-data-icon glyphicon glyphicon-plus'></span>
-                        <br>
-                                          
-                </div>
-        </div>
-
-	
-
- 
-	<br>
-	<p align='center'>
-		<button id = 'button-refresh'> Refresh</button>
-	</p>
-         <p align = 'center'>
-                <button id ="center-graph-button">Centre Tree</button>
-        </p> 
-	<hr>
-
-        <p align='center'>
+	<div id='beforeload_bar'>
+		<p align='center'>
 				<button id = 'button-load-nwk'> Load Tree/Profile</button>
-        </p>
-	    <p align='center'>
+		</p>
+	</div>
+	<div id='afterload_bar'>
+		<p align='center'>
 				<button id = 'button-load-meta'> Load Metadata</button>
 		</p>
+		 <div class='panel panel-default'  style ="margin-bottom:2px">	
+				   <div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Links</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+				   <div class = "panel-body" id ='mst-link-menu-panel'>	
+						   <label>Link Length&nbsp;</label><input type='text' style='width:30px;height:15px' id ='spinner-linklength'>
+						   <br>
+						   <div title = "500" id = "slider-linklength" class ="slider-class">  </div>
+						   <br>
+							<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
+							<br>
+							<label>Hide Links Over:</label>
+							<br>
+							<input type='text' style='width:35px;height:15px' id ='spinner-hide-link-length'>
+						   <button id ='button-hide-link-length'>Go</button>
+						   <br>
+						   <label>Max Link Length:</label>
+						   <br>
+						   <input type='text' style='width:35px;height:15px' id ='spinner-maxlinklength'>
+						   <button id ='button-setmaxlinklength'>Go</button>
+						   <br>
+						   <label><input id ='show-link-labels'type="checkbox" /> Link Labels</label>
+						   <br>
+						   <label>Font Size&nbsp;</label><input type='text' style='width:30px;height:15px' id ='spinner-linkfontsize'>
+						   <br>
+						   <div id = "slider-linkfontsize" class = "slider-class"></div>
+						   <br>
+						   <label><input id ='show-link-tooltip' type="checkbox" checked /> Mouseover info</label>
+				   </div>
+		   </div>
+		   <div class='panel panel-default'>	
+				   <div class ='panel-heading mst-menu-title' id= 'mst-node-menu'> <b id>Nodes</b><span id = 'mst-node-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+				   <div class = "panel-body" id ='mst-node-menu-panel'>
+				   			<label>Colour By:</label>
+							<br>
+							<select style="width:140px" id= 'metadata-select'></select>
+							
+							<p align = 'center'>
+							<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
+							<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
+							</p>
+
+							<label>Node Size</label>
+							<br>
+							<div title = "10" id = "slider-nodesize" class = "slider-class"></div>
+							<br>
+							<label>Relative Size</label>
+							<br>
+							<div title = "1" id = "slider-relative-nodesize" class = "slider-class"></div>
+							<br>
+							<label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
+							<br>
+							
+							<label>Font Size&nbsp;</label><input type='text' style='width:30px;height:15px' id ='spinner-node-fontsize'>
+							<br>
+							<div id = "slider-node-fontsize" class = "slider-class"></div>
+							<label>Label Text</label>
+							<select id = 'node-label-text'><option value="">ID</option></select>
+							<label>Search in Label</label>
+							<br>
+							<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
+
+							<br>
+							<label><input id ='show-node-tooltip' type="checkbox" checked /> Mouseover info</label>
+							<br>
+							<label><input id ='show-individual-segments' type="checkbox" /> Seperate Strains</label>
+					</div>
+			</div>
+			<div class='panel panel-default'>	
+					<div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Layout</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+					<div class = "panel-body" id ='mst-layout-menu-panel'>
+							  <label>Collapse Nodes:</label>
+							<br>
+							<input type='text' style='width:80px;height:20px' id ='spinner-collapse-nodes'>
+						   <button id ='button-collapse-nodes'>Go</button>
+						   <br>
+						   
+							<div id = "slider-collapse-nodes" class = "slider-class"></div>
+						   
+						   <br>
+							<hr>
+							<p align='center'>
+									<button onclick = 'javascript:the_tree.unfixSelectedNodes(true)' > Auto-adjust Layout</button>
+							</p>
+							<p align='center'>
+									<button onclick ="javascript:the_tree.unfixSelectedNodes()"> Adjust On Selected</button>
+							</p>
+							<p align='center'>
+									<button id="stopAdjustment"> Stop Adjustment</button>
+							</p>
+							<label><input id ='correct_link_length' type="checkbox" checked /> Reset Branch Length</label>
+							<label>Adjustment speed</label>
+							<br>
+							<div title = "0" id = "slider-charge" class = "slider-class"></div>
+							<br>
+
+			   <label>Initial Layout Method</label>
+			   <br>
+			   <select id = 'layout-select'>
+				   <option value='greedy'>Greedy</option>
+				   <option value='force'>Force</option>
+			   </select>
+					</div>
+			</div>
+	   
+		<div id = 'add-data-panel' class='panel panel-default'>	
+					<div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Metadata</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+					<div class = "panel-body" id ='mst-data-menu-panel'>	
+							<label>Add Field&nbsp;&nbsp;&nbsp;</label>
+							<input  size="11" id ="add-extra-field-input">
+							<span  id ="add-custom-field-icon" onclick="addExtraField()" class='add-data-icon glyphicon glyphicon-plus'></span>
+							<br>
+							
+							<label>Edit Metadata</label>
+				<br>
+							Field<select style ="width:120px" id="add-new-values-select"></select><span    onclick="deleteMetadataCategory()" class='add-data-icon glyphicon glyphicon-remove'></span>
+							Add Value To Selected<input size="11" id ="add-new-values-input">
+							<span  id ="add-new-values-icon"  onclick="addNewValues()" class='add-data-icon glyphicon glyphicon-plus'></span>
+							<br>
+											  
+					</div>
+			</div>
+
+		
+
+	 
+		<br>
+		<p align='center'>
+			<button id = 'button-refresh'> Refresh</button>
+		</p>
+			 <p align = 'center'>
+					<button id ="center-graph-button">Centre Tree</button>
+			</p> 
 		<hr>
-	<p align = 'center'>
-		<button id ="save-tree-json">Save Tree</button>
-	</p>
-	<p align = 'center'>
-		<button id ="mst-download-svg">Download SVG</button>
-	</p>
+
+		<p align = 'center'>
+			<button id ="save-tree-json">Save GrapeTree</button>
+		</p>
+		<p align = 'center'>
+			<button id ="save-tree-nwk">Save to Newick Tree</button>
+		</p>
+		<p align = 'center'>
+			<button id ="mst-download-svg">Download SVG</button>
+		</p>
+	</div>
 </div>
 
 <div id = "graph-div" class="graph-overlay"></div>
@@ -455,7 +459,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 
                         }
                         $(".ui-dialog-content").dialog().dialog("close");
-            
                 });       
                 //the actual dailog box    
                 $("<div id ='savedailog'></div>")
@@ -726,7 +729,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	
 	function setControlPanel(data){
 		   
-		$("#slider-linklength").slider("value",data['max_link_scale']);
+		$("#slider-linklength").slider("value",Math.log(data['max_link_scale'])*10.0);
+		$("#spinner-linklength").val(data['max_link_scale']);
 		$("#slider-nodesize").slider("value",data['base_node_size']);
 		if (data['max_link_length']){
 			$("#spinner-maxlinklength").val(data['max_link_length']);			
@@ -741,7 +745,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			$("#show-individual-segments").prop("checked",true);
 		}
 		if (data['link_font_size']){
-			$("#slider-link-fontsize").slider("value",data['link_font_size']);
+			$("#slider-linkfontsize").slider("value",data['link_font_size']);
+			$("#spinner-linkfontsize").spinner("value",data['link_font_size']);
 		}
 		var sll =true;
 		if (data['show_link_labels']===false){
@@ -752,6 +757,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		$("#show-node-labels").prop("checked",data['show_node_labels']);
 		if (data['node_font_size']){
 			$("#slider-node-fontsize").slider("value",data['node_font_size']);			
+			$("#spinner-node-fontsize").spinner("value",data['node_font_size']);
 		}
 		if (data['hide_link_length']){
 			$("#spinner-hide-link-length").val(data['hide-link-length']);			
@@ -866,6 +872,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		reader.file = file;
 		reader.readAsText(first_blob);
 	}
+	$('#afterload_bar').find('input, textarea, button, select, div, span').prop('disabled',false);
+	$('#afterload_bar').css("opacity", 1.0);
  }
  
  function initiateLoading(msg){
@@ -996,7 +1004,9 @@ window.onload = function (){
         });
         
                 
-       
+        $("#stopAdjustment").click(function(e) {
+			the_tree.fixAllNodes( document.getElementById("correct_link_length").checked );
+	    });
         
         $("#upload-metadata-icon").click(function(e){
                 if (!metadata_options['Custom Fields']){
@@ -1033,6 +1043,9 @@ window.onload = function (){
         
         
         $(".mst-menu-title").click(function(e){
+				if($(this).prop("disabled") === true) {
+					return;
+				}
                 var id = $(this).attr("id");
                 var this_panel =  $("#"+id+"-panel");
                 var icon = $("#"+id+"-icon");
@@ -1055,19 +1068,38 @@ window.onload = function (){
         
         $( "#slider-linklength" ).slider({
                 orientation: "horizontal",
-                min:50,
-                max: 50000,
-                value: 500,
-                slide:function(){the_tree.setLinkLength($("#slider-linklength").slider("value"));
-										$(this).attr("title", $(this).slider("value"));
+                min: 30,
+                max: 120,
+                value: 62,
+                slide:function(){
+					var brlen = Math.exp($(this).slider("value")/10.0);
+					$("#spinner-linklength").spinner('value', brlen);
 				},
                 change: function(e){
                         if (e.originalEvent){
-                                the_tree.setLinkLength($("#slider-linklength").slider("value"));
+							var brlen = Math.exp($(this).slider("value")/10.0);
+							$("#spinner-linklength").spinner('value', brlen);
                         }
                 }
         });
+		$("#spinner-linklength").spinner({
+			min: 100,
+			max: 100000,
+			value: 500,
+			step: 20,
+			spin: function(e) {
+				var brlen = parseInt($(this).val());
+				$( "#slider-linklength" ).slider('value', Math.log(brlen)*10.0);
+				the_tree.setLinkLength(brlen);
+			},
+			change: function(e) {
+				var brlen = parseInt($(this).val());
+				$( "#slider-linklength" ).slider('value', Math.log(brlen)*10.0);
+				the_tree.setLinkLength(brlen);
+			}
 
+		});
+		
         $( "#slider-nodesize" ).slider({
                 orientation: "horizontal",
                 min:2,
@@ -1100,27 +1132,57 @@ window.onload = function (){
                 min:6,
                 max: 30,
                 value: 12,
-                slide:function(){the_tree.setNodeFontSize($("#slider-node-fontsize").slider("value"));
-									$(this).prop("title", $(this).slider("value"));},
+                slide:function(){
+					$("#spinner-node-fontsize").spinner('value', $(this).slider("value"));
+				},
                 change: function(e){
                         if (e.originalEvent){
-                                the_tree.setNodeFontSize($("#slider-node-fontsize").slider("value"));
+                                $("#spinner-node-fontsize").spinner('value', $(this).slider("value"));
                         }
                 }
         });
+		$("#spinner-node-fontsize").spinner({
+			min: 6,
+			max: 30,
+			value: 12,
+			change: function(e) {
+				$( "#slider-node-fontsize" ).slider('value', parseInt($(this).val()));
+				the_tree.setNodeFontSize(parseInt($(this).val()));
+			},
+			spin: function(e) {
+				$( "#slider-node-fontsize" ).slider('value', parseInt($(this).val()));
+				the_tree.setNodeFontSize(parseInt($(this).val()));
+			}
+		});
+
         $( "#slider-linkfontsize" ).slider({
                 orientation: "horizontal",
                 min:6,
                 max: 30,
                 value: 14,
-                slide:function(){the_tree.setLinkFontSize($("#slider-linkfontsize").slider("value"));
-									$(this).prop("title", $(this).slider("value"));},
+                slide:function(){
+									$("#spinner-linkfontsize").spinner('value', $("#slider-linkfontsize").slider("value"));
+								},
                 change: function(e){
                         if (e.originalEvent){
-                                the_tree.setLinkFontSize(($("#slider-linkfontsize").slider("value")));
+								$("#spinner-linkfontsize").spinner('value', $("#slider-linkfontsize").slider("value"));
                         }
                 }
         });
+		$("#spinner-linkfontsize").spinner({
+			min: 6,
+			max: 30,
+			value: 14,
+			change: function(e) {
+				$( "#slider-linkfontsize" ).slider('value', parseInt($(this).val()));
+				the_tree.setLinkFontSize(parseInt($(this).val()));
+			},
+			spin: function(e) {
+				$( "#slider-linkfontsize" ).slider('value', parseInt($(this).val()));
+				the_tree.setLinkFontSize(parseInt($(this).val()));
+			}
+		});
+
         
         $( "#slider-charge" ).slider({
                 orientation: "horizontal",
@@ -1234,7 +1296,14 @@ window.onload = function (){
                 saveTextAsFile(JSON.stringify(obj),"ms_tree.json");
         
         });
+
+        $("#save-tree-nwk").click(function(e){
+                var newick= the_tree.getTreeAsNewick();
+                saveTextAsFile(newick,"ms_tree.nwk");
         
+        });
+		
+
         $("#center-graph-button").click(function(e){
              the_tree.centerGraph();
         
@@ -1280,7 +1349,14 @@ window.onload = function (){
 	waiting_spinner= new Spinner({color:'black', lines: 12,top:"13%"}).spin(target);
 	
 	
+	$('#afterload_bar').find('input, textarea, button, select, span, div').prop('disabled',true);
+	$("#afterload_bar").css("opacity", 0.6)
 	
+	window.addEventListener("beforeunload", function (e) {
+		var confirmationMessage = 'All the modifications will lost if you have not saved the GrapeTree as a local file.';
+		(e || window.event).returnValue = confirmationMessage;
+		return confirmationMessage; 
+	});
 };
 
 function try_backend(){
