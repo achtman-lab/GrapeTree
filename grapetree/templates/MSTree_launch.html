@@ -207,21 +207,25 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 
 <div id='sidebar'>
 	<div id='beforeload_bar'>
-		<p>
+		<p align = 'center'>
 			<a href="https://enterobase.warwick.ac.uk" target = '_blank'><img src="js/img/enterobase.png" alt="Enterobase" style="width:40px;height:45px;"></a>    |
 			<a href="https://github.com/martinSergeant/EnteroMSTree" target = '_blank'><img src="js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>
 			<h3 id="headertag" style="font-family: times, serif; font-size:12pt; font-style:italic">GrapeTree</h3>
 		</p>
 		<br>
-		<p align='center'>
-			<button id = 'button-load-nwk'> Load Tree/Profile</button>
-			<br>
-			<br>
-			<label>Initial Layout</label>
-			<select id = 'layout-select'>
-				<option value='greedy'>Greedy</option>
-				<option value='force'>Magnetic repulsion</option>
-			</select>
+		<button id = 'button-load-nwk'> Load Tree/Profile</button> 
+		<span id = 'preload-menu-icon' onclick = "document.getElementById('preload-menu-icon').style.display = 'none'; document.getElementById('preload-panel').style.display = 'block'" class='glyphicon glyphicon-plus'> </span>
+			<div id ='preload-panel' style="display:none" >
+				<span id = 'preload-menu-icon2' onclick = "document.getElementById('preload-menu-icon').style.display = 'block'; document.getElementById('preload-panel').style.display = 'none'" class='glyphicon glyphicon-minus'> </span>
+				<br>
+				<p>
+					<label>Initial Layout</label>
+					<select id = 'layout-select'>
+						<option value='greedy'>Greedy</option>
+						<option value='force'>Magnetic repulsion</option>
+					</select>
+				</p>
+			</div>
 		</p>
 		<br>
 	</div>
@@ -305,7 +309,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 							<br>
 							<div title = "0" id = "slider-charge" class = "slider-class"></div>
 							<br>
-				<hr>
 					</div>
 			</div>
 
@@ -335,19 +338,19 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<div id = "scaling">
 				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Link Length (%)</label>
 				<br>
-				<div id = "slider-linklength" class ="slider-class">  </div><input type='text' style='width:24px;height:15px' id ='spinner-linklength'>
+				<div id = "slider-linklength" class ="slider-class">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength'>
 				<br>
 				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Node Size (%)</label>
 				<br>
-				<div id = "slider-nodesize" class = "slider-class"></div><input type='text' style='width:24px;height:15px' id ='spinner-nodesize'>
+				<div id = "slider-nodesize" class = "slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize'>
 				<br>
 				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Relative Size (%)</label>
 				<br>
-				<div id = "slider-relative-nodesize" class = "slider-class"></div><input type='text' style='width:24px;height:15px' id ='spinner-relative-nodesize'>
+				<div id = "slider-relative-nodesize" class = "slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize'>
 				<br>
 				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Collapse Nodes</label>
 				<br>
-				<div id = "slider-collapse-nodes" class = "slider-class"></div><input type='text' style='width:24px;height:15px' id ='spinner-collapse-nodes'>
+				<div id = "slider-collapse-nodes" class = "slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes'>
 				<br><br>
 				<p align='center'>
 					<button id = 'button-refresh'> Greedy Layout</button>
@@ -645,7 +648,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         min: 0,
                         max: tree.max_link_distance,
                         value: tree.node_collapsed_value,
-                        step: tree.max_link_distance/1000.0
+                        step: (tree.max_link_distance/1000.0).toPrecision(1)
                 });
 
                 $( "#slider-collapse-nodes" ).slider({
@@ -1128,8 +1131,8 @@ window.onload = function (){
 
         $( "#slider-relative-nodesize" ).slider({
                 orientation: "horizontal",
-                min:20,
-                max:200,
+                min:30,
+                max:150,
                 value: 100,
                 step:1,
                 slide:function(){
@@ -1142,8 +1145,8 @@ window.onload = function (){
                 }
         });
 		$( "#spinner-relative-nodesize" ).spinner({
-                min:20,
-                max:200,
+                min:30,
+                max:150,
                 value: 100,
                 step:1,
                 spin:function(){

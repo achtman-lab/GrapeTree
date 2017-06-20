@@ -1266,11 +1266,19 @@ D3MSTree.prototype._addLinks=function(links,ids){
                 link.source.children.push(link.target);
                 link.target.parent = link.source;            
         }
-		this._getLink = {};
-		for (var index in this.force_links) {
-			this._getLink[this.force_links[index].target.id] = this.force_links[index];
-		}
+		//this._getLink = {};
+		//for (var index in this.force_links) {
+		//	this._getLink[this.force_links[index].target.id] = this.force_links[index];
+		//}
 }
+D3MSTree.prototype._getLink=function(target_node){
+        for (var index in this.force_links){
+                if (this.force_links[index].target.id === target_node.id){
+                        return this.force_links[index];
+                }        
+        }
+}
+
 
  D3MSTree.prototype._setLinkDistance=function(strict){
         var self= this;
@@ -1750,9 +1758,10 @@ D3MSTree.prototype._fixAllNodes = function(){
 D3MSTree.prototype._alterChildrenPosition =function(node,x_diff,y_diff){
                 for (var id in node.children){
                         var child = node.children[id];
-                        
-                        child.x+=x_diff, child.y+=y_diff;
-                        child.px=child.x, child.py=child.y;
+                        child.x+=x_diff;
+                        child.y+=y_diff;
+                        child.px=child.x;
+                        child.py=child.y
                         this._alterChildrenPosition(child, x_diff, y_diff);
                 }
         
@@ -1887,10 +1896,10 @@ D3MSTree.prototype._dragStarted= function(it){
        this.stopForce();
        if (!it.parent) {
                var parent = it.children[0];
-               this.drag_link =this._getLink[parent.id];
+               this.drag_link =this._getLink(parent);
        } else {
                var parent = it.parent;
-               this.drag_link =this._getLink[it.id];
+               this.drag_link =this._getLink(it);
        }
        if (!this.drag_link){
               this.drag_orig_xy=[it.x,it.y];
