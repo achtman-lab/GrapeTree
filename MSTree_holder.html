@@ -40,13 +40,24 @@
                  .slider-class{
                         float: left;
                         clear: left;
-                        width: 100px;
+                        width: 120px;
                         height:5px;
                         margin: 5px;
                 }
                 .slider-class .ui-slider-handle {
                         height:12px;
                 }
+				.shortslider-class{
+                        float: left;
+                        clear: left;
+                        width: 60px;
+                        height:5px;
+                        margin: 5px;
+                }
+                .shortslider-class .ui-slider-handle {
+                        height:12px;
+                }
+
                 .mst-menu-title {
 
                         cursor:pointer;
@@ -213,23 +224,64 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<h3 id="headertag" style="font-family: times, serif; font-size:12pt; font-style:italic">GrapeTree</h3>
 		</p>
 		<br>
-		<button id = 'button-load-nwk'> Load Tree/Profile</button> 
-		<span id = 'preload-menu-icon' onclick = "document.getElementById('preload-menu-icon').style.display = 'none'; document.getElementById('preload-panel').style.display = 'block'" class='glyphicon glyphicon-plus'> </span>
-			<div id ='preload-panel' style="display:none" >
-				<span id = 'preload-menu-icon2' onclick = "document.getElementById('preload-menu-icon').style.display = 'block'; document.getElementById('preload-panel').style.display = 'none'" class='glyphicon glyphicon-minus'> </span>
+		<div class='panel panel-default'>
+			<div class ='panel-heading mst-menu-title' id= 'file-menu'> <b id>Files</b><span id = 'file-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+			<div class = "panel-body2" id ='file-menu-panel'>
+				<p align = 'center'>
 				<br>
-				<p  align = 'center'>
-					<label>Initial Layout</label>
-					<select id = 'layout-select'>
-						<option value='greedy'>Greedy</option>
-						<option value='force'>Magnetic repulsion</option>
-					</select>
+					<button id = 'button-load-nwk'> Load Tree/Profile</button>
+				<br>
+				<br>
+				<label>Initial Layout</label>
+				
+				<select id = 'layout-select'>
+					<option value='greedy'>Greedy</option>
+					<option value='force'>Magnetic repulsion</option>
+				</select>
+				<br>
 				</p>
+				<div id='save-panel'>
+					<hr>
+					<p align = 'center'>
+						<button id ="save-tree-json">Save GrapeTree</button><br><br>
+						<button id ="save-tree-nwk">Save to Newick Tree</button><br><br>
+						<button id ="mst-download-svg">Download SVG</button><br><br>
+					</p>
+				</div>
 			</div>
-		</p>
-		<br>
+		</div>
 	</div>
 	<div id='afterload_bar'>
+		<div class='panel panel-default'  style ="margin-bottom:2px">
+			<div class ='panel-heading mst-menu-title' id= 'tree-menu'> <b id>Tree</b><span id = 'tree-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+			<div class = "panel-body" id ='tree-menu-panel'>
+				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Link Length (%)</label>
+				<br>
+				<div id = "slider-linklength" class ="shortslider-class">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength'>
+				<br>
+				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Node Size (%)</label>
+				<br>
+				<div id = "slider-nodesize" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize'>
+				<br>
+				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Relative Size (%)</label>
+				<br>
+				<div id = "slider-relative-nodesize" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize'>
+				<br>
+				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Collapse Nodes</label>
+				<br>
+				<div id = "slider-collapse-nodes" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes'>
+				<br><br>
+				<p align='center'>
+					<button id = 'button-refresh'> Go</button>
+				</p>
+				<hr>
+				<p align = 'center'>
+					<label> Zoom:&nbsp;&nbsp;</label>
+					<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
+					<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
+				</p>
+			</div>
+		</div>
 		 <div class='panel panel-default'  style ="margin-bottom:2px">
 				   <div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Links</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 				   <div class = "panel-body" id ='mst-link-menu-panel'>
@@ -262,11 +314,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 				   			<label>Colour By:</label>
 							<br>
 							<select style="width:140px" id= 'metadata-select'></select>
-
-							<p align = 'center'>
-							<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
-							<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
-							</p>
 
 							<label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
 							<br>
@@ -313,60 +360,61 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			</div>
 
 		<div id = 'add-data-panel' class='panel panel-default'>
-					<div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Metadata</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
-					<div class = "panel-body" id ='mst-data-menu-panel'>
-							<p align='center'>
-								<button id = 'button-load-meta'> Load Metadata</button>
-							</p>
-							<hr>
-							<label>Add Field&nbsp;&nbsp;&nbsp;</label>
-							<input  size="11" id ="add-extra-field-input">
-							<span  id ="add-custom-field-icon" onclick="addExtraField()" class='add-data-icon glyphicon glyphicon-plus'></span>
-							<br>
+				<div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Metadata</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+				<div class = "panel-body" id ='mst-data-menu-panel'>
+						<p align='center'>
+							<button id = 'button-load-meta'> Load Metadata</button>
+						</p>
+						<hr>
+						<label>Add Field&nbsp;&nbsp;&nbsp;</label>
+						<input  size="11" id ="add-extra-field-input">
+						<span  id ="add-custom-field-icon" onclick="addExtraField()" class='add-data-icon glyphicon glyphicon-plus'></span>
+						<br>
 
-							<label>Edit Metadata</label>
-				<br>
-							Field<select style ="width:120px" id="add-new-values-select"></select><span    onclick="deleteMetadataCategory()" class='add-data-icon glyphicon glyphicon-remove'></span>
-							Add Value To Selected<input size="11" id ="add-new-values-input">
-							<span  id ="add-new-values-icon"  onclick="addNewValues()" class='add-data-icon glyphicon glyphicon-plus'></span>
-							<br>
+						<label>Edit Metadata</label>
+						<br>
+						Field<select style ="width:120px" id="add-new-values-select"></select><span    onclick="deleteMetadataCategory()" class='add-data-icon glyphicon glyphicon-remove'></span>
+						Add Value To Selected<input size="11" id ="add-new-values-input">
+						<span  id ="add-new-values-icon"  onclick="addNewValues()" class='add-data-icon glyphicon glyphicon-plus'></span>
+						<br>
 
-					</div>
-			</div>
-		<br>
-
-			<div id = "scaling">
-				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Link Length (%)</label>
-				<br>
-				<div id = "slider-linklength" class ="slider-class">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength'>
-				<br>
-				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Node Size (%)</label>
-				<br>
-				<div id = "slider-nodesize" class = "slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize'>
-				<br>
-				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Relative Size (%)</label>
-				<br>
-				<div id = "slider-relative-nodesize" class = "slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize'>
-				<br>
-				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Collapse Nodes</label>
-				<br>
-				<div id = "slider-collapse-nodes" class = "slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes'>
-				<br><br>
+				</div>
+		</div>
+		<div class='panel panel-default' style ="margin-bottom:2px">
+			<div class ='panel-heading mst-menu-title' id= 'selection-menu'> <b id>selected</b><span id = 'selection-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+			<div class = "panel-body" id ='selection-menu-panel'>
 				<p align='center'>
-					<button id = 'button-refresh'> Greedy Layout</button>
+			    <br>
+					<button id = 'button-editor'> Color Palette </button>
+				<br><br>
+					<button id = 'button-clear-selection'> Clear Selection </button>
+				<br><br>
+					<button id = 'button-select-all'> Select All </button>	
 				</p>
 			</div>
-		<hr>
+		</div>
+		<div class='panel panel-default' style ="margin-bottom:2px">
+			<div class ='panel-heading mst-menu-title' id= 'legend-menu'> <b id>Legend</b><span id = 'legend-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+			<div class = "panel-body" id ='legend-menu-panel'>
+			   <select id = 'Group order'>
+					<label>Group Order: </label>
+					<option value='alphabetic'>Alphabetic</option>
+					<option value='numeric'>Numeric</option>
+					<option value='no_strain'>No. of strains</option>
+			   </select>
+			    <br><br>
+					<button id = 'button-color-palette'> Color Palette </button>
+			   	<br><br>
+				<label>No. of Groups:</label><input type='text' style='width:20px;height:15px' id ='spinner-num-group'>
+				<br>
+				<div id = "slider-num-group" class = "slider-class"></div>
+				<br>
+				<label>Font Size:</label><input type='text' style='width:20px;height:15px' id ='spinner-legend-fontsize'>
+				<br>
+				<div id = "slider-legend-fontsize" class = "slider-class"></div>
+			</div>
+		</div>
 
-		<p align = 'center'>
-			<button id ="save-tree-json">Save GrapeTree</button>
-		</p>
-		<p align = 'center'>
-			<button id ="save-tree-nwk">Save to Newick Tree</button>
-		</p>
-		<p align = 'center'>
-			<button id ="mst-download-svg">Download SVG</button>
-		</p>
 	</div>
 </div>
 
@@ -882,6 +930,13 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	}
 	$('#afterload_bar').find('input, textarea, button, select, div, span').prop('disabled',false);
 	$('#afterload_bar').css("opacity", 1.0);
+
+	$('#save-panel').find('button').prop('disabled',false);
+	$('#save-panel').css("opacity", 1.0);
+	$('#tree-menu-panel').show();
+	$("#file-menu-panel").parent().find(".glyphicon-menu-right").attr("class","glyphicon glyphicon-menu-down");
+	$('#file-menu-panel').hide();
+	$("#file-menu-panel").parent().find(".glyphicon-menu-down").attr("class","glyphicon glyphicon-menu-right");
  }
 
  function initiateLoading(msg){
@@ -1065,14 +1120,16 @@ window.onload = function (){
                 else{
                         $("#"+id+"-panel").toggle("50");
                         icon.attr("class","glyphicon glyphicon-menu-down");
-                        $(".open-menu-panel").toggle("50");
-                        $(".open-menu-panel").parent().find(".glyphicon-menu-down").attr("class","glyphicon glyphicon-menu-right");
-                        $(".open-menu-panel").removeClass("open-menu-panel");
+                        //$(".open-menu-panel").toggle("50");
+                        //$(".open-menu-panel").parent().find(".glyphicon-menu-down").attr("class","glyphicon glyphicon-menu-right");
+                        //$(".open-menu-panel").removeClass("open-menu-panel");
                         $("#"+id+"-panel").addClass("open-menu-panel");
                 }
 
         });
         $(".panel-body").hide();
+		$('#save-panel').find('button').prop('disabled',true);
+		$('#save-panel').css('opacity', 0.6);
 
         $( "#slider-linklength" ).slider({
                 orientation: "horizontal",
@@ -1114,7 +1171,7 @@ window.onload = function (){
                 max:500,
                 value: 100,
                 slide:function(){
-									$( "#spinner-nodesize" ).spinner("value", $(this).slider("value"));
+						$( "#spinner-nodesize" ).spinner("value", $(this).slider("value"));
 				},
                 change: function(e){
                         if (e.originalEvent){
@@ -1128,9 +1185,11 @@ window.onload = function (){
                 value: 100,
                 spin:function(){
 						the_tree.setNodeSize(parseInt($(this).val())/10.);
+						$( "#slider-nodesize" ).slider("value", parseInt($(this).val()));
 				},
                 change: function(e){
 					the_tree.setNodeSize(parseInt($(this).val())/10.);
+					$( "#slider-nodesize" ).slider("value", parseInt($(this).val()));
                 }
         });
 
@@ -1156,9 +1215,11 @@ window.onload = function (){
                 step:1,
                 spin:function(){
 						the_tree.setRelativeNodeSize(parseInt($(this).val())/200.0);
+						$( "#slider-relative-nodesize" ).slider("value", parseInt($(this).val()));
 				},
                 change: function(e){
 					the_tree.setRelativeNodeSize(parseInt($(this).val())/200.0);
+					$( "#slider-relative-nodesize" ).slider("value", parseInt($(this).val()));
                 }
         });
 
@@ -1325,7 +1386,7 @@ window.onload = function (){
                 spin:function(){
 							var v = parseFloat($(this).spinner('value'));
 							$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
-							//the_tree.collapseNodes(v);
+							the_tree.collapseNodes(v);
                         },
                 change: function(e){
 						var v = parseFloat($(this).spinner('value'));

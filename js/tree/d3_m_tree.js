@@ -1266,10 +1266,6 @@ D3MSTree.prototype._addLinks=function(links,ids){
                 link.source.children.push(link.target);
                 link.target.parent = link.source;            
         }
-		//this._getLink = {};
-		//for (var index in this.force_links) {
-		//	this._getLink[this.force_links[index].target.id] = this.force_links[index];
-		//}
 }
 D3MSTree.prototype._getLink=function(target_node){
         for (var index in this.force_links){
