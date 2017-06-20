@@ -460,9 +460,7 @@ D3MSTree.prototype.collapseNodes= function(max_distance){
         layout = JSON.parse(JSON.stringify(this.original_node_positions));
         this._collapseNodes(max_distance, layout);
         this._start(null,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
-        
-       
-
+        this.centerGraph();
 }
 
 D3MSTree.prototype._collapseNodes=function(max_distance,layout){

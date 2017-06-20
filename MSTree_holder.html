@@ -40,7 +40,7 @@
                  .slider-class{
                         float: left;
                         clear: left;
-                        width: 140px;
+                        width: 100px;
                         height:5px;
                         margin: 5px;
                 }
@@ -206,26 +206,29 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 
 
 <div id='sidebar'>
-<p>
-<a href="https://enterobase.warwick.ac.uk" target = '_blank'><img src="js/img/enterobase.png" alt="Enterobase" style="width:40px;height:45px;"></a>    |
-<a href="https://github.com/martinSergeant/EnteroMSTree" target = '_blank'><img src="js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>
-<h3 id="headertag" style="font-family: times, serif; font-size:12pt; font-style:italic">GrapeTree</h3>
-</p>
-<br>
 	<div id='beforeload_bar'>
-		<p align='center'>
-				<button id = 'button-load-nwk'> Load Tree/Profile</button>
+		<p>
+			<a href="https://enterobase.warwick.ac.uk" target = '_blank'><img src="js/img/enterobase.png" alt="Enterobase" style="width:40px;height:45px;"></a>    |
+			<a href="https://github.com/martinSergeant/EnteroMSTree" target = '_blank'><img src="js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>
+			<h3 id="headertag" style="font-family: times, serif; font-size:12pt; font-style:italic">GrapeTree</h3>
 		</p>
+		<br>
+		<p align='center'>
+			<button id = 'button-load-nwk'> Load Tree/Profile</button>
+			<br>
+			<br>
+			<label>Initial Layout</label>
+			<select id = 'layout-select'>
+				<option value='greedy'>Greedy</option>
+				<option value='force'>Magnetic repulsion</option>
+			</select>
+		</p>
+		<br>
 	</div>
 	<div id='afterload_bar'>
 		 <div class='panel panel-default'  style ="margin-bottom:2px">
 				   <div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Links</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 				   <div class = "panel-body" id ='mst-link-menu-panel'>
-						   <label>Zoom:</label>
-						   <input type='text' style='width:30px;height:15px' id ='spinner-linklength'><label>%</label>
-						   <br>
-						   <div id = "slider-linklength" class ="slider-class">  </div>
-						   <br>
 							<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
 							<br>
 							<label>Hide Links Over:</label>
@@ -261,14 +264,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 							<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
 							</p>
 
-							<label>Node Size</label><input type='text' style='width:24px;height:15px' id ='spinner-nodesize'><label>%</label>
-							<br>
-							<div id = "slider-nodesize" class = "slider-class"></div>
-							<br>
-							<label>Relative Size</label><input type='text' style='width:24px;height:15px' id ='spinner-relative-nodesize'>
-							<br>
-							<div id = "slider-relative-nodesize" class = "slider-class"></div>
-							<br>
 							<label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
 							<br>
 							<hr>
@@ -290,15 +285,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<div class='panel panel-default'>
 					<div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Layout</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
 					<div class = "panel-body" id ='mst-layout-menu-panel'>
-							  <label>Collapse Nodes:</label>
-							<br>
-							<input type='text' style='width:80px;height:20px' id ='spinner-collapse-nodes'>
-						   <button id ='button-collapse-nodes'>Go</button>
-						   <br>
-
-							<div id = "slider-collapse-nodes" class = "slider-class"></div>
-
-						   <br>
+							<p align = 'center'>
+								<button id ="center-graph-button">Centre Tree</button>
+							</p>
 							<hr>
 							<label>Magnetic Repulsion</label>
 							<p align='center'>
@@ -310,19 +299,12 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 							<p align='center'>
 									<button id="stopAdjustment"> Off</button>
 							</p>
-							<label><input id ='correct_link_length' type="checkbox" checked /> Reset Link Length</label>
+							<label><input id ='correct_link_length' type="checkbox" checked /> Use Real Link Length When OFF</label>
 							<br><br>
 							<label>Repulsion Force</label>
 							<br>
 							<div title = "0" id = "slider-charge" class = "slider-class"></div>
 							<br>
-				<hr>
-			   <label>Initial Layout Method</label>
-			   <br>
-			   <select id = 'layout-select'>
-				   <option value='greedy'>Greedy</option>
-				   <option value='force'>Magnetic repulsion</option>
-			   </select>
 					</div>
 			</div>
 
@@ -347,17 +329,29 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 
 					</div>
 			</div>
-
-
-
-
 		<br>
-		<p align='center'>
-			<button id = 'button-refresh'> Refresh</button>
-		</p>
-			 <p align = 'center'>
-					<button id ="center-graph-button">Centre Tree</button>
-			</p>
+
+			<div id = "scaling">
+				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Link Length (%)</label>
+				<br>
+				<div id = "slider-linklength" class ="slider-class">  </div><input type='text' style='width:24px;height:15px' id ='spinner-linklength'>
+				<br>
+				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Node Size (%)</label>
+				<br>
+				<div id = "slider-nodesize" class = "slider-class"></div><input type='text' style='width:24px;height:15px' id ='spinner-nodesize'>
+				<br>
+				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Relative Size (%)</label>
+				<br>
+				<div id = "slider-relative-nodesize" class = "slider-class"></div><input type='text' style='width:24px;height:15px' id ='spinner-relative-nodesize'>
+				<br>
+				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Collapse Nodes</label>
+				<br>
+				<div id = "slider-collapse-nodes" class = "slider-class"></div><input type='text' style='width:24px;height:15px' id ='spinner-collapse-nodes'>
+				<br><br>
+				<p align='center'>
+					<button id = 'button-refresh'> Greedy Layout</button>
+				</p>
+			</div>
 		<hr>
 
 		<p align = 'center'>
@@ -490,7 +484,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
         var all_files=null;
 	var metatdata_file_name;
         var waiting_spinner= null;
-        var collapse_scale=1;
         var waitingDialog = null;
         var the_tree = null;
         var tree_name="";
@@ -647,18 +640,19 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 };
 
 
-                var min = tree.min_link_distance;
-                if (min<1){
-                        collapse_scale = 1/min;
-                }
-                var max = (tree.max_link_distance)*collapse_scale;
-                var step = max/100;
+				$( "#spinner-collapse-nodes" ).spinner({
+                        min: 0,
+                        max: tree.max_link_distance,
+                        value: tree.node_collapsed_value,
+                        step: tree.max_link_distance/1000.0
+                });
+
                 $( "#slider-collapse-nodes" ).slider({
-                        min:0,
-                        max: max,
-                        value: tree.node_collapsed_value*collapse_scale,
-                        step:step
-              });
+                        min:Math.log(tree.max_link_distance/3000)*1000,
+                        max: Math.log(tree.max_link_distance)*1000,
+                        value: Math.log(tree.node_collapsed_value)*1000,
+                });
+
 
 
                         tree.centerGraph();
@@ -770,7 +764,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		if (data['hide_link_length']){
 			$("#spinner-hide-link-length").val(data['hide-link-length']);
 		}
-		$( "#slider-collapse-nodes" ).slider("value",data["node_collapsed_value"]);
+		$( "#slider-collapse-nodes" ).slider("value",Math.log(data["node_collapsed_value"])*1000);
 		$("#spinner-collapse-nodes").val(data["node_collapsed_value"])
 	}
 
@@ -1134,7 +1128,7 @@ window.onload = function (){
         $( "#slider-relative-nodesize" ).slider({
                 orientation: "horizontal",
                 min:20,
-                max:500,
+                max:200,
                 value: 100,
                 step:1,
                 slide:function(){
@@ -1148,7 +1142,7 @@ window.onload = function (){
         });
 		$( "#spinner-relative-nodesize" ).spinner({
                 min:20,
-                max:500,
+                max:200,
                 value: 100,
                 step:1,
                 spin:function(){
@@ -1306,21 +1300,32 @@ window.onload = function (){
                 max: 100,
                 value: 0,
                 slide:function(){
-                        var val = $("#slider-collapse-nodes").slider("value")/collapse_scale;
-                                $("#spinner-collapse-nodes").val(val);
+								var val = Math.exp($(this).slider('value')/1000);
+                                $("#spinner-collapse-nodes").spinner('value', val);
                         },
                 change: function(e){
                         if (e.originalEvent){
-                               var val = $("#slider-collapse-nodes").slider("value")/collapse_scale;
-                                the_tree.collapseNodes(val);
-                               $("#spinner-collapse-nodes").val(val);
+                               var val = Math.exp($(this).slider('value')/1000);
+                               $("#spinner-collapse-nodes").spinner('value', val);
                         }
                 }
         });
-
-        $("#button-collapse-nodes").click(function(e){
-			the_tree.collapseNodes($("#spinner-collapse-nodes").val());
+		$( "#spinner-collapse-nodes" ).spinner({
+                min:0,
+                value: 0,
+                spin:function(){
+							var v = parseFloat($(this).spinner('value'));
+							$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
+							//the_tree.collapseNodes(v);
+                        },
+                change: function(e){
+						var v = parseFloat($(this).spinner('value'));
+						$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
+						the_tree.collapseNodes(v);
+                }
         });
+
+
 
         $("#save-tree-json").click(function(e){
                 var obj= the_tree.getTreeAsObject();
@@ -1385,9 +1390,11 @@ window.onload = function (){
 	$("#afterload_bar").css("opacity", 0.6)
 
 	window.addEventListener("beforeunload", function (e) {
-		var confirmationMessage = 'All the modifications will lost if you have not saved the GrapeTree as a local file.';
-		(e || window.event).returnValue = confirmationMessage;
-		return confirmationMessage;
+		if (the_tree) {
+			var confirmationMessage = 'All the modifications will lost if you have not saved the GrapeTree as a local file.';
+			(e || window.event).returnValue = confirmationMessage;
+			return confirmationMessage;
+		}
 	});
 };
 
