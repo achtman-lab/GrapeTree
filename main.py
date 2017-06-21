@@ -25,12 +25,12 @@ from flask import Flask
 from grapetree import app
 import shutil
 import traceback
-import time
+import time	
 import argparse
 import os
 
 __licence__ = 'GPLv3'
-__author__ = 'Martin Sergeant, Nabil-Fareed Alikhan & Zhemin Zhou'
+__author__ = 'Zhemin Zhou, Martin Sergeant, Nabil-Fareed Alikhan & Mark Achtman'
 __author_email__ = ' M.J.Sergeant@warwick.ac.uk'
 __version__ = '0.0.1'
 
