@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
+
 <head>
 
         <link rel="stylesheet" href='js/jquery-ui-1.11.4/jquery-ui.min.css'>
-         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <style>
                 body{
                         width:100%;
@@ -114,10 +116,99 @@
 
 
         </style>
-
-
 </head>
 <body>
+<!--metadata div-->
+<link rel="stylesheet" href="js/SlickGrid/slick.grid.css" type="text/css"/>
+<link rel="stylesheet" href="js/SlickGrid/examples/examples.css" type="text/css"/>
+<style>
+.cell-title {
+  font-weight: bold;
+}
+.cell-effort-driven {
+  text-align: center;
+}
+.slick-header-column.ui-state-default {
+	height: 24px
+}
+.ui-dialog-titlebar {
+    background: #b0de78;
+    border: 0;
+    color: #fff;
+    font-weight: normal;
+}
+
+</style>
+<div class='metadatas' id = 'metadata-div' style='width:600px;height:500px;border:0px'>
+	<div id="myGrid" style="width:100%;height:500px;"></div>
+	<script src="js/SlickGrid/lib/firebugx.js"></script>
+
+	<script src="js/SlickGrid/lib/jquery-1.11.2.min.js"></script>
+	<script src="js/SlickGrid/lib/jquery-ui-1.11.3.min.js"></script>
+	<script src="js/SlickGrid/lib/jquery.event.drag-2.3.0.js"></script>
+
+	<script src="js/SlickGrid/slick.core.js"></script>
+	<script src="js/SlickGrid/plugins/slick.cellrangedecorator.js"></script>
+	<script src="js/SlickGrid/plugins/slick.cellrangeselector.js"></script>
+	<script src="js/SlickGrid/plugins/slick.cellselectionmodel.js"></script>
+	<script src="js/SlickGrid/slick.formatters.js"></script>
+	<script src="js/SlickGrid/slick.editors.js"></script>
+	<script src="js/SlickGrid/slick.grid.js"></script>
+</div>
+<script>
+//<link rel="stylesheet" href="js/SlickGrid/css/smoothness/jquery-ui-1.11.3.custom.css" type="text/css"/>
+	//$( "#metadata-div" ).hide();
+	$('#metadata-div').dialog({width:"600px"});
+	function requiredFieldValidator(value) {
+		if (value == null || value == undefined || !value.length) {
+			return {valid: false, msg: "This is a required field"};
+		} else {
+			return {valid: true, msg: null};
+		}
+	}
+	
+	var grid;
+	var data = [];
+	var default_columns = [
+		{id: "ID", name: "ID", field: "ID", width: 120, cssClass: "cell-title", validator: requiredFieldValidator},
+		{id: "Node", name: "Node", field: "Node", width:120, validator: requiredFieldValidator},
+	];
+	var options = {
+		editable: true,
+		enableAddRow: false,
+		enableCellNavigation: true,
+		asyncEditorLoading: false,
+		autoEdit: false
+	};
+	data = [{"ID":"12312", "Node":"20"}];
+	grid = new Slick.Grid("#myGrid", data, default_columns, options);
+	grid.setSelectionModel(new Slick.CellSelectionModel());
+
+	function updateMetadata() {
+		var selection = the_tree.getSelectedIDs();
+		var data = []
+		var cols = {}
+		for (var id in selection) {
+			var d = the_tree.metadata[selection[id]];
+			data.push(d);
+			for (var c in d) {
+				cols[c] = 1;
+			}
+		}
+		curr_cols = grid.getColumns();
+		for (var id in curr_cols) {
+			delete cols[curr_cols[id].name]
+		}
+		for (var c in cols) {
+			curr_cols.push({id: c, name: c, field: c, width:120, editor: Slick.Editors.Text})
+		}
+
+		grid.setColumns(curr_cols);
+		grid.setData(data);
+		grid.invalidate();
+	}
+</script>
+
 <!--information divs-->
 <div id = 'welcome-div'>
 <p align='center'><h2>
@@ -149,7 +240,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 </div>
 
 
-<div id ='information-div'class="modal fade" tabindex="-1" role="dialog">
+<div id ='information-div' class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content modal-sm">
       <div id ="modal-header" class="modal-header">
@@ -201,10 +292,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			   <option value='T'>True</option>
 		   </select>
 		   </div>
-
-
-
-
 	   </div>
       </div>
       <div class="modal-footer">
@@ -213,8 +300,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-
-
 
 <div id='sidebar'>
 	<div id='beforeload_bar'>
@@ -225,37 +310,39 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		</p>
 		<br>
 		<div class='panel panel-default'>
-			<div class ='panel-heading mst-menu-title' id= 'file-menu'> <b id>Files</b><span id = 'file-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
-			<div class = "panel-body2" id ='file-menu-panel'>
-				<p align = 'center'>
+			<div class ='panel-heading mst-menu-title' id= 'file-menu'> <b id>Inputs/Outputs</b><span id = 'file-menu-icon' class='glyphicon glyphicon-menu-down'> </span></div>
+			<div class = "panel-body" id ='file-menu-panel'>
 				<br>
 					<button id = 'button-load-nwk'> Load Tree/Profile</button>
-				<br>
-				<br>
-				<label>Initial Layout</label>
+				<br><br>
+					<button id = 'button-load-meta'> Load Metadata</button>
+
+
+				<hr>
+				<label>Layout</label>
 				
 				<select id = 'layout-select'>
-					<option value='greedy'>Greedy</option>
-					<option value='force'>Magnetic repulsion</option>
+					<option value='greedy'>Static</option>
+					<option value='force'>Visual Optimation</option>
 				</select>
 				<br>
 				</p>
 				<div id='save-panel'>
 					<hr>
-					<p align = 'center'>
 						<button id ="save-tree-json">Save GrapeTree</button><br><br>
 						<button id ="save-tree-nwk">Save to Newick Tree</button><br><br>
 						<button id ="mst-download-svg">Download SVG</button><br><br>
-					</p>
 				</div>
 			</div>
 		</div>
 	</div>
 	<div id='afterload_bar'>
 		<div class='panel panel-default'  style ="margin-bottom:2px">
-			<div class ='panel-heading mst-menu-title' id= 'tree-menu'> <b id>Tree</b><span id = 'tree-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+			<div class ='panel-heading mst-menu-title' id= 'tree-menu'> <b id>Tree Layout</b><span id = 'tree-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 			<div class = "panel-body" id ='tree-menu-panel'>
-				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Link Length (%)</label>
+				<button id = 'button-goback' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Default</button>
+				<br><br>
+				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Branch Length (%)</label>
 				<br>
 				<div id = "slider-linklength" class ="shortslider-class">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength'>
 				<br>
@@ -271,9 +358,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 				<br>
 				<div id = "slider-collapse-nodes" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes'>
 				<br><br>
-				<p align='center'>
-					<button id = 'button-refresh'> Go</button>
-				</p>
+					<button id = 'button-refresh'> Redraw Static Layout</button>
+				<br><br>
+					<button id ="center-graph-button">Centre Tree</button>
 				<hr>
 				<p align = 'center'>
 					<label> Zoom:&nbsp;&nbsp;</label>
@@ -287,18 +374,18 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 				   <div class = "panel-body" id ='mst-link-menu-panel'>
 							<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
 							<br>
-							<label>Hide Links Over:</label>
+							<label>Hide Branchs Over:</label>
 							<br>
 							<input type='text' style='width:35px;height:15px' id ='spinner-hide-link-length'>
 						   <button id ='button-hide-link-length'>Go</button>
 						   <br>
-						   <label>Max Link Length:</label>
+						   <label>Max Branch Length:</label>
 						   <br>
 						   <input type='text' style='width:35px;height:15px' id ='spinner-maxlinklength'>
 						   <button id ='button-setmaxlinklength'>Go</button>
 						   <br>
 						   <hr>
-						   <label><input id ='show-link-labels'type="checkbox" /> Link Labels</label>
+						   <label><input id ='show-link-labels'type="checkbox" /> Branch Labels</label>
 						   <br>
 						   <label>Font Size:</label>
 						   <input type='text' style='width:20px;height:15px' id ='spinner-linkfontsize'>
@@ -313,16 +400,17 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 				   <div class = "panel-body" id ='mst-node-menu-panel'>
 				   			<label>Colour By:</label>
 							<br>
-							<select style="width:140px" id= 'metadata-select'></select>
+							<select style="width:140px" id= 'metadata-select'>
+							<option value='nothing'>No category</option></select>
 
-							<label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
-							<br>
 							<hr>
+							<label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
+							<br><br>
 							<label>Font Size:</label><input type='text' style='width:20px;height:15px' id ='spinner-node-fontsize'>
 							<br>
 							<div id = "slider-node-fontsize" class = "slider-class"></div>
 							<label>Label Text</label>
-							<select id = 'node-label-text'><option value="">ID</option></select>
+							<select id = 'node-label-text'></select>
 							<label>Search in Label</label>
 							<br>
 							<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
@@ -333,13 +421,22 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 							<label><input id ='show-individual-segments' type="checkbox" /> Seperate Strains</label>
 					</div>
 			</div>
+		<div class='panel panel-default' style ="margin-bottom:2px">
+			<div class ='panel-heading mst-menu-title' id= 'selection-menu'> <b id>Selection</b><span id = 'selection-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+			<div class = "panel-body" id ='selection-menu-panel'>
+			    <br>
+					<button id = 'button-editor' onclick="$('#metadata-div').dialog({width:'600px'})"> Show Metadata </button>
+				<br><br>
+					<button id = 'button-clear-selection'> Clear Selection </button>
+				<br><br>
+					<button id = 'button-select-all'> Select All </button>	
+				</p>
+			</div>
+		</div>
+
 			<div class='panel panel-default'>
-					<div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Layout</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+					<div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Visual Optimation</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
 					<div class = "panel-body" id ='mst-layout-menu-panel'>
-							<p align = 'center'>
-								<button id ="center-graph-button">Centre Tree</button>
-							</p>
-							<hr>
 							<label>Magnetic Repulsion</label>
 							<p align='center'>
 									<button onclick = 'javascript:the_tree.unfixSelectedNodes(true)' > On</button>
@@ -350,7 +447,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 							<p align='center'>
 									<button id="stopAdjustment"> Off</button>
 							</p>
-							<label><input id ='correct_link_length' type="checkbox" checked /> Use Real Link Length When OFF</label>
+							<label><input id ='correct_link_length' type="checkbox" checked /> Use Real Branch Length When OFF</label>
 							<br><br>
 							<label>Repulsion Force</label>
 							<br>
@@ -362,15 +459,10 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		<div id = 'add-data-panel' class='panel panel-default'>
 				<div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Metadata</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
 				<div class = "panel-body" id ='mst-data-menu-panel'>
-						<p align='center'>
-							<button id = 'button-load-meta'> Load Metadata</button>
-						</p>
-						<hr>
 						<label>Add Field&nbsp;&nbsp;&nbsp;</label>
 						<input  size="11" id ="add-extra-field-input">
 						<span  id ="add-custom-field-icon" onclick="addExtraField()" class='add-data-icon glyphicon glyphicon-plus'></span>
 						<br>
-
 						<label>Edit Metadata</label>
 						<br>
 						Field<select style ="width:120px" id="add-new-values-select"></select><span    onclick="deleteMetadataCategory()" class='add-data-icon glyphicon glyphicon-remove'></span>
@@ -379,19 +471,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 						<br>
 
 				</div>
-		</div>
-		<div class='panel panel-default' style ="margin-bottom:2px">
-			<div class ='panel-heading mst-menu-title' id= 'selection-menu'> <b id>selected</b><span id = 'selection-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
-			<div class = "panel-body" id ='selection-menu-panel'>
-				<p align='center'>
-			    <br>
-					<button id = 'button-editor'> Color Palette </button>
-				<br><br>
-					<button id = 'button-clear-selection'> Clear Selection </button>
-				<br><br>
-					<button id = 'button-select-all'> Select All </button>	
-				</p>
-			</div>
 		</div>
 		<div class='panel panel-default' style ="margin-bottom:2px">
 			<div class ='panel-heading mst-menu-title' id= 'legend-menu'> <b id>Legend</b><span id = 'legend-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
@@ -605,10 +684,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 Enterobase.showSaveDialog(text,"tree.json");
         }
 
-
-
-
-
         function addMetadataOptions(value,label){
                 if (!metadata_options[value]){
                         metadata_options[value]=label;
@@ -625,6 +700,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		$("#node-label-text option[value='"+category+"']").remove();
 		$("#add-new-values-select option[value='"+category+"']").remove();
 		delete metadata_options[category];
+		updateMetadata();
 	}
 
 
@@ -671,6 +747,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 the_tree.addMetadata(meta);
                 the_tree.changeCategory(field);
 		the_tree.clearSelection();
+		updateMetadata();
         }
 
 
@@ -683,7 +760,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 $("#metadata-select").val(name);
                 $("#add-new-values-select").val(name);
                 the_tree.changeCategory(name);
-
+				updateMetadata();
         }
 
         function treeLoaded(tree){
@@ -699,20 +776,17 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 
 				$( "#spinner-collapse-nodes" ).spinner({
                         min: 0,
-                        max: tree.max_link_distance,
+                        max: tree.max_link_distance*2,
                         value: tree.node_collapsed_value,
                         step: (tree.max_link_distance/1000.0).toPrecision(1)
                 });
 
                 $( "#slider-collapse-nodes" ).slider({
-                        min:Math.log(tree.max_link_distance/3000)*1000,
-                        max: Math.log(tree.max_link_distance)*1000,
+                        min:Math.log(tree.max_link_distance/1000)*1000,
+                        max: Math.log(tree.max_link_distance*2)*1000,
                         value: Math.log(tree.node_collapsed_value)*1000,
                 });
-
-
-
-                        tree.centerGraph();
+                tree.centerGraph();
                 for (var index in all_files){
 			if (all_files[index].name === metadata_file_name){
 				loadMetadataFile(all_files[index],current_metadata_file[1]);
@@ -746,19 +820,20 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
               setTimeout(function(){
                         readFile(file,function(tree){
                                  var data={};
-				 var suffix = getSuffix(file.name);
+								 var suffix = getSuffix(file.name);
                                  if (suffix === 'json'){
                                      data =JSON.parse(tree);
                                  }
                                  else if (tree.substring(0,6)==="#NEXUS"){
-                                         data['nexus']=tree;
-					 data['layout_algorithm']=$("#layout-select").val();
+                                        data['nexus']=tree;
+										data['layout_algorithm']=$("#layout-select").val();
                                  }
                                  else{
-                                         data['nwk']=tree;
-					 data['layout_algorithm']=$("#layout-select").val();
+                                        data['nwk']=tree;
+										data['layout_algorithm']=$("#layout-select").val();
                                  }
-                                 loadMSTree(data)
+								 tree_raw = data;
+                                 loadMSTree(tree_raw);
                         });
                 },500);
         }
@@ -828,7 +903,10 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 
 
         function loadMSTree(data){
-
+				if (the_tree) {
+					the_tree.svg.remove();
+					the_tree.legend_div[0].remove();
+				}
                 $("#waiting-information").text("Loading Data");
                 the_tree = null;
 
@@ -861,8 +939,17 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 							hideToolTip();
 					});
 					the_tree.resize();
-					if (data['metadata_options']){
+					
+					// metadata
+					if (!metadata_options['nothing']){
+                        metadata_options['nothing']='No Category';
+						$("#metadata-select").append($("<option>").attr("value",'nothing').text('No Category'));
+					}
+					addMetadataOptions('ID','ID');
+					$("#metadata-select").val('nothing');
+					$("#node-label-text").val('ID');
 
+					if (data['metadata_options']){
 							for (var key in data['metadata_options']){
 								   addMetadataOptions(key,data['metadata_options'][key]);
 							}
@@ -876,19 +963,30 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 					else{
 						setControlPanel(default_control_panel_values);
 					}
+					if (current_metadata_file) {
+						loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);
+					} else {
+						updateMetadata();
+					}
  /*               }catch(e){
 						console.log(e.message);
 						console.log(e.stacktrace);
 						loadFailed("The file could not be read. Plase check the format");
 
                 }*/
+		$('#afterload_bar').find('input, textarea, button, select, div, span').prop('disabled',false);
+		$('#afterload_bar').css("opacity", 1.0);
+		$('#save-panel').find('button').prop('disabled',false);
+		$('#save-panel').css("opacity", 1.0);
+		$('#tree-menu-panel').show();
+		$("#tree-menu-panel").parent().find(".glyphicon-menu-right").attr("class","glyphicon glyphicon-menu-down");
+		$('#file-menu-panel').hide();
+		$("#file-menu-panel").parent().find(".glyphicon-menu-down").attr("class","glyphicon glyphicon-menu-right");
 	}
 
-
+var current_metadata_file=null;
  function filesDropped(files){
-	all_files=files;
-	metatdata_file_name="";
-	current_metadata_file=null
+	current_metadata_file=null;
 	var tree_file=null, profile_file =null;
 	for (var i=0;i<files.length;i++){
 		var file = files[i];
@@ -903,7 +1001,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 					return;
 				}
 				profile_file=this.file;
-				 initiateLoading("Reading Profile File");
+				initiateLoading("Reading Profile File");
 				$("#param-panel").show();
 				$("#modal-ok-button").data("profile_file",profile_file);
 				$("#modal-ok-button").html("OK");
@@ -928,22 +1026,12 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		reader.file = file;
 		reader.readAsText(first_blob);
 	}
-	$('#afterload_bar').find('input, textarea, button, select, div, span').prop('disabled',false);
-	$('#afterload_bar').css("opacity", 1.0);
-
-	$('#save-panel').find('button').prop('disabled',false);
-	$('#save-panel').css("opacity", 1.0);
-	$('#tree-menu-panel').show();
-	$("#file-menu-panel").parent().find(".glyphicon-menu-right").attr("class","glyphicon glyphicon-menu-down");
-	$('#file-menu-panel').hide();
-	$("#file-menu-panel").parent().find(".glyphicon-menu-down").attr("class","glyphicon glyphicon-menu-right");
  }
 
  function initiateLoading(msg){
 	$("#welcome-div").hide();
 	$("#graph-div").empty();
 	$("#metadata-select").empty();
-	$("#node-label-text").empty().append($("<option>").val("").text("default"));
 	$("#add-new-values-select").empty();
 	metadata_options={};
 	showWaitingDialog(msg);
@@ -953,11 +1041,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 function showModalForParams(){
 	$("#information-div").modal("show");
 	$("#param-panel").show();
-
-
 }
 
-
+tree_raw = {};
  function processProfileFile(profile_file){
 
 
@@ -975,7 +1061,8 @@ function showModalForParams(){
 				missing_data:$("#missing-data").val()
 				}
                 }).done(function(result){
-                       loadMSTree({"nwk":result,"layout_algorithm":$("#layout-select").val()});
+						tree_raw = {"nwk":result,"layout_algorithm":$("#layout-select").val()};
+						loadMSTree(tree_raw);
                }).fail(function( jqXHR, textStatus){
 						if (jqXHR.status == 405 || jqXHR.status == 404) {
 							loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/martinSergeant/EnteroMSTree/");
@@ -1003,12 +1090,12 @@ function showModalForParams(){
 
 
  function loadMetadataFile(file, dl){
-        MSCSCReader(file,dl,function(msg,lines,header_index){
-                var meta={};
+	MSCSCReader(file,dl,function(msg,lines,header_index){
+		var meta={};
 		var id_name='ID';
 		var exp = new RegExp("ID","i");
 		for (var i in header_index){
-                        var header = header_index[i];
+			var header = header_index[i];
 			if (header.match(exp)){
 				id_name=header;
 				header_index[i]='ID';
@@ -1016,8 +1103,8 @@ function showModalForParams(){
 			}
 		}
 
-                for (var i in lines){
-                        var line = lines[i];
+		for (var i in lines){
+			var line = lines[i];
 			if (id_name !== 'ID'){
 				line['ID']=line[id_name];
 				delete line[id_name];
@@ -1028,21 +1115,21 @@ function showModalForParams(){
 			else if (line['ID']){
 				meta[line['ID']]=line;
 			}
-                }
-                the_tree.addMetadata(meta);
-                var category = null;
-                for (var i in header_index){
-                        var header = header_index[i];
-                        if (header !== 'ID'){
-                                addMetadataOptions(header,header);
-                                if (!category){
-                                        category=header;
-                                }
-                        }
-                }
-                $("metadata-select").val(category);
-                the_tree.changeCategory(category);
-        });
+		}
+		the_tree.addMetadata(meta);
+
+		var category = 'nothing';
+		for (var i in header_index){
+			var header = header_index[i];
+			addMetadataOptions(header, header);
+			if ( category == 'nothing' && header != 'ID'){
+				category=header;
+			}
+		}
+		$("#metadata-select").val(category);
+		the_tree.changeCategory(category);
+		updateMetadata();
+	});
  };
 
 
@@ -1128,8 +1215,9 @@ window.onload = function (){
 
         });
         $(".panel-body").hide();
+		$("#file-menu-panel").show();
 		$('#save-panel').find('button').prop('disabled',true);
-		$('#save-panel').css('opacity', 0.6);
+		$('#save-panel').css('opacity', 0.3);
 
         $( "#slider-linklength" ).slider({
                 orientation: "horizontal",
@@ -1457,7 +1545,7 @@ window.onload = function (){
 
 
 	$('#afterload_bar').find('input, textarea, button, select, span, div').prop('disabled',true);
-	$("#afterload_bar").css("opacity", 0.6)
+	$("#afterload_bar").css("opacity", 0.3)
 
 	window.addEventListener("beforeunload", function (e) {
 		if (the_tree) {
