@@ -1198,7 +1198,7 @@ D3BaseTree.prototype.updateLegend = function(title){
 	/*
 	Create rect elements with group colours
 	*/
-	legend_items.append('rect').attr('x', 0).attr('width', 18).attr('height', 18).style('fill', function(it){
+	legend_items.append('rect').attr('x', 0).attr('width', 18).attr('height', 18).style('stroke-width', '0.5').style('stroke', 'black').style('fill', function(it){
 		return it.group_colour;
 	}).on("click",function(data){
 		var obj={
@@ -1238,7 +1238,6 @@ D3BaseTree.prototype.updateLegend = function(title){
 	
 	this.legend_div.css({"top":"0px","right":"0px","max-height":height+"px"});
 	this.legend_div.height(height);
-		
 };
 	
 /**
