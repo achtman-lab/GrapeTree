@@ -56,10 +56,10 @@
   }
 
   function CheckboxFormatter(row, cell, value, columnDef, dataContext) {
-    return '<img class="slick-edit-preclick" src="../images/' + (value ? "CheckboxY" : "CheckboxN") + '.png">';
+    return '<img class="slick-edit-preclick" src="js/img/' + (value ? "CheckboxY" : "CheckboxN") + '.png">';
   }
 
   function CheckmarkFormatter(row, cell, value, columnDef, dataContext) {
-    return value ? "<img src='../images/tick.png'>" : "";
+    return value ? "<img src='js/img/tick.png'>" : "";
   }
 })(jQuery);
