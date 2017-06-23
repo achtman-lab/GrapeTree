@@ -144,28 +144,115 @@
 }
 
 </style>
-<div id = 'metadata-div' style='width:500px;height:550px'>
-	<span title='Download This Table' id = 'metadata-download' class='glyphicon glyphicon-download'></span>&nbsp;&nbsp;
-	<span title='Add A New Category' id="metadata-add-icon" class='glyphicon glyphicon-plus'></span>
-	<br>
-	<div id="myGrid" style="width:100%;height:500px;"></div>
-	<script src="js/SlickGrid/lib/firebugx.js"></script>
+<div id = 'metadata-div' style='width:600px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1'>
+	<div id='handler' style="background-color:#f1f1f1;width:100%;height:30px;border-radius:5px;border: 2px solid #b0f2f2;">
+	<span title='Close The Window' id = 'metadata-close' class='glyphicon glyphicon-remove show-tooltip'style='top:-10px;float:right;margin-right:10px'></span>
+	<span title='Download This Table' id = 'metadata-download' class='glyphicon glyphicon-download show-tooltip'></span>&nbsp;&nbsp;
+	<span title='Add A New Category' id="metadata-add-icon" class='glyphicon glyphicon-plus show-tooltip'></span>&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="checkBox" id="metadata-filter" checked><span title='Filtering' class='glyphicon glyphicon-filter show-tooltip'></span>
+	</div>
+	<div id="myGrid" style="width:100%;height:570px"></div>
+	<div title='replace all the cells in the selection' id='replace-div' style='height:30px;width:190px;background-color:#ffffff;z-index:3'>
+		<input id='replace-tag'>
+		<span title='Confirm' id='replace-confirm' class='glyphicon glyphicon-ok show-tooltip' style='top:0px;position:absolute;left:190px'></span>
+		<span title='Close' onclick='$("#replace-tag").val("");$("#replace-div").hide()' class='glyphicon glyphicon-remove show-tooltip' style='top:15px;position:absolute;left:190px'></span>
+	</div>
+	<div id='colprop-div' >
+		<div id='colprop-handle' style='Width:100%;Height:30;background-color:#ffffff;z-index:3'>
+			<span title='Close Window' id = 'colprop-close' class='glyphicon glyphicon-remove show-tooltip' style='top:-10px;float:right;margin-right:10px'></span>
+		</div>
+		<table style='width:100%'>
+			<tr>
+				<th>Column</th>
+				<th id='colprop-field'></th>
+			</tr>
+			<tr>
+				<th>Category</th>
+				<th>
+					<select id='colprop-cat'>
+						<option value='character'>Character</option>
+						<option value='numeric'>Numeric</option>
+						<option value='binary'>Binary</option>
+					</select>
+				</th>
+			</tr>
+			<tr>
+				<th>Group Order</th>
+				<th>
+					<select id='colprop-order'>
+						<option value='standard'>Standard</option>
+						<option value='num_strain'>No. Strains</option>
+						<option value='num_nodes'>No. Nodes</option>
+					</select>
+				</th>
+			</tr>
+			<tr>
+				<th>Group Number</th>
+				<th>
+					<input type='spinner' id='group-num' value='30'></input>
+				</th>
+			</tr>
+			<tr>
+				<th>Group Colors</th>
+				<th>
+					<select id='colprop-order'>
+						<option value='discrete'>Discrete Colors</option>
+						<option value='gredient1'>Gredient White->Black</option>
+						<option value='gredient2'>Gredient Blue->Yellow->Red</option>
+					</select>
+				</th>
+			</tr>
+			<tr>
+				<th>Apply</th>
+				<th>
+					<input type='checkbox' id='colprop-apply'></input>
+				</th>
+			</tr>
+		</table>
+	</div>
 
-	<script src="js/SlickGrid/lib/jquery-1.11.2.min.js"></script>
-	<script src="js/SlickGrid/lib/jquery-ui-1.11.3.min.js"></script>
-	<script src="js/SlickGrid/lib/jquery.event.drag-2.3.0.js"></script>
-
-	<script src="js/SlickGrid/slick.core.js"></script>
-	<script src="js/SlickGrid/plugins/slick.cellrangedecorator.js"></script>
-	<script src="js/SlickGrid/plugins/slick.cellrangeselector.js"></script>
-	<script src="js/SlickGrid/plugins/slick.cellselectionmodel.js"></script>
-	<script src="js/SlickGrid/slick.formatters.js"></script>
-	<script src="js/SlickGrid/slick.editors.js"></script>
-	<script src="js/SlickGrid/slick.grid.js"></script>
 </div>
+
+<script src="js/SlickGrid/lib/firebugx.js"></script>
+
+<script src="js/SlickGrid/lib/jquery-1.11.2.min.js"></script>
+<script src="js/SlickGrid/lib/jquery-ui-1.11.3.min.js"></script>
+<script src="js/SlickGrid/lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="js/SlickGrid/slick.core.js"></script>
+<script src="js/SlickGrid/plugins/slick.cellrangedecorator.js"></script>
+<script src="js/SlickGrid/plugins/slick.cellrangeselector.js"></script>
+<script src="js/SlickGrid/plugins/slick.cellselectionmodel.js"></script>
+<script src="js/SlickGrid/slick.formatters.js"></script>
+<script src="js/SlickGrid/slick.editors.js"></script>
+<script src="js/SlickGrid/slick.grid.js"></script>
+<script src="js/SlickGrid/slick.dataview.js"></script>
 <script>
+	$('#replace-div').draggable().hide();
+	$('#metadata-div').draggable({handle:$('#handler')}).resizable().resize(function(){
+		var h=$('#metadata-div').height();
+		$('#myGrid').css({'height':(h-30)+'px'});
+		grid.resizeCanvas();
+	})
+	.click(function(e){
+		$('#replace-div').hide();
+	});
 	$( "#metadata-div" ).hide();
-	//$('#metadata-div').dialog({width:"500px"});
+
+	$('#metadata-close').click(function(e){
+		$('#metadata-div').hide(300);
+	}).tooltip();
+	$("#metadata-filter").change(function(e) {
+		if (this.checked) {
+			$(".slick-headerrow").show(300);
+			$("#myGrid").height($("#myGrid").height()+30);
+			$("#metadata-div").height($("#metadata-div").height()+30);
+		} else {
+			$(".slick-headerrow").hide(300);
+			$("#myGrid").height($("#myGrid").height()-30);
+			$("#metadata-div").height($("#metadata-div").height()-30);
+		}
+	}).tooltip();
 	$("#metadata-add-icon").click(function(e){
 		$("<div id ='metadata-add'></div>")
 		.html("Name of The New Category:<br> <input type='text' id ='metadata-add-colname'>")
@@ -173,12 +260,12 @@
 				modal: true,
 				buttons: {
 					"Add": function() {
-								name = $("#metadata-add-colname").val();
-								if (name && name != "") {
-									addMetadataOptions(name, name);
-									updateMetadataTable();
-									$(this).dialog("close");
-								}
+						name = $("#metadata-add-colname").val();
+						if (name && name != "") {
+							addMetadataOptions(name, name);
+							updateMetadataTable();
+							$(this).dialog("close");
+						}
 					},
 					"Cancel": function() {
 						$(this).dialog("close");
@@ -207,7 +294,7 @@
 			}
 			output.push(out.join('\t'));
 		}
-		saveTextAsFile(output.join('\n'),"metadata.txt");
+		saveTextAsFile(output.join('\n'), "metadata.txt");
 	}).tooltip();
 	function requiredFieldValidator(value) {
 		if (value == null || value == undefined || !value.length) {
@@ -218,12 +305,12 @@
 	}
 	
 	var grid;
-	var data = [];
 	var default_columns = [
-		{id: "selected", name: "selected", field: "__selected", width: 100, validator: requiredFieldValidator, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox},
-		{id: "index", name: "index", field: "__index", width: 60, validator: requiredFieldValidator},
-		{id: "ID", name: "ID", field: "ID", width: 100, cssClass: "cell-title", validator: requiredFieldValidator, sortable: true},
-		{id: "Node", name: "Node", field: "__Node", width:100, validator: requiredFieldValidator, sortable: true},
+		{id: "Selected", name: "Selected", field: "__selected", width: 100, validator: requiredFieldValidator, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'binary', group_num:30, group_order:'occurence'}},
+		{id: "index", name: "index", field: "id", width: 60, validator: requiredFieldValidator, prop:{category:'numeric', group_num:30, group_order:'standard'}},
+		{id: "ID", name: "ID", field: "ID", width: 100, cssClass: "cell-title", validator: requiredFieldValidator, sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}},
+		{id: "Node", name: "Node <span id='__Node-prop' class='glyphicon glyphicon-th col-prop' style='float:right;color:#6297ce'></span>", field: "__Node", 
+			width:100, validator: requiredFieldValidator, sortable: true, prop:{category:'character', group_num:30, group_order:'occurence'}},
 	];
 	var options = {
 		editable: true,
@@ -231,21 +318,72 @@
 		enableCellNavigation: true,
 		asyncEditorLoading: false,
 		autoEdit: false,
-	    multiColumnSort: true
-
+	    multiColumnSort: true,
+		showHeaderRow: true,
+		headerRowHeight: 30,
+		explicitInitialization: true,
 	};
-	data = [{"ID":"12312", "__Node":"20", "__selected":false},{"ID":"1312", "__Node":"22", "__selected":true}];
-	for (var index in data) {
-		data[index].__index = parseInt(index)+1;
+  var columnFilters = {};
+  function filter(item) {
+    for (var columnId in columnFilters) {
+      if (columnId !== undefined && columnFilters[columnId] !== "") {
+        var c = grid.getColumns()[grid.getColumnIndex(columnId)];
+		try {
+			regfilter = new RegExp(columnFilters[columnId], 'i');
+			var found = String(item[c.field]).match(regfilter);
+			if (! found) {
+				return false;
+			}
+		} catch(e) {
+		}
+      }
+    }
+    return true;
+  }
+
+	
+	source_data = [{id:0,"ID":"12312", "__Node":"20", "__selected":false},{id:1,"ID":"1312", "__Node":"22", "__selected":true}];
+	for (var index in source_data) {
+		source_data[index].id = parseInt(index)+1;
 	}
 
-	grid = new Slick.Grid("#myGrid", data, default_columns, options);
-	//grid.setSelectionModel(new Slick.CellSelectionModel());
+	dataView = new Slick.Data.DataView();
+	grid = new Slick.Grid("#myGrid", dataView, default_columns, options);
+	
+	    dataView.onRowCountChanged.subscribe(function (e, args) {
+      grid.updateRowCount();
+      grid.render();
+    });
+    dataView.onRowsChanged.subscribe(function (e, args) {
+      grid.invalidateRows(args.rows);
+      grid.render();
+    });
+    $(grid.getHeaderRow()).delegate(":input", "change keyup", function (e, args) {
+      var columnId = $(this).data("columnId");
+      if (columnId != null) {
+        columnFilters[columnId] = $.trim($(this).val());
+        dataView.refresh();
+      }
+    });
+    grid.onHeaderRowCellRendered.subscribe(function(e, args) {
+        $(args.node).empty();
+        $("<input type='text'>")
+           .data("columnId", args.column.id)
+           .val(columnFilters[args.column.id])
+           .appendTo(args.node);
+    });
+    grid.init();
+
+	
+	dataView.beginUpdate();
+	dataView.setItems(source_data);
+	dataView.setFilter(filter);
+	dataView.endUpdate();
 
 	function data_reformat(data, select_moveUp) {
 		for (var index in data) {
 			d = data[index];
-			d.__index = parseInt(index) + 1;
+			d.id = parseInt(index) + 1;
 		}
 		if (select_moveUp === true) {
 			data.sort(function(d1, d2) {
@@ -257,7 +395,7 @@
 	
 	grid.onSort.subscribe(function (e, args) {
       var cols = args.sortCols;
-	  data = grid.getData();
+	  data = dataView.getItems();
       data.sort(function (dataRow1, dataRow2) {
         for (var i = 0, l = cols.length; i < l; i++) {
           var field = cols[i].sortCol.field;
@@ -270,11 +408,51 @@
         }
         return 0;
       });
-	  data_reformat(data);
+	  dataView.setItems(data_reformat(data));
       grid.invalidate();
       grid.render();
     });
 
+	var mouse_pos = []; mouse_pos.length=4;
+	grid.onDragStart.subscribe(function(e, args){
+		mouse_pos[0] = e.clientX, mouse_pos[1] = e.clientY;
+	});
+	grid.onDragEnd.subscribe(function(e, args){
+		mouse_pos[2] = e.clientX, mouse_pos[3] = e.clientY;
+	});
+	grid.setSelectionModel(new Slick.CellSelectionModel());
+	selection_event = grid.getSelectionModel().onSelectedRangesChanged.subscribe(function(e,args){
+		if (args[0].fromRow == args[0].toRow && args[0].fromCell == args[0].toCell) {
+			return;
+		}
+		var xx = mouse_pos[0] >= mouse_pos[2] ? mouse_pos[2] - 20 : mouse_pos[2] + 20;
+		var yy = mouse_pos[1] >= mouse_pos[3] ? mouse_pos[3] - 20 : mouse_pos[3] + 20;
+		mouse_pos = [args[0].fromRow, args[0].fromCell, args[0].toRow, args[0].toCell];
+		$("#replace-div").toggle(150).css("top",yy).css("left",xx).css("position","fixed");
+		//$("#replace-div").show();
+	});
+	$("#replace-confirm").click(function(e) {
+		var val = $("#replace-tag").val();
+		columns = grid.getColumns();
+		for (var id=mouse_pos[0]; id <= mouse_pos[2]; id ++) {
+			d = dataView.getItem(id);
+			for (var jd=mouse_pos[1]; jd <= mouse_pos[3]; jd ++) {
+				var col = columns[jd].field;
+				if (col != '__Node' && col != 'ID' && col != 'id') {
+					d[col] = val;
+				}
+			}
+		}
+		$("#replace-div").hide();
+		grid.invalidate();
+		grid.render();
+	});
+	$("#replace-tag").keypress(function(e){
+			if (e.which === 13) {
+				$("#replace-confirm").trigger("click");
+			}
+		});
+	
 	function updateMetadataTable(select_moveUp) {
 		if (! the_tree) {
 			return;
@@ -290,21 +468,29 @@
 		}
 		for (var c in cols) {
 			if (c != "nothing") {
-				curr_cols.push({id: cols[c], name: cols[c], field: c, width:120, editor: Slick.Editors.Text, sortable: true});
+				curr_cols.push({id: cols[c],
+					name: cols[c]+" <span id='"+c+"-prop' class='glyphicon glyphicon-th col-prop' style='float:right;color:#6297ce'></span>", 
+					field: c, 
+					width:120, 
+					editor: Slick.Editors.Text, 
+					sortable: true, 
+					prop:{category:'character', group_num:30, group_order:'occurence'}
+				});
 			}
 		}
 
 		grid.setColumns(curr_cols);
 
-		var data = [];
+		source_data.length = 0;
 		for (var id in the_tree.metadata) {
 			if (the_tree.node_map[id] && !the_tree.node_map[id].hypothetical) {
 				var d = the_tree.metadata[id];
 				d.__selected = the_tree.node_map[d.__Node].selected;
-				data.push(d);
+				source_data.push(d);
 			}
 		}
-		grid.setData(data_reformat(data, select_moveUp));
+		data_reformat(source_data, select_moveUp);
+		dataView.setItems(source_data);
 		grid.invalidate();
 		grid.render();
 	}
@@ -356,9 +542,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		   <div id='method-activate'></div>
 		   <br>
 		   <select id ='method-select'>
-			   <option value='MSTreeV2'>MSTreeV2</option>
-			   <option value='MSTree'>MSTree</option>
-			   <option value='NJ'>Neighbour Joining</option>
+			   <option class='show-tooltip' title='MSTreeV2 uses a directed graph to handle missing data' value='MSTreeV2'>MSTreeV2</option>
+			   <option class='show-tooltip' title='A traditional Minimum spanning tree + eBurst weighting' value='MSTree'>MSTree</option>
+			   <option class='show-tooltip' title='FastME V2.0 is implemented for Neighbor-Joining phylogeny.' value='NJ'>Neighbour Joining</option>
 		   </select>
 		   <div id = "MST-option" style="display:none;">
 		   <hr>
@@ -386,9 +572,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			   <option value='harmonic'>Harmonic</option>
 		   </select>
 		   <br>
-		   <label>Neighboring Branch Reconnection</label>
+		   <label>Neighboring Branch Reconnection (NBR)</label>
 		   <br>
-		   <select id = 'branch-select'>
+		   <select class='show-tooltip' title='NBR reconstructs paths in a spanning tree' id = 'branch-select'>
 			   <option value='F'>False</option>
 			   <option value='T'>True</option>
 		   </select>
@@ -405,8 +591,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 <div id='sidebar'>
 	<div id='beforeload_bar'>
 		<p>
-			<a href="https://enterobase.warwick.ac.uk" target = '_blank'><img src="js/img/enterobase.png" alt="Enterobase" style="width:40px;height:45px;"></a>    |
-			<a href="https://github.com/martinSergeant/EnteroMSTree" target = '_blank'><img src="js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>
+			<a class='show-tooltip' title='Databases of 100,000 genomes' href="https://enterobase.warwick.ac.uk" target = '_blank'><img src="js/img/enterobase.png" alt="Enterobase" style="width:40px;height:45px;"></a>    |
+			<a class='show-tooltip' title='Github repository for this program' href="https://github.com/martinSergeant/EnteroMSTree" target = '_blank'><img src="js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>
 			<h3 id="headertag" style="font-family: times, serif; font-size:12pt; font-style:italic">GrapeTree</h3>
 		</p>
 		<br>
@@ -421,7 +607,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 
 				<hr>
 				<label>Layout</label>
-				
 				<select id = 'layout-select'>
 					<option value='greedy'>Static</option>
 					<option value='force'>Visual Optimation</option>
@@ -443,27 +628,29 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<div class = "panel-body" id ='tree-menu-panel'>
 				<button id = 'button-goback' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Default</button>
 				<br><br>
-				<div class="slider-spinner">
+				<div>
 					<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Branch Length (%)</label><br>
-					<div id = "slider-linklength" class ="shortslider-class">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength'>
+					<div id = "slider-linklength" class ="shortslider-class">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
 				</div>
-				<br>
-				<div class="slider-spinner" title="Collapse branches below a certain value">
+				
+				<div class="show-tooltip" title="Collapse branches below a certain value">
 					<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Collapse Branches</label><br>
-					<div id = "slider-collapse-nodes" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes'>
+					<div id = "slider-collapse-nodes" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
 				</div>
+				<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
 				<br>
-				<div class="slider-spinner">
+				<hr>
+				<div >
 					<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Node Size (%)</label><br>
-					<div id = "slider-nodesize" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize'>
+					<div id = "slider-nodesize" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
+				</div>
+				
+				<div class="show-tooltip" title="Node size relative to number of strains">
+					<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Node scaling(%)</label><br>
+					<div id = "slider-relative-nodesize" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
 				</div>
 				<br>
-				<div class="slider-spinner" title="Node size relative to number of strains">
-					<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Node scaling(%)</label><br>
-					<div id = "slider-relative-nodesize" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize'>
-				</div>
-				<br><br>
-				<button id = 'button-refresh'> Redraw Static Layout</button>
+				<button id = 'button-refresh'> Static Redraw </button>
 				<br><br>
 				<button id ="center-graph-button">Centre Tree</button>
 				<hr>
@@ -475,25 +662,23 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			</div>
 		</div>
 		 <div class='panel panel-default'  style ="margin-bottom:2px">
-				   <div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Links</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+				   <div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Branche Style</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 				   <div class = "panel-body" id ='mst-link-menu-panel'>
-							<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
-							<br>
 							<label>Hide Branchs Over:</label>
 							<br>
-							<input type='text' style='width:35px;height:15px' id ='spinner-hide-link-length'>
+							<input type='text' style='width:35px;height:15px' id ='spinner-hide-link-length' class='spin-group'>
 						   <button id ='button-hide-link-length'>Go</button>
 						   <br>
 						   <label>Max Branch Length:</label>
 						   <br>
-						   <input type='text' style='width:35px;height:15px' id ='spinner-maxlinklength'>
+						   <input type='text' style='width:35px;height:15px' id ='spinner-maxlinklength' class='spin-group'>
 						   <button id ='button-setmaxlinklength'>Go</button>
 						   <br>
 						   <hr>
 						   <label><input id ='show-link-labels'type="checkbox" /> Branch Labels</label>
 						   <br>
 						   <label>Font Size:</label>
-						   <input type='text' style='width:20px;height:15px' id ='spinner-linkfontsize'>
+						   <input type='text' style='width:20px;height:15px' id ='spinner-linkfontsize' class='spin-group'>
 						   <br>
 						   <div id = "slider-linkfontsize" class = "slider-class"></div>
 						   <br>
@@ -511,7 +696,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 							<hr>
 							<label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
 							<br><br>
-							<label>Font Size:</label><input type='text' style='width:20px;height:15px' id ='spinner-node-fontsize'>
+							<label>Font Size:</label><input type='text' style='width:20px;height:15px' id ='spinner-node-fontsize' class='spin-group'>
 							<br>
 							<div id = "slider-node-fontsize" class = "slider-class"></div>
 							<label>Label Text</label>
@@ -527,53 +712,51 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 					</div>
 			</div>
 		<div class='panel panel-default' style ="margin-bottom:2px">
-			<div class ='panel-heading mst-menu-title' id= 'selection-menu'> <b id>Selection</b><span id = 'selection-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+			<div class ='panel-heading mst-menu-title' id= 'selection-menu'> <b id>Metadata</b><span id = 'selection-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 			<div class = "panel-body" id ='selection-menu-panel'>
-			    <br>
-					<button id = 'button-editor' onclick="$('#metadata-div').dialog({width:'600px'});updateMetadataTable()"> Show Metadata </button>
-				<br><br>
-					<button id = 'button-clear-selection'> Clear Selection </button>
-				<br><br>
-					<button id = 'button-select-all'> Select All </button>	
-				</p>
+					<button id = 'button-editor' onclick="$('#metadata-div').show(300); setTimeout(function(){updateMetadataTable(true);}, 400);"> Metadata Window </button>
+					<hr>
+					<ul id="colList" style="width:100%"></ul>
+					<script>
+					/*	$("#colList");
+						function showColumns() {
+							var columns = grid.getColumns();
+							for( var id in columns) {
+								var col = columns[id];
+								if (col.field != 'id') {
+									$("#colList")
+										.append($("<li class='"+col.field+"_group"+"'>")
+											.append($("<span class='"+col.field+"_delete"+" glyphicon glyphicon-remove' style='float:right>"))
+											.append($("<label class='"+col.field+"_label"+"'>").text(col.name))
+											.append($("<input class='"+col.field+"_color"+"' type='checkbox' style='float:center'>"))
+										);
+								}
+							}
+							$("#colList").append();
+						}
+						showColumns();*/
+					</script>
 			</div>
 		</div>
 
-			<div class='panel panel-default'>
-					<div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Visual Optimation</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
-					<div class = "panel-body" id ='mst-layout-menu-panel'>
-							<p align='center'>
-									<button onclick = 'javascript:the_tree.unfixSelectedNodes(true)' > On</button>
-							</p>
-							<p align='center'>
-									<button onclick ="javascript:the_tree.unfixSelectedNodes()"> On Selected</button>
-							</p>
-							<p align='center'>
-									<button id="stopAdjustment"> Off</button>
-							</p>
-							<label><input id ='correct_link_length' type="checkbox" checked /> Use Real Branch Length When OFF</label>
-							<br><br>
-							<label>Speed of Movement</label>
-							<br>
-							<div title = "0" id = "slider-charge" class = "slider-class"></div>
-							<br>
-					</div>
-			</div>
-
-		<div id = 'add-data-panel' class='panel panel-default'>
-				<div class ='panel-heading mst-menu-title' id= 'mst-data-menu'> <b id>Metadata</b><span id = 'mst-data-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
-				<div class = "panel-body" id ='mst-data-menu-panel'>
-						<label>Add Field&nbsp;&nbsp;&nbsp;</label>
-						<input  size="11" id ="add-extra-field-input">
-						<span  id ="add-custom-field-icon" onclick="addExtraField()" class='add-data-icon glyphicon glyphicon-plus'></span>
+		<div class='panel panel-default'>
+				<div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Visual Optimation</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+				<div class = "panel-body" id ='mst-layout-menu-panel'>
+						<p align='center'>
+								<button onclick = 'javascript:the_tree.unfixSelectedNodes(true)' > On</button>
+						</p>
+						<p align='center'>
+								<button onclick ="javascript:the_tree.unfixSelectedNodes()"> On Selected</button>
+						</p>
+						<p align='center'>
+								<button id="stopAdjustment"> Off</button>
+						</p>
+						<label><input id ='correct_link_length' type="checkbox" checked /> Use Real Branch Length When OFF</label>
+						<br><br>
+						<label>Speed of Movement</label>
 						<br>
-						<label>Edit Metadata</label>
+						<div title = "0" id = "slider-charge" class = "slider-class"></div>
 						<br>
-						Field<select style ="width:120px" id="add-new-values-select"></select><span    onclick="deleteMetadataCategory()" class='add-data-icon glyphicon glyphicon-remove'></span>
-						Add Value To Selected<input size="11" id ="add-new-values-input">
-						<span  id ="add-new-values-icon"  onclick="addNewValues()" class='add-data-icon glyphicon glyphicon-plus'></span>
-						<br>
-
 				</div>
 		</div>
 		<div class='panel panel-default' style ="margin-bottom:2px">
@@ -588,11 +771,11 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			    <br><br>
 					<button id = 'button-color-palette'> Color Palette </button>
 			   	<br><br>
-				<label>No. of Groups:</label><input type='text' style='width:20px;height:15px' id ='spinner-num-group'>
+				<label>No. of Groups:</label><input type='text' style='width:20px;height:15px' id ='spinner-num-group' class='spin-group'>
 				<br>
 				<div id = "slider-num-group" class = "slider-class"></div>
 				<br>
-				<label>Font Size:</label><input type='text' style='width:20px;height:15px' id ='spinner-legend-fontsize'>
+				<label>Font Size:</label><input type='text' style='width:20px;height:15px' id ='spinner-legend-fontsize' class='spin-group'>
 				<br>
 				<div id = "slider-legend-fontsize" class = "slider-class"></div>
 			</div>
@@ -698,7 +881,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 });
 				
 				var notification = "<p style='font-size:10'> Some browsers allow you to select a folder after you click the 'Save' Button.<br><br> Whereas many browsers, such as Chrome, by default save the downloaded file into:<br><b>Windows</b>: <code>'&#92;Users&#92;&lt;username&gt;&#92;Downloads'</code><br><b>Mac</b>: <code>'/Users/&lt;username&gt;/Downloads'</code><br><b>Linux</b>: <code>'home/&lt;username&gt;/Downloads'</code><br><br></p>";
-				var filenamebar = $("<input type='text' id ='filename' value='"+suggested_name+"'>").tooltip();
+				var filenamebar = $("<input title='Suffix will be automatically added in some browsers if you have got a file with the same name.' type='text' id ='filename' value='"+suggested_name+"'>");
                 //the actual dailog box
                 $("<div id ='savedailog'></div>")
                 .html(notification + "File Name: ")
@@ -1240,7 +1423,7 @@ tree_raw = {};
 
 
 window.onload = function (){
-		$(".slider-spinner").tooltip();
+		//$(".show-tooltip").tooltip({opacity:0.1});
         //allow dragging and dropping files
         $("#graph-div").on('dragover',function(e) {
                 e.preventDefault();
@@ -1258,7 +1441,6 @@ window.onload = function (){
                 var files = e.originalEvent.dataTransfer.files;
                 filesDropped(files);
         });
-
 
         $("#stopAdjustment").click(function(e) {
 			the_tree.fixAllNodes( document.getElementById("correct_link_length").checked );
@@ -1313,9 +1495,6 @@ window.onload = function (){
                 else{
                         $("#"+id+"-panel").toggle("50");
                         icon.attr("class","glyphicon glyphicon-menu-down");
-                        //$(".open-menu-panel").toggle("50");
-                        //$(".open-menu-panel").parent().find(".glyphicon-menu-down").attr("class","glyphicon glyphicon-menu-right");
-                        //$(".open-menu-panel").removeClass("open-menu-panel");
                         $("#"+id+"-panel").addClass("open-menu-panel");
                 }
 
@@ -1325,163 +1504,138 @@ window.onload = function (){
 		$('#save-panel').find('button').prop('disabled',true);
 		$('#save-panel').css('opacity', 0.3);
 
-        $( "#slider-linklength" ).slider({
+        $( "#slider-linklength" ).on("change", function(e) {
+					var brlen = Math.exp($(this).slider("value")/1000.0);
+					$("#spinner-linklength").spinner('value', brlen);
+		})
+		.slider({
                 orientation: "horizontal",
                 min: 1609,
                 max: 9903,
                 value: 4605,
-                slide:function(){
-					var brlen = Math.exp($(this).slider("value")/1000.0);
-					$("#spinner-linklength").spinner('value', brlen);
-				},
-                change: function(e){
-                        if (e.originalEvent){
-							var brlen = Math.exp($(this).slider("value")/1000.0);
-							$("#spinner-linklength").spinner('value', brlen);
-                        }
-                }
         });
-		$("#spinner-linklength").spinner({
+		
+		$("#spinner-linklength").on("change", function (e){
+				var brlen = parseInt($(this).val());
+				$( "#slider-linklength" ).slider('value', Math.log(brlen)*1000.0);
+				the_tree.setLinkLength(brlen*5.0);
+		})
+		.spinner({
 			min: 5,
 			max: 20000,
 			value: 100,
 			step: 1,
-			spin: function(e) {
-				var brlen = parseInt($(this).val());
-				$( "#slider-linklength" ).slider('value', Math.log(brlen)*1000.0);
-				the_tree.setLinkLength(brlen*5.0);
+		});
+		$(".shortslider-class, .slider-class").slider({
+			slide: function(e) {
+				$(this).trigger('change');
 			},
 			change: function(e) {
-				var brlen = parseInt($(this).val());
-				$( "#slider-linklength" ).slider('value', Math.log(brlen)*1000.0);
-				the_tree.setLinkLength(brlen*5.0);
+				if (e.originalEvent) {
+					$(this).trigger('change');
+				}
 			}
-
+		});
+		$(".spin-group").spinner({
+			spin: function(e) {
+				$(this).trigger('change');
+			},
+			change: function(e) {
+				$(this).trigger('change');
+			}
+		}).keypress(function(e){
+			if (e.which === 13) {
+				$(this).spinner("value", $(this).val());
+			}
 		});
 
-        $( "#slider-nodesize" ).slider({
+        $( "#slider-nodesize" ).on("change", function(e) {
+			$( "#spinner-nodesize" ).spinner("value", $(this).slider("value"));
+		})
+		.slider({
                 orientation: "horizontal",
                 min:20,
                 max:500,
                 value: 100,
-                slide:function(){
-						$( "#spinner-nodesize" ).spinner("value", $(this).slider("value"));
-				},
-                change: function(e){
-                        if (e.originalEvent){
-                                $( "#spinner-nodesize" ).spinner("value", $(this).slider("value"));
-                        }
-                }
         });
-        $( "#spinner-nodesize" ).spinner({
-                min:20,
-                max:500,
-                value: 100,
-                spin:function(){
+        $( "#spinner-nodesize" ).on('change', function(){
 						the_tree.setNodeSize(parseInt($(this).val())/10.);
 						$( "#slider-nodesize" ).slider("value", parseInt($(this).val()));
-				},
-                change: function(e){
-					the_tree.setNodeSize(parseInt($(this).val())/10.);
-					$( "#slider-nodesize" ).slider("value", parseInt($(this).val()));
-                }
+					})
+		.spinner({
+                min:20,
+                max:500,
+                value: 100,
         });
 
-        $( "#slider-relative-nodesize" ).slider({
+
+        $( "#slider-relative-nodesize" ).on("change", function(e) {
+			$( "#spinner-relative-nodesize" ).spinner("value", $(this).slider("value"));
+		})
+		.slider({
                 orientation: "horizontal",
                 min:30,
                 max:150,
                 value: 100,
                 step:1,
-                slide:function(){
-						$( "#spinner-relative-nodesize" ).spinner("value", $(this).slider("value"));
-				},
-                change: function(e){
-                        if (e.originalEvent){
-                                $( "#spinner-relative-nodesize" ).spinner("value", $(this).slider("value"));
-                        }
-                }
-        });
-		$( "#spinner-relative-nodesize" ).spinner({
+        })
+		$( "#spinner-relative-nodesize" ).on("change", function(e){
+			the_tree.setRelativeNodeSize(parseInt($(this).val())/200.0);
+			$( "#slider-relative-nodesize" ).slider("value", parseInt($(this).val()));
+		})
+		.spinner({
                 min:30,
                 max:150,
                 value: 100,
                 step:1,
-                spin:function(){
-						the_tree.setRelativeNodeSize(parseInt($(this).val())/200.0);
-						$( "#slider-relative-nodesize" ).slider("value", parseInt($(this).val()));
-				},
-                change: function(e){
-					the_tree.setRelativeNodeSize(parseInt($(this).val())/200.0);
-					$( "#slider-relative-nodesize" ).slider("value", parseInt($(this).val()));
-                }
         });
 
-        $( "#slider-node-fontsize" ).slider({
+        $( "#slider-node-fontsize" ).on("change", function(e) {
+			$("#spinner-node-fontsize").spinner('value', $(this).slider("value"));
+		})
+		.slider({
                 orientation: "horizontal",
                 min:6,
                 max: 30,
                 value: 12,
-                slide:function(){
-					$("#spinner-node-fontsize").spinner('value', $(this).slider("value"));
-				},
-                change: function(e){
-                        if (e.originalEvent){
-                                $("#spinner-node-fontsize").spinner('value', $(this).slider("value"));
-                        }
-                }
         });
-		$("#spinner-node-fontsize").spinner({
+		$("#spinner-node-fontsize").on("change", function(e) {
+				$( "#slider-node-fontsize" ).slider('value', parseInt($(this).val()));
+				the_tree.setNodeFontSize(parseInt($(this).val()));
+		})
+		.spinner({
 			min: 6,
 			max: 30,
 			value: 12,
-			change: function(e) {
-				$( "#slider-node-fontsize" ).slider('value', parseInt($(this).val()));
-				the_tree.setNodeFontSize(parseInt($(this).val()));
-			},
-			spin: function(e) {
-				$( "#slider-node-fontsize" ).slider('value', parseInt($(this).val()));
-				the_tree.setNodeFontSize(parseInt($(this).val()));
-			}
 		});
 
-        $( "#slider-linkfontsize" ).slider({
+        $( "#slider-linkfontsize" ).on("change", function(e) {
+			$("#spinner-linkfontsize").spinner('value', $("#slider-linkfontsize").slider("value"));
+		})
+		.slider({
                 orientation: "horizontal",
                 min:6,
                 max: 30,
                 value: 14,
-                slide:function(){
-									$("#spinner-linkfontsize").spinner('value', $("#slider-linkfontsize").slider("value"));
-								},
-                change: function(e){
-                        if (e.originalEvent){
-								$("#spinner-linkfontsize").spinner('value', $("#slider-linkfontsize").slider("value"));
-                        }
-                }
         });
-		$("#spinner-linkfontsize").spinner({
+		$("#spinner-linkfontsize").on("change", function(e) {
+				$( "#slider-linkfontsize" ).slider('value', parseInt($(this).val()));
+				the_tree.setLinkFontSize(parseInt($(this).val()));
+		})
+		.spinner({
 			min: 6,
 			max: 30,
 			value: 14,
-			change: function(e) {
-				$( "#slider-linkfontsize" ).slider('value', parseInt($(this).val()));
-				the_tree.setLinkFontSize(parseInt($(this).val()));
-			},
-			spin: function(e) {
-				$( "#slider-linkfontsize" ).slider('value', parseInt($(this).val()));
-				the_tree.setLinkFontSize(parseInt($(this).val()));
-			}
 		});
 
 
-        $( "#slider-charge" ).slider({
+        $( "#slider-charge" ).on("change", function(e) {the_tree.alterCharge($("#slider-charge").slider("value"));
+									$(this).prop("title", $(this).slider("value"));
+		})
+		.slider({
                 orientation: "horizontal",
                 min:0,
                 max: 30,
-                slide:function(){the_tree.alterCharge($("#slider-charge").slider("value"));
-									$(this).prop("title", $(this).slider("value"));},
-                change: function(){the_tree.alterCharge($("#slider-charge ").slider("value"));
-									$(this).prop("title", $(this).slider("value"));}
         });
 
         $("#node-label-text").change(function(e){

@@ -2098,8 +2098,9 @@ D3MSTree.prototype.brushEnded=function(extent){
      
        this._addHalos(function(d){return d.selected},5,"red");
 	   if (! this.not_first_selection) {
-			$('#metadata-div').dialog({width:'600px'});
+			$('#metadata-div').show(300);
 			this.not_first_selection = true;
 		}
-	   updateMetadataTable(true);
+		setTimeout(function(){updateMetadataTable(true);}, 400);
+	   ;
 }
