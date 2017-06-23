@@ -98,15 +98,15 @@ function D3MSTree(element_id,data,callback,height,width){
         
         this.force_drag = this.d3_force_directed_graph.drag()
         .on('dragstart', function(it){
-              self._dragStarted(it);
+              it.id ? self._dragStarted(it) : self._dragStarted(it.target);
         })
         .on('drag', function(it){
-              self._dragging(it)
+              it.id ? self._dragging(it) : self._dragging(it.target);
         })
         .on('dragend',function(it){
-              self._dragEnded(it)
+              it.id ? self._dragEnded(it) : self._dragEnded(it.target);
         });
-       
+
         this.add_collapsed_lengths=true;
         this.node_collapsed_value=0;
         
@@ -133,17 +133,17 @@ function D3MSTree(element_id,data,callback,height,width){
                         data['layout_data']= {'node_positions':this.greedy_layout(nodes, this.max_link_scale, this.base_node_size)};
                 }
 
-              
+                for (var i in this.original_nodes){
+                        var name = this.original_nodes[i];
+                        this.grouped_nodes[name]=[name];
+                        this.metadata[name] = {"ID":name, "__Node":name};
+                        this.metadata_map[name] = [name];
+                }
+
         } else {
                 this.original_nodes=data['nodes'];
                 this.original_links=data['links'];
 				this.newickTree=data['newickTree'];
-        }
-        for (var i in this.original_nodes){
-                var name = this.original_nodes[i];
-                this.grouped_nodes[name]=[name];
-                this.metadata[name] = {"ID":name};
-                this.metadata_map[name] = [name];
         }
 
         var positions = null;
@@ -361,7 +361,7 @@ D3MSTree.prototype._start= function(callback,layout_data){
                 return it.source.id + "-" + it.target.id;
         }).attr('class', "link mst-element");
         
-        link_enter.append('line')
+        link_enter.append('line').call(this.force_drag)
         .on("click",function(d){
                  for (var i in self.link_clicked_listeners){
                         self.link_clicked_listeners[i](d);    
@@ -376,6 +376,14 @@ D3MSTree.prototype._start= function(callback,layout_data){
                  for (var i in self.link_out_listeners){
                         self.link_out_listeners[i](d);       
                 }
+        }).on('mouseup', function(it){
+                if (!self.is_dragging){
+                        var ids = self._getIDsForNode(it.target.id);
+                        for (var i in self.node_clicked_listeners){
+                                self.node_clicked_listeners[i](it,ids)
+                        }
+                }
+                self.is_dragging=false;
         });
         
 
@@ -440,7 +448,13 @@ D3MSTree.prototype._start= function(callback,layout_data){
         else{
                 this.setLayout(layout_data);
                 this._showLinkLabels();
-                this.changeCategory("ID", true);
+                tmp_category = this.display_category;
+                this.changeCategory("ID");
+                if (tmp_category) {
+                        this.changeCategory(tmp_category);
+                } else {
+                        this.changeCategory('nothing');
+                }
                 this._updateGraph(true);
                 this.startForce();
                 this.stopForce();
@@ -461,6 +475,7 @@ D3MSTree.prototype.collapseNodes= function(max_distance){
         this._collapseNodes(max_distance, layout);
         this._start(null,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
         this.centerGraph();
+        updateMetadataTable();
 }
 
 D3MSTree.prototype._collapseNodes=function(max_distance,layout){
@@ -481,21 +496,18 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 for (var i in this.force_nodes){
                         var node =this.force_nodes[i];
                         this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
+                        if (this.metadata[node.id]) {
+                                this.metadata[node.id]['__Node'] = node.id;
+                        } else {
+                                this.metadata[node.id] = {'__Node':node.id, 'ID':node.id};
+                        }
                 }
         }
-        //var node2link = {}, anc_link = {};
 
         for (index in this.force_links){
                 var link = this.force_links[index];
                 link.target.link = link;
         }
-        /*var links = this.force_links;
-        while(true) {
-                links = links.filter(function(l){return (!l.remove && l.value <= max_distance);});
-                if (links.length <= 0) break;
-                var l = links.reduce(function(prev, curr){ 
-                        return prev.value < curr.value ? prev : curr; 
-                }); */
         this.force_links.sort(function(l1, l2) {return l1.value - l2.value;});
         var link_len = [];
         for (var index in this.force_links) {
@@ -523,6 +535,12 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 if (!l || l.value > max_distance) continue;
                 l.remove=l.target.remove=true;
 
+                if (!l.source.hypothetical) {
+                        for (var id in this.grouped_nodes[l.target.id]) {
+                                sid = this.grouped_nodes[l.target.id][id];
+                                this.metadata[sid]['__Node'] = l.source.id;
+                        }
+                }
                 this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
                 var increase=l.value;
 
@@ -587,9 +605,10 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 var t_node = temp_force_nodes[i];
                 this.force_nodes.push(t_node);
         }
-     
+		this.node_map = {};
         for (var id in this.force_nodes) {
                 node = this.force_nodes[id];
+				this.node_map[node.id] = node;
                 node.size = (node.hypothetical ? 0.01 : this.grouped_nodes[node.id].length);
                 if (node.link) 
                         node.length = node.link.value;
@@ -854,14 +873,13 @@ D3MSTree.prototype._drawLinks=function(){
 * @param {string} category The category to display. If no category
 * is given then the node IDs will be displayed
 */
-D3MSTree.prototype.changeCategory= function(category, not_shown){
-        if (! category){
+D3MSTree.prototype.changeCategory= function(category){
+        if (! category ){
                 this.display_category=null;
                 this.category_colours['missing']=this.default_colour;
-        
         }
         else{
-                this._changeCategory(category, not_shown);
+                this._changeCategory(category);
         }
         
         
@@ -871,7 +889,7 @@ D3MSTree.prototype.changeCategory= function(category, not_shown){
                         return [{cx:parent.x,cy:parent.y}];
                 });
     
-        hypo_nodes.enter().append("circle").attr("r",3).style("fill","gray");
+        hypo_nodes.enter().append("circle").attr("r",3).style("fill","black");
         
         
         var nodes_existing = this.node_elements.filter(function(d){return !d.hypothetical})
@@ -904,7 +922,7 @@ D3MSTree.prototype._drawNodes=function(){
                 if (it.data.node_id){
                         return self.default_colour;
                 }
-                 return self.category_colours[it.data.type];
+                 return self.category_colours[it.data.type] ? self.category_colours[it.data.type] : self.default_colour;
         });
         this.node_elements.selectAll('.halo')
                 .attr("d",function(d){                  
@@ -1051,7 +1069,7 @@ D3MSTree.prototype._getPieData = function(d, category){
                 }
                 for (var type in type_counts){
                         var count = type_counts[type];
-                        if (this.show_individual_segments){
+                        if (this.show_individual_segments && this.category=='ID'){
                                 for (var n=0;n<count;n++){
                                                 results.push({
                                                 value: 1,
@@ -1308,11 +1326,8 @@ D3MSTree.prototype._getLink=function(target_node){
 }
 
 D3MSTree.prototype._centerGraph = function(){
-        var firstNode = this.force_nodes[0];                      
-        var maxX=firstNode.x;
-        var minX=firstNode.x;
-        var maxY = firstNode.y;
-        var minY = firstNode.y;
+        var maxX = minX = this.force_nodes[0].x;
+        var maxY = minY = this.force_nodes[0].y;
         var nodes = this.force_nodes;
         for (var n=1;n<nodes.length;n++){
                 var node = nodes[n];
@@ -1324,28 +1339,20 @@ D3MSTree.prototype._centerGraph = function(){
         }   
         for (var n=0;n<nodes.length;n++){
                 var node = nodes[n];
-                node.x-=minX;
-                node.px =node.x;
-                node.y -=minY;
-                node.py=node.y
+                node.px =node.x = node.x-minX;
+                node.py = node.y = node.y-minY;
                                 
         }
         var wdiff = maxX-minX;
         var hdiff = maxY-minY;
-        var scale=1;
-       if (wdiff>hdiff){
-                scale = (this.width/(maxX-minX));
-       }
-        else{
-               scale = (this.height/(maxY-minY));
-        }
+        var scale = wdiff > hdiff ? this.width/wdiff : this.height/hdiff;
+
         this.setScale(scale*0.8);
-        this.setTranslate([0,0]);
+        this.setTranslate([40,40]);
 }
  
 D3MSTree.prototype.centerGraph = function(){
         this._centerGraph();
-        
         this._updateGraph(true);
 }
 //public methods
@@ -1360,15 +1367,15 @@ D3MSTree.prototype.setLogLinkScale=function(log){
 }
 
 D3MSTree.prototype.clearSelection= function(){ 
-        for (var i in this.force_nodes) {
-                var node = this.force_nodes[i];
-                node.selected = false;
-                delete node.halo_colour;
-                delete node.halo_thickness
-        }
-        this.node_elements.classed('selected', false);
-        this.node_elements.selectAll(".halo").remove();
-        
+	for (var i in this.force_nodes) {
+			var node = this.force_nodes[i];
+			node.selected = false;
+			delete node.halo_colour;
+			delete node.halo_thickness
+	}
+	this.node_elements.classed('selected', false);
+	this.node_elements.selectAll(".halo").remove();
+	updateMetadataTable();
 };
 
 /**
@@ -2078,7 +2085,8 @@ D3MSTree.prototype.addLinkOutListener=function(func){
 //brush functions
 D3MSTree.prototype.brushEnded=function(extent){
         if (extent[0][0] == extent[1][0] && extent[0][1] == extent[1][1]) {
-                return this.clearSelection();
+                this.clearSelection();
+                return;
         }
         this.node_elements.filter(function(d){
                 var selected =(extent[0][0] <= d.x && d.x < extent[1][0] && extent[0][1] <= d.y && d.y < extent[1][1]);
@@ -2089,4 +2097,10 @@ D3MSTree.prototype.brushEnded=function(extent){
         }).classed("selected","true");
      
        this._addHalos(function(d){return d.selected},5,"red");
+	   if (! this.not_first_selection) {
+			$('#metadata-div').show(300);
+			this.not_first_selection = true;
+		}
+		setTimeout(function(){updateMetadataTable(true);}, 400);
+	   ;
 }

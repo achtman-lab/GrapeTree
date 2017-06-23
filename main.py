@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright Martin Sergeant, Nabil-Fareed Alikhan, Zhemin Zhou (2017)
+# Copyright Zhemin Zhou, Martin Sergeant, Nabil-Fareed Alikhan & Mark Achtman (2017)
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
@@ -47,6 +47,7 @@ def open_browser(PORT):
 
 
 def install_static():
+    return
     shutil.copyfile('MSTree_holder.html',
                     'grapetree/templates/MSTree_launch.html')
 
