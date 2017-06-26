@@ -685,8 +685,8 @@ function parse_nexus(str)
 											nx.current_node=nx.buffer
 										}
 										else if (t==6 || t==9 || t==11){
-											nx.current_node='_hypo_node_'+nx.hypo_node;
-											tree.newick+='_hypo_node_'+nx.hypo_node;
+											nx.current_node='_hypo_'+nx.hypo_node;
+											tree.newick+='_hypo_'+nx.hypo_node;
 											nx.hypo_node++;
 										}
 								
@@ -1047,10 +1047,10 @@ D3BaseTree.prototype._changeCategory=function(category){
 	var cust_col= this.custom_colours[category];
 	for (var i in cat_count_list){
 		var val = cat_count_list[i][0];
-		if (category == 'nothing' || val.startsWith('_hypo_node') ) {
+		if (category == 'nothing') {
 			this.category_colours[val]=this.default_colour;
-			continue;
-		}
+			continue
+		} //		|| val.startsWith('_hypo_node') ) {
 		if (cust_col && cust_col[val]){
 			this.category_colours[val]=cust_col[val];
 			colour_count++;
