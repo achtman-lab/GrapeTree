@@ -361,13 +361,18 @@ D3MSTree.prototype._start= function(callback,layout_data){
                 return it.source.id + "-" + it.target.id;
         }).attr('class', "link mst-element");
         
-        link_enter.append('line').call(this.force_drag)
-        .on("click",function(d){
-                 for (var i in self.link_clicked_listeners){
-                        self.link_clicked_listeners[i](d);    
+        link_enter.call(this.force_drag)
+        .on('mouseup', function(it){
+                if (!self.is_dragging){
+                        var ids = self._getIDsForNode(it.target.id);
+                        for (var i in self.node_clicked_listeners){
+                                self.node_clicked_listeners[i](it,ids)
+                        }
                 }
+                self.is_dragging=false;
         })
-        .on("mouseover",function(d){
+        link_enter.append('line').style('opacity', '0.0').style('stroke-width', 10);
+        link_enter.append('line').on("mouseover",function(d){
                 for (var i in self.link_over_listeners){
                         self.link_over_listeners[i](d);    
                 }
@@ -376,16 +381,7 @@ D3MSTree.prototype._start= function(callback,layout_data){
                  for (var i in self.link_out_listeners){
                         self.link_out_listeners[i](d);       
                 }
-        }).on('mouseup', function(it){
-                if (!self.is_dragging){
-                        var ids = self._getIDsForNode(it.target.id);
-                        for (var i in self.node_clicked_listeners){
-                                self.node_clicked_listeners[i](it,ids)
-                        }
-                }
-                self.is_dragging=false;
-        });
-        
+        }) ;
 
         this.node_elements = this.canvas.selectAll('.node').data(this.force_nodes, function(it){
                 return it.id;
