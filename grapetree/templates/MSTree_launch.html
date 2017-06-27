@@ -412,6 +412,13 @@
 			$("#replace-div").toggle(150).css("top",yy).css("left",xx).css("position","fixed").show();
 		});
 	
+		grid.onCellChange.subscribe(function (e, args) {
+			if (args.cell == 0) {
+			} else {
+				
+			}
+		});
+
 	function updateMetadataTable(select_moveUp) {
 		if (! the_tree) {
 			return;

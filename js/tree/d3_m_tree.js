@@ -499,6 +499,24 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                         }
                 }
         }
+        var to_collapse = {};
+        if (this.manual_collapsing && this.manual_collapsing.length > 0) {
+                for (var id in this.manual_collapsing) {
+                        to_collapse[this.manual_collapsing[id]] = 1;
+                }
+
+                var collapsed = 1;
+                while (collapsed) {
+                        collapsed = 0;
+                        for(var jd in this.force_links) {
+                                var link = this.force_links[jd];
+                                if (to_collapse[link.source.id] && ! to_collapse[link.target.id]) {
+                                        to_collapse[link.target.id] = 1;
+                                        collapsed = 1;
+                                }
+                        }
+                }
+        }
 
         for (index in this.force_links){
                 var link = this.force_links[index];
@@ -513,22 +531,24 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         var skipped_links = [];
         for (var index=0; index < this.force_links.length + 1; index ++) {
                 var l = this.force_links[index];
-                if (l && l.value > link_len[index]) {
-                        if (l.value <= max_distance) {
-                                skipped_links.push(l);
-                        }
-                        continue;
-                } else {
-                        if (skipped_links.length > 0) {
-                                skipped_links.sort(function(l1, l2) {return l1.value-l2.value;});
-                                if(!l || l.value > skipped_links[0].value) {
-                                        index -= 1;
-                                        l = skipped_links[0];
-                                        skipped_links.splice(0, 1);
+                if ( !l || !to_collapse[l.source.id]) {
+                        if (l && l.value > link_len[index]) {
+                                if (l.value <= max_distance) {
+                                        skipped_links.push(l);
+                                }
+                                continue;
+                        } else {
+                                if (skipped_links.length > 0) {
+                                        skipped_links.sort(function(l1, l2) {return l1.value-l2.value;});
+                                        if(!l || l.value > skipped_links[0].value) {
+                                                index -= 1;
+                                                l = skipped_links[0];
+                                                skipped_links.splice(0, 1);
+                                        }
                                 }
                         }
                 }
-                if (!l || l.value > max_distance) continue;
+                if (!l || (l.value > max_distance && ! to_collapse[l.source.id])) continue;
                 l.remove=l.target.remove=true;
 
                 if (!l.source.hypothetical) {
@@ -2061,19 +2081,15 @@ D3MSTree.prototype.brushEnded=function(extent){
                 this.clearSelection();
                 return;
         }
-        this.node_elements.filter(function(d){
-                var selected =(extent[0][0] <= d.x && d.x < extent[1][0] && extent[0][1] <= d.y && d.y < extent[1][1]);
-                if (selected){
-                        d.selected=true;
-                }
-                return selected;
-        }).classed("selected","true");
+        var selected_nodes = this.node_elements.filter(function(d){return (extent[0][0] <= d.x && d.x < extent[1][0] && extent[0][1] <= d.y && d.y < extent[1][1])});
+        var not_in_selection = selected_nodes.filter(function(d) {return (! d.selected)});
+        if (not_in_selection[0].length > 0) {
+                not_in_selection.filter(function(d) {d.selected=true});
+        } else {
+                selected_nodes.filter(function(d) {delete d.selected; delete node.halo_colour; delete node.halo_thickness});
+        }
      
        this._addHalos(function(d){return d.selected},5,"red");
-	   if (! this.not_first_selection) {
-			$('#metadata-div').show(300);
-			this.not_first_selection = true;
-		}
 		setTimeout(function(){updateMetadataTable(true);}, 400);
 	   ;
 }
