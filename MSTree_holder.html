@@ -213,9 +213,6 @@
 			}
 		});
 
-		
-		$('#colprop-div').hide();
-	
 		// metadata div events
 		$('#metadata-div').draggable({handle:$('#handler')}).resizable().resize(function(){
 			var h=$('#metadata-div').height();
@@ -225,8 +222,8 @@
 		.click(function(e){
 			$('#replace-div').css("opacity",0.8).width(30).hide();
 		})
-		//.hide();
-		$('#metadata-div').show(300);
+		.hide();
+		//.show(300);
 		
 		$('#metadata-close').click(function(e){
 			$('#metadata-div').hide(300);
