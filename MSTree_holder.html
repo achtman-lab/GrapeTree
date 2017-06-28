@@ -185,14 +185,23 @@
 		$("#replace-confirm").click(function(e) {
 			var val = $("#replace-tag").val();
 			columns = grid.getColumns();
-			for (var id=mouse_pos[0]; id <= mouse_pos[2]; id ++) {
-				d = dataView.getItem(id);
-				for (var jd=mouse_pos[1]; jd <= mouse_pos[3]; jd ++) {
-					var col = columns[jd].field;
-					if (col != '__Node' && col != 'ID' && col != 'id') {
-						d[col] = val;
-					}
+			var col = columns[mouse_pos[3]].field;
+			if (col == '__selected') {
+				var update_selection = {};
+				for (var id=mouse_pos[0]; id <= mouse_pos[2]; id ++) {
+					d = dataView.getItem(id);
+					d[col] = (val && val != 'F' && val != 'f' && val != 'false') ? true : false;
+					update_selection[d.__Node] = d[col];
 				}
+				the_tree.force_nodes.filter(function(n) {if(update_selection[n.id] !== undefined) {n.selected=update_selection[n.id]}});
+				the_tree.clearSelection(true);
+				the_tree._addHalos(function(d){return d.selected},5,"red");
+			} else if (col != '__Node' && col != 'ID' && col != 'id') {
+				for (var id=mouse_pos[0]; id <= mouse_pos[2]; id ++) {
+					d = dataView.getItem(id);
+					d[col] = val;
+				}
+				the_tree.changeCategory($("#metadata-select").val());
 			}
 			$("#replace-div").css("opacity",0.8).width(30).hide();
 			grid.invalidate();
@@ -414,8 +423,12 @@
 	
 		grid.onCellChange.subscribe(function (e, args) {
 			if (args.cell == 0) {
+				var d = args.item;
+				the_tree.force_nodes.filter(function(n){if(n.id == d.__Node) {n.selected=d.__selected}});
+				the_tree.clearSelection(true);
+				the_tree._addHalos(function(d){return d.selected},5,"red");
 			} else {
-				
+				the_tree.changeCategory($("#metadata-select").val());
 			}
 		});
 

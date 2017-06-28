@@ -1371,15 +1371,16 @@ D3MSTree.prototype.setLogLinkScale=function(log){
 		this.refreshGraph();
 }
 
-D3MSTree.prototype.clearSelection= function(){ 
-	for (var i in this.force_nodes) {
-			var node = this.force_nodes[i];
-			node.selected = false;
-			delete node.halo_colour;
-			delete node.halo_thickness
+D3MSTree.prototype.clearSelection= function(pervasive){ 
+    if (! pervasive) {
+           this.force_nodes.filter(function(node){node.selected=false; delete node.halo_thickness; delete node.halo_colour;});
+           this.node_elements.classed('selected', false);
+	       this.node_elements.selectAll(".halo").remove();
+	} else {
+	        this.node_elements.filter(function(node){return ! node.selected})
+	        .filter(function(node){delete node.halo_thickness; delete node.halo_colour;return true;})
+	        .classed('selected', false).selectAll('.halo').remove();
 	}
-	this.node_elements.classed('selected', false);
-	this.node_elements.selectAll(".halo").remove();
 	updateMetadataTable();
 };
 
@@ -1625,7 +1626,6 @@ D3MSTree.prototype._correctLinkLengths= function(it){
 
 D3MSTree.prototype._addHalos= function (filter_function,thickness,colour){
         var self = this;
-        
         var halos = self.node_elements.filter(filter_function)
                 .append("path")
                 .attr("class","halo")
