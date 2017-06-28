@@ -47,7 +47,6 @@ def open_browser(PORT):
 
 
 def install_static():
-    return
     shutil.copyfile('MSTree_holder.html',
                     'grapetree/templates/MSTree_launch.html')
 
