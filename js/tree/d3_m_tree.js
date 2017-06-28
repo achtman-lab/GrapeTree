@@ -1270,8 +1270,8 @@ D3MSTree.prototype._getLink=function(target_node){
         for (var index in this.force_links){
                 if (this.force_links[index].target.id === target_node.id){
                         return this.force_links[index];
-                }		
-        }	
+                }
+        }
 }
 
 

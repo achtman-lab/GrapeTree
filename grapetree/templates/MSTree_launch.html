@@ -1028,7 +1028,8 @@ window.onload = function (){
         
        
         $("#mst-download-svg").click(function(e){
-                the_tree.downloadSVG(tree_name);
+                var svg = the_tree.getSVG();
+		saveTextAsFile(svg,"MSTree.svg");
         });
         
         

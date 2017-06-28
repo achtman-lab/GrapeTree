@@ -1356,6 +1356,29 @@ D3BaseTree.prototype.downloadSVG=function(name){
 	
 };
 
+D3BaseTree.prototype.getSVG=function(){
+	//attach legend to svg
+	this.legend_div.show();
+	var x = (this.width - 180);
+	var leg = $(".legend");
+	$("#mst-svg").append(leg);
+	leg.attr("transform","translate("+x+",5)");
+	var svgData = $("#mst-svg")[0].outerHTML;
+	var svgData = ['<svg xmlns="http://www.w3.org/2000/svg" ', svgData.substring(5,9999999)].join('');
+	$("#legend-div").append(leg);
+	this.showLegend(this.show_legend);
+	return svgData;
+	
+};
+
+
+
+
+
+
+
+
+
 D3BaseTree.prototype.keyPressed= function(e){};
 D3BaseTree.prototype.brushStarted = function(){};
 D3BaseTree.prototype.brushing= function(extent){};
