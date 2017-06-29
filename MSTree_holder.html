@@ -48,16 +48,6 @@
                 .slider-class .ui-slider-handle {
                         height:12px;
                 }
-				.shortslider-class{
-                        float: left;
-                        clear: left;
-                        width: 60px;
-                        height:5px;
-                        margin: 5px;
-                }
-                .shortslider-class .ui-slider-handle {
-                        height:12px;
-                }
 
                 .mst-menu-title {
 
@@ -144,7 +134,7 @@
 }
 
 </style>
-<div id = 'metadata-div' style='width:600px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1'>
+<div id = 'metadata-div' style='width:600px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1;display:none'>
 	<div id='handler' style="background-color:#f1f1f1;width:100%;height:20px;border-radius:5px;border: 0px solid #b0f2f2;">
 		<span title='Close The Window' id = 'metadata-close' class='glyphicon glyphicon-remove show-tooltip'style='top:-6px;float:right;margin-right:10px'></span>
 		<span title='Download This Table' id = 'metadata-download' class='glyphicon glyphicon-download show-tooltip'></span>&nbsp;&nbsp;
@@ -166,6 +156,7 @@
 <script src="static/js/SlickGrid/lib/jquery-ui-1.11.3.min.js"></script>
 <script src="static/js/SlickGrid/lib/jquery.event.drag-2.3.0.js"></script>
 
+
 <script src="static/js/SlickGrid/slick.core.js"></script>
 <script src="static/js/SlickGrid/plugins/slick.cellrangedecorator.js"></script>
 <script src="static/js/SlickGrid/plugins/slick.cellrangeselector.js"></script>
@@ -174,7 +165,12 @@
 <script src="static/js/SlickGrid/slick.editors.js"></script>
 <script src="static/js/SlickGrid/slick.grid.js"></script>
 <script src="static/js/SlickGrid/slick.dataview.js"></script>
+
 <script src= "static/js/tree/context.js"></script>
+
+<script src='static/js/tree/grid.js'></script>
+		
+
 
 <!--information divs-->
 <div id = 'welcome-div'>
@@ -298,24 +294,24 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<br><br>
 			<div>
 				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Branch Length (%)</label><br>
-				<div id = "slider-linklength" class ="shortslider-class">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
+				<div id = "slider-linklength" class ="slider-class" style="width:60px">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Collapse branches below a certain value">
 				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Collapse Branches</label><br>
-				<div id = "slider-collapse-nodes" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
+				<div id = "slider-collapse-nodes" class ="slider-class" style="width:60px"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
 			</div>
 			<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
 			<br>
 			<hr>
 			<div >
 				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Node Size (%)</label><br>
-				<div id = "slider-nodesize" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
+				<div id = "slider-nodesize" class ="slider-class" style="width:60px"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Node size relative to number of strains">
 				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Node scaling (%)</label><br>
-				<div id = "slider-relative-nodesize" class = "shortslider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
+				<div id = "slider-relative-nodesize" class ="slider-class" style="width:60px"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
 			</div>
 			<br>
 			<button id = 'button-refresh'> Static Redraw </button>
@@ -421,9 +417,11 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 
 <div id = "graph-div" class="graph-overlay"></div>
 
-<script src ="static/js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
+
+
 <script src ="static/js/main/bootstrap.min.js"></script>
 <script charset="utf-8" src="/static/js/main/enterobase.js?version={{js_version}}"></script>
+<script src ="static/js/main/bootstrap.min.js"></script>
 <script charset="utf-8" src="static/js/main/d3.min.js"></script>
 <script charset="utf-8" src="static/js/main/spin.min.js"></script>
 <script charset="utf-8" src="static/js/tree/base_tree.js"></script>
@@ -542,7 +540,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		var arr = name.split(".");
 		return arr[arr.length-1];
 	}
-
+	var var1 = parseInt("{{dhdhdhdh}}");
         var all_files=null;
 	var metatdata_file_name;
         var waiting_spinner= null;
@@ -726,7 +724,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 }
 		$(waiting_spinner.el).hide();
                  $("#waiting-information").text("Complete. Tree has "+tree.force_nodes.length+" nodes");
-                 $("#waiting-image").attr("src","js/img/ms_complete_1.png").show();
+                 $("#waiting-image").attr("src","static/js/img/ms_complete_1.png").show();
                // legend_colour_chooser.hide();
 		$("#information-div").modal("hide");
 
@@ -1200,7 +1198,8 @@ window.onload = function (){
 
 
         $("#mst-download-svg").click(function(e){
-                the_tree.downloadSVG(tree_name);
+                var svg = the_tree.getSVG();
+		saveTextAsFile(svg,"MSTree.svg");
         });
 
 
@@ -1247,7 +1246,7 @@ window.onload = function (){
 			value: 100,
 			step: 1,
 		});
-		$(".shortslider-class, .slider-class").slider({
+		$(".slider-class").slider({
 			slide: function(e) {
 				$(this).trigger('change');
 			},
@@ -1433,35 +1432,24 @@ window.onload = function (){
 
 
 
-         $( "#slider-collapse-nodes" ).slider({
+         $( "#slider-collapse-nodes" ).on("change", function(e) {
+				var val = Math.exp($(this).slider('value')/1000);
+                $("#spinner-collapse-nodes").spinner('value', val);
+		 })
+		 .slider({
                 orientation: "horizontal",
                 min:0,
                 max: 100,
                 value: 0,
-                slide:function(){
-								var val = Math.exp($(this).slider('value')/1000);
-                                $("#spinner-collapse-nodes").spinner('value', val);
-                        },
-                change: function(e){
-                        if (e.originalEvent){
-                               var val = Math.exp($(this).slider('value')/1000);
-                               $("#spinner-collapse-nodes").spinner('value', val);
-                        }
-                }
         });
-		$( "#spinner-collapse-nodes" ).spinner({
+		$( "#spinner-collapse-nodes" ).on("change", function(e) {
+			var v = parseFloat($(this).spinner('value'));
+			$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
+			the_tree.collapseNodes(v);
+		 })
+		 .spinner({
                 min:0,
-                value: 0,
-                spin:function(){
-							var v = parseFloat($(this).spinner('value'));
-							$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
-							the_tree.collapseNodes(v);
-                        },
-                change: function(e){
-						var v = parseFloat($(this).spinner('value'));
-						$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
-						the_tree.collapseNodes(v);
-                }
+                value: 0
         });
 
 
@@ -1560,5 +1548,6 @@ function try_backend(){
    }
  };
 </script>
+<script src="static/js/tree/context.js"></script>
 </body>
 </html>
