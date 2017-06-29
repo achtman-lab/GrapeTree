@@ -982,14 +982,7 @@ D3BaseTree.prototype.resize=function(){
 	this.background_rect.attr('height', this.height).attr('width', this.width);
 	
 	var l_height = $("#legend-svg").height();
-	var height = this.height;
-	if (l_height<this.height){
-		height = l_height+5;
-	}
-	else{
-		height=height-5;
-	}
-	
+	var height = l_height + 10;
 	this.legend_div.css({"top":"0px","right":"0px","max-height":height+"px"});
 	this.legend_div.height(height);
 }
@@ -1050,18 +1043,18 @@ D3BaseTree.prototype._changeCategory=function(category){
 		if (category == 'nothing') {
 			this.category_colours[val]=this.default_colour;
 			continue
+		}
+		if (colour_count >=len) {
+			this.category_colours[val]=this.default_colour; 		
+			continue;
 		} //		|| val.startsWith('_hypo_node') ) {
 		if (cust_col && cust_col[val]){
 			this.category_colours[val]=cust_col[val];
 			colour_count++;
 			continue;
-		}	
-		if (colour_count<len){
+		} else {
 			this.category_colours[val]=this.legend_colours[colour_count];
 			colour_count++;
-		}
-		else{
-			this.category_colours[val]=this.default_colour; 		
 		}
 	}
 	//this.category_colours["Others"] = this.default_colour;
@@ -1220,14 +1213,7 @@ D3BaseTree.prototype.updateLegend = function(title){
 	legend_svg.attr('width', 180).attr('height', legend_dim.height + 10);
 	this.legend_div.width(180);
 	var l_height = $("#legend-svg").height();
-	var height = this.height;
-	if (l_height<this.height){
-		height = l_height+5;
-	}
-	else{
-		height=height-5;
-	}
-	
+	var height = l_height+10;
 	this.legend_div.css({"top":"0px","right":"0px","max-height":height+"px"});
 	this.legend_div.height(height);
 };
