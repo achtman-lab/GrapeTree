@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright Martin Sergeant, Nabil-Fareed Alikhan, Zhemin Zhou (2017)
+# Copyright Zhemin Zhou, Martin Sergeant, Nabil-Fareed Alikhan & Mark Achtman (2017)
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
@@ -25,12 +25,12 @@ from flask import Flask
 from grapetree import app
 import shutil
 import traceback
-import time
+import time	
 import argparse
 import os
 
 __licence__ = 'GPLv3'
-__author__ = 'Martin Sergeant, Nabil-Fareed Alikhan & Zhemin Zhou'
+__author__ = 'Zhemin Zhou, Martin Sergeant, Nabil-Fareed Alikhan & Mark Achtman'
 __author_email__ = ' M.J.Sergeant@warwick.ac.uk'
 __version__ = '0.0.1'
 

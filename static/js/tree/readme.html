@@ -1,0 +1,41 @@
+<H1> D3MSTree (GrapeTree) <H1>
+
+<H3>For the Impatient </H3>
+<pre>
+<xmp>
+<html>
+	<script src="js/main/jquery-1.9.1.min.js"></script>
+	<script charset="utf-8" src="js/main/d3.min.js"></script>
+	<script charset="utf-8" src="js/tree/base_tree.js"></script>
+	<script charset="utf-8" src="js/tree/d3_m_tree.js"></script>
+
+	<div id ='tree-holder' style='height:300px;width:400px;border-style:solid'></div>
+
+	<script>
+		var data = {
+   			"nodes":["nodeA","nodeB","nodeC","nodeD"],
+    			"links":[
+                		{source:0,target:1,distance:5},
+                 	{source:0,target:2,distance:3},
+                		{source:0,target:3,distance:2}
+            		]
+
+		};   
+		var tree = new D3MSTree("tree-holder",data);
+		tree.centerGraph();
+		tree.setNodeSize(20);
+		tree.setLinkLength(200);
+		tree.showLinkLabels(true);
+		tree.addMetadata({
+        		nodeA:{"colour":"blue"},
+        		nodeB:{"colour":"red"}
+		});
+		tree.changeCategory("colour");
+		tree.addNodeClickedListener(function(node){
+   			 alert("you clicked "+node.id);  
+		});
+
+	</script>
+</html>
+</xmp>
+</pre>
