@@ -209,13 +209,23 @@
 			  var prop = cols[i].sortCol.prop;
 			  var sign = cols[i].sortAsc ? 1 : -1;
 			  if (prop.coltype == 'numeric') {
-				var value1 = (! isNaN(dataRow1[field])) ? parseFloat(dataRow1[field]) : dataRow1[field];
-				var value2 = (! isNaN(dataRow2[field])) ? parseFloat(dataRow2[field]) : dataRow2[field];
+				var value1, t1; 
+				if (isNumber(dataRow1[field])) {
+					value1 = parseFloat(dataRow1[field]), t1=0;
+				} else {
+					value1 = dataRow1[field], t1 = 1;
+				}
+				var value2, t2; 
+				if (isNumber(dataRow2[field])) {
+					value2 = parseFloat(dataRow2[field]), t2=0;
+				} else {
+					value2 = dataRow2[field], t2 = 1;
+				}
 			  } else {
-				var value1 = dataRow1[field];
-				var value2 = dataRow2[field];
+				var value1 = dataRow1[field], t1=1;
+				var value2 = dataRow2[field], t2=1;
 			  }
-			  var result = (value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign;
+			  var result = t1 == t2 ? ((value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign) : (t1-t2)*sign;
 			  if (result != 0) {
 				return result;
 			  }

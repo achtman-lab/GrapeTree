@@ -1044,17 +1044,19 @@ D3BaseTree.prototype._changeCategory=function(category){
 
 	cat_count_list=[]
 	for (var val in cat_count){
-		if (coltype != 'character' && parseFloat(val)) {
+		if (coltype != 'character' && isNumber(val)) {
 			val = parseFloat(val);
+			cat_count_list.push([val,cat_count[val], '', 0]);
+		} else {
+			cat_count_list.push([val,cat_count[val], '', 1]);
 		}
-		cat_count_list.push([val,cat_count[val], '']);
 		
 	}
 	cat_count_list.sort(function(a,b){
 		if (grouptype != 'size') {
-			return a[0]>=b[0] ? 1 : -1;
+			return (a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3];
 		} else {
-			return (a[1] == b[1]) ? (a[0]>=b[0]?1:-1) : (a[1]<b[1]?1:-1);
+			return (a[1] == b[1]) ? ((a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3]) : (a[1]<b[1]?1:-1);
 		}
 	});
 	var len = Math.min(this.legend_colours.length, this.category_num, cat_count_list.length);

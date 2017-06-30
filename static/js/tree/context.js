@@ -25,17 +25,17 @@ var context_html = "<div id='context-menu' style='display:none;position:fixed;wi
 			<div class='context-option' id='change-category'>Set as figure legend</div> \
 			<hr class='context-hr'> \
 			<label> Data Category</label> \
-			<select style='margin-left:30px;margin-bottom:10px' class='context-select' id='coltype'> \
+			<select style='margin-left:30px;margin-bottom:10px' class='context-select coltype'> \
 				<option value='character'>Character</option> \
 				<option value='numeric'>Numeric</option> \
 			</select> \
 			<label> Group Order</label> \
-			<select style='margin-left:30px;margin-bottom:10px' class='context-select' id='grouptype'> \
+			<select style='margin-left:30px;margin-bottom:10px' class='context-select grouptype'> \
 				<option value='size'>Size Desc</option> \
-				<option value='alphabetic'>Label Asc</option> \
+				<option value='alphabetic'>Alphabetic</option> \
 			</select> \
 			<label> Color Scheme</label> \
-			<select style='margin-left:30px;margin-bottom:10px' class='context-select' id='colorscheme'> \
+			<select style='margin-left:30px;margin-bottom:10px' class='context-select colorscheme'> \
 				<option value='category'>Category</option> \
 				<option value='gradient'>Gradient</option> \
 			</select> \
@@ -48,17 +48,17 @@ var context_html = "<div id='context-menu' style='display:none;position:fixed;wi
 		<center><input id='group-num-input' type='text' class='spin-group context-input' style='width:39px;height:15px' ></input></center> \
 		<hr class='context-hr'> \
 		<label> Data Category</label> \
-		<select style='margin-left:30px;margin-bottom:10px' class='context-select' id='coltype'> \
+		<select style='margin-left:30px;margin-bottom:10px' class='context-select coltype'> \
 			<option value='character'>Character</option> \
 			<option value='numeric'>Numeric</option> \
 		</select> \
 		<label> Group Order</label> \
-		<select style='margin-left:30px;margin-bottom:10px' class='context-select' id='grouptype'> \
+		<select style='margin-left:30px;margin-bottom:10px' class='context-select grouptype'> \
 			<option value='size'>Size Desc</option> \
-			<option value='alphabetic'>Label Asc</option> \
+			<option value='alphabetic'>Alphabetic</option> \
 		</select> \
 		<label> Color Scheme</label> \
-		<select style='margin-left:30px;margin-bottom:10px' class='context-select' id='colorscheme'> \
+		<select style='margin-left:30px;margin-bottom:10px' class='context-select colorscheme'> \
 			<option value='category'>Category</option> \
 			<option value='gradient'>Gradient</option> \
 		</select> \
@@ -103,9 +103,9 @@ function trigger_context(target, e) {
 			if (! the_tree.metadata_info[category]) {
 				the_tree.metadata_info[category] = {coltype : 'character', grouptype : 'size', colorscheme : 'category'};
 			}
-			$("#coltype").val(the_tree.metadata_info[category].coltype);
-			$("#grouptype").val(the_tree.metadata_info[category].grouptype);
-			$("#colorscheme").val(the_tree.metadata_info[category].colorscheme);
+			$(".coltype").val(the_tree.metadata_info[category].coltype);
+			$(".grouptype").val(the_tree.metadata_info[category].grouptype);
+			$(".colorscheme").val(the_tree.metadata_info[category].colorscheme);
 		}
 
 		$("#group-num-input").spinner("value", the_tree.category_num);
@@ -119,9 +119,9 @@ function trigger_context(target, e) {
 		if (! the_tree.metadata_info[colname]) {
 			$("#hover-col").hide();
 		} else {
-			$("#coltype").val(the_tree.metadata_info[colname].coltype);
-			$("#grouptype").val(the_tree.metadata_info[colname].grouptype);
-			$("#colorscheme").val(the_tree.metadata_info[colname].colorscheme);
+			$(".coltype").val(the_tree.metadata_info[colname].coltype);
+			$(".grouptype").val(the_tree.metadata_info[colname].grouptype);
+			$(".colorscheme").val(the_tree.metadata_info[colname].colorscheme);
 
 			$("#hover-col #hover-colname").text(colname);
 			$("#hover-col").show();
@@ -154,7 +154,7 @@ $(".context-option").on("mouseenter",function(e) {
 });
 
 $(document).on("mousedown", function(e) {
-	if ( ! e.target.closest("#context-menu")) {
+	if ( ! e.target.closest || ! e.target.closest("#context-menu")) {
 		$("#context-menu").hide();
 	}
 });
@@ -167,10 +167,10 @@ $("#context-menu").click(function(e) {
 
 $(".context-select").click(function(e) {
 	e.stopPropagation();
-});
-$(".context-select").change(function(e) {
+})
+.change(function(e) {
 	var category = (e.target.closest( ('#hover-col'))) ? $("#hover-colname").text() : the_tree.display_category;
-	var tochange = $(this).context.id;
+	var tochange = $(this).attr('class').split(' ')[1];
 	var value = $(this).val();
 	the_tree.metadata_info[category][tochange] = value;
 	if (category == the_tree.display_category) {
