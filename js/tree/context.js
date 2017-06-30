@@ -111,6 +111,7 @@ $("#collapse_node").click(function(e) {
 	var selected_nodes = the_tree.force_nodes.filter(function(d){return d.selected});
 	for (var id in selected_nodes) {
 		var node_id1 = selected_nodes[id].id;
+		the_tree.manual_collapsing[node_id1] = 1;
 		for (var jd in the_tree.grouped_nodes[node_id1]) {
 			var node_id = the_tree.grouped_nodes[node_id1][jd];
 			the_tree.manual_collapsing[node_id] = 1;
@@ -127,6 +128,7 @@ $("#uncollapse_node").click(function(e) {
 	var selected_nodes = the_tree.force_nodes.filter(function(d){return d.selected});
 	for (var id in selected_nodes) {
 		var node_id1 = selected_nodes[id].id;
+		delete the_tree.manual_collapsing[node_id1];
 		for (var jd in the_tree.grouped_nodes[node_id1]) {
 			var node_id = the_tree.grouped_nodes[node_id1][jd];
 			delete the_tree.manual_collapsing[node_id];
