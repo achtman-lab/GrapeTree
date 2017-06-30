@@ -939,6 +939,7 @@ D3BaseTree.prototype.addMetadata=function(metadata){
 			}
 			//the  node my change if collapsed
 			metadata[id]["__Node"]=node_id;
+			metadata[id]["__strain_id"]=id;
 			var list = this.metadata_map[node_id];
 			if (!list){
 				list=[];

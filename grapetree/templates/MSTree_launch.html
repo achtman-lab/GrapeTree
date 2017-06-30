@@ -165,8 +165,12 @@
 <script src="static/js/SlickGrid/slick.editors.js"></script>
 <script src="static/js/SlickGrid/slick.grid.js"></script>
 <script src="static/js/SlickGrid/slick.dataview.js"></script>
+
+<script src= "static/js/tree/context.js"></script>
+
 <script src='static/js/tree/grid.js'></script>
 		
+
 
 <!--information divs-->
 <div id = 'welcome-div'>
@@ -414,14 +418,14 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 <div id = "graph-div" class="graph-overlay"></div>
 
 
-<script src="static/js/main/jquery-1.9.1.min.js"></script>
-<script src ="static/js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
+
+<script src ="static/js/main/bootstrap.min.js"></script>
+<script charset="utf-8" src="/static/js/main/enterobase.js?version={{js_version}}"></script>
 <script src ="static/js/main/bootstrap.min.js"></script>
 <script charset="utf-8" src="static/js/main/d3.min.js"></script>
 <script charset="utf-8" src="static/js/main/spin.min.js"></script>
 <script charset="utf-8" src="static/js/tree/base_tree.js"></script>
 <script charset="utf-8" src="static/js/tree/d3_m_tree.js"></script>
-
 
 <script>
      function showhide(id) {
@@ -451,7 +455,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 this.callback=callback;
                 this.fileInput.trigger("click");
         }
-
+	function displayErrorMessage(msg){
+		Enterobase.modalAlert(msg);
+	}
 
         function MSCSCReader(file,delimiter,callback){
                 var reader = new FileReader();
@@ -580,12 +586,16 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
         $("body").append(legend_colour_chooser);
 
         //a map of group to another map of name to label
-        var metadata_options={};
-        var new_metadata_fields=[];
-
-        var locus_label ="";
-        var file_chooser = new MSFileChooser(".nwk");
-        var current_metadata_file = null;
+	var metadata_options={};
+	var new_metadata_fields=[];
+	var tree_name="{{tree_name}}";
+	var database = "{{database}}"
+	var tree_id = parseInt("{{tree_id}}");
+	var db_code="{{db_code}}"
+	var wg_scheme = "{{wg_scheme}}"
+	var locus_label ="";
+	var file_chooser = new MSFileChooser(".nwk");
+	var current_metadata_file = null;
 	var all_files=null;
 	var metadata_file_name = null;
 
@@ -640,6 +650,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         .duration(500)
                         .style("opacity", 0);
         }
+	
 
         function addNewValues(){
                 var value = $("#add-new-values-input").val();
@@ -1041,6 +1052,90 @@ tree_raw = {};
 		updateMetadataTable();
 	});
  };
+ 
+  function getRemoteData(){
+	Enterobase.call_restful_json("/get_ms_tree_data?id="+tree_id,"GET","",displayErrorMessage).done(function(data){
+		if (data['waiting']){
+			setTimeout(function(){
+				getMSTreeData();
+			},10000);
+				
+		}
+		else if (data['failed']){
+			waitingDialog.setMessage("The tree has failed, please contact an administrator");
+			if (grid_window){
+				grid_window.mst_alert.dialog("close");
+			}
+		}
+		else{
+			
+			loadMSTree(processEnteroData(data));
+			if (grid_window){
+				     grid_window.mst_alert.dialog("close");
+				}
+			}     
+		});      
+}
+
+function processEnteroData(data){
+	  
+		/*identifiers are  a list of STs, each list item contains a list of STs 
+		* (usually only one long)
+		* However multiple STs are possible due to missing data
+		*/
+	var identities=data['data']['identifiers'];
+		
+	var md = {}
+		//ST (The master ST) to strain ids
+      
+   
+	var ST_map={};
+	var ST_to_list={}
+	var identifiers = [];
+	for (var i in identities){
+		var list = identities[i];
+		if (list.length ===0){
+			identifiers.push("hypothetical_node")       
+		}
+		else{
+			for (var n in list){
+				if (ST_map[list[n]]){
+					console.log("Same ST occurring twice:"+list[n]);
+					continue;
+				}
+				ST_map[list[n]]=list[0];
+			}
+			identifiers.push(list[0]);
+			ST_to_list[list[0]]=list;
+		}
+	}
+	
+	//convert list into dictionary 
+	var isolates = data['data']['isolates'];
+	for (var i in isolates){
+		var isolate = isolates[i];
+		var node_id  = ST_map[isolate.ID]
+		if (!node_id){
+			continue;
+		}
+		isolate['ID']=node_id;
+		md[isolate.StrainID]=isolate;     
+	}
+	
+	
+	return {
+		initial_category:data['data']['current_metadata'],
+		layout_data:data['data']['layout'],
+		links:data['data']['links'],
+		metadata:md,
+		metadata_options:data['data']['metadata_options']['Metadata'],
+		nodes:identifiers,
+		layout_algorithm:"force"
+	}
+	
+	
+
+}
 
 
 
@@ -1430,6 +1525,11 @@ window.onload = function (){
 			return confirmationMessage;
 		}
 	});
+	if (!isNaN(tree_id)){
+		initiateLoading("Waiting");
+		getRemoteData();
+	}
+	
 };
 
 function try_backend(){

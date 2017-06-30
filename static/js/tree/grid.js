@@ -286,7 +286,7 @@
 		source_data.length = 0;
 		for (var id in the_tree.metadata) {
 			var d = the_tree.metadata[id];
-			if (the_tree.node_map[id] && (!the_tree.node_map[id].hypothetical || $('#hypo-filter').is(':checked') )) {
+			if (the_tree.node_map[d.__Node] && (!the_tree.node_map[d.__Node].hypothetical || $('#hypo-filter').is(':checked') )) {
 				d.__selected = the_tree.node_map[d.__Node].selected;
 				source_data.push(d);
 			}
