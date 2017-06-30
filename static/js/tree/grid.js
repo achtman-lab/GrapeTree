@@ -117,7 +117,7 @@
 		var default_columns = [
 			{id: "Selected", name: "Selected", field: "__selected", width: 100, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'binary', group_num:30, group_order:'occurence'}},
 			{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}},
-			{id: "ID", name: "ID", field: "ID", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'numeric', group_num:30, group_order:'standard'}},
+			{id: "ID", name: "ID", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'numeric', group_num:30, group_order:'standard'}},
 			{id: "Node", name: "Node", field: "__Node", 
 				width:100, sortable: true, prop:{category:'character', group_num:30, group_order:'occurence'}},
 		];
@@ -150,7 +150,7 @@
 			return true;
 		}
 
-		source_data = [{id:0,"ID":"12312", "__Node":"20", "__selected":false},{id:1,"ID":"1312", "__Node":"22", "__selected":true}];
+		source_data = [{id:0,"__strain_id":"12312", "__Node":"20", "__selected":false},{id:1,"_strain_id":"1312", "__Node":"22", "__selected":true}];
 		for (var index in source_data) {
 			source_data[index].id = parseInt(index)+1;
 		}
@@ -285,8 +285,8 @@
 
 		source_data.length = 0;
 		for (var id in the_tree.metadata) {
-			if (the_tree.node_map[id] && (!the_tree.node_map[id].hypothetical || $('#hypo-filter').is(':checked') )) {
-				var d = the_tree.metadata[id];
+			var d = the_tree.metadata[id];
+			if (the_tree.node_map[d.__Node] && (!the_tree.node_map[d.__Node].hypothetical || $('#hypo-filter').is(':checked') )) {
 				d.__selected = the_tree.node_map[d.__Node].selected;
 				source_data.push(d);
 			}

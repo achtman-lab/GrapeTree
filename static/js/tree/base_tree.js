@@ -933,7 +933,13 @@ D3BaseTree.prototype.addMetadata=function(metadata){
 		if (!item){
 			if (! node_id){
 				node_id=id;
+
+				metadata[id]['ID']=node_id;
+
 			}
+			//the  node my change if collapsed
+			metadata[id]["__Node"]=node_id;
+			metadata[id]["__strain_id"]=id;
 			var list = this.metadata_map[node_id];
 			if (!list){
 				list=[];
@@ -1043,19 +1049,22 @@ D3BaseTree.prototype._changeCategory=function(category){
 		if (category == 'nothing') {
 			this.category_colours[val]=this.default_colour;
 			continue
+
 		}
 		if (colour_count >=len) {
 			this.category_colours[val]=this.default_colour; 		
 			continue;
+
 		} //		|| val.startsWith('_hypo_node') ) {
 		if (cust_col && cust_col[val]){
 			this.category_colours[val]=cust_col[val];
 			colour_count++;
-			continue;
+			continue;	
 		} else {
 			this.category_colours[val]=this.legend_colours[colour_count];
 			colour_count++;
 		}
+
 	}
 	//this.category_colours["Others"] = this.default_colour;
 	this.updateLegend(category);
@@ -1339,6 +1348,30 @@ D3BaseTree.prototype.downloadSVG=function(name){
 	this.showLegend(this.show_legend);
 	
 };
+
+D3BaseTree.prototype.getSVG=function(){
+	//attach legend to svg
+	this.legend_div.show();
+	var x = (this.width - 180);
+	var leg = $(".legend");
+	$("#mst-svg").append(leg);
+	leg.attr("transform","translate("+x+",5)");
+	var svgData = $("#mst-svg")[0].outerHTML;
+	var svgData = ['<svg xmlns="http://www.w3.org/2000/svg" ', svgData.substring(5,9999999)].join('');
+	$("#legend-div").append(leg);
+	this.showLegend(this.show_legend);
+	return svgData;
+	
+};
+
+
+
+
+
+
+
+
+
 
 D3BaseTree.prototype.keyPressed= function(e){};
 D3BaseTree.prototype.brushStarted = function(){};

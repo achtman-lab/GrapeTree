@@ -109,7 +109,9 @@ function D3MSTree(element_id,data,callback,height,width){
 
         this.add_collapsed_lengths=true;
         this.node_collapsed_value=0;
+
         this.manual_collapsing = {};
+
         
         this.original_nodes =[]   
         this.original_links =[];
@@ -137,8 +139,7 @@ function D3MSTree(element_id,data,callback,height,width){
                 for (var i in this.original_nodes){
                         var name = this.original_nodes[i];
                         this.grouped_nodes[name]=[name];
-                        this.metadata[name] = {"ID":name, "__Node":name};
-                        this.metadata_map[name] = [name];
+                    
                 }
 
         } else {
@@ -487,6 +488,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         }
 
         if (max_distance<=this.node_collapsed_value || (! this.force_nodes) || this.force_nodes.length == 0){
+
                 this.clearSelection();
                 this.hypo_record = {};
                 this._addNodes(this.original_nodes);
@@ -494,16 +496,20 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 this.grouped_nodes={};
                 for (var i in this.force_nodes){
                         var node =this.force_nodes[i];
-                        this.hypo_record[node.id] = {};
-                        this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
-                        if (this.metadata[node.id]) {
-                                this.metadata[node.id]['__Node'] = node.id;
-                        } else {
-                                this.metadata[node.id] = {'__Node':node.id, 'ID':node.id};
+			
+			this.hypo_record[node.id] = {};
+			this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
+			
+			//add dummy metadata
+			if (!this.metadata_map[node.id]) {
+                                this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
+				this.metadata_map[node.id]=[node.id];
                         }
                 }
         }
         var to_collapse = {};
+
+  
         if (Object.keys(this.manual_collapsing).length > 0) {
                 for (var id in this.manual_collapsing) {
                         to_collapse[id] = 1;
@@ -554,14 +560,15 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 }
                 if (!l || (l.value > max_distance && ! to_collapse[l.source.id])) continue;
                 l.remove=l.target.remove=true;
-
-                if (!l.source.hypothetical) {
-                        for (var id in this.grouped_nodes[l.target.id]) {
-                                sid = this.grouped_nodes[l.target.id][id];
-                                this.metadata[sid]['__Node'] = l.source.id;
-                        }
-                }
+		/*if (!l.source.hypothetical) {
+			for (var id in this.grouped_nodes[l.target.id]) {
+				sid = this.grouped_nodes[l.target.id][id];
+				this.metadata[sid]['__Node'] = l.source.id;
+			}
+		}
+                */
                 this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
+		
                 var increase=l.value;
 
                 for (var i in l.source.children){
@@ -598,6 +605,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                                 //l.source.link.original_value += increase;
                         }
                         if (max_distance > this.node_collapsed_value && layout) layout[l.target.id] = layout[l.source.id];
+
                         this.hypo_record[l.target.id][l.source.id] = 1;
                         for (var nid in this.hypo_record[l.source.id]) {
                                 this.hypo_record[l.target.id][nid] = 1;
@@ -607,6 +615,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                         for (var nid in this.hypo_record[l.target.id]) {
                                 this.hypo_record[l.source.id][nid] = 1;
                         }
+
                 }
                 for (var id in to_add) {
                         l.source.children.push(to_add[id]);
@@ -640,11 +649,26 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 for (var jd in this.grouped_nodes[id]) {
                         this.node_map[jd] = node;
                 }
+		var sub_ids= this.grouped_nodes[node.id];
+		for (var i in sub_ids){
+			var id = sub_ids[i];
+			var meta_ids = this.metadata_map[id];
+			for (var n in meta_ids){
+				var meta_id= meta_ids[n];
+				
+				this.metadata[meta_id]["__Node"]=node.id;
+			
+			}
+		}
                 node.size = (node.hypothetical ? 0.01 : this.grouped_nodes[node.id].length);
                 if (node.link) 
                         node.length = node.link.value;
         }
+	//update the node to which the metadata is associated  
+	
+	
         this._updateNodeRadii();
+
 };
 
 
@@ -1385,10 +1409,12 @@ D3MSTree.prototype.setLogLinkScale=function(log){
 D3MSTree.prototype.clearSelection= function(pervasive){ 
     if (! pervasive) {
            this.force_nodes.filter(function(node){node.selected=false; delete node.halo_thickness; delete node.halo_colour;});
+
            if (this.node_elements) {
                 this.node_elements.classed('selected', false);
 	               this.node_elements.selectAll(".halo").remove();
            }
+
 	} else {
 	        this.node_elements.filter(function(node){return ! node.selected})
 	        .filter(function(node){delete node.halo_thickness; delete node.halo_colour;return true;})
@@ -2105,10 +2131,12 @@ D3MSTree.prototype.brushEnded=function(extent){
        this._addHalos(function(d){return d.selected},5,"red");
 		setTimeout(function(){updateMetadataTable(true);}, 400);
 	   ;
+
 }
 
 D3MSTree.prototype.selectAll=function(){
 	this.node_elements.filter(function(n) {n.selected=true;});
 	this._addHalos(function(d){return d.selected},5,"red");
 	updateMetadataTable();
+
 }
