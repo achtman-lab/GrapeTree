@@ -32,7 +32,7 @@ var context_html = "<div id='context-menu' style='display:none;position:fixed;wi
 			<label> Group Order</label> \
 			<select style='margin-left:30px;margin-bottom:10px' class='context-select grouptype'> \
 				<option value='size'>Size Desc</option> \
-				<option value='alphabetic'>Alphabetic</option> \
+				<option value='alphabetic'>Label Asc</option> \
 			</select> \
 			<label> Color Scheme</label> \
 			<select style='margin-left:30px;margin-bottom:10px' class='context-select colorscheme'> \
@@ -55,7 +55,7 @@ var context_html = "<div id='context-menu' style='display:none;position:fixed;wi
 		<label> Group Order</label> \
 		<select style='margin-left:30px;margin-bottom:10px' class='context-select grouptype'> \
 			<option value='size'>Size Desc</option> \
-			<option value='alphabetic'>Alphabetic</option> \
+			<option value='alphabetic'>Label Asc</option> \
 		</select> \
 		<label> Color Scheme</label> \
 		<select style='margin-left:30px;margin-bottom:10px' class='context-select colorscheme'> \
