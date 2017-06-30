@@ -98,7 +98,7 @@
 				headers.push(col.name);
 			}
 			output.push(headers.join('\t'));
-			data = grid.getData();
+			data = grid.getData().getFilteredItems();
 			for (var id in data) {
 				var d = data[id];
 				var out = []; out.length = headers.length;
@@ -115,9 +115,9 @@
 		var dataView = new Slick.Data.DataView();
 		
 		var default_columns = [
-			{id: "Selected", name: "Selected", field: "__selected", width: 100, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'binary', group_num:30, group_order:'occurence'}},
+			{id: "Selected", name: "Selected", field: "__selected", width: 100, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
 			{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}},
-			{id: "ID", name: "ID", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'numeric', group_num:30, group_order:'standard'}},
+			{id: "Name", name: "Name", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}},
 			{id: "Node", name: "Node", field: "__Node", 
 				width:100, sortable: true, prop:{category:'character', group_num:30, group_order:'occurence'}},
 		];
@@ -188,14 +188,14 @@
 		dataView.endUpdate();
 
 		function data_reformat(data, select_moveUp) {
-			for (var index in data) {
-				d = data[index];
-				d.id = parseInt(index) + 1;
-			}
 			if (select_moveUp === true) {
 				data.sort(function(d1, d2) {
 					return d1.__selected == d2.__selected ? (d1.__Node == d2.__Node ? (d1.ID < d2.ID ? -1 : 1) : (d1.__Node < d2.__Node ? -1 : 1)) : (d1.__selected < d2.__selected ? 1 : -1);
 				})
+			}
+			for (var index in data) {
+				d = data[index];
+				d.id = parseInt(index) + 1;
 			}
 			return data;
 		}
@@ -208,7 +208,7 @@
 			  var field = cols[i].sortCol.field;
 			  var prop = cols[i].sortCol.prop;
 			  var sign = cols[i].sortAsc ? 1 : -1;
-			  if (prop.category == 'numeric') {
+			  if (prop.coltype == 'numeric') {
 				var value1 = (! isNaN(dataRow1[field])) ? parseFloat(dataRow1[field]) : dataRow1[field];
 				var value2 = (! isNaN(dataRow2[field])) ? parseFloat(dataRow2[field]) : dataRow2[field];
 			  } else {
@@ -270,13 +270,16 @@
 		}
 		for (var c in cols) {
 			if (c != "nothing") {
+				if (! the_tree.metadata_info[cols[c]]) {
+					the_tree.metadata_info[cols[c]] = {coltype : 'character', grouptype : 'size', colorscheme : 'category'};
+				}
 				curr_cols.push({id: cols[c],
 					name: cols[c], 
 					field: c, 
 					width:120, 
 					editor: Slick.Editors.Text, 
 					sortable: true, 
-					prop:{category:'character', group_num:30, group_order:'occurence'}
+					prop: the_tree.metadata_info[cols[c]]
 				});
 			}
 		}

@@ -478,7 +478,7 @@ D3MSTree.prototype.collapseNodes= function(max_distance){
 
 D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         //store the pooition of the original nodes
-        if (this.node_collapsed_value===0){   
+        if ( ! this.node_collapsed_value && ! this.manual_collapsing_value ){   
                 for (var i in this.force_nodes){
                         var node = this.force_nodes[i];
                         if (layout){
@@ -497,20 +497,21 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 for (var i in this.force_nodes){
                         var node =this.force_nodes[i];
 			
-			this.hypo_record[node.id] = {};
-			this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
+						this.hypo_record[node.id] = {};
+						this.hypo_record[node.id][node.id] = 1;
+						this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
 			
-			//add dummy metadata
-			if (!this.metadata_map[node.id]) {
+						//add dummy metadata
+						if (!this.metadata_map[node.id]) {
                                 this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
-				this.metadata_map[node.id]=[node.id];
+								this.metadata_map[node.id]=[node.id];
                         }
                 }
         }
         var to_collapse = {};
 
-  
-        if (Object.keys(this.manual_collapsing).length > 0) {
+  		this.manual_collapsing_value = Object.keys(this.manual_collapsing).length;
+        if (this.manual_collapsing_value > 0) {
                 for (var id in this.manual_collapsing) {
                         to_collapse[id] = 1;
                 }
@@ -560,13 +561,6 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 }
                 if (!l || (l.value > max_distance && ! to_collapse[l.source.id])) continue;
                 l.remove=l.target.remove=true;
-		/*if (!l.source.hypothetical) {
-			for (var id in this.grouped_nodes[l.target.id]) {
-				sid = this.grouped_nodes[l.target.id][id];
-				this.metadata[sid]['__Node'] = l.source.id;
-			}
-		}
-                */
                 this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
 		
                 var increase=l.value;
@@ -961,7 +955,7 @@ D3MSTree.prototype.changeCategory= function(category){
         }).on("mouseout",function(d){
                  for (var i in self.segment_out_listeners){
                         self.segment_out_listeners[i](d);    
-                }        
+                }
         })
         .style("stroke","black");      
         this._drawNodes();
@@ -1385,7 +1379,7 @@ D3MSTree.prototype._centerGraph = function(){
         }
         var wdiff = maxX-minX;
         var hdiff = maxY-minY;
-        var scale = wdiff > hdiff ? this.width/wdiff : this.height/hdiff;
+        var scale = wdiff > hdiff ? this.width/wdiff : (hdiff > 0 ? this.height/hdiff : 1);
 
         this.setScale(scale*0.8);
         this.setTranslate([40,40]);
@@ -1412,15 +1406,15 @@ D3MSTree.prototype.clearSelection= function(pervasive){
 
            if (this.node_elements) {
                 this.node_elements.classed('selected', false);
-	               this.node_elements.selectAll(".halo").remove();
+	            this.node_elements.selectAll(".halo").remove();
            }
 
 	} else {
 	        this.node_elements.filter(function(node){return ! node.selected})
 	        .filter(function(node){delete node.halo_thickness; delete node.halo_colour;return true;})
 	        .classed('selected', false).selectAll('.halo').remove();
+	        updateMetadataTable();
 	}
-	updateMetadataTable();
 };
 
 /**
@@ -2126,17 +2120,15 @@ D3MSTree.prototype.brushEnded=function(extent){
                 not_in_selection.filter(function(d) {d.selected=true});
         } else {
                 selected_nodes.filter(function(d) {delete d.selected; delete node.halo_colour; delete node.halo_thickness});
+                this.clearSelection(true);
         }
      
        this._addHalos(function(d){return d.selected},5,"red");
-		setTimeout(function(){updateMetadataTable(true);}, 400);
-	   ;
-
+	   updateMetadataTable(true);
 }
 
 D3MSTree.prototype.selectAll=function(){
 	this.node_elements.filter(function(n) {n.selected=true;});
 	this._addHalos(function(d){return d.selected},5,"red");
-	updateMetadataTable();
-
+	updateMetadataTable(true);
 }
