@@ -1075,7 +1075,7 @@ D3BaseTree.prototype._changeCategory=function(category){
 			this.category_colours[val]=this.legend_colours[colour_count];
 			cat_count_list[colour_count][2] = this.legend_colours[colour_count];
 		} else {
-			var prop = 200 * parseFloat(colour_count) / (len-1);
+			var prop = len == 1 ? 100 : 200 * parseFloat(colour_count) / (len-1);
 			var rgb;
 			if (prop <= 80) {
 				var dp = prop;

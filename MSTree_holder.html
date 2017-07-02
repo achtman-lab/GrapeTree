@@ -597,7 +597,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         var item = the_tree.metadata[id];
                         var barcode = Enterobase.encodeBarcode(id,db_code);
                         lines.push(barcode+"\t"+item["Name"]);
-
                 }
                 var text= lines.join("\n");
                 Enterobase.showSaveDialog(text,"tree.json");

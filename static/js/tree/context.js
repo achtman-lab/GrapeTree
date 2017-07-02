@@ -19,27 +19,28 @@ var context_html = "<div id='context-menu' style='display:none;position:fixed;wi
 		<hr class='context-hr'> \
 		<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 		<div class='context-option toggle-metadata'>Hide metadata table</div> \
-		<div id='hover-col' style='display:none'> \
 			<hr class='context-hr'> \
-			<b style='font-size:85%'><center>Column:&nbsp;<label style='margin-top:10px' id='hover-colname'></label></center></b> \
-			<div class='context-option' id='change-category'>Set as figure legend</div> \
-			<hr class='context-hr'> \
-			<label> Data Category</label> \
-			<select style='margin-left:30px;margin-bottom:10px' class='context-select coltype'> \
-				<option value='character'>Character</option> \
-				<option value='numeric'>Numeric</option> \
-			</select> \
-			<label> Group Order</label> \
-			<select style='margin-left:30px;margin-bottom:10px' class='context-select grouptype'> \
-				<option value='size'>Size Desc</option> \
-				<option value='alphabetic'>Label Asc</option> \
-			</select> \
-			<label> Color Scheme</label> \
-			<select style='margin-left:30px;margin-bottom:10px' class='context-select colorscheme'> \
-				<option value='category'>Category</option> \
-				<option value='gradient'>Gradient</option> \
-			</select> \
-		</div> \
+			<b style='font-size:85%'><center>Column:&nbsp; \
+			<select style='margin-top:10px' class='context-select' id='hover-colname'></select></center></b> \
+			<div id='allowed-color'> \
+				<div class='context-option' id='change-category'>Set as figure legend</div> \
+				<hr class='context-hr'> \
+				<label> Data Category</label> \
+				<select style='margin-left:30px;margin-bottom:10px' class='context-select coltype'> \
+					<option value='character'>Character</option> \
+					<option value='numeric'>Numeric</option> \
+				</select> \
+				<label> Group Order</label> \
+				<select style='margin-left:30px;margin-bottom:10px' class='context-select grouptype'> \
+					<option value='size'>Size Desc</option> \
+					<option value='alphabetic'>Alphabetic</option> \
+				</select> \
+				<label> Color Scheme</label> \
+				<select style='margin-left:30px;margin-bottom:10px' class='context-select colorscheme'> \
+					<option value='category'>Category</option> \
+					<option value='gradient'>Gradient</option> \
+				</select> \
+			</div> \
 	</div> \
 	<div id='legend-svg-menu' style='display:none' class='sub-context'> \
 		<div class='context-option toggle-legend'>Hide figure legend</div> \
@@ -55,7 +56,7 @@ var context_html = "<div id='context-menu' style='display:none;position:fixed;wi
 		<label> Group Order</label> \
 		<select style='margin-left:30px;margin-bottom:10px' class='context-select grouptype'> \
 			<option value='size'>Size Desc</option> \
-			<option value='alphabetic'>Label Asc</option> \
+			<option value='alphabetic'>Alphabetic</option> \
 		</select> \
 		<label> Color Scheme</label> \
 		<select style='margin-left:30px;margin-bottom:10px' class='context-select colorscheme'> \
@@ -115,16 +116,27 @@ function trigger_context(target, e) {
 		$("#context-menu").height($("#legend-svg-menu").height()+5);
 
 	} else if (target == 'myGrid') {
+		$("#hover-colname").empty().append(function() {
+			output = '';
+			for(var category in the_tree.metadata_info) {
+				output += '<option>' + category + '</option>'
+			}
+			return output;
+		})
+
 		var colname = $(".ui-state-hover .slick-column-name").text();
+		if (! colname) {
+			colname = Object.keys(the_tree.metadata_info)[0];
+		}
+		$("#hover-colname").val(colname);
+
 		if (! the_tree.metadata_info[colname]) {
-			$("#hover-col").hide();
+			$("#allowed-color").hide();
 		} else {
+			$("#allowed-color").show();
 			$(".coltype").val(the_tree.metadata_info[colname].coltype);
 			$(".grouptype").val(the_tree.metadata_info[colname].grouptype);
 			$(".colorscheme").val(the_tree.metadata_info[colname].colorscheme);
-
-			$("#hover-col #hover-colname").text(colname);
-			$("#hover-col").show();
 		}
 
 		$("#myGrid-menu").show();
@@ -169,12 +181,25 @@ $(".context-select").click(function(e) {
 	e.stopPropagation();
 })
 .change(function(e) {
-	var category = (e.target.closest( ('#hover-col'))) ? $("#hover-colname").text() : the_tree.display_category;
-	var tochange = $(this).attr('class').split(' ')[1];
-	var value = $(this).val();
-	the_tree.metadata_info[category][tochange] = value;
-	if (category == the_tree.display_category) {
-		the_tree.changeCategory(the_tree.display_category);
+	if (e.target.id == 'hover-colname') {
+		var colname = $("#hover-colname").val();
+		if (! the_tree.metadata_info[colname]) {
+			$("#allowed-color").hide();
+		} else {
+			$(".coltype").val(the_tree.metadata_info[colname].coltype);
+			$(".grouptype").val(the_tree.metadata_info[colname].grouptype);
+			$(".colorscheme").val(the_tree.metadata_info[colname].colorscheme);
+			$("#allowed-color").show();
+			$("#context-menu").height($("#context-menu").height()+$("#allowed-color").height())
+		}
+	} else {
+		var category = (e.target.closest( ('#myGrid-menu'))) ? $("#hover-colname").val() : the_tree.display_category;
+		var tochange = $(this).attr('class').split(' ')[1];
+		var value = $(this).val();
+		the_tree.metadata_info[category][tochange] = value;
+		if (category == the_tree.display_category) {
+			the_tree.changeCategory(the_tree.display_category);
+		}
 	}
 });
 
@@ -240,7 +265,7 @@ $("#uncollapse_node").click(function(e) {
 });
 
 $("#change-category").click(function(e) {
-	var colname = $("#hover-col #hover-colname").text();
+	var colname = $("#hover-colname").val();
 	$("#metadata-select").val(colname);
 	if (! $("#metadata-select").val()) {
 		$("#metadata-select").val("nothing");
