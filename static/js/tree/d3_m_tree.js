@@ -486,7 +486,13 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                         }
                 }
         }
-
+		if (max_distance > this.node_collapsed_value) {
+			for(var id in this.manual_collapsing) {
+				if (this.manual_collapsing[id] == 1) {
+					delete this.manual_collapsing[id];
+				}
+			}
+		}
         if (max_distance<=this.node_collapsed_value || (! this.force_nodes) || this.force_nodes.length == 0){
 
                 this.clearSelection();
@@ -513,7 +519,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
   		this.manual_collapsing_value = Object.keys(this.manual_collapsing).length;
         if (this.manual_collapsing_value > 0) {
                 for (var id in this.manual_collapsing) {
-                        to_collapse[id] = 1;
+                        to_collapse[id] = this.manual_collapsing[id];
                 }
 
                 var collapsed = 1;
@@ -521,8 +527,10 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                         collapsed = 0;
                         for(var jd in this.force_links) {
                                 var link = this.force_links[jd];
-                                if (to_collapse[link.source.id] && ! to_collapse[link.target.id]) {
-                                        to_collapse[link.target.id] = 1;
+                                var s_c = to_collapse[link.source.id] ? to_collapse[link.source.id] : 0;
+                                var t_c = to_collapse[link.target.id] ? to_collapse[link.target.id] : 0;
+                                if (s_c > t_c) {
+                                        to_collapse[link.target.id] = s_c;
                                         collapsed = 1;
                                 }
                         }
@@ -533,6 +541,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 var link = this.force_links[index];
                 link.target.link = link;
         }
+        /*
         this.force_links.sort(function(l1, l2) {return l1.value - l2.value;});
         var link_len = [];
         for (var index in this.force_links) {
@@ -558,8 +567,10 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                                         }
                                 }
                         }
-                }
-                if (!l || (l.value > max_distance && ! to_collapse[l.source.id])) continue;
+                }*/
+        for (var index=this.force_links.length-1; index >=0; index --) {
+        		var l = this.force_links[index];
+                if ( !l || (l.value > max_distance && to_collapse[l.source.id] !== 2) || (l.value > 1e-8 && to_collapse[l.source.id] === 1) ) continue;
                 l.remove=l.target.remove=true;
                 this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
 		

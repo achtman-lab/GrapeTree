@@ -1234,8 +1234,8 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	legend.selectAll('.legend-title').remove();
 	legend.append('text').attr('class', 'legend-title').attr('x', 22).attr('y', 20).attr('font-weight', 'bold').text(title);
 	var legend_dim = legend_svg[0][0].getBBox();
-	legend_svg.attr('width', 180).attr('height', legend_dim.height + 10);
-	this.legend_div.width(180);
+	legend_svg.attr('width', 220).attr('height', legend_dim.height + 10);
+	this.legend_div.width(220);
 	var l_height = $("#legend-svg").height();
 	var height = l_height+10;
 	this.legend_div.css({"top":"0px","right":"0px","max-height":height+"px"});
