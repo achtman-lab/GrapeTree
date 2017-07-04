@@ -89,7 +89,7 @@ function trigger_context(target, e) {
 	} else {
 		$(".toggle-metadata").text("Hide metadata table");
 	}
-	if (the_tree.legend_div.css("display") === "none") {
+	if (the_tree && the_tree.legend_div.css("display") === "none") {
 		$(".toggle-legend").text("Show figure legend");
 	} else {
 		$(".toggle-legend").text("Hide figure legend");
@@ -124,9 +124,13 @@ function trigger_context(target, e) {
 			return output;
 		})
 
-		var colname = $(".ui-state-hover .slick-column-name").text();
+		var colname = $("#myGrid .ui-state-hover").text();
 		if (! colname) {
-			colname = Object.keys(the_tree.metadata_info)[0];
+			if (grid.getCellFromEvent(e)) {
+				colname = grid.getColumns()[grid.getCellFromEvent(e).cell].name;
+			} else {
+				return;
+			}
 		}
 		$("#hover-colname").val(colname);
 
@@ -243,13 +247,14 @@ $("#collapse_node").click(function(e) {
 	for (var id in selected_nodes) {
 		var node_id = selected_nodes[id].id;
 		for (var jd in the_tree.hypo_record[node_id]) {
-			the_tree.manual_collapsing[jd] = 1;
+			the_tree.manual_collapsing[jd] = 2;
 		}
 	}
 	$( "#spinner-collapse-nodes" ).trigger("change");
 });
 $("#uncollapse_all").click(function(e) {
 	the_tree.manual_collapsing = {};
+	$( "#spinner-collapse-nodes" ).val(0);
 	$( "#spinner-collapse-nodes" ).trigger("change");
 });
 
@@ -258,7 +263,7 @@ $("#uncollapse_node").click(function(e) {
 	for (var id in selected_nodes) {
 		var node_id = selected_nodes[id].id;
 		for (var jd in the_tree.hypo_record[node_id]) {
-			delete the_tree.manual_collapsing[jd];
+			the_tree.manual_collapsing[jd] = 1;
 		}
 	}
 	$( "#spinner-collapse-nodes" ).trigger("change");

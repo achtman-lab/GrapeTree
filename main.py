@@ -25,9 +25,10 @@ from flask import Flask
 from grapetree import app
 import shutil
 import traceback
-import time	
+import time
 import argparse
 import os
+import sys
 
 __licence__ = 'GPLv3'
 __author__ = 'Zhemin Zhou, Martin Sergeant, Nabil-Fareed Alikhan & Mark Achtman'
@@ -46,10 +47,6 @@ def open_browser(PORT):
     thread.start()
 
 
-def install_static():
-    shutil.copyfile('MSTree_holder.html',
-                    'grapetree/templates/MSTree_launch.html')
-
 def main() :
     try:
         start_time = time.time()
@@ -64,7 +61,6 @@ def main() :
         args = parser.parse_args()
         if args.verbose:
             print "Executing @ " + time.asctime()
-        install_static()
         open_browser(app.config.get('PORT'))
         app.run(port=app.config.get('PORT'))	
         if args.verbose:

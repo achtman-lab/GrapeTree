@@ -304,24 +304,24 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<button id = 'button-goback' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Unmodified tree</button>
 			<br><br>
 			<div>
-				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Branch Length (%)</label><br>
+				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Branch Length (%)</label><br>
 				<div id = "slider-linklength" class ="slider-class" style="width:80px">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Collapse branches below a certain value">
-				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
+				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
 				<div id = "slider-collapse-nodes" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
 			</div>
 			<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
 			<br>
 			<hr>
 			<div >
-				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
+				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
 				<div id = "slider-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Node size relative to number of strains">
-				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Node scaling (%)</label><br>
+				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node scaling (%)</label><br>
 				<div id = "slider-relative-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
 			</div>
 			<br>
@@ -330,7 +330,10 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<button id ="center-graph-button">Centre Tree</button>
 			<hr>
 			<p align = 'center'>
-				<label> Zoom:&nbsp;&nbsp;</label>
+				<div id="rotation-div"><label> Drag Icon to Rotate:&nbsp;</label>
+				<span id="rotation-icon" class="glyphicon glyphicon-refresh"></span>
+				</div>
+				<label>&nbsp;&nbsp;Zoom:&nbsp;</label>
 				<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
 				<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
 			</p>
@@ -531,7 +534,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	}
 	var var1 = parseInt("{{dhdhdhdh}}");
         var all_files=null;
-	var metatdata_file_name;
+	var metadata_file_name;
         var waiting_spinner= null;
         var waitingDialog = null;
         var the_tree = null;
@@ -597,7 +600,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         var item = the_tree.metadata[id];
                         var barcode = Enterobase.encodeBarcode(id,db_code);
                         lines.push(barcode+"\t"+item["Name"]);
-
                 }
                 var text= lines.join("\n");
                 Enterobase.showSaveDialog(text,"tree.json");
@@ -833,6 +835,10 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 				if (the_tree) {
 					the_tree.svg.remove();
 					the_tree.legend_div[0].remove();
+					resetGridColumns();
+					metadata_options = {};
+					$("#metadata-select").find("option").remove();
+					$("#node-label-text").find("option").remove();
 				}
                 $("#waiting-information").text("Loading Data");
                 the_tree = null;
@@ -895,6 +901,32 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 					} else {
 						updateMetadataTable();
 					}
+					
+					$("#rotation-icon").draggable({
+					  start: function(e) {
+						the_tree._dragStarted(the_tree.force_nodes[0], [$("#rotation-icon").position().left, $("#rotation-icon").position().top]);
+					  },
+					  drag: function(e) {
+						the_tree._dragging(the_tree.force_nodes[0], [e.clientX, e.clientY]);
+					  },
+					  stop: function(e) {
+						the_tree._dragEnded(the_tree.force_nodes[0], [e.clientX, e.clientY]);
+					  },
+					  revert: true,
+					  revertDuration: 10,
+					  helper: function() {return $("<div></div>")},
+					}).bind("drag", function(event, ui) {
+						var x_dif = ui.helper.position().left - $("#rotation-icon").position().left;
+						var y_dif = $("#rotation-icon").position().top - ui.helper.position().top;
+						var angle = y_dif !== 0 ? Math.atan(x_dif/y_dif)/Math.PI * 180 : (x_dif === 0 ? 0 : (x_dif > 0 ? 90 : -90));
+						if (y_dif < 0 ) {
+							angle = 180 + angle;
+						} else if (x_dif < 0) {
+							angle = 360 + angle;
+						}
+						ui.helper.text(Math.round(angle) + '\xB0') ;
+					});
+
  /*               }catch(e){
 						console.log(e.message);
 						console.log(e.stacktrace);
