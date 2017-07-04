@@ -388,19 +388,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<div class='open-context' id='myGrid-x' style='font-size:110%;margin:10px'>Metadata</div>
 			<div class='open-context' id='legend-svg-x' style='font-size:110%;margin:10px'>Figure Legend</div>
 		</div>
-		<script>
-		$(".open-context").on("mouseenter",function(e) {
-			$(this).css("background", "#f1f1f1");
-		})
-		.on("mouseleave", function(e) {
-			$(this).css("background", "#ffffff");
-		})
-		.click(function(e) {
-			var target = $(this).context.id;
-			target = target.substring(0, target.length-2);
-			trigger_context(target, e);
-		});
-		</script>
+		
 	</div>
 </div>
 
@@ -415,7 +403,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 <script charset="utf-8" src="static/js/main/spin.min.js"></script>
 <script charset="utf-8" src="static/js/tree/base_tree.js"></script>
 <script charset="utf-8" src="static/js/tree/d3_m_tree.js"></script>
-
+<script> var tree_id = null</script>
 {% include 'ms_tree/enterobase_ms_tree.html' %}
 
 <script>
@@ -534,14 +522,16 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	function getSuffix(name){
 		var arr = name.split(".");
 		return arr[arr.length-1];
-	}
-	var var1 = parseInt("{{dhdhdhdh}}");
-        var all_files=null;
+	}var var1 = parseInt("{{dhdhdhdh}}");
+	var all_files=null;
 	var metatdata_file_name;
-        var waiting_spinner= null;
-        var waitingDialog = null;
-        var the_tree = null;
-        var tree_name="";
+	var waiting_spinner= null;
+	var waitingDialog = null;
+	
+	var context_menu=null;
+	var the_tree = null;
+	
+	var tree_name="";
 	var cannot_connect=false;
 
 	var default_control_panel_values={
@@ -688,24 +678,25 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
         }
 
         function treeLoaded(tree){
-                tree.legendItemClicked = function(data){
-                        legend_colour_chooser
-                        .css({"left":0,"top":0})
-                        .val(data.colour)
-                        .data({"value":data.value.split("  [")[0],"category":data.category})
-                        .trigger("click");
+		var context_menu= new D3MSTreeContextMenu(tree);
+		tree.legendItemClicked = function(data){
+			legend_colour_chooser
+			.css({"left":0,"top":0})
+			.val(data.colour)
+			.data({"value":data.value.split("  [")[0],"category":data.category})
+			.trigger("click");
                 };
 
-				$("#spinner-hide-link-length").spinner({
-					min: 0,
-					max: tree.max_link_distance,
-					step:(tree.max_link_distance/100.0).toPrecision(1)
-				});
-				$( "#spinner-collapse-nodes" ).spinner({
-                        min: 0,
-                        max: tree.max_link_distance+0.01,
-                        value: tree.node_collapsed_value,
-                        step: (tree.max_link_distance/1000.0).toPrecision(1)
+		$("#spinner-hide-link-length").spinner({
+			min: 0,
+			max: tree.max_link_distance,
+				step:(tree.max_link_distance/100.0).toPrecision(1)
+			});
+			$( "#spinner-collapse-nodes" ).spinner({
+			min: 0,
+			max: tree.max_link_distance+0.01,
+			value: tree.node_collapsed_value,
+			step: (tree.max_link_distance/1000.0).toPrecision(1)
                 });
 
                 $( "#slider-collapse-nodes" ).slider({
