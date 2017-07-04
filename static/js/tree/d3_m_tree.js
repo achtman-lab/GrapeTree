@@ -106,6 +106,32 @@ function D3MSTree(element_id,data,callback,height,width){
         .on('dragend',function(it){
               it.id ? self._dragEnded(it) : self._dragEnded(it.target);
         });
+        $(".rotation-icon").draggable({
+		  start: function(e) {
+			self._dragStarted(self.force_nodes[0], [e.clientX, e.clientY]);
+		  },
+		  drag: function(e) {
+			self._dragging(self.force_nodes[0], [e.clientX, e.clientY]);
+		  },
+		  stop: function(e) {
+			self._dragEnded(self.force_nodes[0], [e.clientX, e.clientY]);
+		  },
+		  revert: true,
+		  revertDuration: 10,
+		  helper: function() {return $("<div><label id='angle-text'></label></div>")},
+        });
+		$(".rotation-icon").bind("drag", function(event, ui) {
+			var x_dif = ui.helper.position().left - $(this).position().left;
+			var y_dif = $(this).position().top - ui.helper.position().top;
+			var angle = y_dif !== 0 ? Math.atan(x_dif/y_dif)/Math.PI * 180 : (x_dif === 0 ? 0 : (x_dif > 0 ? 90 : -90));
+			if (y_dif < 0 ) {
+				angle = 180 + angle;
+			} else if (x_dif < 0) {
+				angle = 360 + angle;
+			}
+    		ui.helper.select('.angle-text').text(Math.round(angle) + '\xB0') ;
+    		console.log(ui.helper.position(), ui.helper.select('.angle-text').position())
+		});
 
         this.add_collapsed_lengths=true;
         this.node_collapsed_value=0;
@@ -1928,7 +1954,7 @@ D3MSTree.prototype.highlightNodes = function(node_ids,color){
 
 
 //Dragging Functions
-D3MSTree.prototype._dragStarted= function(it){
+D3MSTree.prototype._dragStarted= function(it, pos){
        if (! this.fixed_mode){
               return;
        }
@@ -1955,6 +1981,10 @@ D3MSTree.prototype._dragStarted= function(it){
        }).selectAll(".node-paths").style("stroke","red").attr("stroke-width","3px");
        this._updateNodesToDisplay("tagged");
        
+		if (pos) {
+			this.ori_pos = pos;
+		}
+
        var x_dif = it.x-parent.x
        var y_dif = it.y-parent.y;
        this.drag_source=parent;
@@ -1962,7 +1992,7 @@ D3MSTree.prototype._dragStarted= function(it){
        this.drag_radius = Math.sqrt((x_dif*x_dif)+(y_dif*y_dif));               
 };
 
-D3MSTree.prototype._dragging= function(it){
+D3MSTree.prototype._dragging= function(it, pos){
         this.is_dragging=true;
         if (! this.fixed_mode){
               return;
@@ -1974,10 +2004,16 @@ D3MSTree.prototype._dragging= function(it){
               it.py=it.y;
               return;
        }
-       it.px += d3.event.dx;
-       it.py += d3.event.dy;
-       it.x += d3.event.dx;
-       it.y += d3.event.dy;
+       if (pos) {
+       		dx = pos[0] - this.ori_pos[0];
+       		dy = pos[1] - this.ori_pos[1];
+       } else {
+       		dx =d3.event.dx, dy = d3.event.dy;
+       }
+       it.px += dx;
+       it.py += dy;
+       it.x += dx;
+       it.y += dy;
        var source  =this.drag_source;
                 
        var target =it;
@@ -2121,10 +2157,6 @@ D3MSTree.prototype.addLinkOutListener=function(func){
 
 //brush functions
 D3MSTree.prototype.brushEnded=function(extent){
-        if (extent[0][0] == extent[1][0] && extent[0][1] == extent[1][1]) {
-                this.clearSelection();
-                return;
-        }
         var selected_nodes = this.node_elements.filter(function(d){return (extent[0][0] <= d.x && d.x < extent[1][0] && extent[0][1] <= d.y && d.y < extent[1][1])});
         var not_in_selection = selected_nodes.filter(function(d) {return (! d.selected)});
         if (not_in_selection[0].length > 0) {

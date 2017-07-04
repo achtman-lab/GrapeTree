@@ -304,24 +304,24 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<button id = 'button-goback' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Unmodified tree</button>
 			<br><br>
 			<div>
-				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Branch Length (%)</label><br>
+				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Branch Length (%)</label><br>
 				<div id = "slider-linklength" class ="slider-class" style="width:80px">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Collapse branches below a certain value">
-				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
+				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
 				<div id = "slider-collapse-nodes" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
 			</div>
 			<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
 			<br>
 			<hr>
 			<div >
-				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
+				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
 				<div id = "slider-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Node size relative to number of strains">
-				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Node scaling (%)</label><br>
+				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node scaling (%)</label><br>
 				<div id = "slider-relative-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
 			</div>
 			<br>
@@ -330,7 +330,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<button id ="center-graph-button">Centre Tree</button>
 			<hr>
 			<p align = 'center'>
-				<label> Zoom:&nbsp;&nbsp;</label>
+				<label> Drag to Rotate:&nbsp;</label>
+				<span class="rotation-icon glyphicon glyphicon-refresh"></span>
+				<label>&nbsp;&nbsp;Zoom:&nbsp;</label>
 				<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
 				<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
 			</p>
@@ -833,6 +835,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 					the_tree.svg.remove();
 					the_tree.legend_div[0].remove();
 					resetGridColumns();
+					metatdata_options = {};
+					$("#metadata-select").find("option").remove();
+					$("#node-label-text").find("option").remove();
 				}
                 $("#waiting-information").text("Loading Data");
                 the_tree = null;
