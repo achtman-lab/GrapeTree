@@ -106,31 +106,6 @@ function D3MSTree(element_id,data,callback,height,width){
         .on('dragend',function(it){
               it.id ? self._dragEnded(it) : self._dragEnded(it.target);
         });
-        $(".rotation-icon").draggable({
-		  start: function(e) {
-			self._dragStarted(self.force_nodes[0], [e.clientX, e.clientY]);
-		  },
-		  drag: function(e) {
-			self._dragging(self.force_nodes[0], [e.clientX, e.clientY]);
-		  },
-		  stop: function(e) {
-			self._dragEnded(self.force_nodes[0], [e.clientX, e.clientY]);
-		  },
-		  revert: true,
-		  revertDuration: 10,
-		  helper: function() {return $("<div><label id='angle-text'></label></div>")},
-        });
-		$(".rotation-icon").bind("drag", function(event, ui) {
-			var x_dif = ui.helper.position().left - $(this).position().left;
-			var y_dif = $(this).position().top - ui.helper.position().top;
-			var angle = y_dif !== 0 ? Math.atan(x_dif/y_dif)/Math.PI * 180 : (x_dif === 0 ? 0 : (x_dif > 0 ? 90 : -90));
-			if (y_dif < 0 ) {
-				angle = 180 + angle;
-			} else if (x_dif < 0) {
-				angle = 360 + angle;
-			}
-    		ui.helper.select('.angle-text').text(Math.round(angle) + '\xB0') ;
-		});
 
         this.add_collapsed_lengths=true;
         this.node_collapsed_value=0;
