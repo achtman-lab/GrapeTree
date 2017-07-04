@@ -797,6 +797,7 @@ function D3BaseTree(element_id,metadata,height,width){
 	}
 	
 	this.metadata={};
+	this.metadata_info = {};
 	this.original_grouped_nodes={};
 	this.grouped_nodes={};
 	this.metadata_map={};
@@ -1017,12 +1018,17 @@ D3BaseTree.prototype.setTranslate=function(x_y){
 
 
 D3BaseTree.prototype._changeCategory=function(category){
+	var coltype = 'character', grouptype = 'size', colorscheme = 'category';
+	if (this.metadata_info && this.metadata_info[category]) {
+		coltype = this.metadata_info[category].coltype;
+		grouptype = this.metadata_info[category].grouptype;
+		colorscheme = this.metadata_info[category].colorscheme;
+	}
 	var cust_col = this.custom_colours[category];
 	this.display_category = category;
 	var cat_count={};
 	var colour_count=0;
 	this.category_colours={};
-	var len = Math.min(this.legend_colours.length, this.category_num);
 	for (var key in this.metadata){
 		var val = this.metadata[key][category];
 		if (!val && val !==0){
@@ -1035,39 +1041,59 @@ D3BaseTree.prototype._changeCategory=function(category){
 			cat_count[val]++;
 		}
 	}
+
 	cat_count_list=[]
 	for (var val in cat_count){
-		cat_count_list.push([val,cat_count[val]]);
+		if (coltype != 'character' && isNumber(val)) {
+			val = parseFloat(val);
+			cat_count_list.push([val,cat_count[val], '', 0]);
+		} else {
+			cat_count_list.push([val,cat_count[val], '', 1]);
+		}
 		
 	}
 	cat_count_list.sort(function(a,b){
-		return b[1]-b[1];
+		if (grouptype != 'size') {
+			return (a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3];
+		} else {
+			return (a[1] == b[1]) ? ((a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3]) : (a[1]<b[1]?1:-1);
+		}
 	});
+	var len = Math.min(this.legend_colours.length, this.category_num, cat_count_list.length);
 	var cust_col= this.custom_colours[category];
-	for (var i in cat_count_list){
-		var val = cat_count_list[i][0];
-		if (category == 'nothing') {
+	for (var colour_count in cat_count_list){
+		var val = cat_count_list[colour_count][0];
+		if (category == 'nothing' || colour_count >= len) {
 			this.category_colours[val]=this.default_colour;
 			continue
-
 		}
-		if (colour_count >=len) {
-			this.category_colours[val]=this.default_colour; 		
-			continue;
-
-		} //		|| val.startsWith('_hypo_node') ) {
 		if (cust_col && cust_col[val]){
 			this.category_colours[val]=cust_col[val];
-			colour_count++;
+			cat_count_list[colour_count][2] = cust_col[val];
 			continue;	
-		} else {
+		} else if (colorscheme == 'category') {
 			this.category_colours[val]=this.legend_colours[colour_count];
-			colour_count++;
+			cat_count_list[colour_count][2] = this.legend_colours[colour_count];
+		} else {
+			var prop = len == 1 ? 100 : 200 * parseFloat(colour_count) / (len-1);
+			var rgb;
+			if (prop <= 80) {
+				var dp = prop;
+				rgb = 'rgb(100%, '+(100-dp/4)+'%, '+(80-dp)+'%)';
+			} else if (prop <= 160) {
+				var dp = prop-80;
+				rgb = 'rgb('+(100-dp/4)+'%, '+(80-dp)+'%, 0%)';
+			} else {
+				var dp = prop-160;
+				rgb = 'rgb('+(80-dp)+'%, 0%, 0%)';
+			}
+			this.category_colours[val]=rgb;
+			cat_count_list[colour_count][2]=rgb;
 		}
 
 	}
 	//this.category_colours["Others"] = this.default_colour;
-	this.updateLegend(category);
+	this.updateLegend(category, cat_count_list);
 }
 
 /**
@@ -1141,38 +1167,27 @@ D3BaseTree.prototype.showLegend= function (show){
 
 };
 
-D3BaseTree.prototype.updateLegend = function(title){
+D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	var self = this;
 	d3.select(this.legend_div[0]).select("svg").remove();
-	if (title == 'nothing') {
+	if (title == 'nothing' || ! this.display_category) {
 		return;
 	}
-	if (! this.display_category){
-		return;
-	}
-	var legend_data=[], datum,legend_items;
+	var legend_data=[];
 	var others = 0;
-	for (var group in this.category_colours) {
-		if (this.category_colours[group]==this.default_colour){
+	for (var gid in ordered_groups) {
+		var group = ordered_groups[gid];
+		if (group[2] == '') {
 			others = 1;
 			continue;
 		}
-		datum = {
-			group: group,
-			group_colour:this.category_colours[group]
-		};
-		legend_data.push(datum);
+		else {
+			legend_data.push({
+				group: group[0] + '  ['+group[1]+']',
+				group_colour: group[2]
+			});
+		}
 	}
-	legend_data.sort(function(a,b){
-		if (a.group > b.group){
-			return 1;
-		}
-		if (a.group<b.group){
-			return-1;
-		}
-		return 0;
-	});
-		
 	if (others) {
 		legend_data.push({
 				 group:"Others",
@@ -1219,8 +1234,8 @@ D3BaseTree.prototype.updateLegend = function(title){
 	legend.selectAll('.legend-title').remove();
 	legend.append('text').attr('class', 'legend-title').attr('x', 22).attr('y', 20).attr('font-weight', 'bold').text(title);
 	var legend_dim = legend_svg[0][0].getBBox();
-	legend_svg.attr('width', 180).attr('height', legend_dim.height + 10);
-	this.legend_div.width(180);
+	legend_svg.attr('width', 220).attr('height', legend_dim.height + 10);
+	this.legend_div.width(220);
 	var l_height = $("#legend-svg").height();
 	var height = l_height+10;
 	this.legend_div.css({"top":"0px","right":"0px","max-height":height+"px"});

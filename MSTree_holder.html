@@ -14,13 +14,13 @@
                 #graph-div{
                         position: absolute;
                         top:10px;
-                        left:180px;
+                        left:210px;
                 }
 
                 #sidebar {
                         position:absolute;
                         top:10px;
-                        width:180px;
+                        width:200px;
                         margin-left:5px;
                 }
                 .brush.extent {
@@ -41,7 +41,7 @@
                  .slider-class{
                         float: left;
                         clear: left;
-                        width: 120px;
+                        width: 140px;
                         height:5px;
                         margin: 5px;
                 }
@@ -54,6 +54,9 @@
                         cursor:pointer;
 
                 }
+				.panel-body {
+					display:none;
+				}
                 .panel-body label{
                         margin-bottom:1px;
                         margin-top:4px;
@@ -274,8 +277,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	<div class='panel panel-default'>
 		<div class ='panel-heading mst-menu-title' id= 'file-menu'> <b id>Inputs/Outputs</b><span id = 'file-menu-icon' class='glyphicon glyphicon-menu-down'> </span></div>
 		<div class = "panel-body" id ='file-menu-panel'>
-			<br>
-				<button title='Load a tree or profile to start your journey!' id = 'button-load-nwk' class = 'show-tooltip'> Load Tree/Profile</button>
+				<button title='Upload a tree or profile to start your journey!' id = 'button-load-nwk' class = 'show-tooltip'> Load Tree/Profile</button>
 			<br><br>
 				<button id = 'button-load-meta'> Load Metadata</button>
 			<div id='save-panel'>
@@ -286,32 +288,41 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			</div>
 		</div>
 	</div>
-
+	<div class='panel panel-default'>
+		<div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Rendering</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+		<div class = "panel-body" id ='mst-layout-menu-panel'>
+			<div><input type='radio' name='render-method' class='render-method' value='automatic'/><b>Automatic</b></div>
+			<div style='margin-left:20px;font-size:90%'><input id ='render-selected-only' type="checkbox" /> Selected Only</div>
+			
+			<div style="margin-top:20px"><input type='radio' name='render-method' class='render-method' value='static' checked /><b>Static</b></div>
+			<div style='margin-left:20px;font-size:90%'><input id ='correct_link_length' type="checkbox" checked /> Real Branch Length</div>
+		</div>
+	</div>
 	<div class='panel panel-default'>
 		<div class ='panel-heading mst-menu-title' id= 'tree-menu'> <b id>Tree Layout</b><span id = 'tree-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 		<div class = "panel-body" id ='tree-menu-panel'>
 			<button id = 'button-goback' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Unmodified tree</button>
 			<br><br>
 			<div>
-				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Branch Length (%)</label><br>
-				<div id = "slider-linklength" class ="slider-class" style="width:60px">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
+				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Branch Length (%)</label><br>
+				<div id = "slider-linklength" class ="slider-class" style="width:80px">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Collapse branches below a certain value">
-				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Collapse Branches</label><br>
-				<div id = "slider-collapse-nodes" class ="slider-class" style="width:60px"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
+				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
+				<div id = "slider-collapse-nodes" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
 			</div>
 			<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
 			<br>
 			<hr>
 			<div >
-				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Node Size (%)</label><br>
-				<div id = "slider-nodesize" class ="slider-class" style="width:60px"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
+				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
+				<div id = "slider-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Node size relative to number of strains">
-				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;Node scaling (%)</label><br>
-				<div id = "slider-relative-nodesize" class ="slider-class" style="width:60px"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
+				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Node scaling (%)</label><br>
+				<div id = "slider-relative-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
 			</div>
 			<br>
 			<button id = 'button-refresh'> Static Redraw </button>
@@ -328,16 +339,11 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	<div class='panel panel-default'>
 		<div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Branch Style</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 		<div class = "panel-body" id ='mst-link-menu-panel'>
-			<label>Hide Branchs Over:</label>
-			<br>
+			<label>For branches <br>longer than:</label>
 			<input type='text' style='width:35px;height:15px' id ='spinner-hide-link-length' class='spin-group'>
-			<button id ='button-hide-link-length'>Go</button>
-			<br>
-			<label>Max Branch Length:</label>
-			<br>
-			<input type='text' style='width:35px;height:15px' id ='spinner-maxlinklength' class='spin-group'>
-			<button id ='button-setmaxlinklength'>Go</button>
-			<br>
+			<div style='margin-left:20px'><input type="radio" id='handle-long-branch-display' name='handle-long-branch' value='display' checked />Display</div>
+			<div style='margin-left:20px'><input type="radio" id='handle-long-branch-hide' name='handle-long-branch' value='hide'/>Hide</div>
+			<div style='margin-left:20px'><input type="radio" id='handle-long-branch-cap' name='handle-long-branch' value='cap'/>Shorten</div>
 			<hr>
 			<label><input id ='show-link-labels'type="checkbox" /> Branch Labels</label>
 			<br>
@@ -350,7 +356,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		</div>
 	</div>
 	<div class='panel panel-default'>
-		<div class ='panel-heading mst-menu-title' id= 'mst-node-menu'> <b id>Nodes</b><span id = 'mst-node-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+		<div class ='panel-heading mst-menu-title' id= 'mst-node-menu'> <b id>Node Style</b><span id = 'mst-node-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
 		<div class = "panel-body" id ='mst-node-menu-panel'>
 			<label>Colour By:</label>
 			<br>
@@ -376,42 +382,25 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		</div>
 	</div>
 	<div class='panel panel-default'>
-		<div class ='panel-heading mst-menu-title' id= 'selection-menu'> <b id>Metadata</b><span id = 'selection-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
-		<div class = "panel-body" id ='selection-menu-panel'>
-				<button id = 'button-editor' onclick="$('#metadata-div').show(300); setTimeout(function(){updateMetadataTable(true);}, 400);"> Metadata Window </button>
-				<hr>
-				<ul id="colList" style="width:100%"></ul>
+		<div class ='panel-heading mst-menu-title' id= 'right-menu'> <b id>Context Menu</b><span id = 'right-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+		<div class = "panel-body" id ='right-menu-panel'>
+			<div class='open-context' id='mst-svg-x' style='font-size:110%;margin:10px'>GrapeTree</div>
+			<div class='open-context' id='myGrid-x' style='font-size:110%;margin:10px'>Metadata</div>
+			<div class='open-context' id='legend-svg-x' style='font-size:110%;margin:10px'>Figure Legend</div>
 		</div>
-	</div>
-	<div class='panel panel-default'>
-		<div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Rendering</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
-		<div class = "panel-body" id ='mst-layout-menu-panel'>
-			<button onclick = 'javascript:the_tree.unfixSelectedNodes(! $("#render-selected-only").is(":checked"))' > Automatic</button>
-			<label><input id ='render-selected-only' type="checkbox" /> Selected Only</label>
-			<button id="stopAdjustment"> Static</button>
-			<label><input id ='correct_link_length' type="checkbox" checked /> Real Branch Length</label>
-		</div>
-	</div>
-	<div class='panel panel-default'>
-		<div class ='panel-heading mst-menu-title' id= 'legend-menu'> <b id>Legend</b><span id = 'legend-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
-		<div class = "panel-body" id ='legend-menu-panel'>
-		   <select id = 'Group order'>
-				<label>Group Order: </label>
-				<option value='alphabetic'>Alphabetic</option>
-				<option value='numeric'>Numeric</option>
-				<option value='no_strain'>No. of strains</option>
-		   </select>
-			<br><br>
-				<button id = 'button-color-palette'> Color Palette </button>
-			<br><br>
-			<label>No. of Groups:</label><input type='text' style='width:20px;height:15px' id ='spinner-num-group' class='spin-group'>
-			<br>
-			<div id = "slider-num-group" class = "slider-class"></div>
-			<br>
-			<label>Font Size:</label><input type='text' style='width:20px;height:15px' id ='spinner-legend-fontsize' class='spin-group'>
-			<br>
-			<div id = "slider-legend-fontsize" class = "slider-class"></div>
-		</div>
+		<script>
+		$(".open-context").on("mouseenter",function(e) {
+			$(this).css("background", "#f1f1f1");
+		})
+		.on("mouseleave", function(e) {
+			$(this).css("background", "#ffffff");
+		})
+		.click(function(e) {
+			var target = $(this).context.id;
+			target = target.substring(0, target.length-2);
+			trigger_context(target, e);
+		});
+		</script>
 	</div>
 </div>
 
@@ -610,20 +599,24 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                         var item = the_tree.metadata[id];
                         var barcode = Enterobase.encodeBarcode(id,db_code);
                         lines.push(barcode+"\t"+item["Name"]);
-
                 }
                 var text= lines.join("\n");
                 Enterobase.showSaveDialog(text,"tree.json");
         }
 
         function addMetadataOptions(value,label){
+				if (value.startsWith("__")) {
+					return false;
+				} else if (label == 'Selected' || label == 'index') {
+					return false;
+				}
                 if (!metadata_options[value]){
                         metadata_options[value]=label;
                         $("#metadata-select").append($("<option>").attr("value",value).text(label));
                         $("#node-label-text").append($("<option>").attr("value",value).text(label));
                         $("#add-new-values-select").append($("<option>").attr("value",value).text(label));
-
                 }
+				return true;
         }
 	function deleteMetadataCategory(){
 		var category = $("#add-new-values-select").val();
@@ -695,26 +688,29 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
         }
 
         function treeLoaded(tree){
-
                 tree.legendItemClicked = function(data){
                         legend_colour_chooser
                         .css({"left":0,"top":0})
                         .val(data.colour)
-                        .data({"value":data.value,"category":data.category})
+                        .data({"value":data.value.split("  [")[0],"category":data.category})
                         .trigger("click");
                 };
 
-
+				$("#spinner-hide-link-length").spinner({
+					min: 0,
+					max: tree.max_link_distance,
+					step:(tree.max_link_distance/100.0).toPrecision(1)
+				});
 				$( "#spinner-collapse-nodes" ).spinner({
                         min: 0,
-                        max: tree.max_link_distance*2,
+                        max: tree.max_link_distance+0.01,
                         value: tree.node_collapsed_value,
                         step: (tree.max_link_distance/1000.0).toPrecision(1)
                 });
 
                 $( "#slider-collapse-nodes" ).slider({
-                        min:Math.log(tree.max_link_distance/1000)*1000,
-                        max: Math.log(tree.max_link_distance*2)*1000,
+                        min:Math.log(tree.max_link_distance/5000)*1000,
+                        max: Math.log(tree.max_link_distance+0.01)*1000,
                         value: Math.log(tree.node_collapsed_value)*1000,
                 });
                 tree.centerGraph();
@@ -795,8 +791,13 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		$("#spinner-nodesize").val(data['base_node_size']*10);
 
 		if (data['max_link_length']){
-			$("#spinner-maxlinklength").val(data['max_link_length']);
+			$("#spinner-hide-link-length").val(data['max_link_length']);
+			$("#handle-long-branch-hide").prop("checked", true);
+		} else if (data['hide_link_length']){
+			$("#spinner-hide-link-length").val(data['hide-link-length']);
+			$("#handle-long-branch-cap").prop("checked", true);
 		}
+
 		if (data['size_power']){
 			$("#slider-relative-nodesize").slider("value",data['size_power']*200.0);
 			$("#spinner-relative-nodesize").val(data['size_power']*200.0);
@@ -823,9 +824,6 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			$("#slider-node-fontsize").slider("value",data['node_font_size']);
 			$("#spinner-node-fontsize").spinner("value",data['node_font_size']);
 		}
-		if (data['hide_link_length']){
-			$("#spinner-hide-link-length").val(data['hide-link-length']);
-		}
 		$( "#slider-collapse-nodes" ).slider("value",Math.log(data["node_collapsed_value"])*1000);
 		$("#spinner-collapse-nodes").val(data["node_collapsed_value"])
 	}
@@ -836,6 +834,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 				if (the_tree) {
 					the_tree.svg.remove();
 					the_tree.legend_div[0].remove();
+					resetGridColumns();
 				}
                 $("#waiting-information").text("Loading Data");
                 the_tree = null;
@@ -1044,8 +1043,7 @@ tree_raw = {};
 		var category = 'nothing';
 		for (var i in header_index){
 			var header = header_index[i];
-			addMetadataOptions(header, header);
-			if ( category == 'nothing' && header != 'ID'){
+			if (addMetadataOptions(header, header) && category == 'nothing' && header != 'ID'){
 				category=header;
 			}
 		}
@@ -1085,10 +1083,49 @@ window.onload = function (){
                 var files = e.originalEvent.dataTransfer.files;
                 filesDropped(files);
         });
-
-        $("#stopAdjustment").click(function(e) {
-			the_tree.fixAllNodes( document.getElementById("correct_link_length").checked );
-	    });
+		
+		$(".render-method").on("change", function(e) {
+			if (this.value == 'static') {
+				the_tree.fixAllNodes( document.getElementById("correct_link_length").checked );
+			} else if (this.value == 'automatic') {
+				the_tree.unfixSelectedNodes(! $("#render-selected-only").is(":checked"));
+			}
+		});
+		$("#handle-long-branch-display, #handle-long-branch-hide, #handle-long-branch-cap").on("change", function(e) {
+			var max = $("#spinner-hide-link-length").val();
+			if (!max) {
+				max = the_tree.max_link_distance+1;
+			}
+			if (this.value == 'hide') {
+				the_tree.setMaxLinkLength(the_tree.max_link_distance+1);
+				the_tree.setHideLinkLength(max);
+			} else if (this.value == 'cap') {
+				the_tree.setHideLinkLength(the_tree.max_link_distance+1);
+				the_tree.setMaxLinkLength(max);
+			} else {
+				the_tree.setMaxLinkLength(the_tree.max_link_distance+1);
+				the_tree.setHideLinkLength(the_tree.max_link_distance+1);
+			}
+		});
+		$("#spinner-hide-link-length").on('change', function(e) {
+			var max = $("#spinner-hide-link-length").val();
+			if (!max) {
+				max = the_tree.max_link_distance+1;
+			}
+			var method = null;
+			if ($("#handle-long-branch-hide").prop("checked")) {
+				method = 'hide';
+			} else if ($("#handle-long-branch-cap").prop("checked")) {
+				method = 'cap';
+			}
+			if (method == 'hide') {
+				the_tree.setMaxLinkLength(the_tree.max_link_distance+1);
+				the_tree.setHideLinkLength(max);
+			} else if (method == 'cap') {
+				the_tree.setHideLinkLength(the_tree.max_link_distance+1);
+				the_tree.setMaxLinkLength(max);
+			}
+		});
 
         $("#upload-metadata-icon").click(function(e){
                 if (!metadata_options['Custom Fields']){
@@ -1138,9 +1175,9 @@ window.onload = function (){
                         icon.attr("class","glyphicon glyphicon-menu-right");
                 }
                 else{
-                        $("#"+id+"-panel").toggle("50");
+                        this_panel.toggle("50");
+                        this_panel.addClass("open-menu-panel");
                         icon.attr("class","glyphicon glyphicon-menu-down");
-                        $("#"+id+"-panel").addClass("open-menu-panel");
                 }
 
         });
@@ -1289,27 +1326,6 @@ window.onload = function (){
         });
 
 
-        $("#spinner-maxlinklength").spinner({
-                min:100,
-                step:100
-        })
-
-        $("#spinner-hide-link-length").spinner({
-                min:1,
-                step:10000
-        });
-        $("#button-setmaxlinklength").click(function(){
-                var max  = $("#spinner-maxlinklength").val();
-                if (max){
-                        the_tree.setMaxLinkLength(max);
-                }
-        });
-        $("#button-hide-link-length").click(function(){
-                var max  = $("#spinner-hide-link-length").val();
-                if (max){
-                        the_tree.setHideLinkLength(max);
-                }
-        });
         $("#button-refresh").click(function(){
 		showWaitingDialog("Refreshing The Tree");
 		setTimeout(function(){
@@ -1436,9 +1452,8 @@ window.onload = function (){
 
 
 	$('.panel-default').find('input, textarea, button, select, span, div').css("opacity", 0.3).prop('disabled',true);
-	$("#file-menu-panel").css("opacity", 1.0).show();
+	$("#file-menu-panel").css("opacity", 1.0).addClass("open-menu-panel").show();
 	$("#button-load-nwk").css("opacity", 1.0).prop("disabled", false).trigger('mouseenter');
-	
 
 	window.addEventListener("beforeunload", function (e) {
 		if (the_tree) {
@@ -1470,6 +1485,5 @@ function try_backend(){
    }
  };
 </script>
-<script src="static/js/tree/context.js"></script>
 </body>
 </html>

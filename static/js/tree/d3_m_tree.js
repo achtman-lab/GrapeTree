@@ -478,7 +478,7 @@ D3MSTree.prototype.collapseNodes= function(max_distance){
 
 D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         //store the pooition of the original nodes
-        if (this.node_collapsed_value===0){   
+        if ( ! this.node_collapsed_value && ! this.manual_collapsing_value ){   
                 for (var i in this.force_nodes){
                         var node = this.force_nodes[i];
                         if (layout){
@@ -486,7 +486,13 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                         }
                 }
         }
-
+		if (max_distance > this.node_collapsed_value) {
+			for(var id in this.manual_collapsing) {
+				if (this.manual_collapsing[id] == 1) {
+					delete this.manual_collapsing[id];
+				}
+			}
+		}
         if (max_distance<=this.node_collapsed_value || (! this.force_nodes) || this.force_nodes.length == 0){
 
                 this.clearSelection();
@@ -497,22 +503,23 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 for (var i in this.force_nodes){
                         var node =this.force_nodes[i];
 			
-			this.hypo_record[node.id] = {};
-			this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
+						this.hypo_record[node.id] = {};
+						this.hypo_record[node.id][node.id] = 1;
+						this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
 			
-			//add dummy metadata
-			if (!this.metadata_map[node.id]) {
+						//add dummy metadata
+						if (!this.metadata_map[node.id]) {
                                 this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
-				this.metadata_map[node.id]=[node.id];
+								this.metadata_map[node.id]=[node.id];
                         }
                 }
         }
         var to_collapse = {};
 
-  
-        if (Object.keys(this.manual_collapsing).length > 0) {
+  		this.manual_collapsing_value = Object.keys(this.manual_collapsing).length;
+        if (this.manual_collapsing_value > 0) {
                 for (var id in this.manual_collapsing) {
-                        to_collapse[id] = 1;
+                        to_collapse[id] = this.manual_collapsing[id];
                 }
 
                 var collapsed = 1;
@@ -520,8 +527,10 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                         collapsed = 0;
                         for(var jd in this.force_links) {
                                 var link = this.force_links[jd];
-                                if (to_collapse[link.source.id] && ! to_collapse[link.target.id]) {
-                                        to_collapse[link.target.id] = 1;
+                                var s_c = to_collapse[link.source.id] ? to_collapse[link.source.id] : 0;
+                                var t_c = to_collapse[link.target.id] ? to_collapse[link.target.id] : 0;
+                                if (s_c > t_c) {
+                                        to_collapse[link.target.id] = s_c;
                                         collapsed = 1;
                                 }
                         }
@@ -532,6 +541,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 var link = this.force_links[index];
                 link.target.link = link;
         }
+        /*
         this.force_links.sort(function(l1, l2) {return l1.value - l2.value;});
         var link_len = [];
         for (var index in this.force_links) {
@@ -557,16 +567,11 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                                         }
                                 }
                         }
-                }
-                if (!l || (l.value > max_distance && ! to_collapse[l.source.id])) continue;
+                }*/
+        for (var index=this.force_links.length-1; index >=0; index --) {
+        		var l = this.force_links[index];
+                if ( !l || (l.value > max_distance && to_collapse[l.source.id] !== 2) || (l.value > 1e-8 && to_collapse[l.source.id] === 1) ) continue;
                 l.remove=l.target.remove=true;
-		/*if (!l.source.hypothetical) {
-			for (var id in this.grouped_nodes[l.target.id]) {
-				sid = this.grouped_nodes[l.target.id][id];
-				this.metadata[sid]['__Node'] = l.source.id;
-			}
-		}
-                */
                 this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
 		
                 var increase=l.value;
@@ -587,8 +592,8 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                         var ln = child.link;
                         ln.source = l.source;
                         if (l.target.hypothetical) {
-                                ln.value += increase;
-                                ln.original_value = ln.value;
+               //                 ln.value += increase;
+               //                 ln.original_value = ln.value;
                         }
                 }
 
@@ -596,13 +601,13 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                         delete l.source.hypothetical;
                         for (var id in l.source.children) {
                                 ln = l.source.children[id].link;
-                                ln.value += increase;
-                                ln.original_value += increase;
+                                //ln.value += increase;
+                                //ln.original_value += increase;
                         }
 
                         if (l.source.link) {
-                                l.source.link.value += increase;
-                                l.source.link.original_value += increase;
+                                //l.source.link.value += increase;
+                                //l.source.link.original_value += increase;
                         }
                         if (max_distance > this.node_collapsed_value && layout) layout[l.target.id] = layout[l.source.id];
 
@@ -961,7 +966,7 @@ D3MSTree.prototype.changeCategory= function(category){
         }).on("mouseout",function(d){
                  for (var i in self.segment_out_listeners){
                         self.segment_out_listeners[i](d);    
-                }        
+                }
         })
         .style("stroke","black");      
         this._drawNodes();
@@ -1385,7 +1390,7 @@ D3MSTree.prototype._centerGraph = function(){
         }
         var wdiff = maxX-minX;
         var hdiff = maxY-minY;
-        var scale = wdiff > hdiff ? this.width/wdiff : this.height/hdiff;
+        var scale = wdiff > hdiff ? this.width/wdiff : (hdiff > 0 ? this.height/hdiff : 1);
 
         this.setScale(scale*0.8);
         this.setTranslate([40,40]);
@@ -1412,15 +1417,15 @@ D3MSTree.prototype.clearSelection= function(pervasive){
 
            if (this.node_elements) {
                 this.node_elements.classed('selected', false);
-	               this.node_elements.selectAll(".halo").remove();
+	            this.node_elements.selectAll(".halo").remove();
            }
 
 	} else {
 	        this.node_elements.filter(function(node){return ! node.selected})
 	        .filter(function(node){delete node.halo_thickness; delete node.halo_colour;return true;})
 	        .classed('selected', false).selectAll('.halo').remove();
+	        updateMetadataTable();
 	}
-	updateMetadataTable();
 };
 
 /**
@@ -2126,17 +2131,15 @@ D3MSTree.prototype.brushEnded=function(extent){
                 not_in_selection.filter(function(d) {d.selected=true});
         } else {
                 selected_nodes.filter(function(d) {delete d.selected; delete node.halo_colour; delete node.halo_thickness});
+                this.clearSelection(true);
         }
      
        this._addHalos(function(d){return d.selected},5,"red");
-		setTimeout(function(){updateMetadataTable(true);}, 400);
-	   ;
-
+	   updateMetadataTable(true);
 }
 
 D3MSTree.prototype.selectAll=function(){
 	this.node_elements.filter(function(n) {n.selected=true;});
 	this._addHalos(function(d){return d.selected},5,"red");
-	updateMetadataTable();
-
+	updateMetadataTable(true);
 }
