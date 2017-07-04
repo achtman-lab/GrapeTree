@@ -264,6 +264,9 @@
 			$("#replace-div").toggle(150).css("top",yy).css("left",xx).css("position","fixed").show();
 		});
 	
+	function resetGridColumns() {
+		grid.setColumns(default_columns);
+	};
 
 	function updateMetadataTable(select_moveUp) {
 		if (! the_tree) {
