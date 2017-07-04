@@ -1030,15 +1030,17 @@ D3BaseTree.prototype._changeCategory=function(category){
 	var colour_count=0;
 	this.category_colours={};
 	for (var key in this.metadata){
-		var val = this.metadata[key][category];
-		if (!val && val !==0){
-			continue;
-		}
-		if (!cat_count[val]){
-			cat_count[val]=1;
-		}
-		else{
-			cat_count[val]++;
+		if (this.node_map[key]) {
+			var val = this.metadata[key][category];
+			if (!val && val !==0){
+				continue;
+			}
+			if (!cat_count[val]){
+				cat_count[val]=1;
+			}
+			else{
+				cat_count[val]++;
+			}
 		}
 	}
 
@@ -1221,7 +1223,7 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	/*
 	Create text elements with group names
 	*/
-	legend_items.append('text').attr('x', 20).attr('y', 9).attr('dy', ".35em").style('text-anchor', 'start').text(function(it){
+	legend_items.append('text').attr('x', 20).attr('y', 9).attr('dy', ".35em").attr("font-family", "Arial").style('text-anchor', 'start').text(function(it){
 		var name = it.group;
 		if (name.length >25){
 			name = name.substring(0,25)+"..."
@@ -1232,13 +1234,13 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	Update the legend title
 	*/
 	legend.selectAll('.legend-title').remove();
-	legend.append('text').attr('class', 'legend-title').attr('x', 22).attr('y', 20).attr('font-weight', 'bold').text(title);
+	legend.append('text').attr('class', 'legend-title').attr('x', 22).attr('y', 20).attr('font-weight', 'bold').attr("font-family", "Arial").text(title);
 	var legend_dim = legend_svg[0][0].getBBox();
 	legend_svg.attr('width', 220).attr('height', legend_dim.height + 10);
 	this.legend_div.width(220);
 	var l_height = $("#legend-svg").height();
 	var height = l_height+10;
-	this.legend_div.css({"top":"0px","right":"0px","max-height":height+"px"});
+	this.legend_div.css({"max-height":height+"px"});
 	this.legend_div.height(height);
 };
 	
@@ -1342,41 +1344,22 @@ D3BaseTree.prototype._keyDown= function(e){
 /**
 Downloads the current tree in svg format
 */
-D3BaseTree.prototype.downloadSVG=function(name){
-	//attach legend to svg
-	this.legend_div.show();
-	var x = (this.width - 180);
-	var leg = $(".legend");
-	$("#mst-svg").append(leg);
-	leg.attr("transform","translate("+x+",5)");
-	var svgData = $("#mst-svg")[0].outerHTML;
-	var svgData = ['<svg xmlns="http://www.w3.org/2000/svg" ', svgData.substring(5,9999999)].join('');
-	var svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
-	var svgUrl = URL.createObjectURL(svgBlob);
-	var downloadLink = document.createElement("a");
-	downloadLink.href = svgUrl;
-	downloadLink.download = name;
-	document.body.appendChild(downloadLink);
-	downloadLink.click();
-	document.body.removeChild(downloadLink);
-	$("#legend-div").append(leg);
-	this.showLegend(this.show_legend);
-	
-};
-
 D3BaseTree.prototype.getSVG=function(){
 	//attach legend to svg
-	this.legend_div.show();
-	var x = (this.width - 180);
-	var leg = $(".legend");
-	$("#mst-svg").append(leg);
-	leg.attr("transform","translate("+x+",5)");
+	//this.legend_div.show();
+	if (the_tree.legend_div.css("display") === 'block') {
+		var ori_pos = the_tree.legend_div.position();
+		var leg = $(".legend");
+		$("#mst-svg").append(leg);
+		leg.attr("transform","translate("+ori_pos.left+","+ori_pos.top+")");
+	}
 	var svgData = $("#mst-svg")[0].outerHTML;
 	var svgData = ['<svg xmlns="http://www.w3.org/2000/svg" ', svgData.substring(5,9999999)].join('');
-	$("#legend-div").append(leg);
-	this.showLegend(this.show_legend);
+	if (the_tree.legend_div.css("display") === 'block') {
+		leg.attr("transform","translate(0,0)");
+		$("#legend-svg").append(leg);
+	}
 	return svgData;
-	
 };
 
 

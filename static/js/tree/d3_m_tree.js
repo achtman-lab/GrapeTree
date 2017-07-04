@@ -130,7 +130,6 @@ function D3MSTree(element_id,data,callback,height,width){
 				angle = 360 + angle;
 			}
     		ui.helper.select('.angle-text').text(Math.round(angle) + '\xB0') ;
-    		console.log(ui.helper.position(), ui.helper.select('.angle-text').position())
 		});
 
         this.add_collapsed_lengths=true;
@@ -191,7 +190,7 @@ function D3MSTree(element_id,data,callback,height,width){
         } 
       
         if (callback){
-                callback(this,"Collapsing Nodes:"+this.original_nodes.length);
+                callback(this,this.original_nodes ? "Collapsing Nodes:"+this.original_nodes.length : "Collapsing Nodes.");
         
         }
         
