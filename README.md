@@ -4,6 +4,7 @@ This is a stand alone version of the tree viewer in Enterobase (http://enterobas
 It consists of an HTML and JavaScrript front end for viewing and manipulating trees 
 and a backend written in Python and C for calculations.
 
+**For details help please see: https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree**
 
 ## Installation 
 EnteroMSTree - GrapeTree requires on Python 2.7 and some additional python
