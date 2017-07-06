@@ -330,9 +330,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<button id ="center-graph-button">Centre Tree</button>
 			<hr>
 			<p align = 'center'>
-				<label> Drag to Rotate:&nbsp;</label>
-				<span class="rotation-icon glyphicon glyphicon-refresh"></span>
-				<br>
+				<div id="rotation-div"><label> Drag to Rotate:&nbsp;</label>
+				<span id="rotation-icon" class="glyphicon glyphicon-refresh"></span>
+				</div>
 				<label>Zoom:&nbsp;</label>
 				<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
 				<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
@@ -901,6 +901,32 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 					} else {
 						updateMetadataTable();
 					}
+					$("#rotation-div").draggable({
+					  start: function(e) {
+						the_tree._dragStarted(the_tree.force_nodes[0], [$("#rotation-icon").position().left, $("#rotation-icon").position().top]);
+					  },
+					  drag: function(e) {
+						the_tree._dragging(the_tree.force_nodes[0], [e.clientX, e.clientY]);
+					  },
+					  stop: function(e) {
+						the_tree._dragEnded(the_tree.force_nodes[0], [e.clientX, e.clientY]);
+					  },
+					  revert: true,
+					  revertDuration: 10,
+					  helper: function() {return $("<div><label id='angle-text'></label></div>")},
+					});
+					$("#rotation-div").bind("drag", function(event, ui) {
+						var x_dif = ui.helper.position().left - $("#rotation-icon").position().left;
+						var y_dif = $("#rotation-icon").position().top - ui.helper.position().top;
+						var angle = y_dif !== 0 ? Math.atan(x_dif/y_dif)/Math.PI * 180 : (x_dif === 0 ? 0 : (x_dif > 0 ? 90 : -90));
+						if (y_dif < 0 ) {
+							angle = 180 + angle;
+						} else if (x_dif < 0) {
+							angle = 360 + angle;
+						}
+						ui.helper.select('.angle-text').text(Math.round(angle) + '\xB0') ;
+					});
+
  /*               }catch(e){
 						console.log(e.message);
 						console.log(e.stacktrace);

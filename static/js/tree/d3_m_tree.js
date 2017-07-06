@@ -572,7 +572,8 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         		var l = this.force_links[index];
                 if ( !l || (l.value > max_distance && to_collapse[l.source.id] !== 2) || (l.value > 1e-8 && to_collapse[l.source.id] === 1) ) continue;
                 l.remove=l.target.remove=true;
-                this.grouped_nodes[l.source.id]=this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
+                this.grouped_nodes[l.target.id] = this.grouped_nodes[l.source.id] = this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
+                //this.grouped_nodes[l.target.id] = this.grouped_nodes[l.source.id].concat([]);
 		
                 var increase=l.value;
 
@@ -649,10 +650,11 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
         }
 		this.node_map = {};
         for (var id in this.force_nodes) {
-                node = this.force_nodes[id];
+                var node = this.force_nodes[id];
                 this.node_map[node.id] = node;
-                for (var jd in this.grouped_nodes[id]) {
-                        this.node_map[jd] = node;
+                for (var jd in this.grouped_nodes[node.id]) {
+                		var n = this.grouped_nodes[node.id][jd];
+                        this.node_map[n] = node;
                 }
 		var sub_ids= this.grouped_nodes[node.id];
 		for (var i in sub_ids){
