@@ -63,7 +63,8 @@ class distance_matrix(object) :
 
     @staticmethod
     def eBurst(dist) :
-        weights = np.apply_along_axis(np.bincount, 1, dist.astype(int), minlength=np.max(dist).astype(int)+1).T
+        # weights = np.apply_along_axis(np.bincount, 1, dist.astype(int), minlength=np.max(dist).astype(int)+1).T
+        weights = np.apply_along_axis(np.bincount, 1, np.hstack([dist.astype(int), np.array([[np.max(dist).astype(int)+1]]*dist.shape[1])]) )
         dist_order = np.concatenate([[0], np.arange(weights.shape[0]-1, 0, -1)])
         orders = np.lexsort(-weights[dist_order])
         weights = np.zeros(shape=[orders.size, orders.size])

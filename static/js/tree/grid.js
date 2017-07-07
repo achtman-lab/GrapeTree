@@ -8,10 +8,10 @@
 		$("#replace-confirm").click(function(e) {
 			var val = $("#replace-tag").val();
 			columns = grid.getColumns();
-			var col = columns[mouse_pos[3]].field;
+			var col = columns[grid.mouse_pos[3]].field;
 			if (col == '__selected') {
 				var update_selection = {};
-				for (var id=mouse_pos[0]; id <= mouse_pos[2]; id ++) {
+				for (var id=grid.mouse_pos[0]; id <= grid.mouse_pos[2]; id ++) {
 					d = dataView.getItem(id);
 					d[col] = (val && val != 'F' && val != 'f' && val != 'false') ? true : false;
 					update_selection[d.__Node] = d[col];
@@ -20,7 +20,7 @@
 				the_tree.clearSelection(true);
 				the_tree._addHalos(function(d){return d.selected},5,"red");
 			} else if (col != '__Node' && col != 'ID' && col != 'id') {
-				for (var id=mouse_pos[0]; id <= mouse_pos[2]; id ++) {
+				for (var id=grid.mouse_pos[0]; id <= grid.mouse_pos[2]; id ++) {
 					d = dataView.getItem(id);
 					d[col] = val;
 				}
@@ -39,11 +39,12 @@
 		// metadata div events
 		$('#metadata-div').draggable({handle:$('#handler')}).resizable().resize(function(){
 			var h=$('#metadata-div').height();
-			$('#myGrid').css({'height':(h-20)+'px'});
+			$('#myGrid').css({'height':(h-40)+'px'});
 			grid.resizeCanvas();
 		})
 		.click(function(e){
 			$('#replace-div').css("opacity",0.8).width(30).hide();
+			$("#context-menu").hide();
 		})
 		.hide();
 		//.show(300);
@@ -115,12 +116,16 @@
 		var dataView = new Slick.Data.DataView();
 		
 		var default_columns = [
-			{id: "Selected", name: "Selected", field: "__selected", width: 100, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
-			{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}},
-			{id: "Name", name: "Name", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}},
-			{id: "Node", name: "Node", field: "__Node", 
-				width:100, sortable: true, prop:{category:'character', group_num:30, group_order:'occurence'}},
+			{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 20, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
+			{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
+			{id: "Barcode", name: "Barcode", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
 		];
+		var columns = [
+			{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 20, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
+			{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
+			{id: "Barcode", name: "Barcode", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
+		];
+
 		var options = {
 			editable: true,
 			enableAddRow: false,
@@ -155,7 +160,7 @@
 			source_data[index].id = parseInt(index)+1;
 		}
 
-		grid = new Slick.Grid("#myGrid", dataView, default_columns, options);
+		grid = new Slick.Grid("#myGrid", dataView, columns, options);
 		
 		dataView.onRowCountChanged.subscribe(function (e, args) {
 		  grid.updateRowCount();
@@ -236,11 +241,17 @@
 		  grid.invalidate();
 		  grid.render();
 		});
-
-		var mouse_pos = []; mouse_pos.length=4;
 		grid.onClick.subscribe(function(e, args) {
-			$("#context-menu").hide();
+			var cell = grid.getCellFromEvent(e);
+			if (grid.getColumns()[cell.cell].field === '__selected') {
+				d = grid.getDataItem(cell.row);
+				d.__selected = d.__selected ? false : true;
+				the_tree.force_nodes.filter(function(n){if(n.id == d.__Node) {n.selected=d.__selected}});
+				the_tree.clearSelection(true);
+				the_tree._addHalos(function(d){return d.selected},5,"red");
+			}
 		});
+		grid.mouse_pos = []; 
 		grid.onCellChange.subscribe(function (e, args) {
 			if (args.cell == 0) {
 				var d = args.item;
@@ -252,15 +263,19 @@
 			}
 		});
 		grid.onDragEnd.subscribe(function(e, args){
-			mouse_pos[2] = e.clientX, mouse_pos[3] = e.clientY;
+			grid.mouse_pos = [0, 0, e.clientX, e.clientY];
 		});
 		grid.setSelectionModel(new Slick.CellSelectionModel());
-		grid.getSelectionModel().onSelectedRangesChanged.subscribe(function(e,args){
-			if (args[0].fromRow == args[0].toRow || args[0].fromCell != args[0].toCell) {
+		grid.selectionmodel = grid.getSelectionModel();
+		grid.selectionmodel.onSelectedRangesChanged.subscribe(function(e,args){
+			if (args[0].fromCell != args[0].toCell) {
+				return;
+			} else if (args[0].fromRow === args[0].toRow) {
 				return;
 			}
-			var xx = mouse_pos[2], yy = mouse_pos[3];
-			mouse_pos = [args[0].fromRow, args[0].fromCell, args[0].toRow, args[0].toCell];
+
+			var xx = grid.mouse_pos[2], yy = grid.mouse_pos[3];
+			grid.mouse_pos = [args[0].fromRow, args[0].fromCell, args[0].toRow, args[0].toCell];
 			$("#replace-div").toggle(150).css("top",yy).css("left",xx).css("position","fixed").show();
 		});
 	
@@ -311,4 +326,9 @@
 		dataView.setItems(source_data);
 		grid.invalidate();
 		grid.render();
+		$(".slick-headerrow-column").attr("title", "Type in to filter records on the columns").on('mouseenter', function(e){
+			showToolTip($(this).attr('title'), {pageX:$(this).offset().left + $(this).width() + 10, pageY:$(this).offset().top + $(this).height()/2+10});
+		}).on('mouseleave', function(e) {
+			setTimeout(hideToolTip, 200);
+		});
 	};

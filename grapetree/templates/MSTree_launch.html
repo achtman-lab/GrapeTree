@@ -4,7 +4,7 @@
 
 <head>
         <link rel="stylesheet" href='static/js/jquery-ui-1.11.4/jquery-ui.min.css'>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="static/css/bootstrap.min.css">
         <style>
                 body{
                         width:100%;
@@ -135,17 +135,43 @@
 .slick-row.even {
 	background: #ccffcc;
 }
+.slick-cell {
+	border-right: 1px solid silver;
+}
+.navbar-nav > li > a {
+	padding-top: 5px;
+    height: 30px;
+}
+.slick-column-name {
+	color: #505050;
+}
+.navbar {
+	min-height:30px;
+	margin-bottom:0px
+}
+.grid-canvas >.odd >.uneditable-cell {
+	background: #e5e5b7;
+}
+.grid-canvas >.even >.uneditable-cell {
+	background: #b7e5b7;
+}
 
 </style>
 <div id = 'metadata-div' style='width:600px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1;display:none'>
-	<div id='handler' style="background-color:#f1f1f1;width:100%;height:20px;border-radius:5px;border: 0px solid #b0f2f2;">
-		<span title='Close The Window' id = 'metadata-close' class='glyphicon glyphicon-remove show-tooltip'style='top:-6px;float:right;margin-right:10px'></span>
-		<span title='Download This Table' id = 'metadata-download' class='glyphicon glyphicon-download show-tooltip'></span>&nbsp;&nbsp;
-		<span title='Add A New Category' id="metadata-add-icon" class='glyphicon glyphicon-plus show-tooltip'></span>&nbsp;&nbsp;&nbsp;&nbsp;
-		<input type="checkBox" id="metadata-filter" checked><span title='Show Filtering Bar?' class='glyphicon glyphicon-filter show-tooltip'></span>&nbsp;&nbsp;&nbsp;&nbsp;
-		<input type="checkBox" id="hypo-filter" ><span title='Show hypothetical nodes?' class='glyphicon glyphicon-screenshot show-tooltip'></span>
+<nav id="handler" class="navbar navbar-default ui-draggable-handle">
+  <div class="container-fluid" style="padding-right:10px;padding-left:10px">
+    <ul class="nav navbar-nav">
+      <li><a href="#"><span title="Download This Table" id="metadata-download" class="glyphicon glyphicon-download show-tooltip"><label style="font-family:Arial">Download</label></span></a></li>
+      <li><a href="#"><span title="Add A New Category" id="metadata-add-icon" class="glyphicon glyphicon-plus show-tooltip"><label style="font-family:Arial">Add Category</label></span></a></li>
+      <li><a href="#"><input type="checkBox" id="metadata-filter" checked=""><span title="Show Filtering Bar?" class="glyphicon glyphicon-filter show-tooltip"><label style="font-family:Arial">Filter</label></span></a></li>
+      <li><a href="#"><input type="checkBox" id="hypo-filter"><span title="Show hypothetical nodes?" class="glyphicon glyphicon-screenshot show-tooltip"><label style="font-family:Arial">Hypo nodes</label></span></a></li>
+    </ul>
+	<div style="margin-top:1px;float:right;margin-right:0px"><span class="help-icon glyphicon glyphicon-question-sign" style="margin-right:5px"></span>
+		<span title="Close The Window" id="metadata-close" class="glyphicon glyphicon-remove show-tooltip" style="float:right;top:2.5px"></span>
 	</div>
-	<div id="myGrid" style="width:100%;height:580px"></div>
+  </div>
+</nav>
+<div id="myGrid" style="width:100%;height:580px"></div>
 	<div title='replace all the cells in the selection' id='replace-div' style='height:30px;width:30px;background-color:#ffffff;z-index:3;opacity:0.8'>
 		<input id='replace-tag' style='height:100%;width:100%'>
 		<span title='Confirm' id='replace-confirm' class='glyphicon glyphicon-ok show-tooltip' style='top:0px;left:100%;float:right;position:absolute'></span>
@@ -304,24 +330,24 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<button id = 'button-goback' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Unmodified tree</button>
 			<br><br>
 			<div>
-				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Branch Length (%)</label><br>
+				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Branch Length (%)</label><br>
 				<div id = "slider-linklength" class ="slider-class" style="width:80px">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Collapse branches below a certain value">
-				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
+				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
 				<div id = "slider-collapse-nodes" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
 			</div>
 			<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
 			<br>
 			<hr>
 			<div >
-				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
+				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
 				<div id = "slider-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Node size relative to number of strains">
-				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-refresh'></span><label>&nbsp;&nbsp;Node scaling (%)</label><br>
+				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node scaling (%)</label><br>
 				<div id = "slider-relative-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
 			</div>
 			<br>
@@ -330,7 +356,10 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<button id ="center-graph-button">Centre Tree</button>
 			<hr>
 			<p align = 'center'>
-				<label> Zoom:&nbsp;&nbsp;</label>
+				<div id="rotation-div"><label> Drag Icon to Rotate:&nbsp;</label>
+				<span id="rotation-icon" class="glyphicon glyphicon-refresh"></span>
+				</div>
+				<label>&nbsp;&nbsp;Zoom:&nbsp;</label>
 				<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
 				<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
 			</p>
@@ -531,7 +560,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	}
 	var var1 = parseInt("{{dhdhdhdh}}");
         var all_files=null;
-	var metatdata_file_name;
+	var metadata_file_name;
         var waiting_spinner= null;
         var waitingDialog = null;
         var the_tree = null;
@@ -833,6 +862,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 					the_tree.svg.remove();
 					the_tree.legend_div[0].remove();
 					resetGridColumns();
+					metadata_options = {};
+					$("#metadata-select").find("option").remove();
+					$("#node-label-text").find("option").remove();
 				}
                 $("#waiting-information").text("Loading Data");
                 the_tree = null;
@@ -895,6 +927,32 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 					} else {
 						updateMetadataTable();
 					}
+					
+					$("#rotation-icon").draggable({
+					  start: function(e) {
+						the_tree._dragStarted(the_tree.force_nodes[0], [$("#rotation-icon").position().left, $("#rotation-icon").position().top]);
+					  },
+					  drag: function(e) {
+						the_tree._dragging(the_tree.force_nodes[0], [e.clientX, e.clientY]);
+					  },
+					  stop: function(e) {
+						the_tree._dragEnded(the_tree.force_nodes[0], [e.clientX, e.clientY]);
+					  },
+					  revert: true,
+					  revertDuration: 10,
+					  helper: function() {return $("<div></div>")},
+					}).bind("drag", function(event, ui) {
+						var x_dif = ui.helper.position().left - $("#rotation-icon").position().left;
+						var y_dif = $("#rotation-icon").position().top - ui.helper.position().top;
+						var angle = y_dif !== 0 ? Math.atan(x_dif/y_dif)/Math.PI * 180 : (x_dif === 0 ? 0 : (x_dif > 0 ? 90 : -90));
+						if (y_dif < 0 ) {
+							angle = 180 + angle;
+						} else if (x_dif < 0) {
+							angle = 360 + angle;
+						}
+						ui.helper.text(Math.round(angle) + '\xB0') ;
+					});
+
  /*               }catch(e){
 						console.log(e.message);
 						console.log(e.stacktrace);
