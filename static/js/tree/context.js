@@ -129,7 +129,7 @@ function trigger_context(target, e) {
 			if (grid.getCellFromEvent(e)) {
 				colname = grid.getColumns()[grid.getCellFromEvent(e).cell].name;
 			} else {
-				return;
+				colname = Object.keys(the_tree.metadata_info)[0];
 			}
 		}
 		$("#hover-colname").val(colname);

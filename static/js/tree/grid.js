@@ -39,7 +39,7 @@
 		// metadata div events
 		$('#metadata-div').draggable({handle:$('#handler')}).resizable().resize(function(){
 			var h=$('#metadata-div').height();
-			$('#myGrid').css({'height':(h-20)+'px'});
+			$('#myGrid').css({'height':(h-40)+'px'});
 			grid.resizeCanvas();
 		})
 		.click(function(e){
@@ -116,18 +116,14 @@
 		var dataView = new Slick.Data.DataView();
 		
 		var default_columns = [
-			{id: "Selected", name: "Selected", field: "__selected", width: 100, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
-			{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}},
-			{id: "Name", name: "Name", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}},
-			{id: "Node", name: "Node", field: "__Node", 
-				width:100, sortable: true, prop:{category:'character', group_num:30, group_order:'occurence'}},
+			{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 20, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
+			{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
+			{id: "Barcode", name: "Barcode", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
 		];
 		var columns = [
-			{id: "Selected", name: "Selected", field: "__selected", width: 100, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
-			{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}},
-			{id: "Name", name: "Name", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}},
-			{id: "Node", name: "Node", field: "__Node", 
-				width:100, sortable: true, prop:{category:'character', group_num:30, group_order:'occurence'}},
+			{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 20, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
+			{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
+			{id: "Barcode", name: "Barcode", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
 		];
 
 		var options = {
