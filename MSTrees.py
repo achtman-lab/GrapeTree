@@ -232,7 +232,7 @@ class methods(object) :
         fin = tempfile.NamedTemporaryFile(delete=False)
         fin.write('\n'.join(dist_txt))
         fin.close()
-        Popen('{0} -i {1} -m B'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
+        Popen('{0} -i {1} -m I'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
         tree = dp.Tree.get_from_path(fin.name + '_fastme_tree.nwk', schema='newick')
         from glob import glob
         for fname in glob(fin.name + '*') :
