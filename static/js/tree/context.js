@@ -255,7 +255,9 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 		$(".toggle-metadata").text("Hide metadata table");
 	}
 
+
 	if (this.tree && this.tree.legend_div.css("display") === "none") {
+
 
 		$(".toggle-legend").text("Show figure legend");
 	} else {
@@ -294,6 +296,7 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 
 		var colname = $("#myGrid .ui-state-hover").text();
 		if (! colname) {
+
 
 			if (self.meta_grid.grid.getCellFromEvent(e)) {
 				colname = self.meta_grid.grid.getColumns()[self.meta_grid.grid.getCellFromEvent(e).cell].name;

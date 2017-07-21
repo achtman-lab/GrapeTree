@@ -1,3 +1,4 @@
+
 D3MSMetadataTable.prototype= Object.create(null);
 D3MSMetadataTable.prototype.constructor=D3MSMetadataTable;
 		
@@ -77,6 +78,7 @@ function  D3MSMetadataTable(tree,context_menu){
 		for (var columnId in self.columnFilters) {
 			if (columnId !== undefined && columnFilters[columnId] !== "") {
 				var c = self.grid.getColumns()[self.grid.getColumnIndex(columnId)];
+
 				try {
 					regfilter = new RegExp(columnFilters[columnId], 'i');
 					var found = String(item[c.field]).match(regfilter);
@@ -87,6 +89,7 @@ function  D3MSMetadataTable(tree,context_menu){
 				}
 			  }
 		}
+
 		return true;
 	});
 	this.dataView.endUpdate();
@@ -114,6 +117,7 @@ function  D3MSMetadataTable(tree,context_menu){
 			} else {
 			      var value1 = dataRow1[field], t1=1;
 			      var value2 = dataRow2[field], t2=1;
+
 			}
 			var result = t1 == t2 ? ((value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign) : (t1-t2)*sign;
 			if (result != 0) {
@@ -122,6 +126,7 @@ function  D3MSMetadataTable(tree,context_menu){
 		      }
 		      return 0;
 		});
+
 		self.dataView.setItems(data_reformat(data));
 		self.grid.invalidate();
 		self.grid.render();	
@@ -138,6 +143,7 @@ function  D3MSMetadataTable(tree,context_menu){
 		});
 	this.grid.mouse_pos = []; 
 	this.grid.onCellChange.subscribe(function (e, args) {
+
 			if (args.cell == 0) {
 				var d = args.item;
 				self.tree.force_nodes.filter(function(n){if(n.id == d.__Node) {n.selected=d.__selected}});
@@ -147,8 +153,10 @@ function  D3MSMetadataTable(tree,context_menu){
 				self.tree.changeCategory($("#metadata-select").val());
 			}
 		});
+
 	this.grid.onDragEnd.subscribe(function(e, args){
 			self.grid.mouse_pos = [0, 0, e.clientX, e.clientY];
+
 		});
 	this.grid.setSelectionModel(new Slick.CellSelectionModel());
 	this.grid.selectionmodel = self.grid.getSelectionModel();
@@ -361,6 +369,7 @@ D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 				prop: this.tree.metadata_info[cols[c]]
 			});
 		}
+
 	}
 	this.grid.setColumns(curr_cols);
 	this.source_data.length = 0;
@@ -391,3 +400,4 @@ D3MSMetadataTable.prototype.toggleDisplay=function(){
 		$('#metadata-div').hide(300);
 	}	
 }
+

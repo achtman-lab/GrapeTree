@@ -1040,7 +1040,9 @@ D3BaseTree.prototype._changeCategory=function(category){
 	var colour_count=0;
 	this.category_colours={};
 	for (var key in this.metadata){
+
 		if (this.node_map[ this.metadata[key].ID ]) {
+
 			var val = this.metadata[key][category];
 			if (!val && val !==0){
 				continue;
@@ -1371,6 +1373,7 @@ D3BaseTree.prototype._keyDown= function(e){
 * </ul>
 */
 
+
 D3BaseTree.prototype.addMetadataOptions=function(options){
 	for (var key in options){
 		var value = options[key];
@@ -1415,6 +1418,7 @@ D3BaseTree.prototype.getMetadataOptions=function(){
 /**
 * Gets the 
 */
+
 D3BaseTree.prototype.getSVG=function(){
 	//attach legend to svg
 	//this.legend_div.show();

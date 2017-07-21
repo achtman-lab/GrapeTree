@@ -63,7 +63,8 @@ class distance_matrix(object) :
 
     @staticmethod
     def eBurst(dist) :
-        weights = np.apply_along_axis(np.bincount, 1, dist.astype(int), minlength=np.max(dist).astype(int)+1).T
+        # weights = np.apply_along_axis(np.bincount, 1, dist.astype(int), minlength=np.max(dist).astype(int)+1).T
+        weights = np.apply_along_axis(np.bincount, 1, np.hstack([dist.astype(int), np.array([[np.max(dist).astype(int)+1]]*dist.shape[1])]) )
         dist_order = np.concatenate([[0], np.arange(weights.shape[0]-1, 0, -1)])
         orders = np.lexsort(-weights[dist_order])
         weights = np.zeros(shape=[orders.size, orders.size])
@@ -231,7 +232,7 @@ class methods(object) :
         fin = tempfile.NamedTemporaryFile(delete=False)
         fin.write('\n'.join(dist_txt))
         fin.close()
-        Popen('{0} -i {1} -m B'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
+        Popen('{0} -i {1} -m I'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
         tree = dp.Tree.get_from_path(fin.name + '_fastme_tree.nwk', schema='newick')
         from glob import glob
         for fname in glob(fin.name + '*') :
