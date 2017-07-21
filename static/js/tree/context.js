@@ -8,7 +8,7 @@ D3MSTreeContextMenu.prototype.constructor = D3MSTreeContextMenu;
 * <li> select all (nodes) </li>
 * <li> unselect all (nodes) </li>
 * <li> Collapse Selected Nodes</li>
-* <li> Exoand Selected Nodes </li>
+* <li> Expand Selected Nodes </li>
 * <li> Expand all </li>
 * <li> Center Tree </li>
 * <li> Show Hypothetical (Nodes) </li>
@@ -22,9 +22,9 @@ D3MSTreeContextMenu.prototype.constructor = D3MSTreeContextMenu;
 * @param {integer} height - the initial height (optional)
 * @param {integer} width - the initial width  (optional)
 */
-function D3MSTreeContextMenu(tree,metadata_grid){
+function D3MSTreeContextMenu(tree,meta_grid){
 	this.tree =tree;
-	this.grid= metadata_grid;
+	this.meta_grid=meta_grid;
 	var self = this;
 	var context_html = "<div id='context-menu' style='display:none;position:fixed;width:150px;z-index:4;background-color:#ffffff;border:1px solid #f2f2f2'> \
 		<div id='mst-svg-menu' style='display:none' class='sub-context'> \
@@ -38,7 +38,6 @@ function D3MSTreeContextMenu(tree,metadata_grid){
 			<div class='context-option' id='center-tree'>Center Tree</div> \
 			<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 			<hr class='context-hr'> \
-			<div class='context-option toggle-metadata'>Show metadata table</div> \
 			<div class='context-option toggle-legend'>Show figure legend</div> \
 		</div> \
 		<div id='legend-svg-menu' style='display:none' class='sub-context'> \
@@ -96,8 +95,9 @@ function D3MSTreeContextMenu(tree,metadata_grid){
 				</div> \
 		</div> \
 	";
-	if (metadata_grid){
-		$("body").append($(context_html));
+	if (meta_grid){
+		$("#context-menu").append( metadata_table_html);
+		$("#mst-svg-menu").append("<div class='context-option toggle-metadata'>Show metadata table</div>");
 	}
 	$(".context-option").css("font-size", "90%").css("margin", "5px");
 	$(".context-hr").css("margin", "2px");
@@ -173,8 +173,7 @@ D3MSTreeContextMenu.prototype._init=function(){
 	});
 
 	$(".switch-hypo").click(function(e) {
-		$("#hypo-filter").prop('checked', $("#hypo-filter").prop('checked') ? false : true);
-		$("#hypo-filter").trigger("change");
+		self.tree.toggleHypotheticalNodes();
 	});
 
 	$(".clearSelection").on("click", function(e) {
@@ -189,7 +188,7 @@ D3MSTreeContextMenu.prototype._init=function(){
 	$(".toggle-metadata").click(function(e) {
 		if ($("#metadata-div").css('display') === 'none') {
 			$('#metadata-div').show(300);
-			setTimeout(function(){updateMetadataTable(true);}, 400);
+			setTimeout(function(){self.meta_grid.updateMetadataTable(true);}, 400);
 		} else {
 			$('#metadata-div').hide(300);
 		}
@@ -204,43 +203,30 @@ D3MSTreeContextMenu.prototype._init=function(){
 	});
 	
 	$("#center-tree").click(function(e) {
-		$("#center-graph-button").trigger("click");
+		self.tree.centerGraph();
 	});
 	
-	$("#collapse_node").click(function(e) {
-		var selected_nodes = self.tree.force_nodes.filter(function(d){return d.selected});
-		for (var id in selected_nodes) {
-			var node_id = selected_nodes[id].id;
-			for (var jd in self.tree.hypo_record[node_id]) {
-				self.tree.manual_collapsing[jd] = 2;
-			}
-		}
-		$( "#spinner-collapse-nodes" ).trigger("change");
+	$("#collapse_node").click(function(e) {	
+		self.tree.collapseSpecificNodes(self.tree.getSelectedNodeIDs());		
 	});
+	
+	
 	$("#uncollapse_all").click(function(e) {
 		self.tree.manual_collapsing = {};
-		$( "#spinner-collapse-nodes" ).val(0);
-		$( "#spinner-collapse-nodes" ).trigger("change");
+		self.tree.collapseNodes(0);
+	
 	});
 	
 	$("#uncollapse_node").click(function(e) {
-		var selected_nodes = self.tree.force_nodes.filter(function(d){return d.selected});
-		for (var id in selected_nodes) {
-			var node_id = selected_nodes[id].id;
-			for (var jd in self.tree.hypo_record[node_id]) {
-				self.tree.manual_collapsing[jd] = 1;
-			}
-		}
-		$( "#spinner-collapse-nodes" ).trigger("change");
+		self.tree.collapseSpecificNodes(self.tree.getSelectedNodesIDs(),true)
 	});
 	
 	$("#change-category").click(function(e) {
 		var colname = $("#hover-colname").val();
-		$("#metadata-select").val(colname);
-		if (! $("#metadata-select").val()) {
-			$("#metadata-select").val("nothing");
+		if (!colname){
+			colname = 'nothing';
 		}
-		$("#metadata-select").trigger("change");
+		self.tree.changeCategory(colname);
 	});
 
 	$("#group-num-input").on("change", function(e) {
@@ -257,16 +243,20 @@ D3MSTreeContextMenu.prototype._init=function(){
 
 
 
+
 D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
+	var self = this;
 	$('.sub-context').hide();
 
-	$(".switch-hypo").text($("#hypo-filter").prop('checked') ? "Hide hypothetical" : "Show hypothetical")
+	$(".switch-hypo").text(this.tree.show_hypothetical_nodes ? "Hide hypothetical" : "Show hypothetical")
 	if ($("#metadata-div").css('display') === 'none') {
 		$(".toggle-metadata").text("Show metadata table");
 	} else {
 		$(".toggle-metadata").text("Hide metadata table");
 	}
-	if (this.tree.legend_div.css("display") === "none") {
+
+	if (this.tree && this.tree.legend_div.css("display") === "none") {
+
 		$(".toggle-legend").text("Show figure legend");
 	} else {
 		$(".toggle-legend").text("Hide figure legend");
@@ -295,15 +285,22 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 	} else if (target == 'myGrid') {
 		$("#hover-colname").empty().append(function() {
 			output = '';
-			for(var category in this.tree.metadata_info) {
-				output += '<option>' + category + '</option>'
+			for(var category in self.tree.metadata_info) {
+				var label = self.tree.metadata_info[category]['label'];
+				output += "<option value='"+category+"'>" + label+ "</option>";
 			}
 			return output;
 		})
 
-		var colname = $(".ui-state-hover .slick-column-name").text();
+		var colname = $("#myGrid .ui-state-hover").text();
 		if (! colname) {
-			colname = Object.keys(this.tree.metadata_info)[0];
+
+			if (self.meta_grid.grid.getCellFromEvent(e)) {
+				colname = self.meta_grid.grid.getColumns()[self.meta_grid.grid.getCellFromEvent(e).cell].name;
+			} else {
+				colname = Object.keys(the_tree.metadata_info)[0];
+			}
+
 		}
 		$("#hover-colname").val(colname);
 
@@ -321,6 +318,9 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 		$("#context-menu").height($("#myGrid-menu").height()+5);
 	};
 };
+
+
+
 
 
 
