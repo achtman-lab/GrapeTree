@@ -4,7 +4,7 @@
 
 <head>
         <link rel="stylesheet" href='static/js/jquery-ui-1.11.4/jquery-ui.min.css'>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="static/css/bootstrap.min.css">
         <style>
                 body{
                         width:100%;
@@ -135,6 +135,26 @@
 }
 .slick-row.even {
 	background: #ccffcc;
+}
+.slick-cell {
+	border-right: 1px solid silver;
+}
+.navbar-nav > li > a {
+	padding-top: 5px;
+    height: 30px;
+}
+.slick-column-name {
+	color: #505050;
+}
+.navbar {
+	min-height:30px;
+	margin-bottom:0px
+}
+.grid-canvas >.odd >.uneditable-cell {
+	background: #e5e5b7;
+}
+.grid-canvas >.even >.uneditable-cell {
+	background: #b7e5b7;
 }
 
 </style>
@@ -317,10 +337,10 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<button id ="center-graph-button">Centre Tree</button>
 			<hr>
 			<p align = 'center'>
-				<div id="rotation-div"><label> Drag to Rotate:&nbsp;</label>
+				<div id="rotation-div"><label> Drag Icon to Rotate:&nbsp;</label>
 				<span id="rotation-icon" class="glyphicon glyphicon-refresh"></span>
 				</div>
-				<label>Zoom:&nbsp;</label>
+				<label>&nbsp;&nbsp;Zoom:&nbsp;</label>
 				<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
 				<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
 			</p>
@@ -516,7 +536,9 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	function getSuffix(name){
 		var arr = name.split(".");
 		return arr[arr.length-1];
-	}var var1 = parseInt("{{dhdhdhdh}}");
+
+	}
+	var var1 = parseInt("{{dhdhdhdh}}");
 	var all_files=null;
 	var metatdata_file_name;
 	var waiting_spinner= null;
@@ -527,6 +549,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	var the_tree = null;
 	
 	var tree_name="";
+
 	var cannot_connect=false;
 
 	var default_control_panel_values={
@@ -648,7 +671,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 						tooltip_div.html(msg)
 							.style("left", (e.pageX) + "px")
 							.style("top", (e.pageY - 28) + "px");
-						setTimeout(hideToolTip, 2500);
+						setTimeout(hideToolTip, 2000);
         }
 
         function hideToolTip(){
@@ -908,6 +931,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		the_tree.resize();
 					
 					// metadata
+
 		//if (!metadata_options['nothing']){
               //          metadata_options['nothing']='No Category';
 		//	  $("#metadata-select").append($("<option>").attr("value",'nothing').text('No Category'));
@@ -959,6 +983,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			}
 			ui.helper.select('.angle-text').text(Math.round(angle) + '\xB0') ;
 		});
+
 		$('.panel-default').find('input, textarea, button, select, div, span').css("opacity", 1.0).prop('disabled',false);
 	}
 
@@ -1218,6 +1243,7 @@ window.onload = function (){
         });
         $(window).trigger("resize");
 
+
         $("#mst-download-svg").click(function(e){
                 var svg = the_tree.getSVG();
 		saveTextAsFile(svg,"MSTree.svg");
@@ -1424,6 +1450,7 @@ window.onload = function (){
                 max: 100,
                 value: 0,
         });
+
 	$( "#spinner-collapse-nodes" ).on("change", function(e) {
 		var v = parseFloat($(this).spinner('value'));
 		$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
@@ -1432,6 +1459,7 @@ window.onload = function (){
 	 .spinner({
 	min:0,
 	value: 0
+
         });
 
 
