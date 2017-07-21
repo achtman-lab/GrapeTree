@@ -797,7 +797,7 @@ function D3BaseTree(element_id,metadata,height,width){
 	}
 	
 	this.metadata={};
-	this.metadata_info = {};
+	this.metadata_info = {nothing:"No Category"};
 	this.original_grouped_nodes={};
 	this.grouped_nodes={};
 	this.metadata_map={};
@@ -828,6 +828,9 @@ function D3BaseTree(element_id,metadata,height,width){
 	this.max_date=null;
 	this.date_scale=null;
 	this.calculateDateScale();
+	this.treeChangedListeners=[];
+	this.nodesSelectedListeners=[];
+	this.displayChangedListeners=[];
 	
 	//Zooming and translating
 	this.scale=1;
@@ -848,8 +851,9 @@ function D3BaseTree(element_id,metadata,height,width){
 			self.canvas.attr('transform', "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
 			self.scale=d3.event.scale;
 			self.translate=d3.event.translate;
-		})
-	);
+		}))
+		.on("dblclick.zoom", null);
+	
 	this.canvas = this.svg.append("g");
 	this.canvas.attr("id","vis");
 	//resize
@@ -956,7 +960,10 @@ D3BaseTree.prototype.addMetadata=function(metadata){
 			}		
 		}
 	}
-}
+	for (var i in this.treeChangedListeners){
+		this.treeChangedListeners[i]("metadata_altered",this);	
+	}
+};
 /**
 * Deletes the specified category from all metadata
 * @param {string} The category to delete
@@ -966,12 +973,15 @@ D3BaseTree.prototype.removeCategory=function(category){
 		var item = this.metadata[key];
 		delete item[category];
 	}
-}
+	for (var i in this.treeChangedListeners){
+		this.treeChangedListeners[i]("metadata_altered",this);	
+	}	
+};
 
 
 /**
 * Resizes the tree components based on the size of the container
-* This method is automtically called if the window is resized,
+* This method is automatically called if the window is resized,
 * but should be called if the container is resized manually
 */
 
@@ -992,7 +1002,7 @@ D3BaseTree.prototype.resize=function(){
 	var height = l_height + 10;
 	this.legend_div.css({"top":"0px","right":"0px","max-height":height+"px"});
 	this.legend_div.height(height);
-}
+};
 
 /** Sets the scale (size of the tree)
 * @param {float} scale - The scale to set e.g 2
@@ -1030,7 +1040,9 @@ D3BaseTree.prototype._changeCategory=function(category){
 	var colour_count=0;
 	this.category_colours={};
 	for (var key in this.metadata){
-		if (this.node_map[this.metadata[key].ID]) {
+
+		if (this.node_map[ this.metadata[key].ID ]) {
+
 			var val = this.metadata[key][category];
 			if (!val && val !==0){
 				continue;
@@ -1096,6 +1108,11 @@ D3BaseTree.prototype._changeCategory=function(category){
 	}
 	//this.category_colours["Others"] = this.default_colour;
 	this.updateLegend(category, cat_count_list);
+	for (var i in this.displayChangedListeners){
+		this.displayChangedListeners[i]("category_changed",category);
+	
+	}
+	
 }
 
 /**
@@ -1341,9 +1358,67 @@ D3BaseTree.prototype._keyDown= function(e){
 	}
 };
 
+
 /**
-Downloads the current tree in svg format
+* Adds the options available for metadata categories
+* @param {object}Can either be  a key to label of metadata categories
+* e.g. {collection_data:"Collection date","strain_name":"Name",....}
+* or a key to an object containing information about the field
+* <ul>
+* <li> label the name of the field - required </li>
+* <li>coltype - default character </li>
+* <li> grouptype - default size </li>
+* <li> colorscheme - default category </li>
+* <li> The name of the category to group this field default is none </li>
+* </ul>
 */
+
+
+D3BaseTree.prototype.addMetadataOptions=function(options){
+	for (var key in options){
+		var value = options[key];
+		if ( value !== null && typeof value === 'object'){
+			if (!value["coltype"]){
+				value['coltype']='character';			
+			}
+			if (!value["grouptype"]){
+				value['grouptype']='size';			
+			}
+			if(!value["colorscheme"]){
+				value['colorscheme']='category';
+			}
+			
+			this.metadata_info[key] =value
+		}		
+		else{
+			this.metadata_info[key]={label:options[key],coltype : 'character', grouptype : 'size', colorscheme : 'category'}
+		}
+	}
+	for (var i in this.treeChangedListeners){
+		this.treeChangedListeners[i]("metadata_options_altered",options);	
+	}
+}
+
+
+/**
+* Returns all the metadata options as key:value(label) dictionary
+* @returns {object} a key to label of metadata categories
+* e.g. {collection_data:"Collection date","strain_name":"Name",....}
+*/
+D3BaseTree.prototype.getMetadataOptions=function(){
+	var options = {};
+	for (var key in this.metadata_info){
+		options[key]=this.metadata_info[key]['label'];
+	}
+	return options;
+}
+
+
+
+/**
+* Gets the 
+*/
+
 D3BaseTree.prototype.getSVG=function(){
 	//attach legend to svg
 	//this.legend_div.show();
@@ -1361,6 +1436,45 @@ D3BaseTree.prototype.getSVG=function(){
 	}
 	return svgData;
 };
+
+/** Adds a listener to the tree which is called when the tree is altered in some way
+* @param {function} callback A callback which is called when the tree is altered
+* The function should accept a string which specifies what type of change and
+* data which describes the change
+* <ul>
+* <li> metadata_altered </li>
+* <li> nodes_collapsed </li>
+* <li> metadata_options_altered - data contains the new metadata options </li>
+*/
+D3BaseTree.prototype.addTreeChangedListener=function (callback){
+	this.treeChangedListeners.push(callback);
+}
+
+
+/** Adds a listener to the tree which is called when nodes are selected/deselected
+* @param {function} callback A function which is called when nodes are
+* selected, the tree is passed  to the callback
+*
+*/
+D3BaseTree.prototype.addNodesSelectedListener=function (callback){
+	this.nodesSelectedListeners.push(callback);
+}
+
+
+/** Adds a listener to the tree which is called when certain display_functions
+* are called - 
+* @param {function} callback A function which is called when 
+*  the display is altered. The function should accept the type and data
+* associated with the change
+* <ul>
+* <li> show_hypothetical_nodes  - boolean whether the nodes are showb</li>
+* <li> category_changed - string the new category
+* </ul>
+*
+*/
+D3BaseTree.prototype.addDisplayChangedListener=function (callback){
+	this.displayChangedListeners.push(callback);
+}
 
 
 
