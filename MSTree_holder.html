@@ -281,14 +281,17 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		<h3 id="headertag" style="font-family: times, serif; font-size:12pt; font-style:italic">GrapeTree</h3>
 	</div>
 	<br>
-	<div class='panel panel-default'>
-		<div class ='panel-heading mst-menu-title' id= 'file-menu'> <b id>Inputs/Outputs</b><span id = 'file-menu-icon' class='glyphicon glyphicon-menu-down'> </span></div>
+	<div id='input-output-panel' class='panel panel-default'>
+		<div class ='panel-heading mst-menu-title' id= 'file-menu'> <b id='input-output-title'>Inputs/Outputs</b><span id = 'file-menu-icon' class='glyphicon glyphicon-menu-down'> </span></div>
 		<div class = "panel-body" id ='file-menu-panel'>
+		<div id ='load-panel'>
 				<button title='Upload a tree or profile to start your journey!' id = 'button-load-nwk' class = 'show-tooltip'> Load Tree/Profile</button>
 			<br><br>
 				<button id = 'button-load-meta'> Load Metadata</button>
-			<div id='save-panel'>
 				<hr>
+		</div>
+			<div id='save-panel'>
+				
 					<button id ="save-tree-json">Save GrapeTree</button><br><br>
 					<button id ="save-tree-nwk">Save to Newick Tree</button><br><br>
 					<button id ="mst-download-svg">Download SVG</button><br><br>
@@ -613,7 +616,8 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
         }
 
 	//update all the select options
-        function addMetadataOptions(options){	
+        function addMetadataOptions(options){
+		
 		for (var value in options){
 			var obj =options[value];
 			var category = null;
@@ -621,6 +625,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			if (typeof obj === 'object'){
 				label =obj['label'];
 				category = obj['category'];
+				
 			}
 			else{
 				label=obj;
@@ -724,6 +729,11 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
         function treeLoaded(tree){
 		//add the extra functionality
 		metadata_grid = new D3MSMetadataTable(tree);
+		if (tree_id){
+			metadata_grid.setAddColumnFunction(function(name){
+				addCustomColumn(name);
+			})
+		}
 		context_menu= new D3MSTreeContextMenu(tree,metadata_grid);
 		metadata_grid.updateMetadataTable();
 		//add the ability to show/hide grid, 
@@ -1523,8 +1533,10 @@ window.onload = function (){
 
 
 	$('.panel-default').find('input, textarea, button, select, span, div').css("opacity", 0.3).prop('disabled',true);
-	$("#file-menu-panel").css("opacity", 1.0).addClass("open-menu-panel").show();
-	$("#button-load-nwk").css("opacity", 1.0).prop("disabled", false).trigger('mouseenter');
+	if (! tree_id){
+		$("#file-menu-panel").css("opacity", 1.0).addClass("open-menu-panel").show();
+		$("#button-load-nwk").css("opacity", 1.0).prop("disabled", false).trigger('mouseenter');
+	}
 
 	window.addEventListener("beforeunload", function (e) {
 		if (the_tree) {
