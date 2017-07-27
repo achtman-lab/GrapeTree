@@ -218,7 +218,7 @@ D3MSTreeContextMenu.prototype._init=function(){
 	});
 	
 	$("#uncollapse_node").click(function(e) {
-		self.tree.collapseSpecificNodes(self.tree.getSelectedNodesIDs(),true)
+		self.tree.collapseSpecificNodes(self.tree.getSelectedNodeIDs(),true)
 	});
 	
 	$("#change-category").click(function(e) {

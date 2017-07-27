@@ -127,7 +127,7 @@ function  D3MSMetadataTable(tree,context_menu){
 		      return 0;
 		});
 
-		self.dataView.setItems(data_reformat(data));
+		self.dataView.setItems(self.data_reformat(data));
 		self.grid.invalidate();
 		self.grid.render();	
 	});
@@ -280,11 +280,17 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 					"Add": function() {
 						name = $("#metadata-add-colname").val();
 						if (name && name != "") {
-							var obj={};
-							obj[name]=name;
-							self.tree.addMetadataOptions(obj);
-							self.updateMetadataTable();
-							$(this).dialog("close");
+							if (self.addColumnFunction){
+								self.addColumnFunction(name);
+								$(this).dialog("close");
+							}
+							else{
+								var obj={};
+								obj[name]={"label":name}
+								self.tree.addMetadataOptions(obj);
+								self.updateMetadataTable();
+								$(this).dialog("close");
+							}
 						}
 					},
 					"Cancel": function() {
@@ -320,6 +326,11 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 
 D3MSMetadataTable.prototype.showTooltip = function() {
 	self.grid.setColumns(this.default_columns);
+};
+
+D3MSMetadataTable.prototype.setAddColumnFunction= function(callback){
+	this.addColumnFunction = callback;
+
 };
 
 		

@@ -797,7 +797,7 @@ function D3BaseTree(element_id,metadata,height,width){
 	}
 	
 	this.metadata={};
-	this.metadata_info = {nothing:"No Category"};
+	this.metadata_info = {nothing:{label:"No Category"}};
 	this.original_grouped_nodes={};
 	this.grouped_nodes={};
 	this.metadata_map={};
@@ -1251,7 +1251,8 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	Update the legend title
 	*/
 	legend.selectAll('.legend-title').remove();
-	legend.append('text').attr('class', 'legend-title').attr('x', 22).attr('y', 20).attr('font-weight', 'bold').attr("font-family", "Arial").text(title);
+	legend.append('text').attr('class', 'legend-title').attr('x', 22).attr('y', 20).attr('font-weight', 'bold').attr("font-family", "Arial")
+	.text(this.metadata_info[title]['label']);
 	var legend_dim = legend_svg[0][0].getBBox();
 	legend_svg.attr('width', 220).attr('height', legend_dim.height + 10);
 	this.legend_div.width(220);
@@ -1369,7 +1370,7 @@ D3BaseTree.prototype._keyDown= function(e){
 * <li>coltype - default character </li>
 * <li> grouptype - default size </li>
 * <li> colorscheme - default category </li>
-* <li> The name of the category to group this field default is none </li>
+* <li> cateogory The name of the category to group this field default is none </li>
 * </ul>
 */
 
@@ -1406,11 +1407,8 @@ D3BaseTree.prototype.addMetadataOptions=function(options){
 * e.g. {collection_data:"Collection date","strain_name":"Name",....}
 */
 D3BaseTree.prototype.getMetadataOptions=function(){
-	var options = {};
-	for (var key in this.metadata_info){
-		options[key]=this.metadata_info[key]['label'];
-	}
-	return options;
+	
+	return this.metadata_info;
 }
 
 
@@ -1467,7 +1465,7 @@ D3BaseTree.prototype.addNodesSelectedListener=function (callback){
 *  the display is altered. The function should accept the type and data
 * associated with the change
 * <ul>
-* <li> show_hypothetical_nodes  - boolean whether the nodes are showb</li>
+* <li> show_hypothetical_nodes  - boolean whether the nodes are shown</li>
 * <li> category_changed - string the new category
 * </ul>
 *
