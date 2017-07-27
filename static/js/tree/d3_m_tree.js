@@ -126,7 +126,7 @@ function D3MSTree(element_id,data,callback,height,width){
         this.force_nodes = this.d3_force_directed_graph.nodes();
         this.force_links = this.d3_force_directed_graph.links();
         var positions = null;
-       
+        var initial_layout = data['layout_data']?true:false
         if (data['nexus'] || data['nwk']){
                 var root = null;
                 if(data['nexus']){
@@ -139,7 +139,8 @@ function D3MSTree(element_id,data,callback,height,width){
                 }
                 
                 this.createLinksFromNewick(root);
-                if (data['layout_algorithm']!=='force'){
+		//greedy layout
+                if (data['layout_algorithm']!=='force' && !initial_layout){
                         var nodes = _traverse(root);
                         data['layout_data']= {'node_positions':this.greedy_layout(nodes, this.max_link_scale, this.base_node_size)};
                 }
@@ -153,11 +154,11 @@ function D3MSTree(element_id,data,callback,height,width){
         } else {
                 this.original_nodes=data['nodes'];
                 this.original_links=data['links'];
-				this.newickTree=data['newickTree'];
+		this.newickTree=data['newickTree'];
         }
 
         var positions = null;
-        if (data['layout_data']){
+        if (data['layout_data']  ){
                 positions = data['layout_data']['node_positions'];
         
         }
@@ -208,7 +209,7 @@ function D3MSTree(element_id,data,callback,height,width){
         
         }
         //collapsing may have altered the the layout
-        if ((data['nexus'] || data['nwk']) && data['layout_algorithm']!=='force'){
+        if ((data['nexus'] || data['nwk']) && data['layout_algorithm']!=='force' && !initial_layout){
                 var new_node_positions=this.greedy_layout(this.force_nodes, this.max_link_scale, this.base_node_size);
                 for (var id in new_node_positions){
                         data['layout_data']['node_positions'][id]=new_node_positions[id];
@@ -459,7 +460,7 @@ D3MSTree.prototype._start= function(callback,layout_data){
                 this.setLayout(layout_data);
                 this._showLinkLabels();
                 tmp_category = this.display_category;
-                this.changeCategory("ID");
+             
                 if (tmp_category) {
                         this.changeCategory(tmp_category);
                 } else {
@@ -980,7 +981,12 @@ D3MSTree.prototype.toggleHypotheticalNodes=function(){
 D3MSTree.prototype.collapseSpecificNodes=function(nodes,uncollapse){
 	var val = uncollapse?1:2
 	for (var i in nodes) {
-		this.manual_collapsing[nodes[i]] = val;
+		var node=nodes[i];
+		var sub_nodes = this.hypo_record[node];
+		for (var ii in sub_nodes){
+			this.manual_collapsing[ii]= val;
+		}
+		
 	}
 	this.collapseNodes(this.node_collapsed_value,true)	
 }
