@@ -63,10 +63,9 @@ class distance_matrix(object) :
 
     @staticmethod
     def eBurst(dist) :
-        # weights = np.apply_along_axis(np.bincount, 1, dist.astype(int), minlength=np.max(dist).astype(int)+1).T
         weights = np.apply_along_axis(np.bincount, 1, np.hstack([dist.astype(int), np.array([[np.max(dist).astype(int)+1]]*dist.shape[1])]) )
-        dist_order = np.concatenate([[0], np.arange(weights.shape[0]-1, 0, -1)])
-        orders = np.lexsort(-weights[dist_order])
+        dist_order = np.concatenate([[0], np.arange(weights.shape[1]-1, 0, -1)])
+        orders = np.lexsort(-weights.T[dist_order])
         weights = np.zeros(shape=[orders.size, orders.size])
         weights[:, orders] = (np.arange(orders.size))/float(orders.size)
         weights[weights > weights.T] = weights.T[weights > weights.T]
@@ -232,7 +231,7 @@ class methods(object) :
         fin = tempfile.NamedTemporaryFile(delete=False)
         fin.write('\n'.join(dist_txt))
         fin.close()
-        Popen('{0} -i {1} -m I'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
+        Popen('{0} -i {1} -m N'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
         tree = dp.Tree.get_from_path(fin.name + '_fastme_tree.nwk', schema='newick')
         from glob import glob
         for fname in glob(fin.name + '*') :
@@ -303,8 +302,12 @@ def backend(**parameters) :
     names, profiles = [], []
     fin = open(params['profile']).readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
 
+    allele_cols = None
     for line_id, line in enumerate(fin) :
         if line.startswith('#') :
+            if not line.startswith('##') :
+                header = line.strip().split('\t')
+                allele_cols = np.array([ id for id, col in enumerate(header) if not col.startswith('#')])
             continue
         fmt = 'fasta' if line.startswith('>') else 'profile'
         break
@@ -324,7 +327,10 @@ def backend(**parameters) :
             if not part[0]:
                 continue
             names.append(part[0])
-            profiles.append(part[1:])
+            if allele_cols is not None :
+                profiles.append(np.array(part)[allele_cols])
+            else :
+                profiles.append(part[1:])
 
     names = [re.sub(r'[\(\)\ \,\"\';]', '_', n) for n in names]
     names, profiles, embeded = nonredundant(np.array(names), np.array(profiles))

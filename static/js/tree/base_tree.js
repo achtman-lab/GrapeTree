@@ -780,10 +780,9 @@ D3BaseTree.prototype.constructor=D3BaseTree;
 */
 function D3BaseTree(element_id,metadata,height,width){
 	var self=this;
-	this.legend_div=$("<div>").css({"position":"absolute","overflow-x":"hidden"});
-	this.legend_div.draggable();
+	this.legend_div=$("<div>").css({"position":"absolute","overflow-x":"hidden"}).draggable();
 	this.container = $("#"+element_id)
-				    .css("position","relative")
+				    .css("position","fixed")
 				    .append(this.legend_div);
 	
 	this.height=height;

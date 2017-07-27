@@ -154,21 +154,10 @@ function  D3MSMetadataTable(tree,context_menu){
 			}
 		});
 
-	this.grid.onDragEnd.subscribe(function(e, args){
-			self.grid.mouse_pos = [0, 0, e.clientX, e.clientY];
-
-		});
 	this.grid.setSelectionModel(new Slick.CellSelectionModel());
 	this.grid.selectionmodel = self.grid.getSelectionModel();
 	this.grid.selectionmodel.onSelectedRangesChanged.subscribe(function(e,args){
-		if (args[0].fromCell != args[0].toCell) {
-			return;
-		} else if (args[0].fromRow === args[0].toRow) {
-			return;
-		}
-		var xx = self.grid.mouse_pos[2], yy = self.grid.mouse_pos[3];
 		self.grid.mouse_pos = [args[0].fromRow, args[0].fromCell, args[0].toRow, args[0].toCell];
-		$("#replace-div").toggle(150).css("top",yy).css("left",xx).css("position","fixed").show();
 	});
 	tree.addDisplayChangedListener(function(type,data){
 		if (type==='show_hypothetical_nodes'){
@@ -176,21 +165,27 @@ function  D3MSMetadataTable(tree,context_menu){
 		
 		}	
 	});
+	$(document).on('metadata:replace', function(e, ui) {
+		$("#replace-div").css({
+			"top" :ui.y,
+			left: ui.x,
+			position: 'fixed',
+		}).show(300);
+	});
 }
-
 
 D3MSMetadataTable.prototype._setupDiv= function(){
 	var self = this;
 	var grid_html = "<div id = 'metadata-div' style='width:600px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1;display:none'>\
-	<div id='handler' style='background-color:#f1f1f1;width:100%;height:20px;border-radius:5px;border: 0px solid #b0f2f2'>\
-		<span title='Close The Window' id = 'metadata-close' class='glyphicon glyphicon-remove show-tooltip'style='top:-6px;float:right;margin-right:10px'></span>\
-		<span title='Download This Table' id = 'metadata-download' class='glyphicon glyphicon-download show-tooltip'></span>&nbsp;&nbsp;\
-		<span title='Add A New Category' id='metadata-add-icon' class='glyphicon glyphicon-plus show-tooltip'></span>&nbsp;&nbsp;&nbsp;&nbsp;\
-		<input type='checkBox' id='metadata-filter' checked><span title='Show Filtering Bar?' class='glyphicon glyphicon-filter show-tooltip'></span>&nbsp;&nbsp;&nbsp;&nbsp;\
-		<input type='checkBox' id='hypo-filter' ><span title='Show hypothetical nodes?' class='glyphicon glyphicon-screenshot show-tooltip'></span>\
+	<div id='handler' class='ui-draggable-handle'>\
+		<span title='Close The Window' id='metadata-close' class='glyphicon glyphicon-remove show-tooltip' style='top:-3px;float:right;margin-right:0px'></span>\
+		<span title='Download This Table' id='metadata-download' class='glyphicon glyphicon-download show-tooltip'><span>Download</span></span>\
+		<span title='Add A New Category' id='metadata-add-icon' class='glyphicon glyphicon-plus show-tooltip'><span>Add Metadata</span></span>\
+		<input type='checkBox' id='metadata-filter' checked=''><span title='Show Filtering Bar?' class='glyphicon glyphicon-filter show-tooltip'><span>Filter</span></span>\
+		<input type='checkBox' id='hypo-filter'><span title='Show hypothetical nodes?' class='glyphicon glyphicon-screenshot show-tooltip'><span>Hypo nodes?</span></span>\
 	</div>\
 	<div id='myGrid' style='width:100%;height:580px'></div>\
-	<div title='replace all the cells in the selection' id='replace-div' style='height:30px;width:30px;background-color:#ffffff;z-index:3;opacity:0.8'>\
+	<div title='replace all the cells in the selection' id='replace-div' style='height:30px;width:50px;background-color:#ffffff;z-index:3;opacity:1.0'>\
 		<input id='replace-tag' style='height:100%;width:100%'>\
 		<span title='Confirm' id='replace-confirm' class='glyphicon glyphicon-ok show-tooltip' style='top:0px;left:100%;float:right;position:absolute'></span>\
 		<span id ='replace-close' title='Close'  class='glyphicon glyphicon-remove show-tooltip' style='top:15px;left:100%;float:right;position:absolute'></span>\
@@ -203,11 +198,11 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	}).draggable().hide();
 	$("#replace-close").click(function(e){
 		$("#replace-tag").val("");
-		$("#replace-div").css("opacity",0.8).width(30).hide();
+		$("#replace-div").hide();
 	
 	});
-	$('#replace-tag').click(function (e) {
-		$('#replace-div').css('opacity', 1.0).width(160);
+	$('#replace-tag').change(function (e) {
+		$('#replace-div').width( ($('#replace-tag').val().length + 5) + 'em' );
 	});
 	$("#replace-confirm").click(function(e) {
 		var val = $("#replace-tag").val();
@@ -230,7 +225,7 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 			}
 			self.tree.changeCategory(self.tree.display_category);
 		}
-		$("#replace-div").css("opacity",0.8).width(30).hide();
+		$("#replace-div").hide();
 		self.grid.invalidate();
 		self.grid.render();
 	});
@@ -243,11 +238,11 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	// metadata div events
 	$('#metadata-div').draggable({handle:$('#handler')}).resizable().resize(function(){
 		var h=$('#metadata-div').height();
-		$('#myGrid').css({'height':(h-40)+'px'});
+		$('#myGrid').css({'height':(h-$('#myGrid').position().top)+'px'});
 		self.grid.resizeCanvas();
 	})
 	.click(function(e){
-		$('#replace-div').css("opacity",0.8).width(30).hide();
+		$('#replace-div').hide();
 		$("#context-menu").hide();
 	})
 	.hide();
@@ -273,7 +268,7 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	});
 	$("#metadata-add-icon").click(function(e){
 		$("<div id ='metadata-add'></div>")
-		.html("Name of The New Category:<br> <input type='text' id ='metadata-add-colname'>")
+		.html("Name of The New Category:<br> <input type='text' style='height:100%' id ='metadata-add-colname'>")
 		.dialog({
 				modal: true,
 				buttons: {

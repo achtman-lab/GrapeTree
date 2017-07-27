@@ -66,6 +66,8 @@ function D3MSTreeContextMenu(tree,meta_grid){
 
 	$("body").append($(context_html));
 	var metadata_table_html = "<div id='myGrid-menu' style='display:none' class='sub-context'> \
+			<div class='context-option replaceSelection'>Replace selected with ...</div> \
+			<hr class='context-hr replaceSelection'> \
 			<div class='context-option selectAll'>Select all</div> \
 			<div class='context-option clearSelection'>Unselect all</div> \
 			<hr class='context-hr'> \
@@ -127,6 +129,9 @@ function D3MSTreeContextMenu(tree,meta_grid){
 
 D3MSTreeContextMenu.prototype._init=function(){
 	var self = this;
+	$(".replaceSelection").on("click", function(e) {
+		$(document).trigger('metadata:replace', {x:e.clientX, y:e.clientY});
+	});
 	$(".context-option").on("mouseenter",function(e) {
 		$(this).css("background", "#f1f1f1");
 	})

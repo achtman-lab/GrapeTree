@@ -3,162 +3,14 @@
 
 
 <head>
-        <link rel="stylesheet" href='static/js/jquery-ui-1.11.4/jquery-ui.min.css'>
-        <link rel="stylesheet" href="static/css/bootstrap.min.css">
-        <style>
-                body{
-                        width:100%;
-                        height:100%;
-                }
-
-                #graph-div{
-                        position: absolute;
-                        top:10px;
-                        left:210px;
-                }
-
-                #sidebar {
-                        position:absolute;
-                        top:10px;
-                        width:200px;
-                        margin-left:5px;
-                }
-                .brush.extent {
-									stroke: #fff;
-									fill-opacity: .125;
-									shape-rendering: crispEdges;
-                              }
-                .selected{
-                        background-color:blue;
-                }
-
-
-                .graph-selection-indicator {
-                  position: absolute;
-                  background: transparent;
-                  border: 1px solid orange;
-                }
-                 .slider-class{
-                        float: left;
-                        clear: left;
-                        width: 140px;
-                        height:5px;
-                        margin: 5px;
-                }
-                .slider-class .ui-slider-handle {
-                        height:12px;
-                }
-
-                .mst-menu-title {
-
-                        cursor:pointer;
-
-                }
-				.panel-body {
-					display:none;
-				}
-                .panel-body label{
-                        margin-bottom:1px;
-                        margin-top:4px;
-
-                }
-                .zoom-icon{
-                        cursor:pointer;
-                        font-size:22px;
-
-                }
-                .upload-download-icon{
-                        cursor:pointer;
-                        font-size:22px;
-
-                }
-                .add-data-icon{
-                        cursor:pointer;
-                        float:right;
-                }
-		
-                .mst-menu-title span{
-                        display:block;
-                        float:right;
-                }
-                .panel-default{
-                        margin-bottom:2px;
-                }
-                div.tooltip {
-                        position: absolute;
-                        text-align: center;
-                        height: 28px;
-                        padding: 2px;
-                        font: 16px sans-serif;
-                        background: lightsteelblue;
-                        border: 0px;
-                        border-radius: 8px;
-                        pointer-events: none;
-                }
-
-                 #welcome-div {
-                position: fixed;
-                 top: 50%;
-                 left: 50%;
-                 transform: translate(-50%, -50%);
-                 height:400px;
-                 width:600px;
-                 #border-style:solid;
-
-                }
-
-
-        </style>
+	<link rel="stylesheet" href='static/js/jquery-ui-1.11.4/jquery-ui.min.css'>
+	<link rel="stylesheet" href="static/css/bootstrap.min.css">
+	<link rel="stylesheet" href="static/css/grapetree.css">
 </head>
 <body>
 <!--metadata div-->
 <link rel="stylesheet" href="static/js/SlickGrid/slick.grid.css" type="text/css"/>
 <link rel="stylesheet" href="static/js/SlickGrid/examples/examples.css" type="text/css"/>
-<style>
-.cell-title {
-  font-weight: bold;
-}
-.cell-effort-driven {
-  text-align: center;
-}
-.slick-header-column.ui-state-default {
-	height: 24px
-}
-.ui-dialog-titlebar {
-    background: #b0f2f2;
-    border: 0;
-    color: #fff;
-    font-weight: normal;
-}
-.slick-row.odd {
-	background: #ffffcc;
-}
-.slick-row.even {
-	background: #ccffcc;
-}
-.slick-cell {
-	border-right: 1px solid silver;
-}
-.navbar-nav > li > a {
-	padding-top: 5px;
-    height: 30px;
-}
-.slick-column-name {
-	color: #505050;
-}
-.navbar {
-	min-height:30px;
-	margin-bottom:0px
-}
-.grid-canvas >.odd >.uneditable-cell {
-	background: #e5e5b7;
-}
-.grid-canvas >.even >.uneditable-cell {
-	background: #b7e5b7;
-}
-
-</style>
-
 
 <script src="static/js/SlickGrid/lib/firebugx.js"></script>
 
@@ -183,7 +35,8 @@
 
 
 <!--information divs-->
-<div id = 'welcome-div'>
+<div id = 'welcome-div' style='background:white'>
+<span id= 'welcome-div-close' class="glyphicon glyphicon-remove" style="float:right;margin-right:5px;zoom:1.5;display:none" onclick="$('#welcome-div').hide()"></span>
 <p align='center'><h2>
 <b>G</b>rape <b>T</b>ree
 </h2>
@@ -191,23 +44,21 @@
 To get started Drag and drop files into the browser window
 <h4>Trees or Profile Data</h4>
 <ul>
-<li><b>Phlogenetic trees</b> These can be nexus or nwk format and can have any file extension apart from
-.txt,.csv,.profile and .json
+<li><b>Phlogenetic trees</b> These can be nexus or nwk format. 
 </li>
 <li>
-<b>Profile Files (.profile)</b> These are tab delimited text with columns as alleles and strains as rows (see the examples).
+<b>Profile Files</b> These are tab delimited text with columns as alleles and strains as rows (see the examples).
+A header line is required, in which the strain columns and metadata columns need to start with a '#'. 
 This requires the local server to be running
 </li>
 <li><b>Custom Format(.json)</b> Files genereated by this program which contain
-the tree data as well as display information and any metadata
+the tree data as well as display information and any metadata.
 </li>
 </ul>
 <h4>Metadata</h4>
 <ul>
 <li>
-<b>Metadata files(.txt or.csv)</b> The file should have
-one column 'ID' which corresponds to the node identifier in the tree. Multiple records can be linked to the
-same node i.e have the same ID but then the file must have a coulmn 'Name' in which every entry is unique
+<b>Metadata files</b> The first column in the file corresponds to the node identifier in the tree. 
 </li>
 </ul>
 </div>
@@ -223,48 +74,13 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
       </div>
       <div class="modal-body">
         <p id ='waiting-information'></p>
-	<div  id ='param-panel' style = 'display:none'>
+		<div  id ='param-panel' style = 'display:none'>
 		   <label>Method</label>
-		   <div id='method-activate'></div>
-		   <br>
 		   <select id ='method-select'>
 			   <option class='show-tooltip' title='MSTreeV2 uses a directed graph to handle missing data' value='MSTreeV2'>MSTreeV2</option>
 			   <option class='show-tooltip' title='A traditional Minimum spanning tree + eBurst weighting' value='MSTree'>MSTree</option>
 			   <option class='show-tooltip' title='FastME V2.0 is implemented for Neighbor-Joining phylogeny.' value='NJ'>Neighbour Joining</option>
 		   </select>
-		   <div id = "MST-option" style="display:none;">
-		   <hr>
-		   <label>Matrix Type</label>
-		   <br>
-		   <select id ='matrix-select'>
-			   <option value='symmetric'>Symmetric</option>
-			   <option value='asymmetric'>Asymmetric</option>
-		   </select>
-		   <div id = "symmetric-option">
-		   <hr>
-		   <label>Missing data</label>
-		   <br>
-		   <select id = 'missing-data'>
-			   <option value='pair_delete'>ignore</option>
-			   <option value='complete_delete'>ignore whole loci</option>
-			   <option value='as_allele'>treated as an allele</option>
-		   </select>
-		   <hr>
-		   </div>
-		   <label>Edge Weight</label>
-		   <br>
-		   <select id = 'edge-weight-select'>
-			   <option value='eBurst'>eBurst</option>
-			   <option value='harmonic'>Harmonic</option>
-		   </select>
-		   <br>
-		   <label>Neighboring Branch Reconnection (NBR)</label>
-		   <br>
-		   <select class='show-tooltip' title='NBR reconstructs paths in a spanning tree' id = 'branch-select'>
-			   <option value='F'>False</option>
-			   <option value='T'>True</option>
-		   </select>
-		   </div>
 	   </div>
       </div>
       <div class="modal-footer">
@@ -285,13 +101,12 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		<div class ='panel-heading mst-menu-title' id= 'file-menu'> <b id='input-output-title'>Inputs/Outputs</b><span id = 'file-menu-icon' class='glyphicon glyphicon-menu-down'> </span></div>
 		<div class = "panel-body" id ='file-menu-panel'>
 		<div id ='load-panel'>
-				<button title='Upload a tree or profile to start your journey!' id = 'button-load-nwk' class = 'show-tooltip'> Load Tree/Profile</button>
-			<br><br>
-				<button id = 'button-load-meta'> Load Metadata</button>
-				<hr>
+				<button title='Handles trees, profiles and metadata files' id = 'button-load-nwk' class = 'show-tooltip'> Load Files</button>
+				<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="$('#welcome-div').toggle()"></span>
+			<br>
+			<hr>
 		</div>
 			<div id='save-panel'>
-				
 					<button id ="save-tree-json">Save GrapeTree</button><br><br>
 					<button id ="save-tree-nwk">Save to Newick Tree</button><br><br>
 					<button id ="mst-download-svg">Download SVG</button><br><br>
@@ -423,6 +238,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 {% include 'ms_tree/enterobase_ms_tree.html' %}
 {%endif %}
 -->
+<!-- <script charset="utf-8" src="static/js/controls.js"></script> -->
 <script>
 
 	
@@ -1042,13 +858,13 @@ var current_metadata_file=null;
  }
 
  function initiateLoading(msg){
-	$("#welcome-div").hide();
+	$("#welcome-div-close").show();
+	$("#welcome-div").draggable().css({position:'relative', border:'1px solid black', margin:'10px', 'z-index':9999}).hide();
 	$("#graph-div").empty();
 	$("#metadata-select").empty();
 	$("#add-new-values-select").empty();
 	metadata_options={};
 	showWaitingDialog(msg);
-
  }
 
 function showModalForParams(){
@@ -1066,12 +882,8 @@ tree_raw = {};
                         method: "POST",
                         url: "/maketree",
                         data: {
-				profile:profile,
-				method:$("#method-select").val(),
-				matrix_type:$("#matrix-select").val(),
-				edge_weight:$("#edge-weight-select").val(),
-				neighbor_branch_reconnection:$("#branch-select").val(),
-				missing_data:$("#missing-data").val()
+						profile:profile,
+						method:$("#method-select").val(),
 				}
                 }).done(function(result){
 						tree_raw = {"nwk":result,"layout_algorithm":$("#layout-select").val()};
@@ -1239,7 +1051,7 @@ window.onload = function (){
                the_tree.setNodeText($(this).val());
         });
 
-        $(window).resize(function(){
+        /*$(window).resize(function(){
                 var winh = ($(window).height())-15;
                 var winw = ($(window).width());
                 var div  = $("#graph-div");
@@ -1251,7 +1063,7 @@ window.onload = function (){
                 div.height(winh).css({"max-height":winh+"px","min-height":winh+"px"});
                 $("#graph-div").width(winw-sb_width);
         });
-        $(window).trigger("resize");
+        $(window).trigger("resize");*/
 
 
         $("#mst-download-svg").click(function(e){
@@ -1535,6 +1347,7 @@ window.onload = function (){
 	$('.panel-default').find('input, textarea, button, select, span, div').css("opacity", 0.3).prop('disabled',true);
 	if (! tree_id){
 		$("#file-menu-panel").css("opacity", 1.0).addClass("open-menu-panel").show();
+		$("#button-load-nwk").parent().css('opacity', 1.0);
 		$("#button-load-nwk").css("opacity", 1.0).prop("disabled", false).trigger('mouseenter');
 	}
 
@@ -1568,9 +1381,9 @@ window.onload = function (){
 			icon.attr("class","glyphicon glyphicon-menu-down");
 			
 		}
-		setTimeout(function(){
+		/*setTimeout(function(){
 			   $(window).trigger("resize");
-		},300);
+		},300);*/
 
 	});
 	
@@ -1591,6 +1404,7 @@ function try_backend(){
 		cannot_connect=true;
    }
  };
+
 </script>
 </body>
 </html>
