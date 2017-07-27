@@ -76,6 +76,7 @@
                         cursor:pointer;
                         float:right;
                 }
+		
                 .mst-menu-title span{
                         display:block;
                         float:right;
@@ -157,27 +158,7 @@
 }
 
 </style>
-<div id = 'metadata-div' style='width:600px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1;display:none'>
-<nav id="handler" class="navbar navbar-default ui-draggable-handle">
-  <div class="container-fluid" style="padding-right:10px;padding-left:10px">
-    <ul class="nav navbar-nav">
-      <li><a href="#"><span title="Download This Table" id="metadata-download" class="glyphicon glyphicon-download show-tooltip"><label style="font-family:Arial">Download</label></span></a></li>
-      <li><a href="#"><span title="Add A New Category" id="metadata-add-icon" class="glyphicon glyphicon-plus show-tooltip"><label style="font-family:Arial">Add Category</label></span></a></li>
-      <li><a href="#"><input type="checkBox" id="metadata-filter" checked=""><span title="Show Filtering Bar?" class="glyphicon glyphicon-filter show-tooltip"><label style="font-family:Arial">Filter</label></span></a></li>
-      <li><a href="#"><input type="checkBox" id="hypo-filter"><span title="Show hypothetical nodes?" class="glyphicon glyphicon-screenshot show-tooltip"><label style="font-family:Arial">Hypo nodes</label></span></a></li>
-    </ul>
-	<div style="margin-top:1px;float:right;margin-right:0px"><span class="help-icon glyphicon glyphicon-question-sign" style="margin-right:5px"></span>
-		<span title="Close The Window" id="metadata-close" class="glyphicon glyphicon-remove show-tooltip" style="float:right;top:2.5px"></span>
-	</div>
-  </div>
-</nav>
-<div id="myGrid" style="width:100%;height:580px"></div>
-	<div title='replace all the cells in the selection' id='replace-div' style='height:30px;width:30px;background-color:#ffffff;z-index:3;opacity:0.8'>
-		<input id='replace-tag' style='height:100%;width:100%'>
-		<span title='Confirm' id='replace-confirm' class='glyphicon glyphicon-ok show-tooltip' style='top:0px;left:100%;float:right;position:absolute'></span>
-		<span title='Close' onclick='$("#replace-tag").val("");$("#replace-div").css("opacity",0.8).width(30).hide()' class='glyphicon glyphicon-remove show-tooltip' style='top:15px;left:100%;float:right;position:absolute'></span>
-	</div>
-</div>
+
 
 <script src="static/js/SlickGrid/lib/firebugx.js"></script>
 
@@ -417,19 +398,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<div class='open-context' id='myGrid-x' style='font-size:110%;margin:10px'>Metadata</div>
 			<div class='open-context' id='legend-svg-x' style='font-size:110%;margin:10px'>Figure Legend</div>
 		</div>
-		<script>
-		$(".open-context").on("mouseenter",function(e) {
-			$(this).css("background", "#f1f1f1");
-		})
-		.on("mouseleave", function(e) {
-			$(this).css("background", "#ffffff");
-		})
-		.click(function(e) {
-			var target = $(this).context.id;
-			target = target.substring(0, target.length-2);
-			trigger_context(target, e);
-		});
-		</script>
+		
 	</div>
 </div>
 
@@ -438,14 +407,24 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 
 
 <script src ="static/js/main/bootstrap.min.js"></script>
-<script charset="utf-8" src="/static/js/main/enterobase.js?version={{js_version}}"></script>
+
 <script src ="static/js/main/bootstrap.min.js"></script>
 <script charset="utf-8" src="static/js/main/d3.min.js"></script>
 <script charset="utf-8" src="static/js/main/spin.min.js"></script>
 <script charset="utf-8" src="static/js/tree/base_tree.js"></script>
 <script charset="utf-8" src="static/js/tree/d3_m_tree.js"></script>
+<script> var tree_id = null</script>
 
+<!--
+{% if tree_id%}
+{% include 'ms_tree/enterobase_ms_tree.html' %}
+{%endif %}
+-->
 <script>
+
+	
+		
+
      function showhide(id) {
        	var e = document.getElementById(id);
        	e.style.display = (e.style.display == 'block') ? 'none' : 'block';
@@ -557,14 +536,20 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	function getSuffix(name){
 		var arr = name.split(".");
 		return arr[arr.length-1];
+
 	}
 	var var1 = parseInt("{{dhdhdhdh}}");
-        var all_files=null;
-	var metadata_file_name;
-        var waiting_spinner= null;
-        var waitingDialog = null;
-        var the_tree = null;
-        var tree_name="";
+	var all_files=null;
+	var metatdata_file_name;
+	var waiting_spinner= null;
+	var waitingDialog = null;
+	var metadata_categories={};
+	var context_menu=null;
+	var metadata_grid=null;
+	var the_tree = null;
+	
+	var tree_name="";
+
 	var cannot_connect=false;
 
 	var default_control_panel_values={
@@ -606,11 +591,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
         //a map of group to another map of name to label
 	var metadata_options={};
 	var new_metadata_fields=[];
-	var tree_name="{{tree_name}}";
-	var database = "{{database}}"
-	var tree_id = parseInt("{{tree_id}}");
-	var db_code="{{db_code}}"
-	var wg_scheme = "{{wg_scheme}}"
+	
 	var locus_label ="";
 	var file_chooser = new MSFileChooser(".nwk");
 	var current_metadata_file = null;
@@ -631,20 +612,46 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 Enterobase.showSaveDialog(text,"tree.json");
         }
 
-        function addMetadataOptions(value,label){
-				if (value.startsWith("__")) {
-					return false;
-				} else if (label == 'Selected' || label == 'index') {
-					return false;
+	//update all the select options
+        function addMetadataOptions(options){	
+		for (var value in options){
+			var obj =options[value];
+			var category = null;
+			var label = ""
+			if (typeof obj === 'object'){
+				label =obj['label'];
+				category = obj['category'];
+			}
+			else{
+				label=obj;
+			}
+			var append_to_1 = $("#metadata-select");
+			var append_to_2=  $("#node-label-text")
+			if (category){
+				if (!metadata_categories[category]){
+					metadata_categories[category]=true;
+					append_to_1 =$("<optgroup>").attr("label",category);
+					append_to_2=$("<optgroup>").attr("label",category);
+					$("#metadata-select").append(append_to_1);
+					$("#node-label-text").append(append_to_2);
 				}
-                if (!metadata_options[value]){
-                        metadata_options[value]=label;
-                        $("#metadata-select").append($("<option>").attr("value",value).text(label));
-                        $("#node-label-text").append($("<option>").attr("value",value).text(label));
-                        $("#add-new-values-select").append($("<option>").attr("value",value).text(label));
-                }
-				return true;
+				else{
+					var to_find = "[label='"+category+"']";
+					append_to_1 = $("#metadata-select").find(to_find);
+					append_to_2 = $("#node-label-text").find(to_find);
+				
+				}
+			
+			}		
+			append_to_1.append($("<option>").attr("value",value).text(label));
+			append_to_2.append($("<option>").attr("value",value).text(label));
+			//$("#add-new-values-select").append($("<option>").attr("value",value).text(label));			
+		}	
         }
+	
+	
+	
+	
 	function deleteMetadataCategory(){
 		var category = $("#add-new-values-select").val();
 		the_tree.removeCategory(category);
@@ -652,7 +659,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 		$("#node-label-text option[value='"+category+"']").remove();
 		$("#add-new-values-select option[value='"+category+"']").remove();
 		delete metadata_options[category];
-		updateMetadataTable();
+	
 	}
 
 
@@ -698,7 +705,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 the_tree.addMetadata(meta);
                 the_tree.changeCategory(field);
 		the_tree.clearSelection();
-		updateMetadataTable();
+		
         }
 
 
@@ -711,28 +718,53 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
                 $("#metadata-select").val(name);
                 $("#add-new-values-select").val(name);
                 the_tree.changeCategory(name);
-				updateMetadataTable();
+		metadata_grid.updateMetadataTable();
         }
 
         function treeLoaded(tree){
-                tree.legendItemClicked = function(data){
-                        legend_colour_chooser
-                        .css({"left":0,"top":0})
-                        .val(data.colour)
-                        .data({"value":data.value.split("  [")[0],"category":data.category})
-                        .trigger("click");
+		//add the extra functionality
+		metadata_grid = new D3MSMetadataTable(tree);
+		context_menu= new D3MSTreeContextMenu(tree,metadata_grid);
+		metadata_grid.updateMetadataTable();
+		//add the ability to show/hide grid, 
+	
+		//update the dropdowns if new options added
+		tree.addTreeChangedListener(function(type,data){
+			if (type === 'metadata_options_altered'){
+				addMetadataOptions(data);
+			}
+			else if (type === 'nodes_collapased'){
+				$( "#spinner-collapse-nodes" ).val(data);
+				var v = parseFloat(data);
+				$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
+			}
+		});
+		
+		tree.addDisplayChangedListener(function(type,data){
+			if (type==='category_changed'){
+				$("#metadata-select").val(data);
+			}
+		
+		});
+
+		tree.legendItemClicked = function(data){
+			legend_colour_chooser
+			.css({"left":0,"top":0})
+			.val(data.colour)
+			.data({"value":data.value.split("  [")[0],"category":data.category})
+			.trigger("click");
                 };
 
-				$("#spinner-hide-link-length").spinner({
-					min: 0,
-					max: tree.max_link_distance,
-					step:(tree.max_link_distance/100.0).toPrecision(1)
-				});
-				$( "#spinner-collapse-nodes" ).spinner({
-                        min: 0,
-                        max: tree.max_link_distance+0.01,
-                        value: tree.node_collapsed_value,
-                        step: (tree.max_link_distance/1000.0).toPrecision(1)
+		$("#spinner-hide-link-length").spinner({
+			min: 0,
+			max: tree.max_link_distance,
+				step:(tree.max_link_distance/100.0).toPrecision(1)
+			});
+			$( "#spinner-collapse-nodes" ).spinner({
+			min: 0,
+			max: tree.max_link_distance+0.01,
+			value: tree.node_collapsed_value,
+			step: (tree.max_link_distance/1000.0).toPrecision(1)
                 });
 
                 $( "#slider-collapse-nodes" ).slider({
@@ -851,115 +883,107 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			$("#slider-node-fontsize").slider("value",data['node_font_size']);
 			$("#spinner-node-fontsize").spinner("value",data['node_font_size']);
 		}
-		$( "#slider-collapse-nodes" ).slider("value",Math.log(data["node_collapsed_value"])*1000);
-		$("#spinner-collapse-nodes").val(data["node_collapsed_value"])
+		var col_value = data['node_collapsed_value']?data['node_collapsed_value']:0;
+		$( "#slider-collapse-nodes" ).slider("value",Math.log(col_value)*1000);
+		$("#spinner-collapse-nodes").val(col_value);
 	}
 
 
 
-        function loadMSTree(data){
-				if (the_tree) {
-					the_tree.svg.remove();
-					the_tree.legend_div[0].remove();
-					resetGridColumns();
-					metadata_options = {};
-					$("#metadata-select").find("option").remove();
-					$("#node-label-text").find("option").remove();
+	function loadMSTree(data){
+		if (the_tree) {
+			the_tree.svg.remove();
+			the_tree.legend_div[0].remove();
+			//resetGridColumns();
+			metadata_options = {};
+			$("#metadata-select").find("option").remove();
+			$("#node-label-text").find("option").remove();
+		}
+		$("#waiting-information").text("Loading Data");
+		the_tree = null;
+		the_tree = new D3MSTree(
+		"graph-div",data,function(tree,msg){
+				treeLoading(tree,msg);
+
+		});
+		
+		the_tree.addSegmentOverListener(function(d){
+				if ($("#show-node-tooltip").prop("checked")){
+						var display = d.data.type;
+						if (d.data.node_id){
+								display = d.data.node_id;
+						}
+						showToolTip(display+"("+d.data.value+")");
 				}
-                $("#waiting-information").text("Loading Data");
-                the_tree = null;
+		});
+		the_tree.addSegmentOutListener(function(d){
+				 hideToolTip();
+		});
+		the_tree.addLinkOverListener(function(d){
+				if ($("#show-link-tooltip").prop("checked")){
+						showToolTip("length:"+d.value);
+				}
 
-            //    try{
-					the_tree = new D3MSTree(
-					"graph-div",data,function(tree,msg){
-							treeLoading(tree,msg);
-
-					});
-
-					the_tree.addSegmentOverListener(function(d){
-							if ($("#show-node-tooltip").prop("checked")){
-									var display = d.data.type;
-									if (d.data.node_id){
-											display = d.data.node_id;
-									}
-									showToolTip(display+"("+d.data.value+")");
-							}
-					});
-					the_tree.addSegmentOutListener(function(d){
-							 hideToolTip();
-					});
-					the_tree.addLinkOverListener(function(d){
-							if ($("#show-link-tooltip").prop("checked")){
-									showToolTip("length:"+d.value);
-							}
-
-					});
-					the_tree.addLinkOutListener(function(d){
-							hideToolTip();
-					});
-					the_tree.resize();
+		});
+		the_tree.addLinkOutListener(function(d){
+				hideToolTip();
+		});
+		the_tree.resize();
 					
 					// metadata
-					if (!metadata_options['nothing']){
-                        metadata_options['nothing']='No Category';
-						$("#metadata-select").append($("<option>").attr("value",'nothing').text('No Category'));
-					}
-					addMetadataOptions('ID','ID');
-					$("#metadata-select").val('nothing');
-					$("#node-label-text").val('ID');
 
-					if (data['metadata_options']){
-							for (var key in data['metadata_options']){
-								   addMetadataOptions(key,data['metadata_options'][key]);
-							}
-					}
-					if (data['initial_category']){
-						$("#metadata-select").val(data['initial_category']);
-					}
-					if (data['layout_data'] && data['layout_data']['nodes_links']){
-						if ( ! data['layout_data']['nodes_links']["node_collapsed_value"] ) data['layout_data']['nodes_links']["node_collapsed_value"] = 0.0;
-						setControlPanel(data['layout_data']['nodes_links'])
-					}
-					else{
-						setControlPanel(default_control_panel_values);
-					}
-					if (current_metadata_file) {
-						loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);
-					} else {
-						updateMetadataTable();
-					}
-					
-					$("#rotation-icon").draggable({
-					  start: function(e) {
-						the_tree._dragStarted(the_tree.force_nodes[0], [$("#rotation-icon").position().left, $("#rotation-icon").position().top]);
-					  },
-					  drag: function(e) {
-						the_tree._dragging(the_tree.force_nodes[0], [e.clientX, e.clientY]);
-					  },
-					  stop: function(e) {
-						the_tree._dragEnded(the_tree.force_nodes[0], [e.clientX, e.clientY]);
-					  },
-					  revert: true,
-					  revertDuration: 10,
-					  helper: function() {return $("<div></div>")},
-					}).bind("drag", function(event, ui) {
-						var x_dif = ui.helper.position().left - $("#rotation-icon").position().left;
-						var y_dif = $("#rotation-icon").position().top - ui.helper.position().top;
-						var angle = y_dif !== 0 ? Math.atan(x_dif/y_dif)/Math.PI * 180 : (x_dif === 0 ? 0 : (x_dif > 0 ? 90 : -90));
-						if (y_dif < 0 ) {
-							angle = 180 + angle;
-						} else if (x_dif < 0) {
-							angle = 360 + angle;
-						}
-						ui.helper.text(Math.round(angle) + '\xB0') ;
-					});
+		//if (!metadata_options['nothing']){
+              //          metadata_options['nothing']='No Category';
+		//	  $("#metadata-select").append($("<option>").attr("value",'nothing').text('No Category'));
+		//}
+		//addMetadataOptions('ID','ID');
+		$("#metadata-select").val('nothing');
+		$("#node-label-text").val('ID');
 
- /*               }catch(e){
-						console.log(e.message);
-						console.log(e.stacktrace);
-						loadFailed("The file could not be read. Plase check the format");
+		if (data['metadata_options']){
+				addMetadataOptions(data['metadata_options']);
+		}
+		
+		if (data['initial_category']){
+			$("#metadata-select").val(data['initial_category']);
+		}
+		if (data['layout_data'] && data['layout_data']['nodes_links']){
+			setControlPanel(data['layout_data']['nodes_links'])
+		}
+		else{
+			setControlPanel(default_control_panel_values);
+		}
+		if (current_metadata_file) {
+			loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);
+		} else {
+			//updateMetadataTable();
+		}
+		$("#rotation-div").draggable({
+		  start: function(e) {
+			the_tree._dragStarted(the_tree.force_nodes[0], [$("#rotation-icon").position().left, $("#rotation-icon").position().top]);
+		  },
+		  drag: function(e) {
+			the_tree._dragging(the_tree.force_nodes[0], [e.clientX, e.clientY]);
+		  },
+		  stop: function(e) {
+			the_tree._dragEnded(the_tree.force_nodes[0], [e.clientX, e.clientY]);
+		  },
+		  revert: true,
+		  revertDuration: 10,
+		  helper: function() {return $("<div><label id='angle-text'></label></div>")},
+		});
+		$("#rotation-div").bind("drag", function(event, ui) {
+			var x_dif = ui.helper.position().left - $("#rotation-icon").position().left;
+			var y_dif = $("#rotation-icon").position().top - ui.helper.position().top;
+			var angle = y_dif !== 0 ? Math.atan(x_dif/y_dif)/Math.PI * 180 : (x_dif === 0 ? 0 : (x_dif > 0 ? 90 : -90));
+			if (y_dif < 0 ) {
+				angle = 180 + angle;
+			} else if (x_dif < 0) {
+				angle = 360 + angle;
+			}
+			ui.helper.select('.angle-text').text(Math.round(angle) + '\xB0') ;
+		});
 
-                }*/
 		$('.panel-default').find('input, textarea, button, select, div, span').css("opacity", 1.0).prop('disabled',false);
 	}
 
@@ -1081,7 +1105,6 @@ tree_raw = {};
 				break;
 			}
 		}
-
 		for (var i in lines){
 			var line = lines[i];
 			if (id_name !== 'ID'){
@@ -1098,101 +1121,25 @@ tree_raw = {};
 		the_tree.addMetadata(meta);
 
 		var category = 'nothing';
+		var options={};
 		for (var i in header_index){
 			var header = header_index[i];
-			if (addMetadataOptions(header, header) && category == 'nothing' && header != 'ID'){
+			if ( header !=  'ID' ) {
 				category=header;
-			}
+			}	
+			options[header]=header;
 		}
+		the_tree.addMetadataOptions(options);
 		$("#metadata-select").val(category);
 		the_tree.changeCategory(category);
-		updateMetadataTable();
+		
+		//updateMetadataTable();
 	});
  };
  
-  function getRemoteData(){
-	Enterobase.call_restful_json("/get_ms_tree_data?id="+tree_id,"GET","",displayErrorMessage).done(function(data){
-		if (data['waiting']){
-			setTimeout(function(){
-				getMSTreeData();
-			},10000);
-				
-		}
-		else if (data['failed']){
-			waitingDialog.setMessage("The tree has failed, please contact an administrator");
-			if (grid_window){
-				grid_window.mst_alert.dialog("close");
-			}
-		}
-		else{
-			
-			loadMSTree(processEnteroData(data));
-			if (grid_window){
-				     grid_window.mst_alert.dialog("close");
-				}
-			}     
-		});      
-}
+ 
 
-function processEnteroData(data){
-	  
-		/*identifiers are  a list of STs, each list item contains a list of STs 
-		* (usually only one long)
-		* However multiple STs are possible due to missing data
-		*/
-	var identities=data['data']['identifiers'];
-		
-	var md = {}
-		//ST (The master ST) to strain ids
-      
-   
-	var ST_map={};
-	var ST_to_list={}
-	var identifiers = [];
-	for (var i in identities){
-		var list = identities[i];
-		if (list.length ===0){
-			identifiers.push("hypothetical_node")       
-		}
-		else{
-			for (var n in list){
-				if (ST_map[list[n]]){
-					console.log("Same ST occurring twice:"+list[n]);
-					continue;
-				}
-				ST_map[list[n]]=list[0];
-			}
-			identifiers.push(list[0]);
-			ST_to_list[list[0]]=list;
-		}
-	}
-	
-	//convert list into dictionary 
-	var isolates = data['data']['isolates'];
-	for (var i in isolates){
-		var isolate = isolates[i];
-		var node_id  = ST_map[isolate.ID]
-		if (!node_id){
-			continue;
-		}
-		isolate['ID']=node_id;
-		md[isolate.StrainID]=isolate;     
-	}
-	
-	
-	return {
-		initial_category:data['data']['current_metadata'],
-		layout_data:data['data']['layout'],
-		links:data['data']['links'],
-		metadata:md,
-		metadata_options:data['data']['metadata_options']['Metadata'],
-		nodes:identifiers,
-		layout_algorithm:"force"
-	}
-	
-	
 
-}
 
 
 
@@ -1287,6 +1234,10 @@ window.onload = function (){
                 var winw = ($(window).width());
                 var div  = $("#graph-div");
                 var sb_width = $("#sidebar").width();
+		  var sb_height = $("#sidebar").height();
+		  if (sb_height>winh){
+			winh=sb_height;
+		  }
                 div.height(winh).css({"max-height":winh+"px","min-height":winh+"px"});
                 $("#graph-div").width(winw-sb_width);
         });
@@ -1299,25 +1250,7 @@ window.onload = function (){
         });
 
 
-        $(".mst-menu-title").click(function(e){
-				if($(this).prop("disabled") === true) {
-					return;
-				}
-                var id = $(this).attr("id");
-                var this_panel =  $("#"+id+"-panel");
-                var icon = $("#"+id+"-icon");
-                if  (this_panel.hasClass("open-menu-panel")){
-                        this_panel.toggle("50");
-                        this_panel.removeClass("open-menu-panel");
-                        icon.attr("class","glyphicon glyphicon-menu-right");
-                }
-                else{
-                        this_panel.toggle("50");
-                        this_panel.addClass("open-menu-panel");
-                        icon.attr("class","glyphicon glyphicon-menu-down");
-                }
-
-        });
+       
         $(".panel-body").hide();
 
         $( "#slider-linklength" ).on("change", function(e) {
@@ -1517,22 +1450,22 @@ window.onload = function (){
                 max: 100,
                 value: 0,
         });
-		$( "#spinner-collapse-nodes" ).on("change", function(e) {
-			var v = parseFloat($(this).spinner('value'));
-			if( isNaN(v)) { v = 0.0 ; }
-			$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
-			the_tree.collapseNodes(v);
-		 })
-		 .spinner({
-                min:0,
-                value: 0
+
+	$( "#spinner-collapse-nodes" ).on("change", function(e) {
+		var v = parseFloat($(this).spinner('value'));
+		$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
+		the_tree.collapseNodes(v);
+	 })
+	 .spinner({
+	min:0,
+	value: 0
+
         });
 
 
 
         $("#save-tree-json").click(function(e){
                 var obj= the_tree.getTreeAsObject();
-                obj['metadata_options']=metadata_options;
                 saveTextAsFile(JSON.stringify(obj),"ms_tree.json");
 
         });
@@ -1600,10 +1533,34 @@ window.onload = function (){
 			return confirmationMessage;
 		}
 	});
-	if (!isNaN(tree_id)){
+	if (tree_id){
+		setupEnterobasePanel();
 		initiateLoading("Waiting");
 		getRemoteData();
 	}
+	 $(".mst-menu-title").click(function(e){
+				if($(this).prop("disabled") === true) {
+					return;
+				}
+		var id = $(this).attr("id");
+		var this_panel =  $("#"+id+"-panel");
+		var icon = $("#"+id+"-icon");
+		if  (this_panel.hasClass("open-menu-panel")){
+			this_panel.toggle("50");
+			this_panel.removeClass("open-menu-panel");
+			icon.attr("class","glyphicon glyphicon-menu-right");
+		}
+		else{
+			this_panel.toggle("50");
+			this_panel.addClass("open-menu-panel");
+			icon.attr("class","glyphicon glyphicon-menu-down");
+			
+		}
+		setTimeout(function(){
+			   $(window).trigger("resize");
+		},300);
+
+	});
 	
 };
 
