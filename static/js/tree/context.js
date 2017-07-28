@@ -97,7 +97,7 @@ function D3MSTreeContextMenu(tree,meta_grid){
 				</div> \
 		</div> \
 	";
-	if (meta_grid){
+	if (meta_grid && ! $("#mst-svg-menu").find(".toggle-metadata").length){
 		$("#context-menu").append( metadata_table_html);
 		$("#mst-svg-menu").append("<div class='context-option toggle-metadata'>Show metadata table</div>");
 	}
