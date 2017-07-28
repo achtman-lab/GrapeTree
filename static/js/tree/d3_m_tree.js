@@ -1029,7 +1029,7 @@ D3MSTree.prototype.changeCategory= function(category){
                         return [{cx:parent.x,cy:parent.y}];
                 });
     
-        hypo_nodes.enter().append("circle").attr("r",3).style("fill","black");
+        hypo_nodes.enter().append("circle").attr("r",1).style("fill","black");
         
         var nodes_existing = this.node_elements//.filter(function(d){return !d.hypothetical})
                                                 .selectAll('.node-paths').data(function(it){
@@ -1040,11 +1040,11 @@ D3MSTree.prototype.changeCategory= function(category){
         nodes_existing.exit().remove();
         
        this.node_elements.selectAll('.node-paths')
-        .on("mouseover",function(d){
+        .on("mouseover",function(d, ui){
                 for (var i in self.segment_over_listeners){
                         self.segment_over_listeners[i](d);    
                 }
-        }).on("mouseout",function(d){
+        }).on("mouseout",function(d, ui){
                  for (var i in self.segment_out_listeners){
                         self.segment_out_listeners[i](d);    
                 }
@@ -1469,7 +1469,7 @@ D3MSTree.prototype._centerGraph = function(){
         var maxX = minX = this.force_nodes[0].x;
         var maxY = minY = this.force_nodes[0].y;
         var nodes = this.force_nodes;
-        for (var n=1;n<nodes.length;n++){
+        for (var n in nodes){
                 var node = nodes[n];
                 if (node.x>maxX){maxX=node.x;}
                 if (node.x<minX){minX=node.x;}
@@ -1477,18 +1477,21 @@ D3MSTree.prototype._centerGraph = function(){
                 if (node.y<minY){minY=node.y;}
                                 
         }   
+        var [wdiff, hdiff] = [maxX-minX, maxY-minY];
+		var scale = Math.min(this.width/wdiff, this.height/hdiff)*0.8;
+		var [newX, newY] = [(this.width - wdiff*scale)/2.0, (this.height - hdiff*scale)/2.0];
+		
+
         for (var n=0;n<nodes.length;n++){
                 var node = nodes[n];
-                node.px =node.x = node.x-minX;
-                node.py = node.y = node.y-minY;
+                node.px =node.x = node.x-minX + newX;
+                node.py = node.y = node.y-minY + newY;
                                 
         }
-        var wdiff = maxX-minX;
-        var hdiff = maxY-minY;
-        var scale = wdiff > hdiff ? this.width/wdiff : (hdiff > 0 ? this.height/hdiff : 1);
+        //var scale = wdiff > hdiff ? this.width/wdiff : (hdiff > 0 ? this.height/hdiff : 1);
 
-        this.setScale(scale*0.8);
-        this.setTranslate([40,40]);
+        this.setScale(scale);
+        this.setTranslate([0,0]);
 }
  
 D3MSTree.prototype.centerGraph = function(){

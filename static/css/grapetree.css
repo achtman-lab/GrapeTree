@@ -39,7 +39,7 @@ body{
  .slider-class{
 		float: left;
 		clear: left;
-		width: 140px;
+		width: 100px;
 		height:5px;
 		margin: 5px;
 }
