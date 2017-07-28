@@ -21,13 +21,13 @@ function  D3MSMetadataTable(tree,context_menu){
 		{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 20, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
 		{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
 		//{id: "Barcode", name: "ID", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
-		{id: "Barcode", name: "Barcode", field: "ID", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'}
+		//{id: "Barcode", name: "Barcode", field: "ID", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'}
 	];
 	this.columns = [
 		{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 20, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
 		{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
 		//{id: "Barcode", name: "ID", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
-		{id: "Barcode", name: "Barcode", field: "ID", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'}
+		//{id: "Barcode", name: "Barcode", field: "ID", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'}
 	];
 
 	this.options = {
@@ -244,19 +244,27 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 		$('#replace-div').hide();
 		$("#context-menu").hide();
 	})
-	.hide();
-	//.show(300);
-	
+
+	$( function() {
+		var h=$('#metadata-div').height();
+		$('#myGrid').css({'height':(h-50)+'px'});
+	});
+
+	$('#metadata-div').hide();
+
 	$('#metadata-close').click(function(e){
 		$('#metadata-div').hide(300);
 	});
 	$("#metadata-filter").change(function(e) {
 		if (this.checked) {
 			$(".slick-headerrow").show(300);
+			self.grid.resizeCanvas();
 			$("#myGrid").height($("#myGrid").height()+30);
 			$("#metadata-div").height($("#metadata-div").height()+30);
+			self.grid.resizeCanvas();
 		} else {
 			$(".slick-headerrow").hide(300);
+			self.grid.resizeCanvas();
 			$("#myGrid").height($("#myGrid").height()-30);
 			$("#metadata-div").height($("#metadata-div").height()-30);
 		}
@@ -351,8 +359,6 @@ D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 	if (!this.tree) {
 		return;
 	}
-	//single varible metadata_info, which now also contains label
-	
 	//synchronize the columns
 	var cols = {};
 	for (var field in this.tree.metadata_info) {
@@ -385,7 +391,7 @@ D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 			this.source_data.push(d);
 		}
 	}
-	this.data_reformat(this.source_data, select_moveUp);
+	this.data_reformat(this.source_data ); //select_moveUp);
 	this.dataView.setItems(this.source_data);
 	this.grid.invalidate();
 	this.grid.render();

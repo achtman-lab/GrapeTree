@@ -665,14 +665,12 @@ tree_raw = {};
  }
 
 
-
-
-
  function loadMetadataFile(file, dl){
 	MSCSCReader(file,dl,function(msg,lines,header_index){
 		var meta={};
 		var id_name='ID';
 		var exp = new RegExp("ID","i");
+
 		for (var i in header_index){
 			var header = header_index[i];
 			if (header.match(exp)){
@@ -957,13 +955,14 @@ window.onload = function (){
 		});
 
 
-        $( "#slider-charge" ).on("change", function(e) {the_tree.alterCharge($("#slider-charge").slider("value"));
-									$(this).prop("title", $(this).slider("value"));
+        $( "#slider-charge" ).on("change", function(e) {
+        	the_tree.alterCharge($("#slider-charge").slider("value"));
+			$(this).prop("title", $(this).slider("value"));
 		})
 		.slider({
-                orientation: "horizontal",
-                min:0,
-                max: 30,
+			orientation: "horizontal",
+			min:0,
+			max: 30,
         });
 
         $("#node-label-text").change(function(e){
@@ -1016,50 +1015,45 @@ window.onload = function (){
                 });
         });
 
-
-
-
          $( "#slider-collapse-nodes" ).on("change", function(e) {
-				var val = Math.exp($(this).slider('value')/1000);
-                $("#spinner-collapse-nodes").spinner('value', val);
+			var val = Math.exp($(this).slider('value')/1000);
+			$("#spinner-collapse-nodes").spinner('value', val);
 		 })
 		 .slider({
-                orientation: "horizontal",
-                min:0,
-                max: 100,
-                value: 0,
+			orientation: "horizontal",
+			min:0,
+			max: 100,
+			value: 0,
         });
 
 	$( "#spinner-collapse-nodes" ).on("change", function(e) {
 		var v = parseFloat($(this).spinner('value'));
-		$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
-		the_tree.collapseNodes(v);
-	 })
-	 .spinner({
-	min:0,
-	value: 0
+		if (v != $(this).data.v) {
+			$(this).data.v = v;
+			$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
+			the_tree.collapseNodes(v);
+		}
+	})
+	.spinner({
+		min:0,
+		value: 0
+	});
 
-        });
+	$("#save-tree-json").click(function(e){
+			var obj= the_tree.getTreeAsObject();
+			saveTextAsFile(JSON.stringify(obj),"ms_tree.json");
+	});
 
-
-
-        $("#save-tree-json").click(function(e){
-                var obj= the_tree.getTreeAsObject();
-                saveTextAsFile(JSON.stringify(obj),"ms_tree.json");
-
-        });
-
-        $("#save-tree-nwk").click(function(e){
-                var newick= the_tree.getTreeAsNewick();
-                saveTextAsFile(newick,"ms_tree.nwk");
-
-        });
+	$("#save-tree-nwk").click(function(e){
+			var newick= the_tree.getTreeAsNewick();
+			saveTextAsFile(newick,"ms_tree.nwk");
+	});
 
 
-        $("#center-graph-button").click(function(e){
-             the_tree.centerGraph();
+	$("#center-graph-button").click(function(e){
+		 the_tree.centerGraph();
 
-        });
+	});
 
 	$("#search-metadata-icon").click(function(e){
 		var keyword= $("#search-metadata-input").val();
