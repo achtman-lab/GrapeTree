@@ -97,7 +97,7 @@ function D3MSTreeContextMenu(tree,meta_grid){
 				</div> \
 		</div> \
 	";
-	if (meta_grid && ! $("#mst-svg-menu").find(".toggle-metadata").length){
+	if (meta_grid){
 		$("#context-menu").append( metadata_table_html);
 		$("#mst-svg-menu").append("<div class='context-option toggle-metadata'>Show metadata table</div>");
 	}
@@ -301,7 +301,6 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 
 		var colname = $("#myGrid .ui-state-hover").text();
 		if (! colname) {
-
 
 			if (self.meta_grid.grid.getCellFromEvent(e)) {
 				colname = self.meta_grid.grid.getColumns()[self.meta_grid.grid.getCellFromEvent(e).cell].name;

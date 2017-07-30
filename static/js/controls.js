@@ -334,17 +334,17 @@
 		$("#spinner-hide-link-length").spinner({
 			min: 0,
 			max: tree.max_link_distance,
-				step:(tree.max_link_distance/100.0).toPrecision(1)
+				step:(tree.max_link_distance/1000.0).toPrecision(1)
 			});
 			$( "#spinner-collapse-nodes" ).spinner({
 			min: 0,
-			max: tree.max_link_distance+0.01,
+			max: tree.max_link_distance,
 			value: tree.node_collapsed_value,
-			step: (tree.max_link_distance/1000000.0).toPrecision(1)
+			step: 0.000001,
                 });
 
                 $( "#slider-collapse-nodes" ).slider({
-                        min:Math.log(tree.max_link_distance/5000)*1000,
+                        min:Math.log(1e-7)*1000,
                         max: Math.log(tree.max_link_distance+0.01)*1000,
                         value: Math.log(tree.node_collapsed_value)*1000,
                 });
@@ -467,13 +467,15 @@
 
 
 	function loadMSTree(data){
+		metadata_options = {};
 		if (the_tree) {
 			the_tree.svg.remove();
 			the_tree.legend_div[0].remove();
 			//resetGridColumns();
-			metadata_options = {};
 			$("#metadata-select").find("option").remove();
 			$("#node-label-text").find("option").remove();
+			$("#metadata-div").remove();
+			$("#context-menu").remove();
 		}
 		$("#waiting-information").text("Loading Data");
 		the_tree = null;
@@ -508,17 +510,16 @@
 					
 					// metadata
 
-		//if (!metadata_options['nothing']){
-              //          metadata_options['nothing']='No Category';
 		//	  $("#metadata-select").append($("<option>").attr("value",'nothing').text('No Category'));
 		//}
 		//addMetadataOptions('ID','ID');
+		// the_tree.addMetadataOptions({'nothing': 'No Category'});
+
+		if (the_tree.metadata_info){
+				addMetadataOptions(the_tree.metadata_info);
+		}
 		$("#metadata-select").val('nothing');
 		$("#node-label-text").val('ID');
-
-		if (data['metadata_options']){
-				addMetadataOptions(data['metadata_options']);
-		}
 		
 		if (data['initial_category']){
 			$("#metadata-select").val(data['initial_category']);
@@ -668,56 +669,40 @@ tree_raw = {};
  function loadMetadataFile(file, dl){
 	MSCSCReader(file,dl,function(msg,lines,header_index){
 		var meta={};
-		var id_name='ID';
-		var exp = new RegExp("ID","i");
-
-		for (var i in header_index){
-			var header = header_index[i];
-			if (header.match(exp)){
-				id_name=header;
-				header_index[i]='ID';
-				break;
-			}
-		}
+		id_name = header_index[0];
 		for (var i in lines){
 			var line = lines[i];
-			if (id_name !== 'ID'){
-				line['ID']=line[id_name];
-				delete line[id_name];
-			}
-			if (line['Name']){
-				meta[line['Name']]=line;
-			}
-			else if (line['ID']){
-				meta[line['ID']]=line;
-			}
+			meta[line[id_name]]=line;
 		}
-		the_tree.addMetadata(meta);
 
 		var category = 'nothing';
 		var options={};
+		category = header_index.length > 1 ? header_index[1] : header_index[0];
 		for (var i in header_index){
 			var header = header_index[i];
-			if ( header !=  'ID' ) {
-				category=header;
-			}	
 			options[header]=header;
 		}
 		the_tree.addMetadataOptions(options);
 		$("#metadata-select").val(category);
+		the_tree.addMetadata(meta);
 		the_tree.changeCategory(category);
-		
-		//updateMetadataTable();
 	});
  };
  
  
 
 
-
-
-
 window.onload = function (){
+	$("#mst-svg-x").on('click', function(e) {
+		context_menu._trigger_context("mst-svg", e);
+	});
+	$("#myGrid-x").on("click", function(e) {
+		context_menu._trigger_context("myGrid", e);
+	});
+	$("#legend-svg-x").on("click", function(e) {
+		context_menu._trigger_context("legend-svg", e);
+	});
+
 	$(".show-tooltip").on('mouseenter', function(e){
 		showToolTip($(this).attr('title'), {
 			pageX:$(this).offset().left + $(this).width() + 10, 

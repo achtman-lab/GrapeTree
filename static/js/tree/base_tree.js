@@ -1391,7 +1391,12 @@ D3BaseTree.prototype.addMetadataOptions=function(options){
 			this.metadata_info[key] =value
 		}		
 		else{
-			this.metadata_info[key]={label:options[key],coltype : 'character', grouptype : 'size', colorscheme : 'category'}
+			this.metadata_info[key]={
+				label:options[key],
+				coltype : 'character', 
+				grouptype : 'size', 
+				colorscheme : 'category'
+			}
 		}
 	}
 	for (var i in this.treeChangedListeners){

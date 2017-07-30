@@ -235,7 +235,14 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	});
 
 	// metadata div events
-	$('#metadata-div').draggable({handle:$('#handler')}).resizable().resize(function(){
+	$('#metadata-div').draggable({
+		handle:$('#handler'),
+		snapMode: 'both',
+	}).resizable({
+		handles: 'n, e, s, w',
+		snapMode: 'both',
+	}
+	).resize(function(){
 		var h=$('#metadata-div').height();
 		$('#myGrid').css({'height':(h-$('#myGrid').position().top)+'px'});
 		self.grid.resizeCanvas();
@@ -310,10 +317,10 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 		for (var id in curr_cols) {
 			var col = curr_cols[id];
 			header_map[col.field] = headers.length;
-			headers.push(col.name);
+			headers.push(col.id);
 		}
 		output.push(headers.join('\t'));
-		data = grid.getData().getFilteredItems();
+		data = self.grid.getData().getFilteredItems();
 		for (var id in data) {
 			var d = data[id];
 			var out = []; out.length = headers.length;
@@ -371,6 +378,16 @@ D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 	}
 	for (var c in cols) {
 		if (c != "nothing") {
+			if (c == 'Barcode' || c == 'ID') {
+			curr_cols.push({id: cols[c],
+				name: cols[c], 
+				field: c, 
+				width:120, 
+				cssClass:'uneditable-cell',
+				sortable: true, 
+				prop: this.tree.metadata_info[cols[c]]
+			});
+			} else {
 			curr_cols.push({id: cols[c],
 				name: cols[c], 
 				field: c, 
@@ -379,6 +396,7 @@ D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 				sortable: true, 
 				prop: this.tree.metadata_info[cols[c]]
 			});
+			}
 		}
 
 	}

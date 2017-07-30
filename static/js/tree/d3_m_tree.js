@@ -537,6 +537,10 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
 								this.metadata_map[node.id]=[node.id];
                         }
                 }
+                this.addMetadataOptions({
+                	'nothing': 'No Category', 
+                	'ID': 'ID',
+                });
         } else if (max_distance<this.node_collapsed_value) {
 			this.force_links.length=this.force_nodes.length=0;
 			this.force_nodes = JSON.parse(JSON.stringify(this.force_nodes0));
@@ -990,6 +994,13 @@ D3MSTree.prototype.toggleHypotheticalNodes=function(){
 	this.show_hypothetical_nodes = ! this.show_hypothetical_nodes;
 	this._updateNodeRadii();
 	this.changeCategory(this.display_category);
+
+	this._setLinkDistance();
+	for (var ii in this.force_links){
+			this._correctLinkLengths(this.force_links[ii]);		
+	}
+	this._updateGraph(true);
+	
 	for (var i in this.displayChangedListeners){
 		 this.displayChangedListeners[i]("show_hypothetical_nodes",this.show_hypothetical_nodes);	
 	}
@@ -1546,21 +1557,19 @@ D3MSTree.prototype.setSquareRootScale=function(show){
 
 D3MSTree.prototype.clearSelection= function(pervasive){ 
     if (! pervasive) {
-           this.force_nodes.filter(function(node){node.selected=false; delete node.halo_thickness; delete node.halo_colour;});
+	   this.force_nodes.filter(function(node){node.selected=false; delete node.halo_thickness; delete node.halo_colour;});
 
-           if (this.node_elements) {
-                this.node_elements.classed('selected', false);
-	            this.node_elements.selectAll(".halo").remove();
-           }
-
+	   if (this.node_elements) {
+			this.node_elements.classed('selected', false);
+			this.node_elements.selectAll(".halo").remove();
+	   }
 	} else {
-	        this.node_elements.filter(function(node){return ! node.selected})
-	        .filter(function(node){delete node.halo_thickness; delete node.halo_colour;return true;})
-	        .classed('selected', false).selectAll('.halo').remove();
-		for (var i in this.nodesSelectedListeners){
-			this.nodesSelectedListeners[i](this);
-       
-		}
+		this.node_elements.filter(function(node){return ! node.selected})
+		.filter(function(node){delete node.halo_thickness; delete node.halo_colour;return true;})
+		.classed('selected', false).selectAll('.halo').remove();
+	}
+	for (var i in this.nodesSelectedListeners){
+		this.nodesSelectedListeners[i](this);
 	}
 };
 
@@ -1820,7 +1829,6 @@ D3MSTree.prototype._addHalos= function (filter_function,thickness,colour){
         
          self.node_elements.sort(function(a,b){
              return (a.halo_thickness == b.halo_thickness) ? 0 : (a.halo_thickness > b.halo_thickness ? -1 : 1);
-             //return a.halo_thickness ? 1 : (b.halo_thickness ? -1 : 0);
          });
   
 }
