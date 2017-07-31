@@ -504,6 +504,7 @@ D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
 }
 
 D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
+	var self = this;
         //value is 0 reset original values to the current ones
 		if ( this.node_collapsed_value <= 1e-8 && ! this.manual_collapsing_value ){   
 				for (var i in this.force_nodes){
@@ -549,7 +550,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 			this.force_links.length=this.force_nodes.length=0;
 			var nmap = {};
 			$.map(JSON.parse(JSON.stringify(this.force_nodes0)), function(n) {
-				this.force_nodes.push(n);
+				self.force_nodes.push(n);
 				nmap[n.id] = n;
 			});
 			
