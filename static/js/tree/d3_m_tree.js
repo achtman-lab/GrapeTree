@@ -547,13 +547,12 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
                 });
         } else if (max_distance<this.node_collapsed_value || redraw) {
 			this.force_links.length=this.force_nodes.length=0;
-			this.force_nodes = JSON.parse(JSON.stringify(this.force_nodes0));
-			
 			var nmap = {};
-			for (var i in this.force_nodes){
-					var n = this.force_nodes[i];
-					nmap[ n.id ] = n;
-			}
+			$.map(JSON.parse(JSON.stringify(this.force_nodes0)), function(n) {
+				this.force_nodes.push(n);
+				nmap[n.id] = n;
+			});
+			
 			for (var i in this.force_nodes){
 					var n = this.force_nodes[i];
 					if (n.children) {
