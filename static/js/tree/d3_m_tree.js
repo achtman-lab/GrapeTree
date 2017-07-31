@@ -184,9 +184,13 @@ function D3MSTree(element_id,data,callback,height,width){
         if (data['layout_algorithm']=='force'){
                 to_collapse=0;
         }
+        var tmp_collapsing = this.manual_collapsing;
+        this.manual_collapsing = {};
        positions = this._collapseNodes(0, positions);
-       if (to_collapse > 0) {
-       		positions =  this._collapseNodes(to_collapse, positions);
+       if (to_collapse > 0 || Object.keys(tmp_collapsing).length > 0) {
+       		this.manual_collapsing = tmp_collapsing;
+       		this._collapseNodes(to_collapse);
+       		//positions =  this._collapseNodes(to_collapse, positions);
        }
         if (callback){
                 callback(this,"Nodes"+this.force_nodes.length);
@@ -489,7 +493,7 @@ D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
 			 layout[node.id]  = [node.x,node.y];
 	       }
 	//}      
-    layout = this._collapseNodes(max_distance, layout);
+    layout = this._collapseNodes(max_distance, layout, ! keep_current_layout);
 	
     this._start(null,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
 	//if (!keep_current_layout){
@@ -500,7 +504,7 @@ D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
 	}
 }
 
-D3MSTree.prototype._collapseNodes=function(max_distance,layout){
+D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
         //value is 0 reset original values to the current ones
 		if ( ! this.node_collapsed_value && ! this.manual_collapsing_value ){   
 				for (var i in this.force_nodes){
@@ -517,7 +521,8 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
 				}
 			}
 		}
-        if ((! this.force_nodes) || this.force_nodes.length == 0){
+//        if (max_distance<this.node_collapsed_value || (! this.force_nodes) || this.force_nodes.length == 0){
+        if ( (! this.force_nodes) || this.force_nodes.length == 0){
                 this.clearSelection();
                 this.hypo_record = {};
                 this._addNodes(this.original_nodes);
@@ -541,7 +546,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 	'nothing': 'No Category', 
                 	'ID': 'ID',
                 });
-        } else if (max_distance<this.node_collapsed_value) {
+        } else if (max_distance<this.node_collapsed_value || redraw) {
 			this.force_links.length=this.force_nodes.length=0;
 			this.force_nodes = JSON.parse(JSON.stringify(this.force_nodes0));
 			
@@ -564,8 +569,6 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
 							target: n,
 							value: n.length,
 							original_value : n.length,
-							x: n.x,
-							y: n.y,
 						});
 					}
 			}
@@ -630,7 +633,9 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 if (l.source.hypothetical && !l.target.hypothetical){
                         delete l.source.hypothetical;
 
-                        if (max_distance > this.node_collapsed_value && layout) layout[l.target.id] = layout[l.source.id];
+                        if (max_distance > this.node_collapsed_value && layout) {
+                        	layout[l.target.id] = layout[l.source.id];
+                        }
 
                         this.hypo_record[l.target.id][l.source.id] = 1;
                         for (var nid in this.hypo_record[l.source.id]) {
@@ -695,36 +700,35 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 if (node.link) node.length = node.link.value;
         }
 	//update the node to which the metadata is associated  
-	    if (! this.force_nodes0) {
-	    	this.force_nodes0 = [];
-	    	for (var i in temp_force_nodes){
-	    		var tn = temp_force_nodes[i];
-	    		var tn0 = {
-	    			id: tn.id,
-	    			hypothetical : tn.hypothetical,
-	    			length: tn.length,
-	    			selected: tn.selected,
-	    			size: tn.size,
-	    			value: tn.value,
-	    			x: tn.x,
-	    			y: tn.y,
-	    		};
-	    		if (tn.parent) {
-	    			tn0.parent = tn.parent.id;
-	    		}
-	    		if (tn.children) {
-	    			tn0.children = [];
-	    			for (var ci in tn.children) {
-						tn0.children.push(tn.children[ci].id);
-	    			}
-	    		}
-	    		this.force_nodes0.push(tn0);
-	    	}
-        	this.grouped_nodes0 = JSON.parse(JSON.stringify(this.grouped_nodes));
-        	this.hypo_record0 = JSON.parse(JSON.stringify(this.hypo_record));
-        }
+	        	if (! this.force_nodes0) {
+					this.force_nodes0 = [];
+					for (var i in temp_force_nodes){
+						var tn = temp_force_nodes[i];
+						var tn0 = {
+							id: tn.id,
+							hypothetical : tn.hypothetical,
+							length: tn.length,
+							selected: tn.selected,
+							size: tn.size,
+							value: tn.value,
+//							x: tn.x,
+//							y: tn.y,
+						};
+						if (tn.parent) {
+							tn0.parent = tn.parent.id;
+						}
+						if (tn.children) {
+							tn0.children = [];
+							for (var ci in tn.children) {
+								tn0.children.push(tn.children[ci].id);
+							}
+						}
+						this.force_nodes0.push(tn0);
+					}
+					this.grouped_nodes0 = JSON.parse(JSON.stringify(this.grouped_nodes));
+					this.hypo_record0 = JSON.parse(JSON.stringify(this.hypo_record));
+        		}
 
-	
         this._updateNodeRadii();
 	return layout;
 
@@ -1023,7 +1027,7 @@ D3MSTree.prototype.collapseSpecificNodes=function(nodes,uncollapse){
 		}
 		
 	}
-	this.collapseNodes(this.node_collapsed_value,true)	
+	this.collapseNodes(this.node_collapsed_value,! uncollapse)	
 }
 
 
@@ -1801,6 +1805,10 @@ D3MSTree.prototype.alterCharge=function(amount){
 D3MSTree.prototype._correctLinkLengths= function(it){
         var source = it.source;
         var target =it.target;
+        if (target.x == source.x && target.y == source.y) {
+        	target.x += Math.sqrt(it.link_distance*it.link_distance/2.0);
+        	target.y += Math.sqrt(it.link_distance*it.link_distance/2.0);
+        }
         var x_dif = target.x - source.x;
         var y_dif = target.y - source.y;
         var actual_length = Math.sqrt((x_dif*x_dif)+(y_dif*y_dif));
