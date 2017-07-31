@@ -727,7 +727,7 @@ the tree data as well as display information and any metadata.
 		$("#waiting-information").text("Loading Data");
 		the_tree = null;
 		the_tree = new D3MSTree(
-		"graph-div",data,function(tree,msg){
+        "graph-div",JSON.parse(JSON.stringify(data)),function(tree,msg){
 				treeLoading(tree,msg);
 
 		});
