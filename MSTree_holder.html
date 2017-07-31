@@ -101,15 +101,15 @@ the tree data as well as display information and any metadata.
 		<div class ='panel-heading mst-menu-title' id= 'file-menu'> <b id='input-output-title'>Inputs/Outputs</b><span id = 'file-menu-icon' class='glyphicon glyphicon-menu-down'> </span></div>
 		<div class = "panel-body" id ='file-menu-panel'>
 		<div id ='load-panel'>
-				<button title='Handles trees, profiles and metadata files' id = 'button-load-nwk' class = 'show-tooltip'> Load Files</button>
-				<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="$('#welcome-div').toggle()"></span>
+			<button title='Handles trees, profiles and metadata files' id = 'button-load-nwk' class = 'show-tooltip'> Load Files</button>
+			<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="$('#welcome-div').toggle()"></span>
 			<br>
 			<hr>
 		</div>
 			<div id='save-panel'>
 					<button id ="save-tree-json">Save GrapeTree</button><br><br>
 					<button id ="save-tree-nwk">Save to Newick Tree</button><br><br>
-					<button id ="mst-download-svg">Download SVG</button><br><br>
+					<button id ="mst-download-svg">Download SVG</button><br>
 			</div>
 		</div>
 	</div>
@@ -129,25 +129,25 @@ the tree data as well as display information and any metadata.
 			<button id = 'button-goback' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Unmodified tree</button>
 			<br><br>
 			<div>
-				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Branch Length (%)</label><br>
-				<div id = "slider-linklength" class ="slider-class" style="width:80px">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
+				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Branch Scaling (%)</label><br>
+				<div id = "slider-linklength" class ="slider-class">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Collapse branches below a certain value">
 				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
-				<div id = "slider-collapse-nodes" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
+				<div id = "slider-collapse-nodes" class ="slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
 			</div>
 			<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
 			<br>
 			<hr>
 			<div >
 				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
-				<div id = "slider-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
+				<div id = "slider-nodesize" class ="slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
 			</div>
 			
 			<div class="show-tooltip" title="Node size relative to number of strains">
 				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node scaling (%)</label><br>
-				<div id = "slider-relative-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
+				<div id = "slider-relative-nodesize" class ="slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
 			</div>
 			<br>
 			<button id = 'button-refresh'> Static Redraw </button>
@@ -158,7 +158,7 @@ the tree data as well as display information and any metadata.
 				<div id="rotation-div"><label> Drag Icon to Rotate:&nbsp;</label>
 				<span id="rotation-icon" class="glyphicon glyphicon-refresh"></span>
 				</div>
-				<label>&nbsp;&nbsp;Zoom:&nbsp;</label>
+				<label>Zoom:&nbsp;</label>
 				<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
 				<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
 			</p>
@@ -169,16 +169,23 @@ the tree data as well as display information and any metadata.
 		<div class = "panel-body" id ='mst-link-menu-panel'>
 			<label>For branches <br>longer than:</label>
 			<input type='text' style='width:35px;height:15px' id ='spinner-hide-link-length' class='spin-group'>
-			<div style='margin-left:20px'><input type="radio" id='handle-long-branch-display' name='handle-long-branch' value='display' checked />Display</div>
-			<div style='margin-left:20px'><input type="radio" id='handle-long-branch-hide' name='handle-long-branch' value='hide'/>Hide</div>
-			<div style='margin-left:20px'><input type="radio" id='handle-long-branch-cap' name='handle-long-branch' value='cap'/>Shorten</div>
+			<table><tbody><tr>
+			<td>
+				<div style="opacity: 1;"><input type="radio" id="handle-long-branch-display" name="handle-long-branch" value="display" checked="" style="opacity: 1;">Display</div>
+			</td>
+			<td style="padding-left:10px">
+				<div style="opacity: 1;"><input type="radio" id="handle-long-branch-hide" name="handle-long-branch" value="hide" style="opacity: 1;">Hide</div>
+			</td>
+			<td style="padding-left:10px">
+				<div style="opacity: 1;"><input type="radio" id="handle-long-branch-cap" name="handle-long-branch" value="cap" style="opacity: 1;">Shorten</div>
+			</td>
+			</tr></tbody></table>
 			<hr>
 			<label><input id ='show-link-labels'type="checkbox" /> Branch Labels</label>
 			<br>
 			<label>Font Size:</label>
-			<input type='text' style='width:20px;height:15px' id ='spinner-linkfontsize' class='spin-group'>
 			<br>
-			<div id = "slider-linkfontsize" class = "slider-class"></div>
+			<div id = "slider-linkfontsize" class = "slider-class"></div><input type='text' style='width:20px;height:15px' id ='spinner-linkfontsize' class='spin-group'>
 			<br>
 			<label><input id ='show-link-tooltip' type="checkbox" checked /> Mouseover info</label>
 		</div>
@@ -194,9 +201,9 @@ the tree data as well as display information and any metadata.
 			<hr>
 			<label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
 			<br><br>
-			<label>Font Size:</label><input type='text' style='width:20px;height:15px' id ='spinner-node-fontsize' class='spin-group'>
+			<label>Font Size:</label>
 			<br>
-			<div id = "slider-node-fontsize" class = "slider-class"></div>
+			<div id = "slider-node-fontsize" class = "slider-class"></div><input type='text' style='width:20px;height:15px' id ='spinner-node-fontsize' class='spin-group'>
 			<label>Label Text</label>
 			<select id = 'node-label-text'></select>
 			<label>Search in Label</label>
@@ -238,23 +245,13 @@ the tree data as well as display information and any metadata.
 {% include 'ms_tree/enterobase_ms_tree.html' %}
 {%endif %}
 -->
-<!-- <script charset="utf-8" src="static/js/controls.js"></script> -->
-<script>
-
-	
-		
-
-     function showhide(id) {
-       	var e = document.getElementById(id);
-       	e.style.display = (e.style.display == 'block') ? 'none' : 'block';
-     }
-
+<script charset="utf-8">
         MSFileChooser.prototype = Object.create(null);
         MSFileChooser.prototype.constructor= MSFileChooser;
 
         function MSFileChooser(filter){
                 var self = this;
-                this.fileInput = $("<input>").attr("type","file").css("display","none");
+                this.fileInput = $("<input>").attr("type","file").hide();
                 this.callback=null;
                 this.fileInput.attr("accept",filter);
                 $('<body>').append(this.fileInput);
@@ -265,7 +262,7 @@ the tree data as well as display information and any metadata.
 
         }
         MSFileChooser.prototype.setFilter=function(filter){
-                this.fileInput.attr("accept",filter);
+                this.fileInput.attr("accept", filter);
         }
         MSFileChooser.prototype.showOpenDialog=function(callback){
                 this.callback=callback;
@@ -584,17 +581,17 @@ the tree data as well as display information and any metadata.
 		$("#spinner-hide-link-length").spinner({
 			min: 0,
 			max: tree.max_link_distance,
-				step:(tree.max_link_distance/100.0).toPrecision(1)
+				step:(tree.max_link_distance/1000.0).toPrecision(1)
 			});
 			$( "#spinner-collapse-nodes" ).spinner({
 			min: 0,
-			max: tree.max_link_distance+0.01,
+			max: tree.max_link_distance,
 			value: tree.node_collapsed_value,
-			step: (tree.max_link_distance/1000.0).toPrecision(1)
+			step: 0.000001,
                 });
 
                 $( "#slider-collapse-nodes" ).slider({
-                        min:Math.log(tree.max_link_distance/5000)*1000,
+                        min:Math.log(1e-7)*1000,
                         max: Math.log(tree.max_link_distance+0.01)*1000,
                         value: Math.log(tree.node_collapsed_value)*1000,
                 });
@@ -717,13 +714,15 @@ the tree data as well as display information and any metadata.
 
 
 	function loadMSTree(data){
+		metadata_options = {};
 		if (the_tree) {
 			the_tree.svg.remove();
 			the_tree.legend_div[0].remove();
 			//resetGridColumns();
-			metadata_options = {};
 			$("#metadata-select").find("option").remove();
 			$("#node-label-text").find("option").remove();
+			$("#metadata-div").remove();
+			$("#context-menu").remove();
 		}
 		$("#waiting-information").text("Loading Data");
 		the_tree = null;
@@ -758,17 +757,16 @@ the tree data as well as display information and any metadata.
 					
 					// metadata
 
-		//if (!metadata_options['nothing']){
-              //          metadata_options['nothing']='No Category';
 		//	  $("#metadata-select").append($("<option>").attr("value",'nothing').text('No Category'));
 		//}
 		//addMetadataOptions('ID','ID');
+		// the_tree.addMetadataOptions({'nothing': 'No Category'});
+
+		if (the_tree.metadata_info){
+				addMetadataOptions(the_tree.metadata_info);
+		}
 		$("#metadata-select").val('nothing');
 		$("#node-label-text").val('ID');
-
-		if (data['metadata_options']){
-				addMetadataOptions(data['metadata_options']);
-		}
 		
 		if (data['initial_category']){
 			$("#metadata-select").val(data['initial_category']);
@@ -784,7 +782,7 @@ the tree data as well as display information and any metadata.
 		} else {
 			//updateMetadataTable();
 		}
-		$("#rotation-div").draggable({
+		$("#rotation-icon").draggable({
 		  start: function(e) {
 			the_tree._dragStarted(the_tree.force_nodes[0], [$("#rotation-icon").position().left, $("#rotation-icon").position().top]);
 		  },
@@ -796,9 +794,9 @@ the tree data as well as display information and any metadata.
 		  },
 		  revert: true,
 		  revertDuration: 10,
-		  helper: function() {return $("<div><label id='angle-text'></label></div>")},
+		  helper: function() {return $("<div style='cursor:none'><label id='angle-text'></label></div>")},
 		});
-		$("#rotation-div").bind("drag", function(event, ui) {
+		$("#rotation-icon").on("drag", function(event, ui) {
 			var x_dif = ui.helper.position().left - $("#rotation-icon").position().left;
 			var y_dif = $("#rotation-icon").position().top - ui.helper.position().top;
 			var angle = y_dif !== 0 ? Math.atan(x_dif/y_dif)/Math.PI * 180 : (x_dif === 0 ? 0 : (x_dif > 0 ? 90 : -90));
@@ -807,7 +805,11 @@ the tree data as well as display information and any metadata.
 			} else if (x_dif < 0) {
 				angle = 360 + angle;
 			}
-			ui.helper.select('.angle-text').text(Math.round(angle) + '\xB0') ;
+			ui.helper.select('.angle-text').text(Math.round(angle) + '\xB0').css({
+				'font-size':'1.2em',
+				'font-style':'bold',
+			}) ;
+
 		});
 
 		$('.panel-default').find('input, textarea, button, select, div, span').css("opacity", 1.0).prop('disabled',false);
@@ -837,7 +839,7 @@ var current_metadata_file=null;
 				$(waiting_spinner.el).hide();
 				$("#modal-title").show().text("Parameters For Tree Creation");
 				$("#waiting-information").hide();
-				document.getElementById("headertag").innerHTML = this.file.name;
+				$("#headertag").text(this.file.name);
 			}
 
 			else if ((head_line.indexOf(",") >=0 || head_line.indexOf("\t")>=0) && !head_line.startsWith("(") && !head_line.startsWith("{")) {
@@ -875,7 +877,6 @@ function showModalForParams(){
 tree_raw = {};
  function processProfileFile(profile_file){
 
-
         readFile(profile_file,function(profile){
               try{
                 $.ajax({
@@ -887,6 +888,7 @@ tree_raw = {};
 				}
                 }).done(function(result){
 						tree_raw = {"nwk":result,"layout_algorithm":$("#layout-select").val()};
+						$("#headertag").text( $("#headertag").text() + ' (' + $("#method-select").val() + ')' );
 						loadMSTree(tree_raw);
                }).fail(function( jqXHR, textStatus){
 						if (jqXHR.status == 405 || jqXHR.status == 404) {
@@ -911,63 +913,48 @@ tree_raw = {};
  }
 
 
-
-
-
  function loadMetadataFile(file, dl){
 	MSCSCReader(file,dl,function(msg,lines,header_index){
 		var meta={};
-		var id_name='ID';
-		var exp = new RegExp("ID","i");
-		for (var i in header_index){
-			var header = header_index[i];
-			if (header.match(exp)){
-				id_name=header;
-				header_index[i]='ID';
-				break;
-			}
-		}
+		id_name = header_index[0];
 		for (var i in lines){
 			var line = lines[i];
-			if (id_name !== 'ID'){
-				line['ID']=line[id_name];
-				delete line[id_name];
-			}
-			if (line['Name']){
-				meta[line['Name']]=line;
-			}
-			else if (line['ID']){
-				meta[line['ID']]=line;
-			}
+			meta[line[id_name]]=line;
 		}
-		the_tree.addMetadata(meta);
 
 		var category = 'nothing';
 		var options={};
+		category = header_index.length > 1 ? header_index[1] : header_index[0];
 		for (var i in header_index){
 			var header = header_index[i];
-			if ( header !=  'ID' ) {
-				category=header;
-			}	
 			options[header]=header;
 		}
 		the_tree.addMetadataOptions(options);
 		$("#metadata-select").val(category);
+		the_tree.addMetadata(meta);
 		the_tree.changeCategory(category);
-		
-		//updateMetadataTable();
 	});
  };
  
  
 
 
-
-
-
 window.onload = function (){
+	$("#mst-svg-x").on('click', function(e) {
+		context_menu._trigger_context("mst-svg", e);
+	});
+	$("#myGrid-x").on("click", function(e) {
+		context_menu._trigger_context("myGrid", e);
+	});
+	$("#legend-svg-x").on("click", function(e) {
+		context_menu._trigger_context("legend-svg", e);
+	});
+
 	$(".show-tooltip").on('mouseenter', function(e){
-		showToolTip($(this).attr('title'), {pageX:$(this).offset().left + $(this).width() + 10, pageY:$(this).offset().top + $(this).height()/2+10});
+		showToolTip($(this).attr('title'), {
+			pageX:$(this).offset().left + $(this).width() + 10, 
+			pageY:$(this).offset().top + $(this).height()/2+10
+		});
 	}).on('mouseleave', function(e) {
 		setTimeout(hideToolTip, 200);
 	});
@@ -1200,13 +1187,14 @@ window.onload = function (){
 		});
 
 
-        $( "#slider-charge" ).on("change", function(e) {the_tree.alterCharge($("#slider-charge").slider("value"));
-									$(this).prop("title", $(this).slider("value"));
+        $( "#slider-charge" ).on("change", function(e) {
+        	the_tree.alterCharge($("#slider-charge").slider("value"));
+			$(this).prop("title", $(this).slider("value"));
 		})
 		.slider({
-                orientation: "horizontal",
-                min:0,
-                max: 30,
+			orientation: "horizontal",
+			min:0,
+			max: 30,
         });
 
         $("#node-label-text").change(function(e){
@@ -1259,50 +1247,45 @@ window.onload = function (){
                 });
         });
 
-
-
-
          $( "#slider-collapse-nodes" ).on("change", function(e) {
-				var val = Math.exp($(this).slider('value')/1000);
-                $("#spinner-collapse-nodes").spinner('value', val);
+			var val = Math.exp($(this).slider('value')/1000);
+			$("#spinner-collapse-nodes").spinner('value', val);
 		 })
 		 .slider({
-                orientation: "horizontal",
-                min:0,
-                max: 100,
-                value: 0,
+			orientation: "horizontal",
+			min:0,
+			max: 100,
+			value: 0,
         });
 
 	$( "#spinner-collapse-nodes" ).on("change", function(e) {
 		var v = parseFloat($(this).spinner('value'));
-		$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
-		the_tree.collapseNodes(v);
-	 })
-	 .spinner({
-	min:0,
-	value: 0
+		if (v != $(this).data.v) {
+			$(this).data.v = v;
+			$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
+			the_tree.collapseNodes(v);
+		}
+	})
+	.spinner({
+		min:0,
+		value: 0
+	});
 
-        });
+	$("#save-tree-json").click(function(e){
+			var obj= the_tree.getTreeAsObject();
+			saveTextAsFile(JSON.stringify(obj),"ms_tree.json");
+	});
 
-
-
-        $("#save-tree-json").click(function(e){
-                var obj= the_tree.getTreeAsObject();
-                saveTextAsFile(JSON.stringify(obj),"ms_tree.json");
-
-        });
-
-        $("#save-tree-nwk").click(function(e){
-                var newick= the_tree.getTreeAsNewick();
-                saveTextAsFile(newick,"ms_tree.nwk");
-
-        });
+	$("#save-tree-nwk").click(function(e){
+			var newick= the_tree.getTreeAsNewick();
+			saveTextAsFile(newick,"ms_tree.nwk");
+	});
 
 
-        $("#center-graph-button").click(function(e){
-             the_tree.centerGraph();
+	$("#center-graph-button").click(function(e){
+		 the_tree.centerGraph();
 
-        });
+	});
 
 	$("#search-metadata-icon").click(function(e){
 		var keyword= $("#search-metadata-input").val();
@@ -1340,7 +1323,7 @@ window.onload = function (){
 		    if (the_tree) the_tree.clearSelection();
        })
 	try_backend();
-	var target = document.getElementById('modal-header')
+	var target = $('#modal-header')
 	waiting_spinner= new Spinner({color:'black', lines: 12,top:"13%"}).spin(target);
 
 
@@ -1404,7 +1387,6 @@ function try_backend(){
 		cannot_connect=true;
    }
  };
-
 </script>
 </body>
 </html>
