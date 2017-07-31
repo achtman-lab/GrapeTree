@@ -171,14 +171,13 @@ function D3MSTree(element_id,data,callback,height,width){
 				this.manual_collapsing ={};
 			   }
                 } else {
-                        var to_collapse =(data['layout_algorithm']==='force')?0: 1e-8;
+                        var to_collapse = 0;
                         this.node_collapsed_value=0;
                 }
         } 
       
         if (callback){
                 callback(this,this.original_nodes ? "Collapsing Nodes:"+this.original_nodes.length : "Collapsing Nodes.");
-        
         }
         
         if (data['layout_algorithm']=='force'){
@@ -607,7 +606,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 
         for (var index=this.force_links.length-1; index >=0; index --) {
         		var l = this.force_links[index];
-                if ( !l || (l.value > max_distance && to_collapse[l.source.id] !== 2) || (l.value > 1e-8 && to_collapse[l.source.id] === 1) ) continue;
+                if ( !l || (l.value > max_distance && to_collapse[l.source.id] !== 2) || (l.value && to_collapse[l.source.id] === 1) ) continue;
                 l.remove=l.target.remove=true;
                 var new_group = this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
                 delete this.grouped_nodes[l.source.id];
@@ -2142,7 +2141,6 @@ D3MSTree.prototype._dragging= function(it, pos){
        it.x += dx;
        it.y += dy;
        var source  =this.drag_source;
-                
        var target =it;
        var x_dif = target.x-source.x;
        var y_dif = target.y - source.y;
