@@ -1430,7 +1430,7 @@ D3MSTree.prototype._addLinks=function(links,ids){
                 if (x.value > this.max_link_distance){
                        this.max_link_distance=x.value;
                 }
-                if (x.value<this.min_link_distance){
+                if (x.value<this.min_link_distance && x.value > 0){
                         this.min_link_distance=x.value;
                 }
                 var target_node = _findNode[x.target];
@@ -1467,29 +1467,30 @@ D3MSTree.prototype._getLink=function(target_node){
 
  D3MSTree.prototype._setLinkDistance=function(strict){
         var self= this;
-	log_adjust = self.distance_scale(this.max_link_distance)/Math.log(self.distance_scale(this.max_link_distance));
+        log_adjust1 = Math.log(self.distance_scale(this.min_link_distance))-1.0;
+		log_adjust2 = self.distance_scale(this.max_link_distance)/(Math.log(self.distance_scale(this.max_link_distance)) - log_adjust1);
         this.link_elements.each(function(d){			
-                var length =  self.node_radii[d.source.id] + self.node_radii[d.target.id];
-                if (strict){
-                        d.value=d.original_value;
-                }
-                var line_len = d.value;
-                if (self.max_link_length){
-                        if (line_len>self.max_link_length){
-                                line_len=self.max_link_length;
-                        }
-                }
+			var length =  self.node_radii[d.source.id] + self.node_radii[d.target.id];
+			if (strict){
+					d.value=d.original_value;
+			}
+			var line_len = d.value;
+			if (self.max_link_length){
+					if (line_len>self.max_link_length){
+							line_len=self.max_link_length;
+					}
+			}
      
-		if (self.square_root_scale){
-			length=Math.pow(self.distance_scale(line_len),0.8)+length;
-		}
-		else if (self.log_link_scale){
-			length = Math.log(self.distance_scale(line_len))*log_adjust+length;
-		}
-                else{
-                        length = self.distance_scale(line_len)+length;
-                }
-                d.link_distance=length;		
+			if (self.square_root_scale){
+				length=Math.pow(self.distance_scale(line_len),0.8)+length;
+			}
+			else if (self.log_link_scale){
+				length = (Math.log(self.distance_scale(line_len)) - log_adjust1)*log_adjust2+length;
+			}
+			else{
+					length = self.distance_scale(line_len)+length;
+			}
+			d.link_distance=length;		
         });
  };
  
