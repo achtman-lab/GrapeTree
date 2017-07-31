@@ -505,7 +505,7 @@ D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
 
 D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
         //value is 0 reset original values to the current ones
-		if ( ! this.node_collapsed_value && ! this.manual_collapsing_value ){   
+		if ( this.node_collapsed_value <= 1e-8 && ! this.manual_collapsing_value ){   
 				for (var i in this.force_nodes){
 						var node = this.force_nodes[i];
 						if (layout){

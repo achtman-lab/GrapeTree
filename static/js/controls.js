@@ -480,7 +480,7 @@
 		$("#waiting-information").text("Loading Data");
 		the_tree = null;
 		the_tree = new D3MSTree(
-		"graph-div",data,function(tree,msg){
+		"graph-div",JSON.parse(JSON.stringify(data)),function(tree,msg){
 				treeLoading(tree,msg);
 
 		});
@@ -640,7 +640,7 @@ tree_raw = {};
 						method:$("#method-select").val(),
 				}
                 }).done(function(result){
-						tree_raw = {"nwk":result,"layout_algorithm":$("#layout-select").val()};
+                		tree_raw = {"nwk":result,"layout_algorithm":$("#layout-select").val()};
 						$("#headertag").text( $("#headertag").text() + ' (' + $("#method-select").val() + ')' );
 						loadMSTree(tree_raw);
                }).fail(function( jqXHR, textStatus){
