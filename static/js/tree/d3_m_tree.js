@@ -2061,7 +2061,7 @@ D3MSTree.prototype.highlightIDs = function (IDs,color){
                         }
                         return false;
 
-        },22,color);
+        },10,color);
       
 }
 
@@ -2083,7 +2083,7 @@ D3MSTree.prototype.highlightNodes = function(node_ids,color){
 		}
 		return false;
 
-        },22,color);
+        },10,color);
 
 }
 
@@ -2113,7 +2113,7 @@ D3MSTree.prototype._dragStarted= function(it, pos){
        this._tagAllChildren(it,true);         
        this.node_elements.filter(function(node){
               return node.tagged;
-       }).selectAll(".node-paths").style("stroke","red").attr("stroke-width","3px");
+       }).selectAll(".node-paths").style("stroke","#ff9900").attr("stroke-width","3px");
        this._updateNodesToDisplay("tagged");
        
 		if (pos) {
