@@ -1836,7 +1836,16 @@ D3MSTree.prototype._addHalos= function (filter_function,thickness,colour){
                 .attr("fill",colour);
         
          self.node_elements.sort(function(a,b){
-             return (a.halo_thickness == b.halo_thickness) ? 0 : (a.halo_thickness > b.halo_thickness ? -1 : 1);
+         	if (a.halo_thickness) {
+         		if (b.halo_thickness) {
+         			return (a.halo_thickness == b.halo_thickness) ? 0 : (a.halo_thickness > b.halo_thickness ? -1 : 1);
+         		} else {
+         			return 1;
+         		}
+         	} else if (b.halo_thickness) {
+         		return -1;
+         	}
+             return 0;
          });
   
 }
@@ -2282,7 +2291,21 @@ D3MSTree.prototype.addLinkOutListener=function(func){
 
 //brush functions
 D3MSTree.prototype.brushEnded=function(extent){
+	var self = this;
+	if ((extent[0][0]-extent[1][0])*(extent[0][0]-extent[1][0]) + (extent[0][1]-extent[1][1])*(extent[0][1]-extent[1][1]) < 4) {
+		var selected_nodes = this.node_elements.filter(function(d){
+			r = self.node_radii[d.id] ? self.node_radii[d.id] : 3;
+			return ( (d.x - extent[0][0])*(d.x - extent[0][0]) + (d.y - extent[0][1])*(d.y - extent[0][1]) <= r*r);
+		});
+		if (selected_nodes[0].length > 0) {
+			var last_node = selected_nodes[0][selected_nodes[0].length-1].id;
+			selected_nodes = selected_nodes.filter(function(d) {
+				return d.id == last_node;
+			})
+		}
+	} else {
         var selected_nodes = this.node_elements.filter(function(d){return (extent[0][0] <= d.x && d.x < extent[1][0] && extent[0][1] <= d.y && d.y < extent[1][1])});
+	}
         var not_in_selection = selected_nodes.filter(function(d) {return (! d.selected)});
         if (not_in_selection[0].length > 0) {
                 not_in_selection.filter(function(d) {d.selected=true});

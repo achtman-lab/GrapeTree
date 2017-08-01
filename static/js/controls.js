@@ -536,6 +536,8 @@
 			//updateMetadataTable();
 		}
 		$("#rotation-icon").draggable({
+		  containment: "#sidebar",
+		  scroll: false,
 		  start: function(e) {
 			the_tree._dragStarted(the_tree.force_nodes[0], [$("#rotation-icon").position().left, $("#rotation-icon").position().top]);
 		  },
