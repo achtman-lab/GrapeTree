@@ -58,7 +58,7 @@ function  D3MSMetadataTable(tree,context_menu){
 	$(this.grid.getHeaderRow()).delegate(":input", "change keyup", function (e, args) {
 		var columnId = $(this).data("columnId");
 		if (columnId != null) {
-			columnFilters[columnId] = $.trim($(this).val());
+			self.columnFilters[columnId] = $.trim($(this).val());
 			self.dataView.refresh();
 		}
 	});
@@ -75,11 +75,11 @@ function  D3MSMetadataTable(tree,context_menu){
 	this.dataView.setItems(this.source_data);
 	this.dataView.setFilter( function(item) {
 		for (var columnId in self.columnFilters) {
-			if (columnId !== undefined && columnFilters[columnId] !== "") {
+			if (columnId !== undefined && self.columnFilters[columnId] !== "") {
 				var c = self.grid.getColumns()[self.grid.getColumnIndex(columnId)];
 
 				try {
-					regfilter = new RegExp(columnFilters[columnId], 'i');
+					regfilter = new RegExp(self.columnFilters[columnId], 'i');
 					var found = String(item[c.field]).match(regfilter);
 					if (! found) {
 						return false;
