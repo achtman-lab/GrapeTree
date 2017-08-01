@@ -100,7 +100,7 @@ function  D3MSMetadataTable(tree,context_menu){
 			var field = cols[i].sortCol.field;
 			var prop = cols[i].sortCol.prop;
 			var sign = cols[i].sortAsc ? 1 : -1;
-			if (prop.coltype == 'numeric') {
+			if (prop && prop.coltype == 'numeric') {
 			      var value1, t1; 
 			      if (isNumber(dataRow1[field])) {
 				      value1 = parseFloat(dataRow1[field]), t1=0;
@@ -378,7 +378,7 @@ D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 	}
 	for (var c in cols) {
 		if (c != "nothing") {
-			if (c == 'Barcode' || c == 'ID') {
+			if (c == 'barcode' || c == 'ID') {
 			curr_cols.push({id: cols[c],
 				name: cols[c], 
 				field: c, 

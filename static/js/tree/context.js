@@ -303,7 +303,7 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 		if (! colname) {
 
 			if (self.meta_grid.grid.getCellFromEvent(e)) {
-				colname = self.meta_grid.grid.getColumns()[self.meta_grid.grid.getCellFromEvent(e).cell].name;
+				colname = self.meta_grid.grid.getColumns()[self.meta_grid.grid.getCellFromEvent(e).cell].field;
 			} else {
 				colname = Object.keys(the_tree.metadata_info)[0];
 			}
