@@ -1196,7 +1196,7 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	for (var gid in ordered_groups) {
 		var group = ordered_groups[gid];
 		if (group[2] == '') {
-			others = 1;
+			others += group[1];
 			continue;
 		}
 		else {
@@ -1208,7 +1208,7 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	}
 	if (others) {
 		legend_data.push({
-				 group:"Others",
+				 group:"Others [" + others + ']',
 				 group_colour:this.default_colour
 		});
 	}

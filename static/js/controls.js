@@ -850,8 +850,8 @@ window.onload = function (){
 			}
 		});
 		$(".spin-group").spinner({
-			spin: function(e) {
-				$(this).trigger('change');
+			spin: function(e, ui) {
+				$(this).spinner("value", ui.value);
 			},
 			change: function(e) {
 				$(this).trigger('change');

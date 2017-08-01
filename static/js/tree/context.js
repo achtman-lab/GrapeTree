@@ -236,14 +236,21 @@ D3MSTreeContextMenu.prototype._init=function(){
 
 	$("#group-num-input").on("change", function(e) {
 		self.tree.category_num = parseInt($("#group-num-input").val());
-		if($(".ui-state-hover").hasClass("ui-spinner-up")) {
-			self.tree.category_num += 1;
-		} else if($(".ui-state-hover").hasClass("ui-spinner-down")) {
-			self.tree.category_num -= 1;
-		}
 		self.tree.changeCategory($("#metadata-select").val());
 	})
-
+	.spinner({
+		spin: function(e, ui) {
+			$(this).spinner("value", ui.value);
+			//$(this).trigger('change');
+		},
+		change: function(e, ui) {
+			$(this).trigger('change');
+		}
+	}).keypress(function(e){
+		if (e.which === 13) {
+			$(this).spinner("value", $(this).val());
+		}
+	});
 };
 
 
