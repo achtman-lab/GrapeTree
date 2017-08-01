@@ -63,10 +63,9 @@ class distance_matrix(object) :
 
     @staticmethod
     def eBurst(dist) :
-        # weights = np.apply_along_axis(np.bincount, 1, dist.astype(int), minlength=np.max(dist).astype(int)+1).T
         weights = np.apply_along_axis(np.bincount, 1, np.hstack([dist.astype(int), np.array([[np.max(dist).astype(int)+1]]*dist.shape[1])]) )
-        dist_order = np.concatenate([[0], np.arange(weights.shape[0]-1, 0, -1)])
-        orders = np.lexsort(-weights[dist_order])
+        dist_order = np.concatenate([[0], np.arange(weights.shape[1]-1, 0, -1)])
+        orders = np.lexsort(-weights.T[dist_order])
         weights = np.zeros(shape=[orders.size, orders.size])
         weights[:, orders] = (np.arange(orders.size))/float(orders.size)
         weights[weights > weights.T] = weights.T[weights > weights.T]
@@ -92,17 +91,18 @@ class methods(object) :
     @staticmethod
     def _neighbor_branch_reconnection(branches, dist, n_loci) :
         def contemporary(a,b,c) :
-            a, b, c = max(min(a, n_loci-0.2), 0.2), max(min(b, n_loci-0.2), 0.2), max(min(c, n_loci-0.2), 0.2)
-            if b >= a + c :
+            a[0], a[1] = max(min(a[0], n_loci-0.2), 0.2), max(min(a[1], n_loci-0.2), 0.2);
+            b, c = max(min(b, n_loci-0.2), 0.2), max(min(c, n_loci-0.2), 0.2)
+            if b >= a[0] + c and b >= a[1] + c :
                 return False
             elif b == c :
                 return True
-            s11, s12 = np.sqrt(1-a/n_loci), (2*n_loci - b - c)/2/np.sqrt(n_loci*(n_loci-a))
-            v = 1-((n_loci-a)*(n_loci-c)/n_loci+(n_loci-b))/2/n_loci
-            s21, s22 = 1+a*v/(b-2*n_loci*v), 1+c*v/(b-2*n_loci*v)
+            s11, s12 = np.sqrt(1-a[0]/n_loci), (2*n_loci - b - c)/2/np.sqrt(n_loci*(n_loci-a[0]))
+            v = 1-((n_loci-a[1])*(n_loci-c)/n_loci+(n_loci-b))/2/n_loci
+            s21, s22 = 1+a[1]*v/(b-2*n_loci*v), 1+c*v/(b-2*n_loci*v)
 
-            p1 = a*np.log(1-s11*s11) + (n_loci-a)*np.log(s11*s11) + (b+c)*np.log(1-s11*s12) + (2*n_loci-b-c)*np.log(s11*s12)
-            p2 = a*np.log(1-s21) + (n_loci-a)*np.log(s21) + b*np.log(1-s21*s22) + (n_loci-b)*np.log(s21*s22) + c*np.log(1-s22) + (n_loci-c)*np.log(s22)
+            p1 = a[0]*np.log(1-s11*s11) + (n_loci-a[0])*np.log(s11*s11) + (b+c)*np.log(1-s11*s12) + (2*n_loci-b-c)*np.log(s11*s12)
+            p2 = a[1]*np.log(1-s21) + (n_loci-a[1])*np.log(s21) + b*np.log(1-s21*s22) + (n_loci-b)*np.log(s21*s22) + c*np.log(1-s22) + (n_loci-c)*np.log(s22)
             return p1 >= p2
 
         if n_loci is None :
@@ -123,7 +123,7 @@ class methods(object) :
                 for w, d, s in sorted(zip(weights[sources], dist[sources, tgt], sources))[:3] :
                     if s == src : break
                     if d < 2*dist[src, tgt] :
-                        if contemporary(dist[s, src], d, dist[src, tgt]) :
+                        if contemporary([dist[s, src], dist[src, s]], d, dist[src, tgt]) :
                             tried[src], src = s, s
                             break
                 while src not in tried :
@@ -131,11 +131,13 @@ class methods(object) :
                     mid_nodes = sorted([[weights[s], dist[s,tgt], s] for s in childrens[src] if s not in tried and dist[s,tgt] < 2*dist[src, tgt]])
                     for w, d, s in mid_nodes :
                         if d < dist[src, tgt] :
-                            if not contemporary(dist[src, s], dist[src, tgt], d) :
+                            if not contemporary([dist[src, s], dist[s, src]], dist[src, tgt], d) :
+                            #if not contemporary(dist[src, s], dist[src, tgt], d) :
                                 tried[src], src = s, s
                                 break
                         elif w < weights[src] :
-                            if contemporary(dist[s, src], d, dist[src, tgt]) :
+                            if contemporary([dist[s, src], dist[src, s]], d, dist[src, tgt]) :
+                            #if contemporary(dist[s, src], d, dist[src, tgt]) :
                                 tried[src], src = s, s
                                 break
                         tried[s] = src
@@ -143,7 +145,7 @@ class methods(object) :
                 for w, d, t in sorted(zip(weights[targets], dist[src, targets], targets))[:3] :
                     if t == tgt : break
                     if d < 2*dist[src, tgt] :
-                        if contemporary(dist[t, tgt], d, dist[src, tgt]) :
+                        if contemporary([dist[t, tgt], dist[tgt, t]], d, dist[src, tgt]) :
                             tried[tgt], tgt = t, t
                             break
                 while tgt not in tried :
@@ -151,11 +153,11 @@ class methods(object) :
                     mid_nodes = sorted([[weights[t], dist[src,t], t] for t in childrens[tgt] if t not in tried and dist[src, t] < 2*dist[src, tgt]])
                     for w, d, s in mid_nodes :
                         if d < dist[src, tgt] :
-                            if not contemporary(dist[tgt, t], dist[src, tgt], d) :
+                            if not contemporary([dist[tgt, t], dist[t, tgt]], dist[src, tgt], d) :
                                 tried[tgt], tgt = t, t
                                 break
                         elif w < weights[tgt] :
-                            if contemporary(dist[t, tgt], d, dist[src, tgt]) :
+                            if contemporary([dist[t, tgt], dist[tgt, t]], d, dist[src, tgt]) :
                                 tried[tgt], tgt = t, t
                                 break
                         tried[t] = tgt
@@ -232,7 +234,7 @@ class methods(object) :
         fin = tempfile.NamedTemporaryFile(delete=False)
         fin.write('\n'.join(dist_txt))
         fin.close()
-        Popen('{0} -i {1} -m B'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
+        Popen('{0} -i {1} -m N'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
         tree = dp.Tree.get_from_path(fin.name + '_fastme_tree.nwk', schema='newick')
         from glob import glob
         for fname in glob(fin.name + '*') :
@@ -303,8 +305,12 @@ def backend(**parameters) :
     names, profiles = [], []
     fin = open(params['profile']).readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
 
+    allele_cols = None
     for line_id, line in enumerate(fin) :
         if line.startswith('#') :
+            if not line.startswith('##') :
+                header = line.strip().split('\t')
+                allele_cols = np.array([ id for id, col in enumerate(header) if not col.startswith('#')])
             continue
         fmt = 'fasta' if line.startswith('>') else 'profile'
         break
@@ -324,7 +330,10 @@ def backend(**parameters) :
             if not part[0]:
                 continue
             names.append(part[0])
-            profiles.append(part[1:])
+            if allele_cols is not None :
+                profiles.append(np.array(part)[allele_cols])
+            else :
+                profiles.append(part[1:])
 
     names = [re.sub(r'[\(\)\ \,\"\';]', '_', n) for n in names]
     names, profiles, embeded = nonredundant(np.array(names), np.array(profiles))
