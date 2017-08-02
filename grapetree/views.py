@@ -7,7 +7,7 @@ import dendropy as dp
 
 @app.route("/")
 def index():
-    return render_template('MSTree_launch.html', version=app.config.get('VERSION'))
+    return render_template('MSTree_holder.html', version=app.config.get('VERSION'))
 
 
 @app.route("/maketree", methods=['POST'])
