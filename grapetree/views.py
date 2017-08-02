@@ -24,11 +24,8 @@ def generate_tree():
                 params[param] = params[param][0]
        
         tree = backend (profile= params['profile'],
-                        matrix_type=params['matrix_type'],
                         method=params['method'],
-                        edge_weight=params['edge_weight'],
-                        neighbor_branch_reconnection=params['neighbor_branch_reconnection'],
-                        missing_data=params['missing_data'])
+                        )
         return make_response(tree, 200)
    
     except Exception as e:
