@@ -17,17 +17,9 @@ function  D3MSMetadataTable(tree,context_menu){
 	});
 	this.dataView = new Slick.Data.DataView();
 	this._setupDiv();	
-	this.default_columns = [
-		{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 20, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
-		{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
-		//{id: "Barcode", name: "ID", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
-		//{id: "Barcode", name: "Barcode", field: "ID", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'}
-	];
 	this.columns = [
 		{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 20, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
 		{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
-		//{id: "Barcode", name: "ID", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
-		//{id: "Barcode", name: "Barcode", field: "ID", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'}
 	];
 
 	this.options = {
@@ -36,13 +28,13 @@ function  D3MSMetadataTable(tree,context_menu){
 		enableCellNavigation: true,
 		asyncEditorLoading: false,
 		autoEdit: false,
-		multiColumnSort: true,
+		multiColumnSort: false,
 		showHeaderRow: true,
 		headerRowHeight: 30,
 		explicitInitialization: true,
 	};
 	this.columnFilters = {};	
-	this.source_data = [{id:0,"__strain_id":"12312", "__Node":"20", "__selected":false},{id:1,"_strain_id":"1312", "__Node":"22", "__selected":true}];
+	this.source_data = [];
 	for (var index in this.source_data) {
 		this.source_data[index].id = parseInt(index)+1;
 	}
@@ -58,7 +50,7 @@ function  D3MSMetadataTable(tree,context_menu){
 	$(this.grid.getHeaderRow()).delegate(":input", "change keyup", function (e, args) {
 		var columnId = $(this).data("columnId");
 		if (columnId != null) {
-			columnFilters[columnId] = $.trim($(this).val());
+			self.columnFilters[columnId] = $.trim($(this).val());
 			self.dataView.refresh();
 		}
 	});
@@ -75,11 +67,11 @@ function  D3MSMetadataTable(tree,context_menu){
 	this.dataView.setItems(this.source_data);
 	this.dataView.setFilter( function(item) {
 		for (var columnId in self.columnFilters) {
-			if (columnId !== undefined && columnFilters[columnId] !== "") {
+			if (columnId !== undefined && self.columnFilters[columnId] !== "") {
 				var c = self.grid.getColumns()[self.grid.getColumnIndex(columnId)];
 
 				try {
-					regfilter = new RegExp(columnFilters[columnId], 'i');
+					regfilter = new RegExp(self.columnFilters[columnId], 'i');
 					var found = String(item[c.field]).match(regfilter);
 					if (! found) {
 						return false;
@@ -92,44 +84,47 @@ function  D3MSMetadataTable(tree,context_menu){
 		return true;
 	});
 	this.dataView.endUpdate();
+
 	this.grid.onSort.subscribe(function (e, args) {
-		var cols = args.sortCols;
-		var data = self.dataView.getItems();
-		data.sort(function (dataRow1, dataRow2) {
-		      for (var i = 0, l = cols.length; i < l; i++) {
-			var field = cols[i].sortCol.field;
-			var prop = cols[i].sortCol.prop;
-			var sign = cols[i].sortAsc ? 1 : -1;
-			if (prop.coltype == 'numeric') {
-			      var value1, t1; 
-			      if (isNumber(dataRow1[field])) {
-				      value1 = parseFloat(dataRow1[field]), t1=0;
-			      } else {
-				      value1 = dataRow1[field], t1 = 1;
-			      }
-			      var value2, t2; 
-			      if (isNumber(dataRow2[field])) {
-				      value2 = parseFloat(dataRow2[field]), t2=0;
-			      } else {
-				      value2 = dataRow2[field], t2 = 1;
-			      }
+	  var col = args.sortCol;
+	  var data = self.dataView.getItems();
+	  data.sort(function (dataRow1, dataRow2) {
+		  var field = col.field, prop = col.prop;
+		  var sign = args.sortAsc ? 1 : -1;
+
+		  if (prop && prop.coltype == 'numeric') {
+			var value1, t1; 
+			if (isNumber(dataRow1[field])) {
+				value1 = parseFloat(dataRow1[field]), t1=0;
 			} else {
-			      var value1 = dataRow1[field], t1=1;
-			      var value2 = dataRow2[field], t2=1;
-
+				value1 = JSON.stringify(dataRow1[field]), t1 = 1;
 			}
-			var result = t1 == t2 ? ((value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign) : (t1-t2)*sign;
-			if (result != 0) {
-			      return result;
+			var value2, t2; 
+			if (isNumber(dataRow2[field])) {
+				value2 = parseFloat(dataRow2[field]), t2=0;
+			} else {
+				value2 = JSON.stringify(dataRow2[field]), t2 = 1;
 			}
-		      }
-		      return 0;
-		});
-
+			  if (value1 === undefined) value1 = "";
+			  if (value2 === undefined) value2 = "";
+		  } else if (prop && prop.coltype == 'boolean') {
+		  	var value1 = (dataRow1[field]) ? true : false, t1 = 1;
+		  	var value2 = (dataRow2[field]) ? true : false, t2 = 1;
+		  } else {
+			var value1 = JSON.stringify(dataRow1[field]), t1=1;
+			var value2 = JSON.stringify(dataRow2[field]), t2=1;
+			  if (value1 === undefined) value1 = "";
+			  if (value2 === undefined) value2 = "";
+		  }
+        var result = t1 == t2 ? ((value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign) : (t1-t2)*sign;
+	    return result;
+	  });
 		self.dataView.setItems(self.data_reformat(data));
 		self.grid.invalidate();
 		self.grid.render();	
 	});
+
+	
 	this.grid.onClick.subscribe(function(e, args) {
 			var cell = self.grid.getCellFromEvent(e);
 			if (self.grid.getColumns()[cell.cell].field === '__selected') {
@@ -333,10 +328,6 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	});
 };
 
-D3MSMetadataTable.prototype.showTooltip = function() {
-	self.grid.setColumns(this.default_columns);
-};
-
 D3MSMetadataTable.prototype.setAddColumnFunction= function(callback){
 	this.addColumnFunction = callback;
 
@@ -358,10 +349,6 @@ D3MSMetadataTable.prototype.data_reformat = function(data, select_moveUp) {
 };
 		
 		
-D3MSMetadataTable.prototype.resetGridColumns = function() {
-	self.grid.setColumns(this.default_columns);
-};
-
 D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 	if (!this.tree) {
 		return;
