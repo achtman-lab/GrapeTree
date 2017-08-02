@@ -171,22 +171,26 @@ function D3MSTree(element_id,data,callback,height,width){
 				this.manual_collapsing ={};
 			   }
                 } else {
-                        var to_collapse =(data['layout_algorithm']==='force')?0: 1e-8;
+                        var to_collapse = 0;
                         this.node_collapsed_value=0;
                 }
         } 
       
         if (callback){
                 callback(this,this.original_nodes ? "Collapsing Nodes:"+this.original_nodes.length : "Collapsing Nodes.");
-        
         }
         
         if (data['layout_algorithm']=='force'){
                 to_collapse=0;
         }
+        var tmp_collapsing = this.manual_collapsing;
+        this.manual_collapsing = {};
        positions = this._collapseNodes(0, positions);
-       if (to_collapse > 0) {
-       		positions =  this._collapseNodes(to_collapse, positions);
+       
+       if (to_collapse > 0 || Object.keys(tmp_collapsing).length > 0) {
+       		this.manual_collapsing = tmp_collapsing;
+       		this._collapseNodes(to_collapse);
+       		//positions =  this._collapseNodes(to_collapse, positions);
        }
         if (callback){
                 callback(this,"Nodes"+this.force_nodes.length);
@@ -484,12 +488,13 @@ D3MSTree.prototype._start= function(callback,layout_data){
 */
 D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
     var layout = JSON.parse(JSON.stringify(this.original_node_positions));
-	//if (keep_current_layout){
+	if (keep_current_layout){
 		for (var i in this.force_nodes){
+			var node=this.force_nodes[i];
 			 layout[node.id]  = [node.x,node.y];
 	       }
-	//}      
-    layout = this._collapseNodes(max_distance, layout);
+	}      
+    layout = this._collapseNodes(max_distance, layout, ! keep_current_layout);
 	
     this._start(null,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
 	//if (!keep_current_layout){
@@ -500,9 +505,10 @@ D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
 	}
 }
 
-D3MSTree.prototype._collapseNodes=function(max_distance,layout){
+D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
+	var self = this;
         //value is 0 reset original values to the current ones
-		if ( ! this.node_collapsed_value && ! this.manual_collapsing_value ){   
+		if ( this.node_collapsed_value <= 1e-8 && ! this.manual_collapsing_value ){   
 				for (var i in this.force_nodes){
 						var node = this.force_nodes[i];
 						if (layout){
@@ -517,7 +523,8 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
 				}
 			}
 		}
-        if ((! this.force_nodes) || this.force_nodes.length == 0){
+//        if (max_distance<this.node_collapsed_value || (! this.force_nodes) || this.force_nodes.length == 0){
+        if ( (! this.force_nodes) || this.force_nodes.length == 0){
                 this.clearSelection();
                 this.hypo_record = {};
                 this._addNodes(this.original_nodes);
@@ -525,31 +532,32 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 this.grouped_nodes={};
                 for (var i in this.force_nodes){
                         var node =this.force_nodes[i];
-						if (! node.x) node.x = layout[node.id][0];
-						if (! node.y) node.y = layout[node.id][1];
-						this.hypo_record[node.id] = {};
-						this.hypo_record[node.id][node.id] = 1;
-						this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
-			
-						//add dummy metadata
-						if (!this.metadata_map[node.id]) {
-                                this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
-								this.metadata_map[node.id]=[node.id];
-                        }
+			if (layout){
+				if (! node.x) node.x = layout[node.id][0];
+				if (! node.y) node.y = layout[node.id][1];
+			}
+			this.hypo_record[node.id] = {};
+			this.hypo_record[node.id][node.id] = 1;
+			this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
+		
+			//add dummy metadata
+			if (!this.metadata_map[node.id]) {
+				this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
+				this.metadata_map[node.id]=[node.id];
+			}
                 }
                 this.addMetadataOptions({
                 	'nothing': 'No Category', 
                 	'ID': 'ID',
                 });
-        } else if (max_distance<this.node_collapsed_value) {
+        } else if (max_distance<this.node_collapsed_value || redraw) {
 			this.force_links.length=this.force_nodes.length=0;
-			this.force_nodes = JSON.parse(JSON.stringify(this.force_nodes0));
-			
 			var nmap = {};
-			for (var i in this.force_nodes){
-					var n = this.force_nodes[i];
-					nmap[ n.id ] = n;
-			}
+			$.map(JSON.parse(JSON.stringify(this.force_nodes0)), function(n) {
+				self.force_nodes.push(n);
+				nmap[n.id] = n;
+			});
+			
 			for (var i in this.force_nodes){
 					var n = this.force_nodes[i];
 					if (n.children) {
@@ -564,8 +572,6 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
 							target: n,
 							value: n.length,
 							original_value : n.length,
-							x: n.x,
-							y: n.y,
 						});
 					}
 			}
@@ -604,7 +610,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
 
         for (var index=this.force_links.length-1; index >=0; index --) {
         		var l = this.force_links[index];
-                if ( !l || (l.value > max_distance && to_collapse[l.source.id] !== 2) || (l.value > 1e-8 && to_collapse[l.source.id] === 1) ) continue;
+                if ( !l || (l.value > max_distance && to_collapse[l.source.id] !== 2) || (l.value && to_collapse[l.source.id] === 1) ) continue;
                 l.remove=l.target.remove=true;
                 var new_group = this.grouped_nodes[l.source.id].concat(this.grouped_nodes[l.target.id]);
                 delete this.grouped_nodes[l.source.id];
@@ -630,7 +636,9 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 if (l.source.hypothetical && !l.target.hypothetical){
                         delete l.source.hypothetical;
 
-                        if (max_distance > this.node_collapsed_value && layout) layout[l.target.id] = layout[l.source.id];
+                        if (max_distance > this.node_collapsed_value && layout) {
+                        	layout[l.target.id] = layout[l.source.id];
+                        }
 
                         this.hypo_record[l.target.id][l.source.id] = 1;
                         for (var nid in this.hypo_record[l.source.id]) {
@@ -695,36 +703,35 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout){
                 if (node.link) node.length = node.link.value;
         }
 	//update the node to which the metadata is associated  
-	    if (! this.force_nodes0) {
-	    	this.force_nodes0 = [];
-	    	for (var i in temp_force_nodes){
-	    		var tn = temp_force_nodes[i];
-	    		var tn0 = {
-	    			id: tn.id,
-	    			hypothetical : tn.hypothetical,
-	    			length: tn.length,
-	    			selected: tn.selected,
-	    			size: tn.size,
-	    			value: tn.value,
-	    			x: tn.x,
-	    			y: tn.y,
-	    		};
-	    		if (tn.parent) {
-	    			tn0.parent = tn.parent.id;
-	    		}
-	    		if (tn.children) {
-	    			tn0.children = [];
-	    			for (var ci in tn.children) {
-						tn0.children.push(tn.children[ci].id);
-	    			}
-	    		}
-	    		this.force_nodes0.push(tn0);
-	    	}
-        	this.grouped_nodes0 = JSON.parse(JSON.stringify(this.grouped_nodes));
-        	this.hypo_record0 = JSON.parse(JSON.stringify(this.hypo_record));
-        }
+	        	if (! this.force_nodes0) {
+					this.force_nodes0 = [];
+					for (var i in temp_force_nodes){
+						var tn = temp_force_nodes[i];
+						var tn0 = {
+							id: tn.id,
+							hypothetical : tn.hypothetical,
+							length: tn.length,
+							selected: tn.selected,
+							size: tn.size,
+							value: tn.value,
+//							x: tn.x,
+//							y: tn.y,
+						};
+						if (tn.parent) {
+							tn0.parent = tn.parent.id;
+						}
+						if (tn.children) {
+							tn0.children = [];
+							for (var ci in tn.children) {
+								tn0.children.push(tn.children[ci].id);
+							}
+						}
+						this.force_nodes0.push(tn0);
+					}
+					this.grouped_nodes0 = JSON.parse(JSON.stringify(this.grouped_nodes));
+					this.hypo_record0 = JSON.parse(JSON.stringify(this.hypo_record));
+        		}
 
-	
         this._updateNodeRadii();
 	return layout;
 
@@ -1023,7 +1030,7 @@ D3MSTree.prototype.collapseSpecificNodes=function(nodes,uncollapse){
 		}
 		
 	}
-	this.collapseNodes(this.node_collapsed_value,true)	
+	this.collapseNodes(this.node_collapsed_value,! uncollapse)	
 }
 
 
@@ -1426,7 +1433,7 @@ D3MSTree.prototype._addLinks=function(links,ids){
                 if (x.value > this.max_link_distance){
                        this.max_link_distance=x.value;
                 }
-                if (x.value<this.min_link_distance){
+                if (x.value<this.min_link_distance && x.value > 0){
                         this.min_link_distance=x.value;
                 }
                 var target_node = _findNode[x.target];
@@ -1463,29 +1470,30 @@ D3MSTree.prototype._getLink=function(target_node){
 
  D3MSTree.prototype._setLinkDistance=function(strict){
         var self= this;
-	log_adjust = self.distance_scale(this.max_link_distance)/Math.log(self.distance_scale(this.max_link_distance));
+        log_adjust1 = Math.log(self.distance_scale(this.min_link_distance))-1.0;
+		log_adjust2 = self.distance_scale(this.max_link_distance)/(Math.log(self.distance_scale(this.max_link_distance)) - log_adjust1);
         this.link_elements.each(function(d){			
-                var length =  self.node_radii[d.source.id] + self.node_radii[d.target.id];
-                if (strict){
-                        d.value=d.original_value;
-                }
-                var line_len = d.value;
-                if (self.max_link_length){
-                        if (line_len>self.max_link_length){
-                                line_len=self.max_link_length;
-                        }
-                }
+			var length =  self.node_radii[d.source.id] + self.node_radii[d.target.id];
+			if (strict){
+					d.value=d.original_value;
+			}
+			var line_len = d.value;
+			if (self.max_link_length){
+					if (line_len>self.max_link_length){
+							line_len=self.max_link_length;
+					}
+			}
      
-		if (self.square_root_scale){
-			length=Math.pow(self.distance_scale(line_len),0.8)+length;
-		}
-		else if (self.log_link_scale){
-			length = Math.log(self.distance_scale(line_len))*log_adjust+length;
-		}
-                else{
-                        length = self.distance_scale(line_len)+length;
-                }
-                d.link_distance=length;		
+			if (self.square_root_scale){
+				length=Math.pow(self.distance_scale(line_len),0.8)+length;
+			}
+			else if (self.log_link_scale){
+				length = (Math.log(self.distance_scale(line_len)) - log_adjust1)*log_adjust2+length;
+			}
+			else{
+					length = self.distance_scale(line_len)+length;
+			}
+			d.link_distance=length;		
         });
  };
  
@@ -1801,6 +1809,10 @@ D3MSTree.prototype.alterCharge=function(amount){
 D3MSTree.prototype._correctLinkLengths= function(it){
         var source = it.source;
         var target =it.target;
+        if (target.x == source.x && target.y == source.y) {
+        	target.x += Math.sqrt(it.link_distance*it.link_distance/2.0);
+        	target.y += Math.sqrt(it.link_distance*it.link_distance/2.0);
+        }
         var x_dif = target.x - source.x;
         var y_dif = target.y - source.y;
         var actual_length = Math.sqrt((x_dif*x_dif)+(y_dif*y_dif));
@@ -1828,7 +1840,16 @@ D3MSTree.prototype._addHalos= function (filter_function,thickness,colour){
                 .attr("fill",colour);
         
          self.node_elements.sort(function(a,b){
-             return (a.halo_thickness == b.halo_thickness) ? 0 : (a.halo_thickness > b.halo_thickness ? -1 : 1);
+         	if (a.halo_thickness) {
+         		if (b.halo_thickness) {
+         			return (a.halo_thickness == b.halo_thickness) ? 0 : (a.halo_thickness > b.halo_thickness ? -1 : 1);
+         		} else {
+         			return 1;
+         		}
+         	} else if (b.halo_thickness) {
+         		return -1;
+         	}
+             return 0;
          });
   
 }
@@ -2044,7 +2065,7 @@ D3MSTree.prototype.highlightIDs = function (IDs,color){
                         }
                         return false;
 
-        },22,color);
+        },10,color);
       
 }
 
@@ -2066,7 +2087,7 @@ D3MSTree.prototype.highlightNodes = function(node_ids,color){
 		}
 		return false;
 
-        },22,color);
+        },10,color);
 
 }
 
@@ -2096,7 +2117,7 @@ D3MSTree.prototype._dragStarted= function(it, pos){
        this._tagAllChildren(it,true);         
        this.node_elements.filter(function(node){
               return node.tagged;
-       }).selectAll(".node-paths").style("stroke","red").attr("stroke-width","3px");
+       }).selectAll(".node-paths").style("stroke","#ff9900").attr("stroke-width","3px");
        this._updateNodesToDisplay("tagged");
        
 		if (pos) {
@@ -2133,7 +2154,6 @@ D3MSTree.prototype._dragging= function(it, pos){
        it.x += dx;
        it.y += dy;
        var source  =this.drag_source;
-                
        var target =it;
        var x_dif = target.x-source.x;
        var y_dif = target.y - source.y;
@@ -2275,7 +2295,21 @@ D3MSTree.prototype.addLinkOutListener=function(func){
 
 //brush functions
 D3MSTree.prototype.brushEnded=function(extent){
+	var self = this;
+	if ((extent[0][0]-extent[1][0])*(extent[0][0]-extent[1][0]) + (extent[0][1]-extent[1][1])*(extent[0][1]-extent[1][1]) < 4) {
+		var selected_nodes = this.node_elements.filter(function(d){
+			r = self.node_radii[d.id] ? self.node_radii[d.id] : 3;
+			return ( (d.x - extent[0][0])*(d.x - extent[0][0]) + (d.y - extent[0][1])*(d.y - extent[0][1]) <= r*r);
+		});
+		if (selected_nodes[0].length > 0) {
+			var last_node = selected_nodes[0][selected_nodes[0].length-1].id;
+			selected_nodes = selected_nodes.filter(function(d) {
+				return d.id == last_node;
+			})
+		}
+	} else {
         var selected_nodes = this.node_elements.filter(function(d){return (extent[0][0] <= d.x && d.x < extent[1][0] && extent[0][1] <= d.y && d.y < extent[1][1])});
+	}
         var not_in_selection = selected_nodes.filter(function(d) {return (! d.selected)});
         if (not_in_selection[0].length > 0) {
                 not_in_selection.filter(function(d) {d.selected=true});

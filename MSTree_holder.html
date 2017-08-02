@@ -35,7 +35,7 @@
 
 
 <!--information divs-->
-<div id = 'welcome-div' style='background:white'>
+<div id = 'welcome-div' style='background:white;padding:10px'>
 <span id= 'welcome-div-close' class="glyphicon glyphicon-remove" style="float:right;margin-right:5px;zoom:1.5;display:none" onclick="$('#welcome-div').hide()"></span>
 <p align='center'><h2>
 <b>G</b>rape <b>T</b>ree
@@ -62,7 +62,6 @@ the tree data as well as display information and any metadata.
 </li>
 </ul>
 </div>
-
 
 <div id ='information-div' class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
@@ -727,7 +726,7 @@ the tree data as well as display information and any metadata.
 		$("#waiting-information").text("Loading Data");
 		the_tree = null;
 		the_tree = new D3MSTree(
-		"graph-div",data,function(tree,msg){
+        "graph-div",JSON.parse(JSON.stringify(data)),function(tree,msg){
 				treeLoading(tree,msg);
 
 		});
@@ -783,6 +782,8 @@ the tree data as well as display information and any metadata.
 			//updateMetadataTable();
 		}
 		$("#rotation-icon").draggable({
+		  containment: "#sidebar",
+		  scroll: false,
 		  start: function(e) {
 			the_tree._dragStarted(the_tree.force_nodes[0], [$("#rotation-icon").position().left, $("#rotation-icon").position().top]);
 		  },
@@ -1095,8 +1096,8 @@ window.onload = function (){
 			}
 		});
 		$(".spin-group").spinner({
-			spin: function(e) {
-				$(this).trigger('change');
+			spin: function(e, ui) {
+				$(this).spinner("value", ui.value);
 			},
 			change: function(e) {
 				$(this).trigger('change');

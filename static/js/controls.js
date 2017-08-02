@@ -480,7 +480,7 @@
 		$("#waiting-information").text("Loading Data");
 		the_tree = null;
 		the_tree = new D3MSTree(
-		"graph-div",data,function(tree,msg){
+		"graph-div",JSON.parse(JSON.stringify(data)),function(tree,msg){
 				treeLoading(tree,msg);
 
 		});
@@ -536,6 +536,8 @@
 			//updateMetadataTable();
 		}
 		$("#rotation-icon").draggable({
+		  containment: "#sidebar",
+		  scroll: false,
 		  start: function(e) {
 			the_tree._dragStarted(the_tree.force_nodes[0], [$("#rotation-icon").position().left, $("#rotation-icon").position().top]);
 		  },
@@ -640,7 +642,7 @@ tree_raw = {};
 						method:$("#method-select").val(),
 				}
                 }).done(function(result){
-						tree_raw = {"nwk":result,"layout_algorithm":$("#layout-select").val()};
+                		tree_raw = {"nwk":result,"layout_algorithm":$("#layout-select").val()};
 						$("#headertag").text( $("#headertag").text() + ' (' + $("#method-select").val() + ')' );
 						loadMSTree(tree_raw);
                }).fail(function( jqXHR, textStatus){
@@ -848,8 +850,8 @@ window.onload = function (){
 			}
 		});
 		$(".spin-group").spinner({
-			spin: function(e) {
-				$(this).trigger('change');
+			spin: function(e, ui) {
+				$(this).spinner("value", ui.value);
 			},
 			change: function(e) {
 				$(this).trigger('change');
