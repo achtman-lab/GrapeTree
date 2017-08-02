@@ -15,20 +15,11 @@ function  D3MSMetadataTable(tree,context_menu){
 			self.updateMetadataTable()
 		}
 	});
-	tree.add
 	this.dataView = new Slick.Data.DataView();
 	this._setupDiv();	
-	this.default_columns = [
-		{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 20, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
-		{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
-		{id: "Barcode", name: "Barcode", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
-		{id: "ID", name: "ID", field: "ID", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'}
-	];
 	this.columns = [
 		{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 20, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
 		{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
-		{id: "Barcode", name: "Barcode", field: "__strain_id", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
-		{id: "ID", name: "ID", field: "ID", width: 100, cssClass: "cell-title", sortable: true, prop:{category:'character', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'}
 	];
 
 	this.options = {
@@ -37,13 +28,13 @@ function  D3MSMetadataTable(tree,context_menu){
 		enableCellNavigation: true,
 		asyncEditorLoading: false,
 		autoEdit: false,
-		multiColumnSort: true,
+		multiColumnSort: false,
 		showHeaderRow: true,
 		headerRowHeight: 30,
 		explicitInitialization: true,
 	};
 	this.columnFilters = {};	
-	this.source_data = [{id:0,"__strain_id":"12312", "__Node":"20", "__selected":false},{id:1,"_strain_id":"1312", "__Node":"22", "__selected":true}];
+	this.source_data = [];
 	for (var index in this.source_data) {
 		this.source_data[index].id = parseInt(index)+1;
 	}
@@ -59,7 +50,7 @@ function  D3MSMetadataTable(tree,context_menu){
 	$(this.grid.getHeaderRow()).delegate(":input", "change keyup", function (e, args) {
 		var columnId = $(this).data("columnId");
 		if (columnId != null) {
-			columnFilters[columnId] = $.trim($(this).val());
+			self.columnFilters[columnId] = $.trim($(this).val());
 			self.dataView.refresh();
 		}
 	});
@@ -76,11 +67,11 @@ function  D3MSMetadataTable(tree,context_menu){
 	this.dataView.setItems(this.source_data);
 	this.dataView.setFilter( function(item) {
 		for (var columnId in self.columnFilters) {
-			if (columnId !== undefined && columnFilters[columnId] !== "") {
+			if (columnId !== undefined && self.columnFilters[columnId] !== "") {
 				var c = self.grid.getColumns()[self.grid.getColumnIndex(columnId)];
 
 				try {
-					regfilter = new RegExp(columnFilters[columnId], 'i');
+					regfilter = new RegExp(self.columnFilters[columnId], 'i');
 					var found = String(item[c.field]).match(regfilter);
 					if (! found) {
 						return false;
@@ -93,44 +84,47 @@ function  D3MSMetadataTable(tree,context_menu){
 		return true;
 	});
 	this.dataView.endUpdate();
+
 	this.grid.onSort.subscribe(function (e, args) {
-		var cols = args.sortCols;
-		var data = self.dataView.getItems();
-		data.sort(function (dataRow1, dataRow2) {
-		      for (var i = 0, l = cols.length; i < l; i++) {
-			var field = cols[i].sortCol.field;
-			var prop = cols[i].sortCol.prop;
-			var sign = cols[i].sortAsc ? 1 : -1;
-			if (prop.coltype == 'numeric') {
-			      var value1, t1; 
-			      if (isNumber(dataRow1[field])) {
-				      value1 = parseFloat(dataRow1[field]), t1=0;
-			      } else {
-				      value1 = dataRow1[field], t1 = 1;
-			      }
-			      var value2, t2; 
-			      if (isNumber(dataRow2[field])) {
-				      value2 = parseFloat(dataRow2[field]), t2=0;
-			      } else {
-				      value2 = dataRow2[field], t2 = 1;
-			      }
+	  var col = args.sortCol;
+	  var data = self.dataView.getItems();
+	  data.sort(function (dataRow1, dataRow2) {
+		  var field = col.field, prop = col.prop;
+		  var sign = args.sortAsc ? 1 : -1;
+
+		  if (prop && prop.coltype == 'numeric') {
+			var value1, t1; 
+			if (isNumber(dataRow1[field])) {
+				value1 = parseFloat(dataRow1[field]), t1=0;
 			} else {
-			      var value1 = dataRow1[field], t1=1;
-			      var value2 = dataRow2[field], t2=1;
-
+				value1 = JSON.stringify(dataRow1[field]), t1 = 1;
 			}
-			var result = t1 == t2 ? ((value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign) : (t1-t2)*sign;
-			if (result != 0) {
-			      return result;
+			var value2, t2; 
+			if (isNumber(dataRow2[field])) {
+				value2 = parseFloat(dataRow2[field]), t2=0;
+			} else {
+				value2 = JSON.stringify(dataRow2[field]), t2 = 1;
 			}
-		      }
-		      return 0;
-		});
-
+			  if (value1 === undefined) value1 = "";
+			  if (value2 === undefined) value2 = "";
+		  } else if (prop && prop.coltype == 'boolean') {
+		  	var value1 = (dataRow1[field]) ? true : false, t1 = 1;
+		  	var value2 = (dataRow2[field]) ? true : false, t2 = 1;
+		  } else {
+			var value1 = JSON.stringify(dataRow1[field]), t1=1;
+			var value2 = JSON.stringify(dataRow2[field]), t2=1;
+			  if (value1 === undefined) value1 = "";
+			  if (value2 === undefined) value2 = "";
+		  }
+        var result = t1 == t2 ? ((value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign) : (t1-t2)*sign;
+	    return result;
+	  });
 		self.dataView.setItems(self.data_reformat(data));
 		self.grid.invalidate();
 		self.grid.render();	
 	});
+
+	
 	this.grid.onClick.subscribe(function(e, args) {
 			var cell = self.grid.getCellFromEvent(e);
 			if (self.grid.getColumns()[cell.cell].field === '__selected') {
@@ -154,21 +148,10 @@ function  D3MSMetadataTable(tree,context_menu){
 			}
 		});
 
-	this.grid.onDragEnd.subscribe(function(e, args){
-			self.grid.mouse_pos = [0, 0, e.clientX, e.clientY];
-
-		});
 	this.grid.setSelectionModel(new Slick.CellSelectionModel());
 	this.grid.selectionmodel = self.grid.getSelectionModel();
 	this.grid.selectionmodel.onSelectedRangesChanged.subscribe(function(e,args){
-		if (args[0].fromCell != args[0].toCell) {
-			return;
-		} else if (args[0].fromRow === args[0].toRow) {
-			return;
-		}
-		var xx = self.grid.mouse_pos[2], yy = self.grid.mouse_pos[3];
 		self.grid.mouse_pos = [args[0].fromRow, args[0].fromCell, args[0].toRow, args[0].toCell];
-		$("#replace-div").toggle(150).css("top",yy).css("left",xx).css("position","fixed").show();
 	});
 	tree.addDisplayChangedListener(function(type,data){
 		if (type==='show_hypothetical_nodes'){
@@ -176,21 +159,27 @@ function  D3MSMetadataTable(tree,context_menu){
 		
 		}	
 	});
+	$(document).on('metadata:replace', function(e, ui) {
+		$("#replace-div").css({
+			"top" :ui.y,
+			left: ui.x,
+			position: 'fixed',
+		}).show(300);
+	});
 }
-
 
 D3MSMetadataTable.prototype._setupDiv= function(){
 	var self = this;
 	var grid_html = "<div id = 'metadata-div' style='width:600px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1;display:none'>\
-	<div id='handler' style='background-color:#f1f1f1;width:100%;height:20px;border-radius:5px;border: 0px solid #b0f2f2'>\
-		<span title='Close The Window' id = 'metadata-close' class='glyphicon glyphicon-remove show-tooltip'style='top:-6px;float:right;margin-right:10px'></span>\
-		<span title='Download This Table' id = 'metadata-download' class='glyphicon glyphicon-download show-tooltip'></span>&nbsp;&nbsp;\
-		<span title='Add A New Category' id='metadata-add-icon' class='glyphicon glyphicon-plus show-tooltip'></span>&nbsp;&nbsp;&nbsp;&nbsp;\
-		<input type='checkBox' id='metadata-filter' checked><span title='Show Filtering Bar?' class='glyphicon glyphicon-filter show-tooltip'></span>&nbsp;&nbsp;&nbsp;&nbsp;\
-		<input type='checkBox' id='hypo-filter' ><span title='Show hypothetical nodes?' class='glyphicon glyphicon-screenshot show-tooltip'></span>\
+	<div id='handler' class='ui-draggable-handle'>\
+		<span title='Close The Window' id='metadata-close' class='glyphicon glyphicon-remove show-tooltip' style='top:-3px;float:right;margin-right:0px'></span>\
+		<span title='Download This Table' id='metadata-download' class='glyphicon glyphicon-download show-tooltip'><span>Download</span></span>\
+		<span title='Add A New Category' id='metadata-add-icon' class='glyphicon glyphicon-plus show-tooltip'><span>Add Metadata</span></span>\
+		<input type='checkBox' id='metadata-filter' checked=''><span title='Show Filtering Bar?' class='glyphicon glyphicon-filter show-tooltip'><span>Filter</span></span>\
+		<input type='checkBox' id='hypo-filter'><span title='Show hypothetical nodes?' class='glyphicon glyphicon-screenshot show-tooltip'><span>Hypo nodes?</span></span>\
 	</div>\
 	<div id='myGrid' style='width:100%;height:580px'></div>\
-	<div title='replace all the cells in the selection' id='replace-div' style='height:30px;width:30px;background-color:#ffffff;z-index:3;opacity:0.8'>\
+	<div title='replace all the cells in the selection' id='replace-div' style='height:30px;width:50px;background-color:#ffffff;z-index:3;opacity:1.0'>\
 		<input id='replace-tag' style='height:100%;width:100%'>\
 		<span title='Confirm' id='replace-confirm' class='glyphicon glyphicon-ok show-tooltip' style='top:0px;left:100%;float:right;position:absolute'></span>\
 		<span id ='replace-close' title='Close'  class='glyphicon glyphicon-remove show-tooltip' style='top:15px;left:100%;float:right;position:absolute'></span>\
@@ -203,11 +192,11 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	}).draggable().hide();
 	$("#replace-close").click(function(e){
 		$("#replace-tag").val("");
-		$("#replace-div").css("opacity",0.8).width(30).hide();
+		$("#replace-div").hide();
 	
 	});
-	$('#replace-tag').click(function (e) {
-		$('#replace-div').css('opacity', 1.0).width(160);
+	$('#replace-tag').change(function (e) {
+		$('#replace-div').width( ($('#replace-tag').val().length + 5) + 'em' );
 	});
 	$("#replace-confirm").click(function(e) {
 		var val = $("#replace-tag").val();
@@ -230,7 +219,7 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 			}
 			self.tree.changeCategory(self.tree.display_category);
 		}
-		$("#replace-div").css("opacity",0.8).width(30).hide();
+		$("#replace-div").hide();
 		self.grid.invalidate();
 		self.grid.render();
 	});
@@ -241,28 +230,43 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	});
 
 	// metadata div events
-	$('#metadata-div').draggable({handle:$('#handler')}).resizable().resize(function(){
+	$('#metadata-div').draggable({
+		handle:$('#handler'),
+		snapMode: 'both',
+	}).resizable({
+		handles: 'n, e, s, w',
+		snapMode: 'both',
+	}
+	).resize(function(){
 		var h=$('#metadata-div').height();
-		$('#myGrid').css({'height':(h-40)+'px'});
+		$('#myGrid').css({'height':(h-$('#myGrid').position().top)+'px'});
 		self.grid.resizeCanvas();
 	})
 	.click(function(e){
-		$('#replace-div').css("opacity",0.8).width(30).hide();
+		$('#replace-div').hide();
 		$("#context-menu").hide();
 	})
-	.hide();
-	//.show(300);
-	
+
+	$( function() {
+		var h=$('#metadata-div').height();
+		$('#myGrid').css({'height':(h-50)+'px'});
+	});
+
+	$('#metadata-div').hide();
+
 	$('#metadata-close').click(function(e){
 		$('#metadata-div').hide(300);
 	});
 	$("#metadata-filter").change(function(e) {
 		if (this.checked) {
 			$(".slick-headerrow").show(300);
+			self.grid.resizeCanvas();
 			$("#myGrid").height($("#myGrid").height()+30);
 			$("#metadata-div").height($("#metadata-div").height()+30);
+			self.grid.resizeCanvas();
 		} else {
 			$(".slick-headerrow").hide(300);
+			self.grid.resizeCanvas();
 			$("#myGrid").height($("#myGrid").height()-30);
 			$("#metadata-div").height($("#metadata-div").height()-30);
 		}
@@ -273,7 +277,7 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	});
 	$("#metadata-add-icon").click(function(e){
 		$("<div id ='metadata-add'></div>")
-		.html("Name of The New Category:<br> <input type='text' id ='metadata-add-colname'>")
+		.html("Name of The New Category:<br> <input type='text' style='height:100%' id ='metadata-add-colname'>")
 		.dialog({
 				modal: true,
 				buttons: {
@@ -308,10 +312,10 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 		for (var id in curr_cols) {
 			var col = curr_cols[id];
 			header_map[col.field] = headers.length;
-			headers.push(col.name);
+			headers.push(col.id);
 		}
 		output.push(headers.join('\t'));
-		data = grid.getData().getFilteredItems();
+		data = self.grid.getData().getFilteredItems();
 		for (var id in data) {
 			var d = data[id];
 			var out = []; out.length = headers.length;
@@ -322,10 +326,6 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 		}
 		saveTextAsFile(output.join('\n'), "metadata.txt");
 	});
-};
-
-D3MSMetadataTable.prototype.showTooltip = function() {
-	self.grid.setColumns(this.default_columns);
 };
 
 D3MSMetadataTable.prototype.setAddColumnFunction= function(callback){
@@ -349,16 +349,10 @@ D3MSMetadataTable.prototype.data_reformat = function(data, select_moveUp) {
 };
 		
 		
-D3MSMetadataTable.prototype.resetGridColumns = function() {
-	self.grid.setColumns(this.default_columns);
-};
-
 D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 	if (!this.tree) {
 		return;
 	}
-	//single varible metadata_info, which now also contains label
-	
 	//synchronize the columns
 	var cols = {};
 	for (var field in this.tree.metadata_info) {
@@ -371,6 +365,16 @@ D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 	}
 	for (var c in cols) {
 		if (c != "nothing") {
+			if (c == 'barcode' || c == 'ID') {
+			curr_cols.push({id: cols[c],
+				name: cols[c], 
+				field: c, 
+				width:120, 
+				cssClass:'uneditable-cell',
+				sortable: true, 
+				prop: this.tree.metadata_info[cols[c]]
+			});
+			} else {
 			curr_cols.push({id: cols[c],
 				name: cols[c], 
 				field: c, 
@@ -379,6 +383,7 @@ D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 				sortable: true, 
 				prop: this.tree.metadata_info[cols[c]]
 			});
+			}
 		}
 
 	}
@@ -391,7 +396,7 @@ D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 			this.source_data.push(d);
 		}
 	}
-	this.data_reformat(this.source_data, select_moveUp);
+	this.data_reformat(this.source_data ); //select_moveUp);
 	this.dataView.setItems(this.source_data);
 	this.grid.invalidate();
 	this.grid.render();
