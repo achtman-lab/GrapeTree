@@ -33,7 +33,7 @@ import sys
 __licence__ = 'GPLv3'
 __author__ = 'Zhemin Zhou, Martin Sergeant, Nabil-Fareed Alikhan & Mark Achtman'
 __author_email__ = ' M.J.Sergeant@warwick.ac.uk'
-__version__ = '0.0.7'
+__version__ = '0.0.8'
 
 epi = "Licence: " + __licence__ + " by " + __author__ + \
     " <" + __author_email__ + ">"
