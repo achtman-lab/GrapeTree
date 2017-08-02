@@ -59,6 +59,7 @@ def main() :
         parser.add_argument('-o', '--output', action='store',
                             help='output prefix')
         args = parser.parse_args()
+	shutil.copy('MSTree_holder.html', 'grapetree/templates/MSTree_launch.html')
         if args.verbose:
             print "Executing @ " + time.asctime()
         open_browser(app.config.get('PORT'))

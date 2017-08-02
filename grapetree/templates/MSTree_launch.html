@@ -54,9 +54,13 @@
                         cursor:pointer;
 
                 }
-				.panel-body {
-					display:none;
-				}
+		.panel-body {
+		        display:none;
+		}
+		.headpanel-body {
+		        display:none;
+			padding : 2px;
+		}		
                 .panel-body label{
                         margin-bottom:1px;
                         margin-top:4px;
@@ -103,7 +107,6 @@
                  height:400px;
                  width:600px;
                  #border-style:solid;
-
                 }
 
 
@@ -154,6 +157,13 @@
 }
 .grid-canvas >.even >.uneditable-cell {
 	background: #b7e5b7;
+}
+
+.bigHr {
+    background-color: silver !important;
+    color: silver !important;
+    border: solid 1px silver !important;
+    height: 2px !important;
 }
 
 </style>
@@ -252,7 +262,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			   <option class='show-tooltip' title='FastME V2.0 is implemented for Neighbor-Joining phylogeny.' value='NJ'>Neighbour Joining</option>
 		   </select>
 		   <div id = "MST-option" style="display:none;">
-		   <hr>
+		   <hr class="bigHr">
 		   <label>Matrix Type</label>
 		   <br>
 		   <select id ='matrix-select'>
@@ -260,7 +270,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			   <option value='asymmetric'>Asymmetric</option>
 		   </select>
 		   <div id = "symmetric-option">
-		   <hr>
+		   <hr class="bigHr">
 		   <label>Missing data</label>
 		   <br>
 		   <select id = 'missing-data'>
@@ -268,7 +278,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			   <option value='complete_delete'>ignore whole loci</option>
 			   <option value='as_allele'>treated as an allele</option>
 		   </select>
-		   <hr>
+		   <hr class="bigHr">
 		   </div>
 		   <label>Edge Weight</label>
 		   <br>
@@ -303,15 +313,97 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 	<div class='panel panel-default'>
 		<div class ='panel-heading mst-menu-title' id= 'file-menu'> <b id>Inputs/Outputs</b><span id = 'file-menu-icon' class='glyphicon glyphicon-menu-down'> </span></div>
 		<div class = "panel-body" id ='file-menu-panel'>
-				<button title='Upload a tree or profile to start your journey!' id = 'button-load-nwk' class = 'show-tooltip'> Load Tree/Profile</button>
-			<br><br>
-				<button id = 'button-load-meta'> Load Metadata</button>
+				<button title='Upload a tree or profile to start your journey!' id = 'button-load-nwk' class = 'show-tooltip'> Load Tree/Profile/Metadata</button>
 			<div id='save-panel'>
-				<hr>
+				<hr class="bigHr">
 					<button id ="save-tree-json">Save GrapeTree</button><br><br>
 					<button id ="save-tree-nwk">Save to Newick Tree</button><br><br>
 					<button id ="mst-download-svg">Download SVG</button><br><br>
 			</div>
+		</div>
+	</div>
+	<div class='headpanel panel-default'>
+		<div class ='panel-heading mst-menu-title' id= 'tree-menu'> <b id>Tree Layout</b><span id = 'tree-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+		<div class = "panel-body" id ='tree-menu-panel'>
+			<button id = 'button-goback' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Unmodified Tree</button>
+			<br><br>
+			<button id = 'button-refresh'> Static Redraw </button>
+			<br><br>
+			<button id ="center-graph-button">Centre Tree</button>
+			<hr class="bigHr">
+			<p align = 'center'>
+				<div id="rotation-div"><label> Drag Icon to Rotate:&nbsp;</label>
+				<span id="rotation-icon" class="glyphicon glyphicon-refresh"></span>
+				</div>
+				<label>&nbsp;&nbsp;Zoom:&nbsp;</label>
+				<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
+				<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
+			</p>
+		<div class='panel panel-default'>
+			<div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Branch Style</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+			<div class = "panel-body" id ='mst-link-menu-panel'>
+				<label><input id ='show-link-labels'type="checkbox" /> Show Labels</label>
+				<br>
+				<label>Label Size:</label>
+				<input type='text' style='width:20px;height:15px' id ='spinner-linkfontsize' class='spin-group'>
+				<br>
+				<div id = "slider-linkfontsize" class = "slider-class"></div>
+				<br>
+			<div class="show-tooltip" title="Collapse branches below a certain value">
+				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
+				<div id = "slider-collapse-nodes" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
+			</div>
+			<br>				
+				<div>
+					<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Branch Scaling (%)</label><br>
+					<div id = "slider-linklength" class ="slider-class" style="width:80px">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
+				</div>
+			<label><input id ='link-log-scale'type="checkbox" /> Log Scale</label>
+				
+				<label><input id ='show-link-tooltip' type="checkbox" checked /> Show Tooltips</label>
+				<hr class="bigHr">
+				<label>For <br>longer than:</label>
+				<input type='text' style='width:35px;height:15px' id ='spinner-hide-link-length' class='spin-group'>
+				<div style='margin-left:20px'><input type="radio" id='handle-long-branch-display' name='handle-long-branch' value='display' checked />Display</div>
+				<div style='margin-left:20px'><input type="radio" id='handle-long-branch-hide' name='handle-long-branch' value='hide'/>Hide</div>
+				<div style='margin-left:20px'><input type="radio" id='handle-long-branch-cap' name='handle-long-branch' value='cap'/>Shorten</div>
+	
+			</div>
+		</div>
+		<div class='panel panel-default'>
+			<div class ='panel-heading mst-menu-title' id= 'mst-node-menu'> <b id>Node Style</b><span id = 'mst-node-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+			<div class = "panel-body" id ='mst-node-menu-panel'>
+				<label>Colour Nodes By:</label>
+				<br><br>
+				<select style="width:140px" id= 'metadata-select'>
+				<option value='nothing'>No category</option></select>
+				<label><input id ='show-node-labels'type="checkbox" checked />Show Labels</label>
+				<br><br>
+				<label>Label Size:</label><input type='text' style='width:20px;height:15px' id ='spinner-node-fontsize' class='spin-group'>
+				<br>
+				<div id = "slider-node-fontsize" class = "slider-class"></div>
+				<label>Label Text</label>
+				<select style="width:140px" id = 'node-label-text'></select>
+				<div >
+					<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
+					<div id = "slider-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
+				</div>
+				
+				<div class="show-tooltip" title="Node size relative to number of strains">
+					<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node Scaling (%)</label><br>
+					<div id = "slider-relative-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
+				</div>
+				<br>				
+				<hr class="bigHr">
+				<label>Search Label Text</label>
+				<br>
+				<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
+				<br>
+				<label><input id ='show-node-tooltip' type="checkbox" checked /> Show Tooltips</label>
+				<br>
+				<label><input id ='show-individual-segments' type="checkbox" /> Show Pie Chart</label>
+			</div>
+		</div>		
 		</div>
 	</div>
 	<div class='panel panel-default'>
@@ -323,93 +415,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 			<div style="margin-top:20px"><input type='radio' name='render-method' class='render-method' value='static' checked /><b>Static</b></div>
 			<div style='margin-left:20px;font-size:90%'><input id ='correct_link_length' type="checkbox" checked /> Real Branch Length</div>
 		</div>
-	</div>
-	<div class='panel panel-default'>
-		<div class ='panel-heading mst-menu-title' id= 'tree-menu'> <b id>Tree Layout</b><span id = 'tree-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
-		<div class = "panel-body" id ='tree-menu-panel'>
-			<button id = 'button-goback' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Unmodified tree</button>
-			<br><br>
-			<div>
-				<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Branch Length (%)</label><br>
-				<div id = "slider-linklength" class ="slider-class" style="width:80px">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
-			</div>
-			
-			<div class="show-tooltip" title="Collapse branches below a certain value">
-				<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
-				<div id = "slider-collapse-nodes" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
-			</div>
-			<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
-			<br>
-			<hr>
-			<div >
-				<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
-				<div id = "slider-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
-			</div>
-			
-			<div class="show-tooltip" title="Node size relative to number of strains">
-				<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node scaling (%)</label><br>
-				<div id = "slider-relative-nodesize" class ="slider-class" style="width:80px"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
-			</div>
-			<br>
-			<button id = 'button-refresh'> Static Redraw </button>
-			<br><br>
-			<button id ="center-graph-button">Centre Tree</button>
-			<hr>
-			<p align = 'center'>
-				<div id="rotation-div"><label> Drag Icon to Rotate:&nbsp;</label>
-				<span id="rotation-icon" class="glyphicon glyphicon-refresh"></span>
-				</div>
-				<label>&nbsp;&nbsp;Zoom:&nbsp;</label>
-				<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
-				<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
-			</p>
-		</div>
-	</div>
-	<div class='panel panel-default'>
-		<div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Branch Style</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
-		<div class = "panel-body" id ='mst-link-menu-panel'>
-			<label>For branches <br>longer than:</label>
-			<input type='text' style='width:35px;height:15px' id ='spinner-hide-link-length' class='spin-group'>
-			<div style='margin-left:20px'><input type="radio" id='handle-long-branch-display' name='handle-long-branch' value='display' checked />Display</div>
-			<div style='margin-left:20px'><input type="radio" id='handle-long-branch-hide' name='handle-long-branch' value='hide'/>Hide</div>
-			<div style='margin-left:20px'><input type="radio" id='handle-long-branch-cap' name='handle-long-branch' value='cap'/>Shorten</div>
-			<hr>
-			<label><input id ='show-link-labels'type="checkbox" /> Branch Labels</label>
-			<br>
-			<label>Font Size:</label>
-			<input type='text' style='width:20px;height:15px' id ='spinner-linkfontsize' class='spin-group'>
-			<br>
-			<div id = "slider-linkfontsize" class = "slider-class"></div>
-			<br>
-			<label><input id ='show-link-tooltip' type="checkbox" checked /> Mouseover info</label>
-		</div>
-	</div>
-	<div class='panel panel-default'>
-		<div class ='panel-heading mst-menu-title' id= 'mst-node-menu'> <b id>Node Style</b><span id = 'mst-node-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
-		<div class = "panel-body" id ='mst-node-menu-panel'>
-			<label>Colour By:</label>
-			<br>
-			<select style="width:140px" id= 'metadata-select'>
-			<option value='nothing'>No category</option></select>
-
-			<hr>
-			<label><input id ='show-node-labels'type="checkbox" checked /> Node Labels</label>
-			<br><br>
-			<label>Font Size:</label><input type='text' style='width:20px;height:15px' id ='spinner-node-fontsize' class='spin-group'>
-			<br>
-			<div id = "slider-node-fontsize" class = "slider-class"></div>
-			<label>Label Text</label>
-			<select id = 'node-label-text'></select>
-			<label>Search in Label</label>
-			<br>
-			<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
-
-			<br>
-			<label><input id ='show-node-tooltip' type="checkbox" checked /> Mouseover info</label>
-			<br>
-			<label><input id ='show-individual-segments' type="checkbox" /> Seperate Strains</label>
-		</div>
-	</div>
+	</div>	
 	<div class='panel panel-default'>
 		<div class ='panel-heading mst-menu-title' id= 'right-menu'> <b id>Context Menu</b><span id = 'right-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 		<div class = "panel-body" id ='right-menu-panel'>
@@ -917,6 +923,7 @@ same node i.e have the same ID but then the file must have a coulmn 'Name' in wh
 						$("#metadata-select").val(data['initial_category']);
 					}
 					if (data['layout_data'] && data['layout_data']['nodes_links']){
+						if ( ! data['layout_data']['nodes_links']["node_collapsed_value"] ) data['layout_data']['nodes_links']["node_collapsed_value"] = 0.0;
 						setControlPanel(data['layout_data']['nodes_links'])
 					}
 					else{
@@ -1518,6 +1525,7 @@ window.onload = function (){
         });
 		$( "#spinner-collapse-nodes" ).on("change", function(e) {
 			var v = parseFloat($(this).spinner('value'));
+			if( isNaN(v)) { v = 0.0 ; }
 			$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
 			the_tree.collapseNodes(v);
 		 })
