@@ -22,13 +22,14 @@ D3MSTreeContextMenu.prototype.constructor = D3MSTreeContextMenu;
 * @param {integer} height - the initial height (optional)
 * @param {integer} width - the initial width  (optional)
 */
-function D3MSTreeContextMenu(tree,meta_grid){
+function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 	this.tree =tree;
 	this.meta_grid=meta_grid;
 	var self = this;
+	$("#context-menu").remove();
 	var context_html = "<div id='context-menu' style='display:none;position:fixed;width:150px;z-index:4;background-color:#ffffff;border:1px solid #f2f2f2'> \
 		<div id='mst-svg-menu' style='display:none' class='sub-context'> \
-			<div class='context-option selectAll'>Select all</div> \
+			<span id='tree-functions-context'><div class='context-option selectAll'>Select all</div> \
 			<div class='context-option clearSelection'>Unselect all</div> \
 			<hr class='context-hr'> \
 			<div class='context-option' id='collapse_node'>Collapse selected nodes</div> \
@@ -38,7 +39,7 @@ function D3MSTreeContextMenu(tree,meta_grid){
 			<div class='context-option' id='center-tree'>Center Tree</div> \
 			<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 			<hr class='context-hr'> \
-			<div class='context-option toggle-legend'>Show figure legend</div> \
+			</span><div class='context-option toggle-legend'>Show figure legend</div> \
 		</div> \
 		<div id='legend-svg-menu' style='display:none' class='sub-context'> \
 			<div class='context-option toggle-legend'>Hide figure legend</div> \
@@ -101,6 +102,10 @@ function D3MSTreeContextMenu(tree,meta_grid){
 		$("#context-menu").append( metadata_table_html);
 		$("#mst-svg-menu").append("<div class='context-option toggle-metadata'>Show metadata table</div>");
 	}
+	if (hide_tree_functions){
+		$("#tree-functions-context").remove();
+	}
+	
 	$(".context-option").css("font-size", "90%").css("margin", "5px");
 	$(".context-hr").css("margin", "2px");
 	$("#group-num-input").spinner({

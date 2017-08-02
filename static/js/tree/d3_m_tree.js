@@ -186,6 +186,7 @@ function D3MSTree(element_id,data,callback,height,width){
         var tmp_collapsing = this.manual_collapsing;
         this.manual_collapsing = {};
        positions = this._collapseNodes(0, positions);
+       
        if (to_collapse > 0 || Object.keys(tmp_collapsing).length > 0) {
        		this.manual_collapsing = tmp_collapsing;
        		this._collapseNodes(to_collapse);
@@ -487,11 +488,12 @@ D3MSTree.prototype._start= function(callback,layout_data){
 */
 D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
     var layout = JSON.parse(JSON.stringify(this.original_node_positions));
-	//if (keep_current_layout){
+	if (keep_current_layout){
 		for (var i in this.force_nodes){
+			var node=this.force_nodes[i];
 			 layout[node.id]  = [node.x,node.y];
 	       }
-	//}      
+	}      
     layout = this._collapseNodes(max_distance, layout, ! keep_current_layout);
 	
     this._start(null,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
@@ -530,17 +532,19 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
                 this.grouped_nodes={};
                 for (var i in this.force_nodes){
                         var node =this.force_nodes[i];
-						if (! node.x) node.x = layout[node.id][0];
-						if (! node.y) node.y = layout[node.id][1];
-						this.hypo_record[node.id] = {};
-						this.hypo_record[node.id][node.id] = 1;
-						this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
-			
-						//add dummy metadata
-						if (!this.metadata_map[node.id]) {
-                                this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
-								this.metadata_map[node.id]=[node.id];
-                        }
+			if (layout){
+				if (! node.x) node.x = layout[node.id][0];
+				if (! node.y) node.y = layout[node.id][1];
+			}
+			this.hypo_record[node.id] = {};
+			this.hypo_record[node.id][node.id] = 1;
+			this.grouped_nodes[node.id]= node.hypothetical ? [] : [node.id];
+		
+			//add dummy metadata
+			if (!this.metadata_map[node.id]) {
+				this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
+				this.metadata_map[node.id]=[node.id];
+			}
                 }
                 this.addMetadataOptions({
                 	'nothing': 'No Category', 

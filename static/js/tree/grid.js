@@ -378,7 +378,7 @@ D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 	}
 	for (var c in cols) {
 		if (c != "nothing") {
-			if (c == 'Barcode' || c == 'ID') {
+			if (c == 'barcode' || c == 'ID') {
 			curr_cols.push({id: cols[c],
 				name: cols[c], 
 				field: c, 
