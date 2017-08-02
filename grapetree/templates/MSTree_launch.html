@@ -88,7 +88,7 @@
 			<div id='save-panel'>
 					<button id ="save-tree-json">Save GrapeTree</button>
 					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('save_grapetree');"></span><br><br>
-					<button id ="save-tree-nwk">Save to Newick Tree</button><br><br>
+					<button id ="save-tree-nwk">Save as Newick Tree</button><br><br>
 					<button id ="mst-download-svg">Download SVG</button><br>
 			</div>
 		</div>
@@ -233,7 +233,6 @@
 -->
 <script charset="utf-8">
 	getHelpBox('load_files')
-
         MSFileChooser.prototype = Object.create(null);
         MSFileChooser.prototype.constructor= MSFileChooser;
 
@@ -933,6 +932,9 @@ tree_raw = {};
 
 
 window.onload = function (){
+	$(document).on('show-help', function(e, ui) {
+		getHelpBox(ui.id);
+	});
 	$("#mst-svg-x").on('click', function(e) {
 		context_menu._trigger_context("mst-svg", e);
 	});
