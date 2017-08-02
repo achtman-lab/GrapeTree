@@ -1,4 +1,4 @@
-pyinstaller -n GrapeTree_win --onefile --icon=GT_icon.ico ^
+pyinstaller -n GrapeTree_win  --icon=GT_icon.ico ^
     --add-binary binaries/edmonds.exe;binaries/ ^
     --add-binary binaries/fastme.exe;binaries/ ^
     --add-data grapetree/templates/;grapetree/templates/ ^
