@@ -173,6 +173,7 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	var grid_html = "<div id = 'metadata-div' style='width:600px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1;display:none'>\
 	<div id='handler' class='ui-draggable-handle'>\
 		<span title='Close The Window' id='metadata-close' class='glyphicon glyphicon-remove show-tooltip' style='top:-3px;float:right;margin-right:0px'></span>\
+		<span id ='meta_help' class='glyphicon glyphicon-question-sign' style='top:-3px;float:right;margin-right:5px'></span>\
 		<span title='Download This Table' id='metadata-download' class='glyphicon glyphicon-download show-tooltip'><span>Download</span></span>\
 		<span title='Add A New Category' id='metadata-add-icon' class='glyphicon glyphicon-plus show-tooltip'><span>Add Metadata</span></span>\
 		<input type='checkBox' id='metadata-filter' checked=''><span title='Show Filtering Bar?' class='glyphicon glyphicon-filter show-tooltip'><span>Filter</span></span>\
@@ -186,6 +187,10 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	</div>\
 	</div>";
 	$("body").append($(grid_html));
+	$("#meta_help").click(function(e) {
+		$(document).trigger('show-help', {id: 'metadata_menu'});
+		//getHelpBox('metadata_menu');
+	});
 	// replace div events
 	$('#replace-div').click(function(e){
 		e.stopPropagation();
@@ -277,7 +282,7 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	});
 	$("#metadata-add-icon").click(function(e){
 		$("<div id ='metadata-add'></div>")
-		.html("Name of The New Category:<br> <input type='text' style='height:100%' id ='metadata-add-colname'>")
+		.html("Name of The New Column:<br> <input type='text' style='height:100%' id ='metadata-add-colname'>")
 		.dialog({
 				modal: true,
 				buttons: {
