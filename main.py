@@ -60,7 +60,7 @@ def main() :
                             help='output prefix')
         args = parser.parse_args()
         if not getattr(sys, 'frozen', False):
-            shutil.copy('MSTree_holder.html', 'grapetree/templates/MSTree_launch.html')
+            shutil.copy('MSTree_holder.html', 'grapetree/templates/MSTree_holder.html')
         if args.verbose:
             print "Executing @ " + time.asctime()
         open_browser(app.config.get('PORT'))
