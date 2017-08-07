@@ -94,6 +94,7 @@
 		</div>
 	</div>
 	<div class='panel panel-default'>
+
 		<div class ='panel-heading mst-menu-title' id= 'tree-menu'> <b id>Tree Layout</b><span id = 'tree-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 		<div class = "panel-body" id ='tree-menu-panel' style='padding:0px;' ><br>
 			<button id = 'button-goback' style='margin-left:15px;' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Unmodified tree</button>
@@ -173,7 +174,7 @@
 				<hr>
 				<label>For branches <br>longer than:</label>
 				<input type='text' style='width:35px;height:15px' id ='spinner-hide-link-length' class='spin-group'>
-				<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('branch_cutoff');"></span>
+				<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('branch_cutoffs');"></span>
 				<table><tbody><tr>
 				<td>
 					<div style="opacity: 1;"><input type="radio" id="handle-long-branch-display" name="handle-long-branch" value="display" checked="" style="opacity: 1;">Display</div>
@@ -189,6 +190,7 @@
 			</div>
 		</div>
 	</div>
+
 
 	<div class='panel panel-default'>	
 		<div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Rendering</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
