@@ -11,12 +11,13 @@ webserver running on your local computer.  You will be interacting with the
 program as you would in EnteroBase; through a web browser. We recommend 
 [Google Chrome](https://www.google.com/chrome/index.html) for best results.
 
-There are number of different ways to interact with GrapeTree, the easiest to 
-download the software here: [https://github.com/martinSergeant/EnteroMSTree/releases](https://github.com/martinSergeant/EnteroMSTree/releases)
 
 **For details help please see: https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree**
 
 ## Installing and Running GrapeTree
+There are number of different ways to interact with GrapeTree, the easiest to 
+download the software here: [https://github.com/martinSergeant/EnteroMSTree/releases](https://github.com/martinSergeant/EnteroMSTree/releases)
+
 **Running on Mac: Download GrapeTree_mac.zip**
 
 You will need to unzip GrapeTree_mac.zip (just double click). Inside there will 
