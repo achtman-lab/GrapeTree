@@ -11,8 +11,7 @@ webserver running on your local computer.  You will be interacting with the
 program as you would in EnteroBase; through a web browser. We recommend 
 [Google Chrome](https://www.google.com/chrome/index.html) for best results.
 
-
-**For details help please see: https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree**
+**For detailed help please see: https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree**
 
 ## Installing and Running GrapeTree
 There are number of different ways to interact with GrapeTree, the easiest to 
@@ -56,15 +55,13 @@ On Linux or MacOSX you need to make sure the binaries in binaries/ can be execut
  * Running on http://127.0.0.1:8000/ (Press CTRL+C to quit)
 ```
 
-** Running GrapeTree with no installation **
+**Running GrapeTree with no installation**
 
 The program will automatically open your web browser and you will see the 
-GrapeTree Splash Screen.
-
-If at anytime you want to restart the page you can visit [http://localhost:8000](http://localhost:8000) in your web browser.
-
-To view a tree (newick or Nexus) or create a tree from an allele profile, just drag and drop the file into the browser 
-window. 
+GrapeTree Splash Screen. If at anytime you want to restart the page you can 
+visit [http://localhost:8000](http://localhost:8000) in your web browser. To 
+view a tree (newick or Nexus) or create a tree from an allele profile, just drag
+and drop the file into the browser window. 
 
 ### Configuration
 Runtime behaviour can be configured in grapetree/config.py 
