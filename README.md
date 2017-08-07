@@ -1,6 +1,5 @@
 # EnteroMSTree - GrapeTree
 
-# What is stand-alone GrapeTree?
 GrapeTree is an integral part of EnteroBase and we advise that you use GrapeTree
 through EnteroBase for the best results. However, many people have asked for a 
 stand-alone GrapeTree version that they could use offline or integrate into the
