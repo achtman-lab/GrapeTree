@@ -1,46 +1,72 @@
 # EnteroMSTree - GrapeTree
 
-This is a stand alone version of the tree viewer in Enterobase (http://enterobase.warwick.ac.uk)
-It consists of an HTML and JavaScrript front end for viewing and manipulating trees 
-and a backend written in Python and C for calculations.
+# What is stand-alone GrapeTree?
+GrapeTree is an integral part of EnteroBase and we advise that you use GrapeTree
+through EnteroBase for the best results. However, many people have asked for a 
+stand-alone GrapeTree version that they could use offline or integrate into the
+other applications. 
+
+The stand-alone version emulates the EnteroBase version through a lightweight 
+webserver running on your local computer.  You will be interacting with the 
+program as you would in EnteroBase; through a web browser. We recommend 
+[Google Chrome](https://www.google.com/chrome/index.html) for best results.
+
+There are number of different ways to interact with GrapeTree, the easiest to 
+download the software here: [https://github.com/martinSergeant/EnteroMSTree/releases](https://github.com/martinSergeant/EnteroMSTree/releases)
 
 **For details help please see: https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree**
 
-## Installation 
-EnteroMSTree - GrapeTree requires on Python 2.7 and some additional python
-modules (listed in requirements.txt), easiest way to install these modules is
-with pip:
+## Installing and Running GrapeTree
+**Running on Mac: Download GrapeTree_mac.zip**
 
-```bash
+You will need to unzip GrapeTree_mac.zip (just double click). Inside there will 
+be an app you can drag into your Applications folder. You may be warned about 
+Security settings, if you right click on the GrapeTree app and then click "Open" 
+it should be fine. 
+
+**Running on Windows: Download GrapeTree_win.zip**
+
+Once downloaded, you will need to untzip GrapeTree_win.zip and then open the 
+extracted folder and  run GrapeTree_win.exe. When you run it the first time on 
+windows you might get a prompt about security. On Windows 10, click the small 
+text: "More info", and then the button "Run Anyway". 
+
+**Running from Source code** 
+
+EnteroMSTree - GrapeTree requires [Python 2.7](https://www.python.org/downloads/release/python-2712/) 
+and some additional python modules (listed in requirements.txt). The easiest way
+to install these modules is with pip:
+
+```
+#!bash
+
 pip install -r requirements.txt
 chmod +x binaries/
+```
+On Linux or MacOSX you need to make sure the binaries in binaries/ can be executed. To run GrapeTree;
+
+1. Navigate to the directory where you installed GrapeTree. 
+1. Run it through python as below. 
 
 ```
-On Linx or MacOSX you need to make sure the binaries in binaries/ can be executed.
+#!bash
 
-If you just one to view and manupulate trees, without processing profile/fasta files,
-it can simply be run by opening MSTree_holder.html in a browser.
-
-
-## Usage - Webapplication (GrapeTree)
-Running main.py will launch the application. This will run the lightweight webserver 
-```bash
-python main.py
-
+\GrapeTree>python main.py
+ * Running on http://127.0.0.1:8000/ (Press CTRL+C to quit)
 ```
 
-The application should open your browser to the correct page, but you can navigate 
-there yourself (usually http://localhost:8000/). 
+** Running GrapeTree with no installation **
 
-To view a tree (newick or Nexus), just drag and drop the file into the browser 
+The program will automatically open your web browser and you will see the 
+GrapeTree Splash Screen.
+
+If at anytime you want to restart the page you can visit [http://localhost:8000](http://localhost:8000) in your web browser.
+
+To view a tree (newick or Nexus) or create a tree from an allele profile, just drag and drop the file into the browser 
 window. 
 
 ### Configuration
 Runtime behaviour can be configured in grapetree/config.py 
-
-### Precompiled binaries 
-Binaries will be made available for Windows and MacOSX (see Releases).
-
 
 ### Tests
 To run tests, run pytests in the top level directory.
