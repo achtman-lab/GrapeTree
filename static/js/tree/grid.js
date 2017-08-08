@@ -223,8 +223,8 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	});
 	$("#replace-confirm").click(function(e) {
 		var val = $("#replace-tag").val();
-		columns = self.grid.getColumns();
-		data = self.dataView.getItems();
+		var columns = self.grid.getColumns();
+		var data = self.dataView.getFilteredItems();
 		for (var col_id=self.grid.mouse_pos[1]; col_id <= self.grid.mouse_pos[3]; ++col_id ) {
 			if (columns[col_id].editor) {
 				var col = columns[col_id].field;
