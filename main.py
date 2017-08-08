@@ -33,7 +33,7 @@ import sys
 __licence__ = 'GPLv3'
 __author__ = 'Zhemin Zhou, Martin Sergeant, Nabil-Fareed Alikhan & Mark Achtman'
 __author_email__ = ' M.J.Sergeant@warwick.ac.uk'
-__version__ = '0.0.7'
+__version__ = '0.0.8'
 
 epi = "Licence: " + __licence__ + " by " + __author__ + \
     " <" + __author_email__ + ">"
@@ -60,7 +60,7 @@ def main() :
                             help='output prefix')
         args = parser.parse_args()
         if not getattr(sys, 'frozen', False):
-            shutil.copy('MSTree_holder.html', 'grapetree/templates/MSTree_launch.html')
+            shutil.copy('MSTree_holder.html', 'grapetree/templates/MSTree_holder.html')
         if args.verbose:
             print "Executing @ " + time.asctime()
         open_browser(app.config.get('PORT'))

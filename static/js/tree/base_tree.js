@@ -996,7 +996,7 @@ D3BaseTree.prototype.resize=function(){
 	this.zoom.scale(temp_scale);
 	this.zoom.translate(temp_trans);
 	this.background_rect.attr('height', this.height).attr('width', this.width);
-	
+	this.legend_div.css({"top":"0px","right":"0px"});
 	/*var l_height = $("#legend-svg").height();
 	var height = l_height + 10;
 	this.legend_div.css({"top":"0px","right":"0px","max-height":height+"px"});

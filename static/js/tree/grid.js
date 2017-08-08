@@ -124,20 +124,17 @@ function  D3MSMetadataTable(tree,context_menu){
 		self.grid.render();	
 	});
 
-	
+	self.grid.selection = [[-1, -1], [-1, -1]];
 	this.grid.onClick.subscribe(function(e, args) {
 			var cell = self.grid.getCellFromEvent(e);
-			if (self.grid.getColumns()[cell.cell].field === '__selected') {
-				d = self.grid.getDataItem(cell.row);
-				d.__selected = d.__selected ? false : true;
-				self.tree.force_nodes.filter(function(n){if(n.id == d.__Node) {n.selected=d.__selected}});
-				self.tree.clearSelection(true);
-				self.tree._addHalos(function(d){return d.selected},5,"red");
+			if (e.shiftKey) {
+				self.grid.selection[1] = [cell.row, cell.cell];
+			} else {
+				self.grid.selection = [[cell.row, cell.cell], [-1, -1]];
 			}
 		});
 	this.grid.mouse_pos = []; 
 	this.grid.onCellChange.subscribe(function (e, args) {
-
 			if (args.cell == 0) {
 				var d = args.item;
 				self.tree.force_nodes.filter(function(n){if(n.id == d.__Node) {n.selected=d.__selected}});
@@ -151,6 +148,26 @@ function  D3MSMetadataTable(tree,context_menu){
 	this.grid.setSelectionModel(new Slick.CellSelectionModel());
 	this.grid.selectionmodel = self.grid.getSelectionModel();
 	this.grid.selectionmodel.onSelectedRangesChanged.subscribe(function(e,args){
+		if (args[0].fromCell == args[0].toCell && args[0].fromRow == args[0].toRow && self.grid.selection[0][0] >= 0 && self.grid.selection[1][0] >= 0) {
+			var range = {};
+			[range.fromRow, range.toRow] = self.grid.selection[0][0] < self.grid.selection[1][0] ? [self.grid.selection[0][0], self.grid.selection[1][0]] : [self.grid.selection[1][0], self.grid.selection[0][0]];
+			[range.fromCell, range.toCell] = self.grid.selection[0][1] < self.grid.selection[1][1] ? [self.grid.selection[0][1], self.grid.selection[1][1]] : [self.grid.selection[1][1], self.grid.selection[0][1]];
+			self.grid.selectionmodel.setSelectedRanges([range]);
+			self.grid.selection[1] = [-1, -1];
+			return;
+		}
+		if (args[0].fromCell == args[0].toCell && self.grid.getColumns()[args[0].fromCell].field === '__selected') {
+			item = self.grid.getData().getItems().slice(args[0].fromRow, args[0].toRow+1);
+			var involvedNodes = {}
+			var toSelect = (item.filter(function(d) {
+				involvedNodes[d.__Node] = 1;
+				return d.__selected ? false : true;
+			}).length > 0);
+			self.tree.force_nodes.filter(function(n){if(involvedNodes[n.id]) {n.selected=toSelect}});
+			self.tree.clearSelection(true);
+			self.tree._addHalos(function(d){return d.selected},5,"red");
+		}
+		
 		self.grid.mouse_pos = [args[0].fromRow, args[0].fromCell, args[0].toRow, args[0].toCell];
 	});
 	tree.addDisplayChangedListener(function(type,data){
@@ -161,16 +178,17 @@ function  D3MSMetadataTable(tree,context_menu){
 	});
 	$(document).on('metadata:replace', function(e, ui) {
 		$("#replace-div").css({
-			"top" :ui.y,
-			left: ui.x,
+			top :ui.y-20,
+			left: ui.x-40,
 			position: 'fixed',
 		}).show(300);
+		$("#replace-tag").focus();
 	});
 }
 
 D3MSMetadataTable.prototype._setupDiv= function(){
 	var self = this;
-	var grid_html = "<div id = 'metadata-div' style='width:600px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1;display:none'>\
+	var grid_html = "<div id = 'metadata-div' style='width:700px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1;display:none'>\
 	<div id='handler' class='ui-draggable-handle'>\
 		<span title='Close The Window' id='metadata-close' class='glyphicon glyphicon-remove show-tooltip' style='top:-3px;float:right;margin-right:0px'></span>\
 		<span id ='meta_help' class='glyphicon glyphicon-question-sign' style='top:-3px;float:right;margin-right:5px'></span>\
@@ -206,24 +224,16 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	$("#replace-confirm").click(function(e) {
 		var val = $("#replace-tag").val();
 		columns = self.grid.getColumns();
-		var col = columns[self.grid.mouse_pos[3]].field;
-		if (col == '__selected') {
-			var update_selection = {};
-			for (var id=self.grid.mouse_pos[0]; id <= self.grid.mouse_pos[2]; id ++) {
-				d = self.dataView.getItem(id);
-				d[col] = (val && val != 'F' && val != 'f' && val != 'false') ? true : false;
-				update_selection[d.__Node] = d[col];
+		data = self.dataView.getItems();
+		for (var col_id=self.grid.mouse_pos[1]; col_id <= self.grid.mouse_pos[3]; ++col_id ) {
+			if (columns[col_id].editor) {
+				var col = columns[col_id].field;
+				for (var id=self.grid.mouse_pos[0]; id <= self.grid.mouse_pos[2]; id ++) {
+					data[id][col] = val;
+				}
 			}
-			self.tree.force_nodes.filter(function(n) {if(update_selection[n.id] !== undefined) {n.selected=update_selection[n.id]}});
-			self.tree.clearSelection(true);
-			self.tree._addHalos(function(d){return d.selected},5,"red");
-		} else if (col != '__Node' && col != 'ID' && col != 'id') {
-			for (var id=self.grid.mouse_pos[0]; id <= self.grid.mouse_pos[2]; id ++) {
-				d = self.dataView.getItem(id);
-				d[col] = val;
-			}
-			self.tree.changeCategory(self.tree.display_category);
 		}
+		self.tree.changeCategory(self.tree.display_category);
 		$("#replace-div").hide();
 		self.grid.invalidate();
 		self.grid.render();
@@ -239,7 +249,7 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 		handle:$('#handler'),
 		snapMode: 'both',
 	}).resizable({
-		handles: 'n, e, s, w',
+		handles: 'n, e, s, w, se',
 		snapMode: 'both',
 	}
 	).resize(function(){

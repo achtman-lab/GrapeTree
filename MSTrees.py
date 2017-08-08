@@ -243,25 +243,28 @@ class methods(object) :
             taxon.label = names[int(taxon.label)]
         return tree
 
-def nonredundant(names, profiles) :
-    encoded_profile = np.array([np.unique(p, return_inverse=True)[1]+1 for p in profiles.T]).T
-    encoded_profile[(profiles == '-') | (profiles == '0')] = 0
-
-    names = names[np.lexsort(encoded_profile.T)]
-    profiles = encoded_profile[np.lexsort(encoded_profile.T)]
-    uniqueness = np.concatenate([[1], np.sum(np.diff(profiles, axis=0) != 0, 1) > 0])
-
-    embeded = {names[0]:[]}
-    embeded_group = embeded[names[0]]
-    for n, u in zip(names, uniqueness) :
-        if u == 0 :
-            embeded_group.append(n)
-        else :
-            embeded[n] = [n];
-            embeded_group = embeded[n];
-    names = names[uniqueness>0]
-    profiles = profiles[uniqueness>0]
-    return names, profiles, embeded
+    def nonredundant(names, profiles) :
+        encoded_profile = np.array([np.unique(p, return_inverse=True)[1]+1 for p in profiles.T]).T
+        encoded_profile[(profiles == '-') | (profiles == '0')] = 0
+    
+        names = names[np.lexsort(encoded_profile.T)]
+        profiles = encoded_profile[np.lexsort(encoded_profile.T)]
+        presence = (np.sum(profiles > 0, 1) > 0)
+        names, profiles = names[presence], profiles[presence]
+    
+        uniqueness = np.concatenate([[1], np.sum(np.diff(profiles, axis=0) != 0, 1) > 0])
+    
+        embeded = {names[0]:[]}
+        embeded_group = embeded[names[0]]
+        for n, u in zip(names, uniqueness) :
+            if u == 0 :
+                embeded_group.append(n)
+            else :
+                embeded[n] = [n]
+                embeded_group = embeded[n]
+        names = names[uniqueness>0]
+        profiles = profiles[uniqueness>0]
+        return names, profiles, embeded
 
 def backend(**parameters) :
     '''

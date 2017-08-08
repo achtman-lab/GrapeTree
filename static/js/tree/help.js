@@ -84,4 +84,12 @@ help_text['metadata_menu'] = '<h2><a id="Metadata_window_0"></a>Metadata window<
 <li><strong>Hypo Nodes?</strong>: Shows hypothetical nodes in the metadata table, when checked.</li>\
 </ul>';
 
-
+help_text['enterobase'] = '<h2><a id="Saving_in_GrapeTree_13"></a>Interaction With Enterobase</h2>\
+<ul>\
+<li><strong>Load Selected</strong>: Any strains selected in the tree will be loaded into the main search page of Enterobase. If The main search page is not open, then a new page will open in the browser.</li>\
+<li><strong>Highlight Checked</strong>: Any strains checked (selected) in the Enterobase main search page will become highlighted (large yellow halo) in the tree.</li>\
+<li><strong>Import Fields</strong>: Shows a dialog box which allows the selection of experimental fields and custom fields (columns) to be imported into the tree.</li>\
+<li><strong>Save</strong>:Saves the tree layout and any metadata in the tree. Changed metadata is only  associated with tree and will not be updated in Enterobase. Data in custom columns, however, which you have permission to edit, will be updated in Enterobase and you will be notified if this is the case.</li>\
+<li><strong>Update</strong>: Will update the tree with any metadata  that has changed  in Enterobase since the tree was created or the last update.  Also any data from custom columns, which has changed in Enterobase will also be updated in ther tree.</li>\
+<li><strong>Info</strong>: Shows information about the tree such as the parameters used for construction, number of strains, last modified etc. </li>\
+</ul>';
