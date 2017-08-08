@@ -1146,7 +1146,7 @@ D3BaseTree.prototype.searchMetadata=function(keyword, key){
 				var metadata= this.metadata[meta_id];
 				var contains = false
 				//for (var key in metadata){
-					if (metadata[key].match(exp)){
+					if (metadata[key] && metadata[key]+"".match(exp)){
 						ids.push(id);
 						contains=true;
 						break;
