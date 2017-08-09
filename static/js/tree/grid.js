@@ -116,8 +116,15 @@ function  D3MSMetadataTable(tree,context_menu){
 			  if (value1 === undefined) value1 = "";
 			  if (value2 === undefined) value2 = "";
 		  }
-        var result = t1 == t2 ? ((value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign) : (t1-t2)*sign;
-	    return result;
+		  var result = (t1 - t2)* sign;
+		  if (t1 == t2) {
+		  	if (value1 == value2) {
+		  		result = dataRow1.id - dataRow2.id;
+		  	} else {
+		  		result = (value1 > value2 ? 1 : -1)* sign;
+		  	}
+		  }
+		  return result;
 	  });
 		self.dataView.setItems(self.data_reformat(data));
 		self.grid.invalidate();
@@ -193,7 +200,7 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 		<span title='Close The Window' id='metadata-close' class='glyphicon glyphicon-remove show-tooltip' style='top:-3px;float:right;margin-right:0px'></span>\
 		<span id ='meta_help' class='glyphicon glyphicon-question-sign' style='top:-3px;float:right;margin-right:5px'></span>\
 		<span title='Download This Table' id='metadata-download' class='glyphicon glyphicon-download show-tooltip'><span>Download</span></span>\
-		<span title='Add A New Category' id='metadata-add-icon' class='glyphicon glyphicon-plus show-tooltip'><span>Add Metadata</span></span>\
+		<span title='Add A New Category' id='metadata-add-icon' class='glyphicon glyphicon-plus show-tooltip'><span>Add Columns</span></span>\
 		<input type='checkBox' id='metadata-filter' checked=''><span title='Show Filtering Bar?' class='glyphicon glyphicon-filter show-tooltip'><span>Filter</span></span>\
 		<input type='checkBox' id='hypo-filter'><span title='Show hypothetical nodes?' class='glyphicon glyphicon-screenshot show-tooltip'><span>Hypo nodes?</span></span>\
 	</div>\
