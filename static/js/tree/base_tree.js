@@ -1125,9 +1125,11 @@ D3BaseTree.prototype.getMetadata=function(){
 };           
 
 /**
-* Searches the node names (ids) and all metadata values associated 
+* Searches the metadata values associated 
 * with the node for the keyword
 * @param {string} keyword The word to use for the search
+* @param {string} The  key )field of the metadata to search.
+* if not provides will search all fields
 * @returns {list} All the node ids where the keyword was found
 */
 D3BaseTree.prototype.searchMetadata=function(keyword, key){
@@ -1137,21 +1139,32 @@ D3BaseTree.prototype.searchMetadata=function(keyword, key){
 		var contains = false;
 		var list = this.grouped_nodes[id];
 		for (var i in list){
-			if((list[i]+"").match(exp)){
-				ids.push(id);			
-				break;
-			}
 			var meta_id = this.metadata_map[list[i]];
 			if (meta_id){
 				var metadata= this.metadata[meta_id];
 				var contains = false
-				//for (var key in metadata){
-					if (metadata[key] && metadata[key]+"".match(exp)){
-						ids.push(id);
-						contains=true;
-						break;
+				if (!key){
+					for (var field in metadata){
+						if (metadata[field]){
+							var look = metadata[field]+"";
+							if (look.match(exp)){
+								ids.push(id);
+								contains=true;
+								break;
+							}
+						}
+						
 					}
-				//}
+				}
+				else{
+					if (metadata[key]){
+							var look = metadata[key]+"";
+							if (look.match(exp)){
+								ids.push(id);
+								contains=true;
+							}
+					}					
+				}
 				if (contains){
 					break;
 				}
