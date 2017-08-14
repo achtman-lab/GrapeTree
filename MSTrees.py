@@ -12,7 +12,8 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32'),
               edmonds_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds.exe'),
               edmonds_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-osx'),
-              edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux')
+              edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux'),
+              goeburst_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'goeburst'),
               )
 
 class distance_matrix(object) :
@@ -132,12 +133,10 @@ class methods(object) :
                     for w, d, s in mid_nodes :
                         if d < dist[src, tgt] :
                             if not contemporary([dist[src, s], dist[s, src]], dist[src, tgt], d) :
-                            #if not contemporary(dist[src, s], dist[src, tgt], d) :
                                 tried[src], src = s, s
                                 break
                         elif w < weights[src] :
                             if contemporary([dist[s, src], dist[src, s]], d, dist[src, tgt]) :
-                            #if contemporary(dist[s, src], d, dist[src, tgt]) :
                                 tried[src], src = s, s
                                 break
                         tried[s] = src
@@ -224,6 +223,24 @@ class methods(object) :
         return tree
 
     @staticmethod
+    def goeBurst(names, profiles, missing_data='pair_delete', **params) :
+        goeburst = Popen('{0} -t'.format(params['goeburst_Linux']).split(), stdin=PIPE, stdout=PIPE)
+        if missing_data == 'pair_delete' :
+            for n, p in enumerate(profiles) :
+                goeburst.stdin.write('{0}\t{1}\n'.format(n, '\t'.join([str(pp) if pp > 0 else '-' for pp in p])))
+        else :
+            for n, p in enumerate(profiles) :
+                goeburst.stdin.write('{0}\t{1}\n'.format(n, '\t'.join([str(pp) for pp in p])))
+        tree = []
+        for line in goeburst.communicate()[0].split('\n') :
+            nodes = line.strip().split(' ')
+            if len(nodes) > 1 :
+                tree.append([int(nodes[0]), int(nodes[1]), 0])
+        tree = distance_matrix.symmetric(profiles, tree, missing_data= missing_data)
+        tree = methods._network2tree(tree, names)
+        return tree
+
+    @staticmethod
     def NJ(names, profiles, missing_data='pair_delete', **params) :
         dist = distance_matrix.symmetric(profiles, missing_data = missing_data)
         dist_txt = ['    {0}'.format(dist.shape[0])]
@@ -243,25 +260,28 @@ class methods(object) :
             taxon.label = names[int(taxon.label)]
         return tree
 
-def nonredundant(names, profiles) :
-    encoded_profile = np.array([np.unique(p, return_inverse=True)[1]+1 for p in profiles.T]).T
-    encoded_profile[(profiles == '-') | (profiles == '0')] = 0
-
-    names = names[np.lexsort(encoded_profile.T)]
-    profiles = encoded_profile[np.lexsort(encoded_profile.T)]
-    uniqueness = np.concatenate([[1], np.sum(np.diff(profiles, axis=0) != 0, 1) > 0])
-
-    embeded = {names[0]:[]}
-    embeded_group = embeded[names[0]]
-    for n, u in zip(names, uniqueness) :
-        if u == 0 :
-            embeded_group.append(n)
-        else :
-            embeded[n] = [n];
-            embeded_group = embeded[n];
-    names = names[uniqueness>0]
-    profiles = profiles[uniqueness>0]
-    return names, profiles, embeded
+    def nonredundant(names, profiles) :
+        encoded_profile = np.array([np.unique(p, return_inverse=True)[1]+1 for p in profiles.T]).T
+        encoded_profile[(profiles == '-') | (profiles == '0')] = 0
+    
+        names = names[np.lexsort(encoded_profile.T)]
+        profiles = encoded_profile[np.lexsort(encoded_profile.T)]
+        presence = (np.sum(profiles > 0, 1) > 0)
+        names, profiles = names[presence], profiles[presence]
+    
+        uniqueness = np.concatenate([[1], np.sum(np.diff(profiles, axis=0) != 0, 1) > 0])
+    
+        embeded = {names[0]:[]}
+        embeded_group = embeded[names[0]]
+        for n, u in zip(names, uniqueness) :
+            if u == 0 :
+                embeded_group.append(n)
+            else :
+                embeded[n] = [n]
+                embeded_group = embeded[n]
+        names = names[uniqueness>0]
+        profiles = profiles[uniqueness>0]
+        return names, profiles, embeded
 
 def backend(**parameters) :
     '''
@@ -292,6 +312,9 @@ def backend(**parameters) :
         MSTreeV2: MSTrees.py profile=<filename> method=MSTreeV2
         MSTree: MSTrees.py profile=<filename> method=MSTree
         NJ:  MSTrees.py profile=<filename> method=NJ
+        
+    Linux only:
+        goeBurst: MSTrees.py profile=<filename> method=goeBurst or backend(profile=<filename>, method='goeBurst')
     '''
     params.update(parameters)
     if params['method'] == 'MSTreeV2' :
@@ -341,7 +364,7 @@ def backend(**parameters) :
 
     for taxon in tre.taxon_namespace :
         embeded_group = embeded[taxon.label]
-        if len(embeded) > 1 :
+        if len(embeded_group) > 1 :
             taxon.label = '({0}:0)'.format(':0,'.join(embeded_group))
 
     return tre.as_string('newick').replace("'", "")

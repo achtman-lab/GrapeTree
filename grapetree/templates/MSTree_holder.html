@@ -72,7 +72,7 @@
 	<div>
 		<a class='show-tooltip' title="EnteroBase" href="https://enterobase.warwick.ac.uk" target = '_blank'><img src="static/js/img/enterobase.png" alt="Enterobase" style="width:40px;height:45px;"></a>&nbsp;&nbsp;|&nbsp;&nbsp;
 		<a class='show-tooltip' title='GrapeTree GitHub repository' href="https://github.com/martinSergeant/EnteroMSTree" target = '_blank'><img src="static/js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>&nbsp;&nbsp;|&nbsp;&nbsp;
-		<a class='show-tooltip' title='Help' href="https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree" target = '_blank'><img src="static/js/img/question.PNG" alt="Help" style="width:40px;height:50px;"></a>
+		<a class='show-tooltip' title='Help' href="https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree" target = '_blank'><img src="static/js/img/question.PNG" alt="Help" style="width:20px;height:24px;"></a>
 		<h3 id="headertag" style="font-family: times, serif; font-size:12pt; font-style:italic">GrapeTree</h3>
 	</div>
 	<br>
@@ -82,111 +82,106 @@
 		<div id ='load-panel'>
 			<button title='Handles trees, profiles and metadata files' id = 'button-load-nwk' class = 'show-tooltip'> Load Files</button>
 			<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('load_files');"></span>
-			<br>
 			<hr>
 		</div>
 			<div id='save-panel'>
 					<button id ="save-tree-json">Save GrapeTree</button>
-					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('save_grapetree');"></span><br><br>
-					<button id ="save-tree-nwk">Save as Newick Tree</button><br><br>
+					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('save_grapetree');"></span><br>
+					<button id ="save-tree-nwk">Save as Newick Tree</button><br>
 					<button id ="mst-download-svg">Download SVG</button><br>
 			</div>
 		</div>
 	</div>
 	<div class='panel panel-default'>
-
 		<div class ='panel-heading mst-menu-title' id= 'tree-menu'> <b id>Tree Layout</b><span id = 'tree-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 		<div class = "panel-body" id ='tree-menu-panel' style='padding:0px;' ><br>
 			<button id = 'button-goback' style='margin-left:15px;' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Unmodified tree</button>
-			<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('tree_layout');"></span>
-			<br><br>
+			<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:15px" onclick="getHelpBox('tree_layout');"></span>
+			<br>
 			<button id = 'button-refresh' style='margin-left:15px;' > Static Redraw </button>
-			<br><br>
+			<br>
 			<button id ="center-graph-button" style='margin-left:15px;' >Centre Tree</button>
 			<br>
 			<label><input id ='show-node-tooltip' style='margin-left:15px;'  type="checkbox" checked  /> Show Tooltips</label>
-			<br>
 			<hr>
-			<p align = 'center' style='margin-left: 3em;' >
-				<div id="rotation-div"><label> Drag Icon to Rotate:&nbsp;</label>
+			<p align = 'center'>
+				<label> Drag Icon to Rotate:&nbsp;</label>
 				<span id="rotation-icon" class="glyphicon glyphicon-refresh"></span>
-				</div>
+				<br>
 				<label>Zoom:&nbsp;</label>
 				<span onclick= "javascript:the_tree.setScale(1.1,true)" class=' zoom-icon glyphicon glyphicon-zoom-in'></span>
 				<span onclick= "javascript:the_tree.setScale(0.9,true)"class='zoom-icon glyphicon glyphicon-zoom-out'></span>
 			</p>
-		<div class='panel panel-default'>
-			<div class ='panel-heading mst-menu-title' id= 'mst-node-menu'> <b id>Node Style</b><span id = 'mst-node-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
-			<div class = "panel-body" id ='mst-node-menu-panel' >
-				<label>Colour By:</label>
-				<br>
-				<select style="width:140px" id= 'metadata-select'>
-				<option value='nothing'>No category</option></select>
-				<hr>
-				<label><input id ='show-node-labels'type="checkbox" checked /> Show Labels</label>
-				<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('show_labels');"></span>
-				<br><br>
-				<label>Font Size:</label>
-				<br>
-				<div id = "slider-node-fontsize" class = "slider-class"></div><input type='text' style='width:20px;height:15px' id ='spinner-node-fontsize' class='spin-group'><br>
-				<label>Label Text</label>
-				<select id = 'node-label-text'></select><br><br><hr>
-				<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('node_size');"></span>
-				<div >
-					<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
-					<div id = "slider-nodesize" class ="slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-nodesize' class='spin-group'>
+			<div class='panel panel-default sub-panel'>
+				<div class ='panel-heading mst-menu-title' id= 'mst-node-menu'> <b id>Node Style</b><span id = 'mst-node-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
+				<div class = "panel-body" id ='mst-node-menu-panel' >
+					<label>Colour By:</label>
+					<br>
+					<select style="width:160px" id= 'metadata-select'>
+					<option value='nothing'>No category</option></select>
+					<hr>
+					<label><input id ='show-node-labels'type="checkbox" checked /> Show Labels</label>
+					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('show_labels');"></span>
+					<select style='width:160px' id = 'node-label-text'></select>
+					<br>
+					<label>Font Size:</label>
+					<br>
+					<div id = "slider-node-fontsize" class = "slider-class"></div><input type='text' style='width:20px;height:15px' id ='spinner-node-fontsize' class='spin-group'><br>
+					<hr>
+					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('node_size');"></span>
+					<div >
+						<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
+						<div id = "slider-nodesize" class ="slider-class"></div><input type='text'  id ='spinner-nodesize' class='spin-group'>
+					</div>
+					
+					<div class="show-tooltip" title="Node size relative to number of strains">
+						<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Kurtosis (%)</label><br>
+						<div id = "slider-relative-nodesize" class ="slider-class"></div><input type='text'  id ='spinner-relative-nodesize' class='spin-group'>
+					</div>
+					<hr>
+					<label>Highlight Label</label>
+					<br>
+					<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
+					<br>
+					<label><input id ='show-individual-segments' type="checkbox" /> Show Pie Chart</label>
+					<br>			
 				</div>
-				
-				<div class="show-tooltip" title="Node size relative to number of strains">
-					<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp; Relative Scaling (%)</label><br>
-					<div id = "slider-relative-nodesize" class ="slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-relative-nodesize' class='spin-group'>
-				</div><br>
-				<hr>
-				<label>Search in Label</label>
-				<br>
-				<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
-				<br>
-				<label><input id ='show-individual-segments' type="checkbox" /> Show Pie Chart</label>
-				<br>			
-			</div>
-		</div>			
-		<div class='panel panel-default'>
-			<div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Branch Style</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
-			<div class = "panel-body" id ='mst-link-menu-panel'>
-				<label><input id ='show-link-labels'type="checkbox" /> Show Labels</label>
-				<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('branch_labels');"></span>
-				<br>
-				<label>Font Size:</label>
-				<br>
-				<div id = "slider-linkfontsize" class = "slider-class"></div><input type='text' style='width:20px;height:15px' id ='spinner-linkfontsize' class='spin-group'>
-				<br>
-				<div>
-					<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp; Scaling (%)</label><br>
-					<div id = "slider-linklength" class ="slider-class">  </div><input type='text' style='width:39px;height:15px' id ='spinner-linklength' class='spin-group'>
-				</div>
-				
-				<div class="show-tooltip" title="Collapse branches below a certain value">
-					<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
-					<div id = "slider-collapse-nodes" class ="slider-class"></div><input type='text' style='width:39px;height:15px' id ='spinner-collapse-nodes' class='spin-group'>
-				</div>
-				<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
-				<br>			
-				<hr>
-				<label>For branches <br>longer than:</label>
-				<input type='text' style='width:35px;height:15px' id ='spinner-hide-link-length' class='spin-group'>
-				<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('branch_cutoffs');"></span>
-				<table><tbody><tr>
-				<td>
-					<div style="opacity: 1;"><input type="radio" id="handle-long-branch-display" name="handle-long-branch" value="display" checked="" style="opacity: 1;">Display</div>
-				</td>
-				<td style="padding-left:10px">
-					<div style="opacity: 1;"><input type="radio" id="handle-long-branch-hide" name="handle-long-branch" value="hide" style="opacity: 1;">Hide</div>
-				</td>
-				<td style="padding-left:10px">
-					<div style="opacity: 1;"><input type="radio" id="handle-long-branch-cap" name="handle-long-branch" value="cap" style="opacity: 1;">Shorten</div>
-				</td>
-				</tr></tbody></table>
-			</div>		
+			</div>			
+			<div class='panel panel-default  sub-panel'>
+				<div class ='panel-heading mst-menu-title' id= 'mst-link-menu'> <b id>Branch Style</b><span id = 'mst-link-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
+				<div class = "panel-body" id ='mst-link-menu-panel'>
+					<label><input id ='show-link-labels'type="checkbox" /> Show Labels</label>
+					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('branch_labels');"></span>
+					<br>
+					<label>Font Size:</label>
+					<br>
+					<div id = "slider-linkfontsize" class = "slider-class"></div><input type='text' style='width:20px;height:15px' id ='spinner-linkfontsize' class='spin-group'>
+					<br>
+					<div>
+						<span onclick="$('#spinner-linklength').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Scaling (%)</label><br>
+						<div id = "slider-linklength" class ="slider-class">  </div><input type='text'  id ='spinner-linklength' class='spin-group'>
+					</div>
+					
+					<div class="show-tooltip" title="Collapse branches below a certain value">
+						<span onclick="$('#spinner-collapse-nodes').spinner('value', 0)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Collapse Branches</label><br>
+						<div id = "slider-collapse-nodes" class ="slider-class"></div><input type='text'  id ='spinner-collapse-nodes' class='spin-group'>
+					</div>
+					<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
+					<hr>
+					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('branch_cutoffs');"></span>
+					<label>For branches <br> longer than:<input type='text' id ='spinner-hide-link-length' class='spin-group'></label>
+					<table><tbody><tr>
+					<td>
+						<div style="opacity: 1;"><input type="radio" id="handle-long-branch-display" name="handle-long-branch" value="display" checked="" style="opacity: 1;">Display</div>
+					</td>
+					<td style="padding-left:10px">
+						<div style="opacity: 1;"><input type="radio" id="handle-long-branch-hide" name="handle-long-branch" value="hide" style="opacity: 1;">Hide</div>
+					</td>
+					<td style="padding-left:10px">
+						<div style="opacity: 1;"><input type="radio" id="handle-long-branch-cap" name="handle-long-branch" value="cap" style="opacity: 1;">Shorten</div>
+					</td>
+					</tr></tbody></table>
+				</div>		
 			</div>
 		</div>
 	</div>
@@ -317,7 +312,7 @@
                         $(this).parent().dialog().dialog("close");
                 });
 				
-				var notification = "<p style='font-size:10'> Some browsers allow you to select a folder after you click the 'Save' Button.<br><br> Whereas many browsers, such as Chrome, by default save the downloaded file into:<br><b>Windows</b>: <code>'&#92;Users&#92;&lt;username&gt;&#92;Downloads'</code><br><b>Mac</b>: <code>'/Users/&lt;username&gt;/Downloads'</code><br><b>Linux</b>: <code>'home/&lt;username&gt;/Downloads'</code><br><br></p>";
+				var notification = "<p style='font-size:10'> Some browsers allow you to select a folder after you click the 'Save' Button.<br> Whereas many browsers, such as Chrome, by default save the downloaded file into:<br><b>Windows</b>: <code>'&#92;Users&#92;&lt;username&gt;&#92;Downloads'</code><br><b>Mac</b>: <code>'/Users/&lt;username&gt;/Downloads'</code><br><b>Linux</b>: <code>'home/&lt;username&gt;/Downloads'</code><br></p>";
 				var filenamebar = $("<input title='Suffix will be automatically added in some browsers if you have got a file with the same name.' type='text' id ='filename' value='"+suggested_name+"'>");
                 //the actual dailog box
                 $("<div id ='savedailog'></div>")
