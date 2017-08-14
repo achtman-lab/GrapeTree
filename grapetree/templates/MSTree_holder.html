@@ -122,12 +122,12 @@
 					<hr>
 					<label><input id ='show-node-labels'type="checkbox" checked /> Show Labels</label>
 					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('show_labels');"></span>
+					<select style='width:160px' id = 'node-label-text'></select>
 					<br>
 					<label>Font Size:</label>
 					<br>
 					<div id = "slider-node-fontsize" class = "slider-class"></div><input type='text' style='width:20px;height:15px' id ='spinner-node-fontsize' class='spin-group'><br>
-					<label>Label Text</label>
-					<select style='width:160px' id = 'node-label-text'></select><hr>
+					<hr>
 					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('node_size');"></span>
 					<div >
 						<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
@@ -135,11 +135,11 @@
 					</div>
 					
 					<div class="show-tooltip" title="Node size relative to number of strains">
-						<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Relative Scaling (%)</label><br>
+						<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Kurtosis (%)</label><br>
 						<div id = "slider-relative-nodesize" class ="slider-class"></div><input type='text'  id ='spinner-relative-nodesize' class='spin-group'>
 					</div>
 					<hr>
-					<label>Search in Label</label>
+					<label>Highlight Label</label>
 					<br>
 					<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
 					<br>
@@ -169,8 +169,7 @@
 					<label><input id ='link-log-scale'type="checkbox" />Log Scale</label>
 					<hr>
 					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('branch_cutoffs');"></span>
-					<label>For branches <br> longer than:</label>
-					<input type='text' id ='spinner-hide-link-length' class='spin-group'>
+					<label>For branches <br> longer than:<input type='text' id ='spinner-hide-link-length' class='spin-group'></label>
 					<table><tbody><tr>
 					<td>
 						<div style="opacity: 1;"><input type="radio" id="handle-long-branch-display" name="handle-long-branch" value="display" checked="" style="opacity: 1;">Display</div>
