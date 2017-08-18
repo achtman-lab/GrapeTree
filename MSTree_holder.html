@@ -122,12 +122,12 @@
 					<hr>
 					<label><input id ='show-node-labels'type="checkbox" checked /> Show Labels</label>
 					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('show_labels');"></span>
+					<select style='width:160px' id = 'node-label-text'></select>
 					<br>
 					<label>Font Size:</label>
 					<br>
 					<div id = "slider-node-fontsize" class = "slider-class"></div><input type='text' style='width:20px;height:15px' id ='spinner-node-fontsize' class='spin-group'><br>
-					<label>Label Text</label>
-					<select style='width:160px' id = 'node-label-text'></select><hr>
+					<hr>
 					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('node_size');"></span>
 					<div >
 						<span onclick="$('#spinner-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Node Size (%)</label><br>
@@ -135,11 +135,11 @@
 					</div>
 					
 					<div class="show-tooltip" title="Node size relative to number of strains">
-						<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Relative Scaling (%)</label><br>
+						<span onclick="$('#spinner-relative-nodesize').spinner('value', 100)" class='glyphicon glyphicon-fast-backward'></span><label>&nbsp;&nbsp;Kurtosis (%)</label><br>
 						<div id = "slider-relative-nodesize" class ="slider-class"></div><input type='text'  id ='spinner-relative-nodesize' class='spin-group'>
 					</div>
 					<hr>
-					<label>Search in Label</label>
+					<label>Highlight Label</label>
 					<br>
 					<input size="11" id ='search-metadata-input'><span id ='search-metadata-icon' class='add-data-icon glyphicon glyphicon-search'></span>
 					<br>
@@ -903,29 +903,127 @@ tree_raw = {};
 
 
  function loadMetadataFile(file, dl){
-	MSCSCReader(file,dl,function(msg,lines,header_index){
-		var meta={};
-		id_name = header_index[0];
-		for (var i in lines){
-			var line = lines[i];
-			meta[line[id_name]]=line;
-		}
-
-		var category = 'nothing';
-		var options={};
-		category = header_index.length > 1 ? header_index[1] : header_index[0];
-		for (var i in header_index){
-			var header = header_index[i];
-			options[header]=header;
-		}
-		the_tree.addMetadataOptions(options);
-		$("#metadata-select").val(category);
-		the_tree.addMetadata(meta);
-		the_tree.changeCategory(category);
-	});
+	MSCSCReader(file,dl,parseMetadata);
  };
  
+function loadNetFiles() {
+	function getJsonFromUrl(hashBased) {
+	  var query;
+	  if(hashBased) {
+		var pos = location.href.indexOf("?");
+		if(pos==-1) return [];
+		query = location.href.substr(pos+1);
+	  } else {
+		query = location.search.substr(1);
+	  }
+	  var result = {};
+	  query.split("&").forEach(function(part) {
+		if(!part) return;
+		part = part.split("+").join(" "); // replace every + with space, regexp-free version
+		var eq = part.indexOf("=");
+		var key = eq>-1 ? part.substr(0,eq) : part;
+		var val = eq>-1 ? decodeURIComponent(part.substr(eq+1)) : "";
+		var from = key.indexOf("[");
+		if(from==-1) result[decodeURIComponent(key)] = val;
+		else {
+		  var to = key.indexOf("]",from);
+		  var index = decodeURIComponent(key.substring(from+1,to));
+		  key = decodeURIComponent(key.substring(0,from));
+		  if(!result[key]) result[key] = [];
+		  if(!index) result[key].push(val);
+		  else result[key][index] = val;
+		}
+	  });
+	  return result;
+	}
+	var params = getJsonFromUrl();
+	var tree = null, metadata = null;
+	for (var key in params) {
+		if (key === 'tree') {
+		    tree = params[key];
+		} else if (key == 'metadata') {
+		    metadata = params[key];
+		}
+	}
+	if (tree) {
+		$.ajax({
+			type: "GET",
+			url: tree,
+			success: function(tree){
+				try {
+					data = JSON.parse(tree);
+				}
+				catch(error) {
+					 if (tree.substring(0,6)==="#NEXUS"){
+							data['nexus']=tree;
+					 }
+					 else{
+							data['nwk']=tree;
+					 }
+					data['layout_algorithm']=$("#layout-select").val();
+				}
+				finally {
+					tree_raw = data;
+					loadMSTree(tree_raw);
+				}
+				if (the_tree && metadata) {
+					$.ajax({
+						type: "GET",
+						url: metadata,
+						success: function(data){
+							try {
+								var lines = data.split(/\r\n|\r|\n/g);
+								delimiter = lines[0].search(/\t/) >= 0 ? '\t': ',';
+								var header = lines[0].split(delimiter);
+								var header_index={}
+								for (var i=0;i<header.length;i++){
+									header_index[i]=header[i];
+								}
+
+								for (var i=1;i<lines.length;i++){
+									var map = {};
+									 var arr = lines[i].split(delimiter);
+									 for (var col in arr){
+											map[header_index[col]]=arr[col];
+									 }
+									 return_data.push(map);
+								}
+								parseMetadata("OK",return_data,header_index);
+							}
+							catch(error) {
+								parseMetadata("Error",error.message)
+							}
+						}
+					}); 
+				}
+			}
+		}); 
+	}
+}
+
+		
+function parseMetadata (msg,lines,header_index){
+	var meta={};
+	id_name = header_index[0];
+	for (var i in lines){
+		var line = lines[i];
+		meta[line[id_name]]=line;
+	}
+
+	var category = 'nothing';
+	var options={};
+	category = header_index.length > 1 ? header_index[1] : header_index[0];
+	for (var i in header_index){
+		var header = header_index[i];
+		options[header]=header;
+	}
+	the_tree.addMetadataOptions(options);
+	$("#metadata-select").val(category);
+	the_tree.addMetadata(meta);
+	the_tree.changeCategory(category);
+};
  
+
 
 
 window.onload = function (){
@@ -1361,7 +1459,7 @@ window.onload = function (){
 		},300);*/
 
 	});
-	
+	loadNetFiles();
 };
 
 function try_backend(){

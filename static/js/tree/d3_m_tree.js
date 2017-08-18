@@ -255,7 +255,7 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale, node_size) {
                         for (var id = nodes.length-1; id >= 0; id --) {
                                 node = nodes[id];
                                 if (node.spacing) continue ;
-                                var span1 = [min_radial*Math.sqrt(node.size), min_arc*Math.sqrt(node.size) / min_radial]; // node span
+                                var span1 = [min_radial*Math.sqrt(node.size), Math.asin(min_arc*Math.sqrt(node.size) / min_radial)]; // node span
                                 var radial_sum = 0, angle_sum = 0;  // descending span
                                 for (var jd in node.children) {
                                         child = node.children[jd];
