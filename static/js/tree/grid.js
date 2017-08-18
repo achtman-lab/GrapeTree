@@ -126,7 +126,7 @@ function  D3MSMetadataTable(tree,context_menu){
 		  }
 		  return result;
 	  });
-		self.dataView.setItems(self.data_reformat(data));
+		self.dataView.setItems(self.data_reformat(data, true));
 		self.grid.invalidate();
 		self.grid.render();	
 	});
@@ -164,7 +164,7 @@ function  D3MSMetadataTable(tree,context_menu){
 			return;
 		}
 		if (args[0].fromCell == args[0].toCell && self.grid.getColumns()[args[0].fromCell].field === '__selected') {
-			item = self.grid.getData().getItems().slice(args[0].fromRow, args[0].toRow+1);
+			item = self.grid.getData().getFilteredItems().slice(args[0].fromRow, args[0].toRow+1);
 			var involvedNodes = {}
 			var toSelect = (item.filter(function(d) {
 				involvedNodes[d.__Node] = 1;
@@ -357,11 +357,11 @@ D3MSMetadataTable.prototype.setAddColumnFunction= function(callback){
 
 		
 		
-D3MSMetadataTable.prototype.data_reformat = function(data, select_moveUp) {
-	if (select_moveUp === true) {
+D3MSMetadataTable.prototype.data_reformat = function(data, sorted) {
+	if (! sorted) {
 		data.sort(function(d1, d2) {
-			return d1.__selected == d2.__selected ? (d1.__Node == d2.__Node ? (d1.ID < d2.ID ? -1 : 1) : (d1.__Node < d2.__Node ? -1 : 1)) : (d1.__selected < d2.__selected ? 1 : -1);
-		})
+			return d1.id ? (d2.id ? (d1.id < d2.id ? -1 : 1) : -1 ) : 1;
+		});
 	}
 	for (var index in data) {
 		d = data[index];
@@ -371,7 +371,7 @@ D3MSMetadataTable.prototype.data_reformat = function(data, select_moveUp) {
 };
 		
 		
-D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
+D3MSMetadataTable.prototype.updateMetadataTable =function() {
 	if (!this.tree) {
 		return;
 	}
@@ -418,6 +418,7 @@ D3MSMetadataTable.prototype.updateMetadataTable =function(select_moveUp) {
 			this.source_data.push(d);
 		}
 	}
+
 	this.data_reformat(this.source_data ); //select_moveUp);
 	this.dataView.setItems(this.source_data);
 	this.grid.invalidate();
