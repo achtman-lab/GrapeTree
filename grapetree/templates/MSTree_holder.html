@@ -974,8 +974,9 @@ function loadNetFiles() {
 						url: metadata,
 						success: function(data){
 							try {
+								var return_data = [];
 								var lines = data.split(/\r\n|\r|\n/g);
-								delimiter = lines[0].search(/\t/) >= 0 ? '\t': ',';
+								var delimiter = lines[0].search(/\t/) >= 0 ? '\t': ',';
 								var header = lines[0].split(delimiter);
 								var header_index={}
 								for (var i=0;i<header.length;i++){
