@@ -939,6 +939,7 @@ function loadNetFiles() {
 	var params = getJsonFromUrl();
 	var tree = null, metadata = null;
 	for (var key in params) {
+		params[key] = params[key].replace('www.dropbox.com', 'dl.dropboxusercontent.com');
 		if (key === 'tree') {
 		    tree = params[key];
 		} else if (key == 'metadata') {
@@ -954,6 +955,7 @@ function loadNetFiles() {
 					data = JSON.parse(tree);
 				}
 				catch(error) {
+					 data = {};
 					 if (tree.substring(0,6)==="#NEXUS"){
 							data['nexus']=tree;
 					 }
