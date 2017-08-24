@@ -110,7 +110,7 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 	$(".context-hr").css("margin", "2px");
 	$("#group-num-input").spinner({
 		min:0,
-		max:300
+		max:100000
 	});
 	$("#legend-size-input").spinner({
 		value:100,

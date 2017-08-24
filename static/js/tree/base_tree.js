@@ -1073,7 +1073,7 @@ D3BaseTree.prototype._changeCategory=function(category){
 			return (a[1] == b[1]) ? ((a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3]) : (a[1]<b[1]?1:-1);
 		}
 	});
-	var len = Math.min(this.legend_colours.length, this.category_num, cat_count_list.length);
+	var len = Math.min(cat_count_list.length, this.category_num); //, this.legend_colours.length);
 	var cust_col= this.custom_colours[category];
 	for (var colour_count in cat_count_list){
 		var val = cat_count_list[colour_count][0];
@@ -1086,8 +1086,8 @@ D3BaseTree.prototype._changeCategory=function(category){
 			cat_count_list[colour_count][2] = cust_col[val];
 			continue;	
 		} else if (colorscheme == 'category') {
-			this.category_colours[val]=this.legend_colours[colour_count];
-			cat_count_list[colour_count][2] = this.legend_colours[colour_count];
+			this.category_colours[val]=this.legend_colours[colour_count % this.legend_colours.length];
+			cat_count_list[colour_count][2] = this.legend_colours[colour_count % this.legend_colours.length];
 		} else {
 			var prop = len == 1 ? 100 : 200 * parseFloat(colour_count) / (len-1);
 			var rgb;
