@@ -229,7 +229,7 @@ class methods(object) :
         return tree
 
     @staticmethod
-    def goeBurst(names, profiles, missing_data='pair_delete', **params) :
+    def goeBurst(names, profiles, embeded, missing_data='pair_delete', **params) :
         goeburst = Popen('{0} -t'.format(params['goeburst_Linux']).split(), stdin=PIPE, stdout=PIPE)
         if missing_data == 'pair_delete' :
             for n, p in enumerate(profiles) :
@@ -247,7 +247,7 @@ class methods(object) :
         return tree
 
     @staticmethod
-    def NJ(names, profiles, missing_data='pair_delete', **params) :
+    def NJ(names, profiles, embeded, missing_data='pair_delete', **params) :
         dist = distance_matrix.symmetric(profiles, missing_data = missing_data)
         dist_txt = ['    {0}'.format(dist.shape[0])]
         for n, d in enumerate(dist) :
