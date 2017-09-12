@@ -55,16 +55,18 @@ class distance_matrix(object) :
             return [ [ s, t, np.sum((profiles[s] != profiles[t]) & presences[s] & presences[t]) ] \
                      for s, t, d in links ]
     @staticmethod
-    def harmonic(dist) :
+    def harmonic(dist, n_str) :
         conn_weights = dist.shape[0] / np.sum(1.0/(dist + 0.1), 1)
-        conn_weights[np.argsort(conn_weights, kind='mergesort')] = np.arange(dist.shape[0], dtype=float)/dist.shape[0]
+        cw = np.vstack([-np.array(n_str), conn_weights])
+        conn_weights[np.lexsort(cw)] = np.arange(dist.shape[0], dtype=float)/dist.shape[0]
         dist = np.round(dist, 0) + conn_weights.reshape([conn_weights.size, -1])
         np.fill_diagonal(dist, 0.0)
         return dist
 
     @staticmethod
-    def eBurst(dist) :
+    def eBurst(dist, n_str) :
         weights = np.apply_along_axis(np.bincount, 1, np.hstack([dist.astype(int), np.array([[np.max(dist).astype(int)+1]]*dist.shape[1])]) )
+        weights.T[0] += n_str
         dist_order = np.concatenate([[0], np.arange(weights.shape[1]-1, 0, -1)])
         orders = np.lexsort(-weights.T[dist_order])
         weights = np.zeros(shape=[orders.size, orders.size])
@@ -87,13 +89,15 @@ class methods(object) :
 
     @staticmethod
     def _asymmetric(dist, **params) :
-        mstree = Popen([params['edmonds_' + platform.system()]], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in dist.tolist()]))[0]
-        return np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int).tolist()
+        mstree = Popen([params['edmonds_' + platform.system()]], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in (dist+1.0).tolist()]))[0]
+        mstree = np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int)
+        mstree[:, 2] -= 1
+        return mstree.tolist()
     @staticmethod
     def _neighbor_branch_reconnection(branches, dist, n_loci) :
         def contemporary(a,b,c) :
-            a[0], a[1] = max(min(a[0], n_loci-0.2), 0.2), max(min(a[1], n_loci-0.2), 0.2);
-            b, c = max(min(b, n_loci-0.2), 0.2), max(min(c, n_loci-0.2), 0.2)
+            a[0], a[1] = max(min(a[0], n_loci-0.5), 0.5), max(min(a[1], n_loci-0.5), 0.5);
+            b, c = max(min(b, n_loci-0.5), 0.5), max(min(c, n_loci-0.5), 0.5)
             if b >= a[0] + c and b >= a[1] + c :
                 return False
             elif b == c :
@@ -108,8 +112,9 @@ class methods(object) :
 
         if n_loci is None :
             n_loci = np.max(dist)
-        weights = dist.shape[0] / np.sum(1.0/(dist + 0.1), 1)
-        weights[np.argsort(weights, kind='mergesort')] = np.arange(1, dist.shape[0]+1, dtype=float)/dist.shape[0]-1
+        hm = dist.shape[0] / np.sum(1.0/(dist + 0.1), 1)
+        hm[np.argsort(hm, kind='mergesort')] = np.arange(1, dist.shape[0]+1, dtype=float)/dist.shape[0]-1
+        weights = hm[:]
 
         group_id, groups, childrens = {b:b for br in branches for b in br[:2]}, \
             {b:[b] for br in branches for b in br[:2]}, \
@@ -118,6 +123,7 @@ class methods(object) :
         i = 0
         while i < len(branches) :
             src, tgt, brlen = branches[i]
+
             sources, targets = groups[group_id[src]], groups[group_id[tgt]]
             tried = {}
             if len(sources) > 1 :
@@ -210,10 +216,10 @@ class methods(object) :
         return tre
 
     @staticmethod
-    def MSTree(names, profiles, matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T', missing_data='pair_delete', **params) :
+    def MSTree(names, profiles, embeded, matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T', missing_data='pair_delete', **params) :
 
         dist = eval('distance_matrix.'+matrix_type)(profiles, missing_data = missing_data)
-        wdist = eval('distance_matrix.'+edge_weight)(dist)
+        wdist = eval('distance_matrix.'+edge_weight)(dist, [len(embeded[n]) for n in names])
 
         tree = eval('methods._'+matrix_type)(wdist, **params)
         if neighbor_branch_reconnection != 'F' :
@@ -268,7 +274,7 @@ def nonredundant(names, profiles) :
     profiles = encoded_profile[np.lexsort(encoded_profile.T)]
     presence = (np.sum(profiles > 0, 1) > 0)
     names, profiles = names[presence], profiles[presence]
-    
+
     uniqueness = np.concatenate([[1], np.sum(np.diff(profiles, axis=0) != 0, 1) > 0])
 
     embeded = {names[0]:[]}
@@ -357,7 +363,7 @@ def backend(**parameters) :
 
     names = [re.sub(r'[\(\)\ \,\"\';]', '_', n) for n in names]
     names, profiles, embeded = nonredundant(np.array(names), np.array(profiles))
-    tre = eval('methods.' + params['method'])(names, profiles, **params)
+    tre = eval('methods.' + params['method'])(names, profiles, embeded, **params)
 
     for taxon in tre.taxon_namespace :
         embeded_group = embeded[taxon.label]
