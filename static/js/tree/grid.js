@@ -351,10 +351,12 @@ D3MSMetadataTable.prototype.setAddColumnFunction= function(callback){
 D3MSMetadataTable.prototype.data_reformat = function(data, sorted) {
 	if (! sorted) {
 		$.map(data, function(d) {if (! d.id) {d.id=0;}});
+
 		data.sort(function(d1, d2) {
-			return d1.id < d2.id ? -1 : 1;
+			return d2.id - d1.id;
 		});
 	}
+
 	for (var index in data) {
 		d = data[index];
 		d.id = parseInt(index) + 1;
