@@ -88,34 +88,25 @@ function  D3MSMetadataTable(tree,context_menu){
 	this.grid.onSort.subscribe(function (e, args) {
 	  var col = args.sortCol;
 	  var data = self.dataView.getItems();
+	  $.map(data, function(d) {
+		var field = col.field, prop = col.prop;
+		if (prop && prop.coltype == 'numeric') {
+			if (isNumber(d[field])) {
+				d.___v = parseFloat(d[field]), d.___t=0;
+			} else {
+				d.___v = JSON.stringify(d[field]), d.___t=1;
+			}
+			if (d.___v === undefined) d.___v = "";
+		} else if (prop && prop.coltype == 'boolean') {
+			d.___v = (d[field]) ? true : false, d.___t = 1;
+		} else {
+			d.___v = JSON.stringify(d[field]), d.___t=1;
+			if (d.___v === undefined) d.___v = "";
+		}
+	  });
 	  data.sort(function (dataRow1, dataRow2) {
-		  var field = col.field, prop = col.prop;
-		  var sign = args.sortAsc ? 1 : -1;
-
-		  if (prop && prop.coltype == 'numeric') {
-			var value1, t1; 
-			if (isNumber(dataRow1[field])) {
-				value1 = parseFloat(dataRow1[field]), t1=0;
-			} else {
-				value1 = JSON.stringify(dataRow1[field]), t1 = 1;
-			}
-			var value2, t2; 
-			if (isNumber(dataRow2[field])) {
-				value2 = parseFloat(dataRow2[field]), t2=0;
-			} else {
-				value2 = JSON.stringify(dataRow2[field]), t2 = 1;
-			}
-			  if (value1 === undefined) value1 = "";
-			  if (value2 === undefined) value2 = "";
-		  } else if (prop && prop.coltype == 'boolean') {
-		  	var value1 = (dataRow1[field]) ? true : false, t1 = 1;
-		  	var value2 = (dataRow2[field]) ? true : false, t2 = 1;
-		  } else {
-			var value1 = JSON.stringify(dataRow1[field]), t1=1;
-			var value2 = JSON.stringify(dataRow2[field]), t2=1;
-			  if (value1 === undefined) value1 = "";
-			  if (value2 === undefined) value2 = "";
-		  }
+	  	var sign = args.sortAsc ? 1 : -1;
+		var [value1, t1, value2, t2] = [dataRow1.___v, dataRow1.___t, dataRow2.___v, dataRow2.___t];
 		  var result = (t1 - t2)* sign;
 		  if (t1 == t2) {
 		  	if (value1 == value2) {
@@ -359,10 +350,13 @@ D3MSMetadataTable.prototype.setAddColumnFunction= function(callback){
 		
 D3MSMetadataTable.prototype.data_reformat = function(data, sorted) {
 	if (! sorted) {
+		$.map(data, function(d) {if (! d.id) {d.id=0;}});
+
 		data.sort(function(d1, d2) {
-			return d1.id ? (d2.id ? (d1.id < d2.id ? -1 : 1) : -1 ) : 1;
+			return d2.id - d1.id;
 		});
 	}
+
 	for (var index in data) {
 		d = data[index];
 		d.id = parseInt(index) + 1;
