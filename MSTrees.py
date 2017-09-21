@@ -27,22 +27,22 @@ class distance_matrix(object) :
     def get_distance(func, profiles, missing_data) :
         from multiprocessing import Pool
         n_proc = params['n_proc']
-        
+
         pool = Pool(n_proc)
         indices = np.array([[profiles.shape[0]/n_proc*v+0.5, profiles.shape[0]/n_proc*(v+1)+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
         res = np.hstack(pool.map(parallel_distance, [[func, profiles, missing_data, idx] for idx in indices]))
         pool.close()
         del pool
         return res
-    
+
     @staticmethod
     def asymmetric(profiles, missing_data = 'pair_delete', index_range=None) :
         if index_range is None :
             index_range = [0, profiles.shape[0]]
-            
+
         presences = (profiles > 0)
         distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]])
-        
+
         if missing_data not in ('absolute_distance', ) :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
@@ -58,7 +58,7 @@ class distance_matrix(object) :
     def symmetric(profiles, missing_data = 'pair_delete', index_range=None) :
         if index_range is None :
             index_range = [0, profiles.shape[0]]
-        
+
         if missing_data in ('as_allele', ) :
             presences = np.ones(shape=profiles.shape, dtype=int)
         elif missing_data in ('pair_delete', 'absolute_distance') :
@@ -83,7 +83,7 @@ class distance_matrix(object) :
                 distances[:id, i2] = diffs
                 distances[id, :i2] = diffs[index_range[0]:index_range[0]+id]
         return distances
-    
+
     @staticmethod
     def symmetric_link(profiles, links, missing_data = 'pair_delete') :
         if missing_data in ('as_allele', ) :
@@ -112,20 +112,43 @@ class distance_matrix(object) :
         weights = np.zeros(dist.shape[0])
         weights[orders] = (np.arange(orders.size))/float(orders.size)
         return weights
-        
+
 
 class methods(object) :
     @staticmethod
     def _symmetric(dist, weight, **params) :
+        def minimum_spanning_tree(dist) :
+            n_node = dist.shape[0]
+            nodes = np.arange(n_node)
+            ng = {n:[n] for n in nodes}
+            edges = np.array([ [x, y, dist[x, y]] for y in np.arange(n_node) for x in np.arange(y) ])
+            edges = edges[np.argsort(edges.T[2])].astype(int)
+            mst = []
+            for m, e in enumerate(edges) :
+                if nodes[e[0]] == nodes[e[1]] :
+                    continue
+                mst.append(e.tolist())
+                if nodes[e[0]] > nodes[e[1]] :
+                    s, e = nodes[e[1]], nodes[e[0]]
+                else :
+                    s, e = nodes[e[0]], nodes[e[1]]
+                nodes[ng[e]] = s
+                ng[s].extend(ng.pop(e))
+            return mst
+
+
         dist = np.round(dist, 0) + weight.reshape([weight.size, -1])
         np.fill_diagonal(dist, 0.0)
         dist[dist > dist.T] = dist.T[dist > dist.T]
-        
-        g = nx.Graph(dist)
-        
-        ms = nx.minimum_spanning_tree(g)
-        dist = np.round(dist, 0)
-        return [[d[0], d[1], int(d[2]['weight'])] for d in ms.edges(data=True)]
+        try:
+            res = minimum_spanning_tree(dist)
+            dist = np.round(dist, 0)
+            return res
+        except :
+            g = nx.Graph(dist)
+            ms = nx.minimum_spanning_tree(g)
+            dist = np.round(dist, 0)
+            return [[d[0], d[1], int(d[2]['weight'])] for d in ms.edges(data=True)]
 
     @staticmethod
     def _asymmetric(dist, weight, **params) :
@@ -135,10 +158,10 @@ class methods(object) :
             link = np.vstack([link, dist[link.tolist()] + weight[link[0]]])
             link = link.T[np.lexsort(link)]
             return link[np.unique(link.T[1], return_index=True)[1]].astype(int)
-        
+
         wdist = np.round(dist, 0) + weight.reshape([weight.size, -1])
         np.fill_diagonal(wdist, 0.0)
-        
+
         presence = np.arange(weight.shape[0])
         shortcuts = get_shortcut(dist, weight)
         for (s, t, d) in shortcuts :
@@ -146,7 +169,7 @@ class methods(object) :
             presence[t] = -1
         wdist = wdist.T[presence >= 0].T[presence >= 0]
         presence = presence[presence >=0]
-        
+
         try:
             mstree = Popen([params['edmonds_' + platform.system()]], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in (wdist+1.0).tolist()]))[0]
             mstree = np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int)
@@ -281,9 +304,8 @@ class methods(object) :
     @staticmethod
     def MSTree(names, profiles, embeded, matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T', missing_data='pair_delete', **params) :
         dist = distance_matrix.get_distance(matrix_type, profiles, missing_data)
-        #dist = distance_matrix.parallel_distance([matrix_type, profiles, missing_data, None])
         weight = eval('distance_matrix.'+edge_weight)(dist, [len(embeded[n]) for n in names])
-        
+
         tree = eval('methods._'+matrix_type)(dist, weight, **params)
         if neighbor_branch_reconnection != 'F' :
             tree = methods._neighbor_branch_reconnection(tree, dist, weight, profiles.shape[1])
@@ -439,3 +461,4 @@ def backend(**parameters) :
 if __name__ == '__main__' :
     tre = backend(**dict([p.split('=') for p in sys.argv[1:]]))
     print tre
+
