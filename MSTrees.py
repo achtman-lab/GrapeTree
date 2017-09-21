@@ -166,6 +166,7 @@ class methods(object) :
         shortcuts = get_shortcut(dist, weight)
         for (s, t, d) in shortcuts :
             wdist[s, wdist[s] > wdist[t]] = wdist[t, wdist[s] > wdist[t]]
+            wdist[wdist.T[s] > wdist.T[t], s] = wdist[wdist.T[s] > wdist.T[t], t]
             presence[t] = -1
         wdist = wdist.T[presence >= 0].T[presence >= 0]
         presence = presence[presence >=0]
