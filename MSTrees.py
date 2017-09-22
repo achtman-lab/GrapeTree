@@ -19,7 +19,8 @@ params = dict(method='MSTreeV2', # MSTree , NJ
 
 def parallel_distance(callup) :
     func, profiles, missing_data, index_range = callup
-    return eval('distance_matrix.'+func)(profiles, missing_data, index_range)
+    res = eval('distance_matrix.'+func)(profiles, missing_data, index_range)
+    np.save('GrapeTree.'+str(index_range[0])+'.npy', res)
 
 
 class distance_matrix(object) :
@@ -27,12 +28,15 @@ class distance_matrix(object) :
     def get_distance(func, profiles, missing_data) :
         from multiprocessing import Pool
         n_proc = params['n_proc']
-
+        
         pool = Pool(n_proc)
-        indices = np.array([[profiles.shape[0]/n_proc*v+0.5, profiles.shape[0]/n_proc*(v+1)+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
-        res = np.hstack(pool.map(parallel_distance, [[func, profiles, missing_data, idx] for idx in indices]))
+        indices = np.array([[profiles.shape[0]*v/n_proc+0.5, profiles.shape[0]*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
+        pool.map(parallel_distance, [[func, profiles, missing_data, idx] for idx in indices])
         pool.close()
         del pool
+        res = np.hstack([ np.load('GrapeTree.'+str(idx)+'.npy') for idx in indices.T[0] ])
+        for idx in indices.T[0] :
+            os.unlink('GrapeTree.'+str(idx)+'.npy')
         return res
 
     @staticmethod
