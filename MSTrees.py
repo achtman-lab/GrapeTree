@@ -179,7 +179,8 @@ class methods(object) :
             presence[t] = -1
         wdist = wdist.T[presence >= 0].T[presence >= 0]
         presence = presence[presence >=0]
-
+        if wdist.shape[0] <= 1 :
+            return shortcuts.tolist()
         try:
             mstree = Popen([params['edmonds_' + platform.system()]], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in (wdist+1.0).tolist()]))[0]
             mstree = np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int)
