@@ -28,7 +28,7 @@ class distance_matrix(object) :
     def get_distance(func, profiles, missing_data) :
         from multiprocessing import Pool
         n_proc = params['n_proc']
-        
+        n_proc = min(n_proc, profiles.shape[0])
         pool = Pool(n_proc)
         indices = np.array([[profiles.shape[0]*v/n_proc+0.5, profiles.shape[0]*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
         pool.map(parallel_distance, [[func, profiles, missing_data, idx] for idx in indices])
@@ -36,7 +36,10 @@ class distance_matrix(object) :
         del pool
         res = np.hstack([ np.load('GrapeTree.'+str(idx)+'.npy') for idx in indices.T[0] ])
         for idx in indices.T[0] :
-            os.unlink('GrapeTree.'+str(idx)+'.npy')
+            try:
+                os.unlink('GrapeTree.'+str(idx)+'.npy')
+            except :
+                pass
         return res
 
     @staticmethod
