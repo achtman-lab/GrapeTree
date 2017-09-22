@@ -157,14 +157,13 @@ class methods(object) :
     @staticmethod
     def _asymmetric(dist, weight, **params) :
         def get_shortcut(dist, weight, cutoff=4) :
-            if dist.shape[0] > 20000 :
-                link = np.array(np.where(dist < cutoff))
-                link = link.T[weight[link[0]] < weight[link[1]]].T
-                link = np.vstack([link, dist[link.tolist()] + weight[link[0]]])
-                link = link.T[np.lexsort(link)]
-                return link[np.unique(link.T[1], return_index=True)[1]].astype(int)
-            else :
-                return np.zeros(shape=[0, 3], dtype=int)
+            if dist.shape[0] < 20000 :
+                cutoff = 1
+            link = np.array(np.where(dist < cutoff))
+            link = link.T[weight[link[0]] < weight[link[1]]].T
+            link = np.vstack([link, dist[link.tolist()] + weight[link[0]]])
+            link = link.T[np.lexsort(link)]
+            return link[np.unique(link.T[1], return_index=True)[1]].astype(int)
 
         wdist = np.round(dist, 0) + weight.reshape([weight.size, -1])
         np.fill_diagonal(wdist, 0.0)
