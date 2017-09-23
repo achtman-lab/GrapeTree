@@ -14,24 +14,58 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               edmonds_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-osx'),
               edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux'),
               goeburst_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'goeburst'),
+              n_proc = 5,
               )
+
+def parallel_distance(callup) :
+    func, profiles, missing_data, index_range = callup
+    res = eval('distance_matrix.'+func)(profiles, missing_data, index_range)
+    np.save('GrapeTree.'+str(index_range[0])+'.npy', res)
+
 
 class distance_matrix(object) :
     @staticmethod
-    def asymmetric(profiles, missing_data = 'pair_delete') :
-        distances = np.zeros(shape=[profiles.shape[0], profiles.shape[0]])
+    def get_distance(func, profiles, missing_data) :
+        from multiprocessing import Pool
+        n_proc = params['n_proc']
+        n_proc = min(n_proc, profiles.shape[0])
+        pool = Pool(n_proc)
+        indices = np.array([[profiles.shape[0]*v/n_proc+0.5, profiles.shape[0]*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
+        pool.map(parallel_distance, [[func, profiles, missing_data, idx] for idx in indices])
+        pool.close()
+        del pool
+        res = np.hstack([ np.load('GrapeTree.'+str(idx)+'.npy') for idx in indices.T[0] ])
+        for idx in indices.T[0] :
+            try:
+                os.unlink('GrapeTree.'+str(idx)+'.npy')
+            except :
+                pass
+        return res
+
+    @staticmethod
+    def asymmetric(profiles, missing_data = 'pair_delete', index_range=None) :
+        if index_range is None :
+            index_range = [0, profiles.shape[0]]
+
         presences = (profiles > 0)
+        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]])
+
         if missing_data not in ('absolute_distance', ) :
-            for id, (profile, presence) in enumerate(zip(profiles, presences)) :
+            for i2, id in enumerate(np.arange(*index_range)) :
+                profile, presence = profiles[id], presences[id]
                 diffs = np.sum(((profiles != profile) & presence), axis=1) * float(presence.size)/np.sum(presence)
-                distances[:, id] = diffs
+                distances[:, i2] = diffs
         else :
-            for id, (profile, presence) in enumerate(zip(profiles, presences)) :
+            for i2, id in enumerate(np.arange(*index_range)) :
+                profile, presence = profiles[id], presences[id]
                 diffs = np.sum((profiles != profile) & presence, axis=1)
-                distances[:, id] = diffs
+                distances[:, i2] = diffs
         return distances
     @staticmethod
-    def symmetric(profiles, links=None, missing_data = 'pair_delete') :
+    def symmetric(profiles, missing_data = 'pair_delete', index_range=None) :
+        if index_range is None :
+            index_range = [0, profiles.shape[0]]
+
         if missing_data in ('as_allele', ) :
             presences = np.ones(shape=profiles.shape, dtype=int)
         elif missing_data in ('pair_delete', 'absolute_distance') :
@@ -39,29 +73,42 @@ class distance_matrix(object) :
         else :
             presences = np.repeat(np.sum(profiles >0, 0) >= profiles.shape[0], profiles.shape[0]).reshape([profiles.shape[1], profiles.shape[0]]).T
 
-        if links is None :
-            distances = np.zeros(shape=[profiles.shape[0], profiles.shape[0]])
-            if missing_data in ('pair_delete',) :
-                for id, (profile, presence) in enumerate(zip(profiles, presences)) :
-                    comparable = (presences[:id] * presence)
-                    diffs = np.sum((profiles[:id] != profile) & comparable, axis=1) * float(presence.size) / np.sum(comparable, axis=1)
-                    distances[:id, id] = distances[id, :id] = diffs
-            else :
-                for id, (profile, presence) in enumerate(zip(profiles, presences)) :
-                    diffs = np.sum((profiles[:id] != profile) & (presences[:id] * presence), axis=1)
-                    distances[:id, id] = distances[id, :id] = diffs
-            return distances
+        #distances = np.zeros(shape=[index_range[1] - index_range[0], profiles.shape[0]])
+        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]])
+
+        if missing_data in ('pair_delete',) :
+            for i2, id in enumerate(np.arange(*index_range)) :
+                profile, presence = profiles[id], presences[id]
+                comparable = (presences[:id] * presence)
+                diffs = np.sum((profiles[:id] != profile) & comparable, axis=1) * float(presence.size) / np.sum(comparable, axis=1)
+                distances[:id, i2] = diffs
+                distances[id, :i2] = diffs[index_range[0]:index_range[0]+id]
         else :
-            return [ [ s, t, np.sum((profiles[s] != profiles[t]) & presences[s] & presences[t]) ] \
-                     for s, t, d in links ]
+            for i2, id in enumerate(np.arange(*index_range)) :
+                profile, presence = profiles[id], presences[id]
+                diffs = np.sum((profiles[:id] != profile) & (presences[:id] * presence), axis=1)
+                distances[:id, i2] = diffs
+                distances[id, :i2] = diffs[index_range[0]:index_range[0]+id]
+        return distances
+
+    @staticmethod
+    def symmetric_link(profiles, links, missing_data = 'pair_delete') :
+        if missing_data in ('as_allele', ) :
+            presences = np.ones(shape=profiles.shape, dtype=int)
+        elif missing_data in ('pair_delete', 'absolute_distance') :
+            presences = (profiles > 0)
+        else :
+            presences = np.repeat(np.sum(profiles >0, 0) >= profiles.shape[0], profiles.shape[0]).reshape([profiles.shape[1], profiles.shape[0]]).T
+
+        return [ [ s, t, np.sum((profiles[s] != profiles[t]) & presences[s] & presences[t]) ] \
+                 for s, t, d in links ]
+
     @staticmethod
     def harmonic(dist, n_str) :
-        conn_weights = dist.shape[0] / np.sum(1.0/(dist + 0.1), 1)
-        cw = np.vstack([-np.array(n_str), conn_weights])
-        conn_weights[np.lexsort(cw)] = np.arange(dist.shape[0], dtype=float)/dist.shape[0]
-        dist = np.round(dist, 0) + conn_weights.reshape([conn_weights.size, -1])
-        np.fill_diagonal(dist, 0.0)
-        return dist
+        weights = dist.shape[0] / np.sum(1.0/(dist + 0.1), 1)
+        cw = np.vstack([-np.array(n_str), weights])
+        weights[np.lexsort(cw)] = np.arange(dist.shape[0], dtype=float)/dist.shape[0]
+        return weights
 
     @staticmethod
     def eBurst(dist, n_str) :
@@ -69,32 +116,84 @@ class distance_matrix(object) :
         weights.T[0] += n_str
         dist_order = np.concatenate([[0], np.arange(weights.shape[1]-1, 0, -1)])
         orders = np.lexsort(-weights.T[dist_order])
-        weights = np.zeros(shape=[orders.size, orders.size])
-        weights[:, orders] = (np.arange(orders.size))/float(orders.size)
-        weights[weights > weights.T] = weights.T[weights > weights.T]
-        dist = np.round(dist, 0) + weights
-        np.fill_diagonal(dist, 0.0)
-        return dist
+        weights = np.zeros(dist.shape[0])
+        weights[orders] = (np.arange(orders.size))/float(orders.size)
+        return weights
+
 
 class methods(object) :
     @staticmethod
-    def _symmetric(dist, **params) :
-        g = nx.Graph()
-        xs, ys = np.where(dist >= 0)
-        edges = [[x, y, dict(weight=dist[x][y])] for x, y in zip(xs, ys) if x < y]
-        g.add_edges_from(edges)
+    def _symmetric(dist, weight, **params) :
+        def minimum_spanning_tree(dist) :
+            n_node = dist.shape[0]
+            nodes = np.arange(n_node)
+            ng = {n:[n] for n in nodes}
+            edges = np.array([ [x, y, dist[x, y]] for y in np.arange(n_node) for x in np.arange(y) ])
+            edges = edges[np.argsort(edges.T[2])].astype(int)
+            mst = []
+            for m, e in enumerate(edges) :
+                if nodes[e[0]] == nodes[e[1]] :
+                    continue
+                mst.append(e.tolist())
+                if nodes[e[0]] > nodes[e[1]] :
+                    s, e = nodes[e[1]], nodes[e[0]]
+                else :
+                    s, e = nodes[e[0]], nodes[e[1]]
+                nodes[ng[e]] = s
+                ng[s].extend(ng.pop(e))
+            return mst
 
-        ms = nx.minimum_spanning_tree(g)
-        return [[d[0], d[1], int(d[2]['weight'])] for d in ms.edges(data=True)]
+
+        dist = np.round(dist, 0) + weight.reshape([weight.size, -1])
+        np.fill_diagonal(dist, 0.0)
+        dist[dist > dist.T] = dist.T[dist > dist.T]
+        try:
+            res = minimum_spanning_tree(dist)
+            dist = np.round(dist, 0)
+            return res
+        except :
+            g = nx.Graph(dist)
+            ms = nx.minimum_spanning_tree(g)
+            dist = np.round(dist, 0)
+            return [[d[0], d[1], int(d[2]['weight'])] for d in ms.edges(data=True)]
 
     @staticmethod
-    def _asymmetric(dist, **params) :
-        mstree = Popen([params['edmonds_' + platform.system()]], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in (dist+1.0).tolist()]))[0]
-        mstree = np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int)
-        mstree[:, 2] -= 1
-        return mstree.tolist()
+    def _asymmetric(dist, weight, **params) :
+        def get_shortcut(dist, weight, cutoff=4) :
+            if dist.shape[0] < 20000 :
+                cutoff = 1
+            link = np.array(np.where(dist < cutoff))
+            link = link.T[weight[link[0]] < weight[link[1]]].T
+            link = np.vstack([link, dist[link.tolist()] + weight[link[0]]])
+            link = link.T[np.lexsort(link)]
+            return link[np.unique(link.T[1], return_index=True)[1]].astype(int)
+
+        wdist = np.round(dist, 0) + weight.reshape([weight.size, -1])
+        np.fill_diagonal(wdist, 0.0)
+
+        presence = np.arange(weight.shape[0])
+        shortcuts = get_shortcut(dist, weight)
+        for (s, t, d) in shortcuts :
+            wdist[s, wdist[s] > wdist[t]] = wdist[t, wdist[s] > wdist[t]]
+            wdist[wdist.T[s] > wdist.T[t], s] = wdist[wdist.T[s] > wdist.T[t], t]
+            presence[t] = -1
+        wdist = wdist.T[presence >= 0].T[presence >= 0]
+        presence = presence[presence >=0]
+        if wdist.shape[0] <= 1 :
+            return shortcuts.tolist()
+        try:
+            mstree = Popen([params['edmonds_' + platform.system()]], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in (wdist+1.0).tolist()]))[0]
+            mstree = np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int)
+            mstree.T[2] -= 1
+            mstree.T[:2] = presence[mstree.T[:2]]
+            return mstree.tolist() + shortcuts.tolist()
+        except :
+            g = nx.DiGraph(wdist)
+            ms = nx.minimum_spanning_arborescence(g)
+            return [[presence[d[0]], presence[d[1]], int(d[2]['weight'])] for d in ms.edges(data=True)] + shortcuts.tolist()
+
     @staticmethod
-    def _neighbor_branch_reconnection(branches, dist, n_loci) :
+    def _neighbor_branch_reconnection(branches, dist, weights, n_loci) :
         def contemporary(a,b,c) :
             a[0], a[1] = max(min(a[0], n_loci-0.5), 0.5), max(min(a[1], n_loci-0.5), 0.5);
             b, c = max(min(b, n_loci-0.5), 0.5), max(min(c, n_loci-0.5), 0.5)
@@ -112,9 +211,6 @@ class methods(object) :
 
         if n_loci is None :
             n_loci = np.max(dist)
-        hm = dist.shape[0] / np.sum(1.0/(dist + 0.1), 1)
-        hm[np.argsort(hm, kind='mergesort')] = np.arange(1, dist.shape[0]+1, dtype=float)/dist.shape[0]-1
-        weights = hm[:]
 
         group_id, groups, childrens = {b:b for br in branches for b in br[:2]}, \
             {b:[b] for br in branches for b in br[:2]}, \
@@ -215,16 +311,16 @@ class methods(object) :
             taxon.label = names[taxon.label]
         return tre
 
+
     @staticmethod
     def MSTree(names, profiles, embeded, matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T', missing_data='pair_delete', **params) :
+        dist = distance_matrix.get_distance(matrix_type, profiles, missing_data)
+        weight = eval('distance_matrix.'+edge_weight)(dist, [len(embeded[n]) for n in names])
 
-        dist = eval('distance_matrix.'+matrix_type)(profiles, missing_data = missing_data)
-        wdist = eval('distance_matrix.'+edge_weight)(dist, [len(embeded[n]) for n in names])
-
-        tree = eval('methods._'+matrix_type)(wdist, **params)
+        tree = eval('methods._'+matrix_type)(dist, weight, **params)
         if neighbor_branch_reconnection != 'F' :
-            tree = methods._neighbor_branch_reconnection(tree, dist, profiles.shape[1])
-        tree = distance_matrix.symmetric(profiles, tree, missing_data= missing_data)
+            tree = methods._neighbor_branch_reconnection(tree, dist, weight, profiles.shape[1])
+        tree = distance_matrix.symmetric_link(profiles, tree, missing_data= missing_data)
         tree = methods._network2tree(tree, names)
         return tree
 
@@ -242,13 +338,13 @@ class methods(object) :
             nodes = line.strip().split(' ')
             if len(nodes) > 1 :
                 tree.append([int(nodes[0]), int(nodes[1]), 0])
-        tree = distance_matrix.symmetric(profiles, tree, missing_data= missing_data)
+        tree = distance_matrix.symmetric_link(profiles, tree, missing_data= missing_data)
         tree = methods._network2tree(tree, names)
         return tree
 
     @staticmethod
     def NJ(names, profiles, embeded, missing_data='pair_delete', **params) :
-        dist = distance_matrix.symmetric(profiles, missing_data = missing_data)
+        dist = distance_matrix.get_distance('symmetric', profiles, missing_data)
         dist_txt = ['    {0}'.format(dist.shape[0])]
         for n, d in enumerate(dist) :
             dist_txt.append('{0!s:10} {1}'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])))
@@ -319,6 +415,7 @@ def backend(**parameters) :
         MSTree: MSTrees.py profile=<filename> method=MSTree
         NJ:  MSTrees.py profile=<filename> method=NJ
     '''
+    global params
     params.update(parameters)
     if params['method'] == 'MSTreeV2' :
         params.update(dict(
@@ -375,3 +472,4 @@ def backend(**parameters) :
 if __name__ == '__main__' :
     tre = backend(**dict([p.split('=') for p in sys.argv[1:]]))
     print tre
+

@@ -353,13 +353,12 @@ D3MSMetadataTable.prototype.data_reformat = function(data, sorted) {
 		$.map(data, function(d) {if (! d.id) {d.id=0;}});
 
 		data.sort(function(d1, d2) {
-			return d2.id - d1.id;
+			return d1.id - d2.id;
 		});
 	}
 
 	for (var index in data) {
-		d = data[index];
-		d.id = parseInt(index) + 1;
+		data[index].id = parseInt(index) + 1;
 	}
 	return data;
 };

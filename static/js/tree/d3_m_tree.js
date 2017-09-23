@@ -507,8 +507,15 @@ D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
 
 D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 	var self = this;
+	if (this.original_links.length > 60000) {
+		this.original_links.sort(function(n1, n2) {return n2.distance-n1.distance});
+		if (max_distance < this.original_links[60000].distance) {
+			max_distance = this.original_links[60000].distance;
+			alert('Too many nodes. Branches <= '+max_distance+' are collapsed.');
+		}
+	}
         //value is 0 reset original values to the current ones
-		if ( this.node_collapsed_value <= 1e-8 && ! this.manual_collapsing_value ){   
+		if ( this.node_collapsed_value <= 0 && ! this.manual_collapsing_value ){   
 				for (var i in this.force_nodes){
 						var node = this.force_nodes[i];
 						if (layout){
