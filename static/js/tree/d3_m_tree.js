@@ -2140,7 +2140,7 @@ D3MSTree.prototype._dragStarted= function(it, pos){
        }).selectAll(".node-paths").style("stroke","#ff9900").attr("stroke-width","3px");
        this.link_elements.selectAll("line").filter(function(lnk) {
        	return lnk.tracked;
-       }).style("stroke","#fcd885");
+       }).style("stroke","#A0A0A0");
        this._updateNodesToDisplay("tagged");
        
 		if (pos) {
