@@ -418,7 +418,9 @@
 	//update all the select options
         function addMetadataOptions(options){
 		
-		for (var value in options){
+		var fields = Object.keys(options).sort(function(m, n) {return m==='nothing' ? -1 : n === 'nothing' ? 1 : ((m < n) ? -1 : 1)});
+		for (var fld_id in fields) {
+			var value = fields[fld_id];
 			var obj =options[value];
 			var category = null;
 			var label = ""
@@ -475,7 +477,8 @@
 							.style("opacity", .9);
 						tooltip_div.html(msg)
 							.style("left", (e.pageX) + "px")
-							.style("top", (e.pageY - 28) + "px");
+							.style("top", (e.pageY - 28) + "px")
+							.style("height", "auto");
 						setTimeout(hideToolTip, 2000);
         }
 
@@ -721,11 +724,14 @@
 		
 		the_tree.addSegmentOverListener(function(d){
 				if ($("#show-node-tooltip").prop("checked")){
-						var display = d.data.type;
-						if (d.data.node_id){
-								display = d.data.node_id;
+						if (the_tree.display_category === 'nothing') {
+							var node_ids = the_tree.grouped_nodes[d.data.idx];
+							var value = $.map(node_ids, function(idx) {return the_tree.metadata[idx].Name ? the_tree.metadata[idx].Name : the_tree.metadata[idx].ID}).join('<br>');
+							showToolTip(value);
+						} else {
+							var display = d.data.type;
+							showToolTip(display+"("+d.data.value+")");
 						}
-						showToolTip(display+"("+d.data.value+")");
 				}
 		});
 		the_tree.addSegmentOutListener(function(d){
@@ -1015,7 +1021,7 @@ function parseMetadata (msg,lines,header_index){
 
 	var category = 'nothing';
 	var options={};
-	category = header_index.length > 1 ? header_index[1] : header_index[0];
+	category = Object.keys(header_index).length > 1 ? header_index[1] : header_index[0];
 	for (var i in header_index){
 		var header = header_index[i];
 		options[header]=header;

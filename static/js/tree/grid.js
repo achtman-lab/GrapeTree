@@ -378,7 +378,9 @@ D3MSMetadataTable.prototype.updateMetadataTable =function() {
 	for (var id in curr_cols) {
 		delete cols[curr_cols[id].field]
 	}
-	for (var c in cols) {
+	cc = Object.keys(cols).sort();
+	for (var c_id in cc) {
+		var c = cc[c_id];
 		if (c != "nothing") {
 			if (c == 'barcode' || c == 'ID') {
 			curr_cols.push({id: cols[c],

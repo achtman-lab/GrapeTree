@@ -1393,7 +1393,10 @@ D3BaseTree.prototype.addMetadataOptions=function(options){
 			}
 			
 			this.metadata_info[key] =value
-		}		
+		}
+		else if (this.metadata_info[key]) {
+			delete options[key];
+		}
 		else{
 			this.metadata_info[key]={
 				label:options[key],
