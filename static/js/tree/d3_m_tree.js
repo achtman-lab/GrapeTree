@@ -392,7 +392,8 @@ D3MSTree.prototype._start= function(callback,layout_data){
                 self.is_dragging=false;
         })
         link_enter.append('line').style('opacity', '0.0').style('stroke-width', 10);
-        link_enter.append('line').on("mouseover",function(d){
+        link_enter.append('line');
+        link_enter.on("mouseover",function(d){
                 for (var i in self.link_over_listeners){
                         self.link_over_listeners[i](d);    
                 }
@@ -507,8 +508,15 @@ D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
 
 D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 	var self = this;
+	if (this.original_links.length > 40000) {
+		this.original_links.sort(function(n1, n2) {return n2.distance-n1.distance});
+		if (max_distance < this.original_links[40000].distance) {
+			max_distance = this.original_links[40000].distance;
+			alert('Too many nodes. Branches <= '+max_distance+' are collapsed.');
+		}
+	}
         //value is 0 reset original values to the current ones
-		if ( this.node_collapsed_value <= 1e-8 && ! this.manual_collapsing_value ){   
+		if ( this.node_collapsed_value <= 0 && ! this.manual_collapsing_value ){   
 				for (var i in this.force_nodes){
 						var node = this.force_nodes[i];
 						if (layout){
@@ -1081,8 +1089,8 @@ D3MSTree.prototype.changeCategory= function(category){
         nodes_existing.enter().append('path').classed("node-paths",true);
         nodes_existing.exit().remove();
         
-       this.node_elements.selectAll('.node-paths')
-        .on("mouseover",function(d, ui){
+
+       this.node_elements.selectAll('.node-paths').on("mouseover",function(d, ui){
                 for (var i in self.segment_over_listeners){
                         self.segment_over_listeners[i](d);    
                 }
@@ -1090,8 +1098,7 @@ D3MSTree.prototype.changeCategory= function(category){
                  for (var i in self.segment_out_listeners){
                         self.segment_out_listeners[i](d);    
                 }
-        })
-        .style("stroke","black");      
+        }).style("stroke","black");      
         this._drawNodes();
         this._setNodeText();
 }
@@ -1663,13 +1670,19 @@ D3MSTree.prototype._showLinkLabels = function(){
         this.link_elements.append('text').attr('class', 'distance-label').
                                         attr('dy', ".71em").attr('text-anchor', 'middle').
                                         attr('font-size', this.link_font_size).attr('font-family', 'sans-serif').
-                                        style('fill', 'gray').style('stroke', 'black').style('stroke-width', '.25px').
+                                        style('fill', 'gray').style('stroke', 'white').style('stroke-width', '5px').style('opacity', '0.9').
                                         text(function(it){
-                                                 return it.original_value.toPrecision(2);
+                                                 return it.original_value >= 1 ? Math.floor(it.original_value) : it.original_value.toPrecision(2);
                                         });
-                                        
+        this.link_elements.append('text').attr('class', 'distance-label').
+                                        attr('dy', ".71em").attr('text-anchor', 'middle').
+                                        attr('font-size', this.link_font_size).attr('font-family', 'sans-serif').
+                                        style('fill', '#666666').style('stroke', '#666666').style('stroke-width', '.2px').
+                                        text(function(it){
+                                                 return it.original_value >= 1 ? Math.floor(it.original_value) : it.original_value.toPrecision(2);
+                                        });
+
         this.link_elements.selectAll('text').attr('x', function(it){
-                
                 return (it.source.x + it.target.x) / 2.0;
                 
         }).attr('y', function(it){
@@ -2090,6 +2103,12 @@ D3MSTree.prototype.highlightNodes = function(node_ids,color){
         },10,color);
 
 }
+D3MSTree.prototype._tagParent = function(it, flag) {
+           if (it.parent) {
+               it.link.tracked = flag;
+               return this._tagParent(it.parent, flag);
+           }
+       };
 
 
 //Dragging Functions
@@ -2114,10 +2133,14 @@ D3MSTree.prototype._dragStarted= function(it, pos){
        it.fixed=true;
        it.tagged=true;
        //tag all children and highlight        
+       this._tagParent(it, true);
        this._tagAllChildren(it,true);         
        this.node_elements.filter(function(node){
               return node.tagged;
        }).selectAll(".node-paths").style("stroke","#ff9900").attr("stroke-width","3px");
+       this.link_elements.selectAll("line").filter(function(lnk) {
+       	return lnk.tracked;
+       }).style("stroke","#A0A0A0");
        this._updateNodesToDisplay("tagged");
        
 		if (pos) {
@@ -2203,11 +2226,15 @@ D3MSTree.prototype._dragEnded=function(it){
        this.node_elements.filter(function(node){
                return node.tagged;
        }).selectAll(".node-paths").style("stroke","black").attr("stroke-width","1px");
+       this.link_elements.selectAll('line').filter(function(lnk){
+               return lnk.tracked;
+       }).style("stroke","black");
        it.fixed=true;
        it.tagged=false;
        this._rotateChildren(it,angle_change,source);
        this._updateGraph();
        this._tagAllChildren(it,false);
+       this._tagParent(it, false);
        this.stopForce();
 }
 

@@ -353,13 +353,12 @@ D3MSMetadataTable.prototype.data_reformat = function(data, sorted) {
 		$.map(data, function(d) {if (! d.id) {d.id=0;}});
 
 		data.sort(function(d1, d2) {
-			return d2.id - d1.id;
+			return d1.id - d2.id;
 		});
 	}
 
 	for (var index in data) {
-		d = data[index];
-		d.id = parseInt(index) + 1;
+		data[index].id = parseInt(index) + 1;
 	}
 	return data;
 };
@@ -379,7 +378,9 @@ D3MSMetadataTable.prototype.updateMetadataTable =function() {
 	for (var id in curr_cols) {
 		delete cols[curr_cols[id].field]
 	}
-	for (var c in cols) {
+	cc = Object.keys(cols).sort();
+	for (var c_id in cc) {
+		var c = cc[c_id];
 		if (c != "nothing") {
 			if (c == 'barcode' || c == 'ID') {
 			curr_cols.push({id: cols[c],
