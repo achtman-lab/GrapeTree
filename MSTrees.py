@@ -208,7 +208,7 @@ class methods(object) :
 
             p1 = a[0]*np.log(1-s11*s11) + (n_loci-a[0])*np.log(s11*s11) + (b+c)*np.log(1-s11*s12) + (2*n_loci-b-c)*np.log(s11*s12)
             p2 = a[1]*np.log(1-s21) + (n_loci-a[1])*np.log(s21) + b*np.log(1-s21*s22) + (n_loci-b)*np.log(s21*s22) + c*np.log(1-s22) + (n_loci-c)*np.log(s22)
-            return p1 >= p2 - np.log(0.05)
+            return p1 >= p2
 
         if n_loci is None :
             n_loci = np.max(dist)
