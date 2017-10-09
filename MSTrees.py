@@ -31,7 +31,7 @@ class distance_matrix(object) :
         n_proc = min(n_proc, profiles.shape[0])
         pool = Pool(n_proc)
         indices = np.array([[profiles.shape[0]*v/n_proc+0.5, profiles.shape[0]*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
-        pool.map(parallel_distance, [[func, profiles, missing_data, idx] for idx in indices])
+        map(parallel_distance, [[func, profiles, missing_data, idx] for idx in indices])
         pool.close()
         del pool
         res = np.hstack([ np.load('GrapeTree.'+str(idx)+'.npy') for idx in indices.T[0] ])
@@ -40,6 +40,8 @@ class distance_matrix(object) :
                 os.unlink('GrapeTree.'+str(idx)+'.npy')
             except :
                 pass
+        if func == 'symmetric' :
+            res[res.T > res] = res.T[res.T > res]
         return res
 
     @staticmethod
@@ -82,7 +84,7 @@ class distance_matrix(object) :
                 comparable = (presences[:id] * presence)
                 diffs = np.sum((profiles[:id] != profile) & comparable, axis=1) * float(presence.size) / np.sum(comparable, axis=1)
                 distances[:id, i2] = diffs
-                distances[id, :i2] = diffs[index_range[0]:index_range[0]+id]
+                #distances[id, :i2] = diffs[index_range[0]:index_range[0]+id]
         else :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
@@ -179,8 +181,7 @@ class methods(object) :
             presence[t] = -1
         wdist = wdist.T[presence >= 0].T[presence >= 0]
         presence = presence[presence >=0]
-        if wdist.shape[0] <= 1 :
-            return shortcuts.tolist()
+
         try:
             mstree = Popen([params['edmonds_' + platform.system()]], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in (wdist+1.0).tolist()]))[0]
             mstree = np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int)
@@ -225,7 +226,7 @@ class methods(object) :
             if len(sources) > 1 :
                 for w, d, s in sorted(zip(weights[sources], dist[sources, tgt], sources))[:3] :
                     if s == src : break
-                    if d < 2*dist[src, tgt] :
+                    if d < 1.5*dist[src, tgt] :
                         if contemporary([dist[s, src], dist[src, s]], d, dist[src, tgt]) :
                             tried[src], src = s, s
                             break
@@ -245,7 +246,7 @@ class methods(object) :
             if len(targets) > 1 :
                 for w, d, t in sorted(zip(weights[targets], dist[src, targets], targets))[:3] :
                     if t == tgt : break
-                    if d < 2*dist[src, tgt] :
+                    if d < 1.5*dist[src, tgt] :
                         if contemporary([dist[t, tgt], dist[tgt, t]], d, dist[src, tgt]) :
                             tried[tgt], tgt = t, t
                             break
