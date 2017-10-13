@@ -6,7 +6,7 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               matrix_type='symmetric',
               edge_weight = 'eBurst',
               missing_data = 'pair_delete', # complete_delete , absolute_distance , as_allele
-              neighbor_branch_reconnection='F',
+              branch_recrafting='F',
               NJ_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme.exe'),
               NJ_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-osx'),
               NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32'),
@@ -31,7 +31,7 @@ class distance_matrix(object) :
         n_proc = min(n_proc, profiles.shape[0])
         pool = Pool(n_proc)
         indices = np.array([[profiles.shape[0]*v/n_proc+0.5, profiles.shape[0]*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
-        map(parallel_distance, [[func, profiles, missing_data, idx] for idx in indices])
+        pool.map(parallel_distance, [[func, profiles, missing_data, idx] for idx in indices])
         pool.close()
         del pool
         res = np.hstack([ np.load('GrapeTree.'+str(idx)+'.npy') for idx in indices.T[0] ])
@@ -194,7 +194,8 @@ class methods(object) :
             return [[presence[d[0]], presence[d[1]], int(d[2]['weight'])] for d in ms.edges(data=True)] + shortcuts.tolist()
 
     @staticmethod
-    def _neighbor_branch_reconnection(branches, dist, weights, n_loci) :
+    def _branch_recrafting(branches, dist, weights, n_loci) :
+    #def _neighbor_branch_reconnection(branches, dist, weights, n_loci) :
         def contemporary(a,b,c) :
             a[0], a[1] = max(min(a[0], n_loci-0.5), 0.5), max(min(a[1], n_loci-0.5), 0.5);
             b, c = max(min(b, n_loci-0.5), 0.5), max(min(c, n_loci-0.5), 0.5)
@@ -314,13 +315,13 @@ class methods(object) :
 
 
     @staticmethod
-    def MSTree(names, profiles, embeded, matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T', missing_data='pair_delete', **params) :
+    def MSTree(names, profiles, embeded, matrix_type='asymmetric', edge_weight='harmonic', branch_recrafting='T', missing_data='pair_delete', **params) :
         dist = distance_matrix.get_distance(matrix_type, profiles, missing_data)
         weight = eval('distance_matrix.'+edge_weight)(dist, [len(embeded[n]) for n in names])
 
         tree = eval('methods._'+matrix_type)(dist, weight, **params)
-        if neighbor_branch_reconnection != 'F' :
-            tree = methods._neighbor_branch_reconnection(tree, dist, weight, profiles.shape[1])
+        if branch_recrafting != 'F' :
+            tree = methods._branch_recrafting(tree, dist, weight, profiles.shape[1])
         tree = distance_matrix.symmetric_link(profiles, tree, missing_data= missing_data)
         tree = methods._network2tree(tree, names)
         return tree
@@ -393,7 +394,7 @@ def backend(**parameters) :
         method: MSTreeV2, MSTree or NJ
         matrix_type: asymmetric or symmetric
         edge_weight: harmonic or eBurst
-        neighbor_branch_reconnection: T or F
+        branch_recrafting: T or F
 
     Outputs :
         A string of a NEWICK tree
@@ -423,7 +424,7 @@ def backend(**parameters) :
             method = 'MSTree',
             matrix_type = 'asymmetric',
             edge_weight = 'harmonic',
-            neighbor_branch_reconnection = 'T'
+            branch_recrafting = 'T'
         ))
 
     names, profiles = [], []
