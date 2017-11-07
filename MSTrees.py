@@ -343,6 +343,23 @@ class methods(object) :
         tree = distance_matrix.symmetric_link(profiles, tree, missing_data= missing_data)
         tree = methods._network2tree(tree, names)
         return tree
+    @staticmethod
+    def distance(names, profiles, embeded, matrix_type='symmetric', missing_data='pair_delete', **params) :
+        ids = {n:id for id, n in enumerate(names)}
+        ids = { gg:ids[k] for k,g in embeded.iteritems() for gg in g }
+        names, indices = [], []
+        for n, i in sorted(ids.iteritems(), key=lambda x:(x[1], x[0])) :
+            names.append(n)
+            indices.append(i)
+        indices = np.array(indices)
+        d = distance_matrix.get_distance(matrix_type, profiles, missing_data)
+        dist = np.zeros([len(names), len(names)])
+        for i, i2 in enumerate(indices) :
+            dist[i] = d[i2, indices]
+        dist_txt = ['    {0}'.format(dist.shape[0])]
+        for n, d in zip(names, dist) :
+            dist_txt.append('{0!s:10} {1}'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])))
+        return dist_txt
 
     @staticmethod
     def NJ(names, profiles, embeded, missing_data='pair_delete', **params) :
@@ -412,10 +429,14 @@ def backend(**parameters) :
         To run a NJ tree (using FastME 2.0) :
         backend(profile=<filename>, method='NJ')
 
+        To obtain a standard distance matrix :
+        backend(profile=<filename>, method='distance')
+
     Can also be called in command line:
         MSTreeV2: MSTrees.py profile=<filename> method=MSTreeV2
         MSTree: MSTrees.py profile=<filename> method=MSTree
         NJ:  MSTrees.py profile=<filename> method=NJ
+        distance:  MSTrees.py profile=<filename> method=distance
     '''
     global params
     params.update(parameters)
@@ -463,13 +484,16 @@ def backend(**parameters) :
     names = [re.sub(r'[\(\)\ \,\"\';]', '_', n) for n in names]
     names, profiles, embeded = nonredundant(np.array(names), np.array(profiles))
     tre = eval('methods.' + params['method'])(names, profiles, embeded, **params)
+    if params['method'] != 'distance' :
+        for taxon in tre.taxon_namespace :
+            embeded_group = embeded[taxon.label]
+            if len(embeded_group) > 1 :
+                taxon.label = '({0}:0)'.format(':0,'.join(embeded_group))
 
-    for taxon in tre.taxon_namespace :
-        embeded_group = embeded[taxon.label]
-        if len(embeded_group) > 1 :
-            taxon.label = '({0}:0)'.format(':0,'.join(embeded_group))
+        return tre.as_string('newick').replace("'", "")
+    else :
+        return '\n'.join(tre)
 
-    return tre.as_string('newick').replace("'", "")
 
 if __name__ == '__main__' :
     tre = backend(**dict([p.split('=') for p in sys.argv[1:]]))
