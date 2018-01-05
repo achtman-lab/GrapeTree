@@ -6,7 +6,7 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               matrix_type='symmetric',
               edge_weight = 'eBurst',
               missing_data = 'pair_delete', # complete_delete , absolute_distance , as_allele
-              neighbor_branch_reconnection='F',
+              branch_recrafting='F',
               NJ_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme.exe'),
               NJ_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-osx'),
               NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32'),
@@ -31,7 +31,7 @@ class distance_matrix(object) :
         n_proc = min(n_proc, profiles.shape[0])
         pool = Pool(n_proc)
         indices = np.array([[profiles.shape[0]*v/n_proc+0.5, profiles.shape[0]*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
-        map(parallel_distance, [[func, profiles, missing_data, idx] for idx in indices])
+        pool.map(parallel_distance, [[func, profiles, missing_data, idx] for idx in indices])
         pool.close()
         del pool
         res = np.hstack([ np.load('GrapeTree.'+str(idx)+'.npy') for idx in indices.T[0] ])
@@ -194,7 +194,8 @@ class methods(object) :
             return [[presence[d[0]], presence[d[1]], int(d[2]['weight'])] for d in ms.edges(data=True)] + shortcuts.tolist()
 
     @staticmethod
-    def _neighbor_branch_reconnection(branches, dist, weights, n_loci) :
+    def _branch_recrafting(branches, dist, weights, n_loci) :
+    #def _neighbor_branch_reconnection(branches, dist, weights, n_loci) :
         def contemporary(a,b,c) :
             a[0], a[1] = max(min(a[0], n_loci-0.5), 0.5), max(min(a[1], n_loci-0.5), 0.5);
             b, c = max(min(b, n_loci-0.5), 0.5), max(min(c, n_loci-0.5), 0.5)
@@ -314,13 +315,13 @@ class methods(object) :
 
 
     @staticmethod
-    def MSTree(names, profiles, embeded, matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T', missing_data='pair_delete', **params) :
+    def MSTree(names, profiles, embeded, matrix_type='asymmetric', edge_weight='harmonic', branch_recrafting='T', missing_data='pair_delete', **params) :
         dist = distance_matrix.get_distance(matrix_type, profiles, missing_data)
         weight = eval('distance_matrix.'+edge_weight)(dist, [len(embeded[n]) for n in names])
 
         tree = eval('methods._'+matrix_type)(dist, weight, **params)
-        if neighbor_branch_reconnection != 'F' :
-            tree = methods._neighbor_branch_reconnection(tree, dist, weight, profiles.shape[1])
+        if branch_recrafting != 'F' :
+            tree = methods._branch_recrafting(tree, dist, weight, profiles.shape[1])
         tree = distance_matrix.symmetric_link(profiles, tree, missing_data= missing_data)
         tree = methods._network2tree(tree, names)
         return tree
@@ -342,6 +343,23 @@ class methods(object) :
         tree = distance_matrix.symmetric_link(profiles, tree, missing_data= missing_data)
         tree = methods._network2tree(tree, names)
         return tree
+    @staticmethod
+    def distance(names, profiles, embeded, matrix_type='symmetric', missing_data='pair_delete', **params) :
+        ids = {n:id for id, n in enumerate(names)}
+        ids = { gg:ids[k] for k,g in embeded.iteritems() for gg in g }
+        names, indices = [], []
+        for n, i in sorted(ids.iteritems(), key=lambda x:(x[1], x[0])) :
+            names.append(n)
+            indices.append(i)
+        indices = np.array(indices)
+        d = distance_matrix.get_distance(matrix_type, profiles, missing_data)
+        dist = np.zeros([len(names), len(names)])
+        for i, i2 in enumerate(indices) :
+            dist[i] = d[i2, indices]
+        dist_txt = ['    {0}'.format(dist.shape[0])]
+        for n, d in zip(names, dist) :
+            dist_txt.append('{0!s:10} {1}'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])))
+        return dist_txt
 
     @staticmethod
     def NJ(names, profiles, embeded, missing_data='pair_delete', **params) :
@@ -393,7 +411,7 @@ def backend(**parameters) :
         method: MSTreeV2, MSTree or NJ
         matrix_type: asymmetric or symmetric
         edge_weight: harmonic or eBurst
-        neighbor_branch_reconnection: T or F
+        branch_recrafting: T or F
 
     Outputs :
         A string of a NEWICK tree
@@ -411,10 +429,14 @@ def backend(**parameters) :
         To run a NJ tree (using FastME 2.0) :
         backend(profile=<filename>, method='NJ')
 
+        To obtain a standard distance matrix :
+        backend(profile=<filename>, method='distance')
+
     Can also be called in command line:
         MSTreeV2: MSTrees.py profile=<filename> method=MSTreeV2
         MSTree: MSTrees.py profile=<filename> method=MSTree
         NJ:  MSTrees.py profile=<filename> method=NJ
+        distance:  MSTrees.py profile=<filename> method=distance
     '''
     global params
     params.update(parameters)
@@ -423,7 +445,7 @@ def backend(**parameters) :
             method = 'MSTree',
             matrix_type = 'asymmetric',
             edge_weight = 'harmonic',
-            neighbor_branch_reconnection = 'T'
+            branch_recrafting = 'T'
         ))
 
     names, profiles = [], []
@@ -462,13 +484,16 @@ def backend(**parameters) :
     names = [re.sub(r'[\(\)\ \,\"\';]', '_', n) for n in names]
     names, profiles, embeded = nonredundant(np.array(names), np.array(profiles))
     tre = eval('methods.' + params['method'])(names, profiles, embeded, **params)
+    if params['method'] != 'distance' :
+        for taxon in tre.taxon_namespace :
+            embeded_group = embeded[taxon.label]
+            if len(embeded_group) > 1 :
+                taxon.label = '({0}:0)'.format(':0,'.join(embeded_group))
 
-    for taxon in tre.taxon_namespace :
-        embeded_group = embeded[taxon.label]
-        if len(embeded_group) > 1 :
-            taxon.label = '({0}:0)'.format(':0,'.join(embeded_group))
+        return tre.as_string('newick').replace("'", "")
+    else :
+        return '\n'.join(tre)
 
-    return tre.as_string('newick').replace("'", "")
 
 if __name__ == '__main__' :
     tre = backend(**dict([p.split('=') for p in sys.argv[1:]]))
