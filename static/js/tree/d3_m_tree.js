@@ -963,7 +963,8 @@ D3MSTree.prototype.getLayout=function(){
                 node_collapsed_value:this.node_collapsed_value,
 		node_text_value:this.node_text_value,
 		manual_collapsing:this.manual_collapsing,
-		square_root_scale:this.square_root_scale
+		square_root_scale:this.square_root_scale,
+		
 		
                 
         };
@@ -974,7 +975,8 @@ D3MSTree.prototype.getLayout=function(){
         return {node_positions:node_positions,
                         nodes_links:nodes_links,
                         scale:this.scale,
-                        translate:this.translate,                      
+                        translate:this.translate,
+			display_category:this.display_category
         };	
 };
 
