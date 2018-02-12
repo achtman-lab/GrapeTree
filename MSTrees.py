@@ -183,8 +183,18 @@ class methods(object) :
         presence = presence[presence >=0]
 
         try:
-            mstree = Popen([params['edmonds_' + platform.system()]], stdin=PIPE, stdout=PIPE).communicate(input='\n'.join(['\t'.join([str(dd) for dd in d]) for d in (wdist+1.0).tolist()]))[0]
+            #assert platform.system() != 'Windows'
+            import tempfile
+            f = tempfile.NamedTemporaryFile(delete=False)
+            f.close()
+            with open(f.name, 'w') as fout :
+                for d in wdist :
+                    fout.write('{0}\n'.format('\t'.join([str(dd) for dd in (d+1.)])))
+            del wdist, d
+            mstree = Popen([params['edmonds_' + platform.system()], f.name], stdin=PIPE, stdout=PIPE).communicate()[0]
+            os.unlink(f.name)
             mstree = np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int)
+            assert mstree.size > 0
             mstree.T[2] -= 1
             mstree.T[:2] = presence[mstree.T[:2]]
             return mstree.tolist() + shortcuts.tolist()
@@ -195,7 +205,6 @@ class methods(object) :
 
     @staticmethod
     def _branch_recrafting(branches, dist, weights, n_loci) :
-    #def _neighbor_branch_reconnection(branches, dist, weights, n_loci) :
         def contemporary(a,b,c) :
             a[0], a[1] = max(min(a[0], n_loci-0.5), 0.5), max(min(a[1], n_loci-0.5), 0.5);
             b, c = max(min(b, n_loci-0.5), 0.5), max(min(c, n_loci-0.5), 0.5)

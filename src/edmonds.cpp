@@ -1,6 +1,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <iterator>
 #include <boost/property_map/property_map.hpp>
@@ -22,29 +23,36 @@ typedef boost::graph_traits<Graph>::vertex_descriptor       Vertex;
 typedef boost::graph_traits<Graph>::edge_descriptor         Edge;
 
 
-int edmonds(std::vector< std::vector<float> >  arr1) {
-    // Graph with N vertices    
-	int N = arr1.size();
-    Graph G(N);
-
-    // Create a vector to keep track of all the vertices and enable us to index them.
-    std::vector<Vertex> the_vertices;
-    BOOST_FOREACH (Vertex v, vertices(G))
-    {
-        the_vertices.push_back(v);
-    }
-    
-    // add a few edges with weights to the graph
-	int m=0, n=0;
-	for (m=0; m < N; ++ m) {
-		for (n=0; n < N; ++ n) {
-			float v = arr1[m][n];
-			if ( v > 0 ) {
-			    add_edge(the_vertices[m], the_vertices[n], v, G);
-			}
-		}
+int edmonds(char* filename) {
+	std::ifstream infile(filename);
+	std::string line;
+	std::vector<std::string> strs;
+	std::getline(infile, line);
+	boost::split(strs, line, boost::is_any_of("\t "));
+	// Graph with N vertices    
+	int N = strs.size();
+	Graph G(N);
+	
+	// Create a vector to keep track of all the vertices and enable us to index them.
+	std::vector<Vertex> the_vertices;
+	BOOST_FOREACH (Vertex v, vertices(G))
+	{
+		the_vertices.push_back(v);
 	}
-
+	for (int n=0; n < N; ++n) {
+		float v = std::atof(strs[n].c_str());
+		add_edge(the_vertices[0], the_vertices[n], v, G);
+	}
+	int m = 1;
+	for (std::string line; std::getline(infile, line);++ m) {
+		boost::split(strs, line, boost::is_any_of("\t "));
+		for (int n=0; n < N; ++n) {
+			float v = std::atof(strs[n].c_str());
+			add_edge(the_vertices[m], the_vertices[n], v, G);
+		}
+		if (m >=N-1) break;
+	}
+	infile.close();
     // This is how we can get a property map that gives the weights of
     // the edges.
     boost::property_map<Graph, boost::edge_weight_t>::type weights =
@@ -72,24 +80,6 @@ int edmonds(std::vector< std::vector<float> >  arr1) {
 }
 
 
-int main() {
-	std::string line;
-	std::getline(std::cin, line);
-	
-	std::vector<std::string> strs;
-	boost::split(strs, line, boost::is_any_of("\t "));
-	
-	std::vector< std::vector<float> > dist(strs.size(), std::vector<float>(strs.size()));
-	for (int i=0; i < strs.size(); ++i) {
-		dist[0][i] = std::atof(strs[i].c_str());
-	}
-	int n = 1;
-	for (std::string line; std::getline(std::cin, line);++ n) {
-		boost::split(strs, line, boost::is_any_of("\t "));
-		for (int i=0; i < strs.size(); ++i) {
-			dist[n][i] = std::atof(strs[i].c_str());
-		}
-		if (n >= strs.size()-1) break;
-	}
-	return edmonds(dist);
+int main(int argc, char *argv[]) {
+	return edmonds(argv[1]);
 }
