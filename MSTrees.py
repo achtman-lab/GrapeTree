@@ -170,20 +170,19 @@ class methods(object) :
             link = link.T[np.lexsort(link)]
             return link[np.unique(link.T[1], return_index=True)[1]].astype(int)
 
-        wdist = np.round(dist, 0) + weight.reshape([weight.size, -1])
-        np.fill_diagonal(wdist, 0.0)
-
-        presence = np.arange(weight.shape[0])
-        shortcuts = get_shortcut(dist, weight)
-        for (s, t, d) in shortcuts :
-            wdist[s, wdist[s] > wdist[t]] = wdist[t, wdist[s] > wdist[t]]
-            wdist[wdist.T[s] > wdist.T[t], s] = wdist[wdist.T[s] > wdist.T[t], t]
-            presence[t] = -1
-        wdist = wdist.T[presence >= 0].T[presence >= 0]
-        presence = presence[presence >=0]
-
         try:
-            #assert platform.system() != 'Windows'
+            wdist = np.round(dist, 0) + weight.reshape([weight.size, -1])
+            np.fill_diagonal(wdist, 0.0)
+
+            presence = np.arange(weight.shape[0])
+            shortcuts = get_shortcut(dist, weight)
+            for (s, t, d) in shortcuts :
+                wdist[s, wdist[s] > wdist[t]] = wdist[t, wdist[s] > wdist[t]]
+                wdist[wdist.T[s] > wdist.T[t], s] = wdist[wdist.T[s] > wdist.T[t], t]
+                presence[t] = -1
+            wdist = wdist.T[presence >= 0].T[presence >= 0]
+            presence = presence[presence >=0]
+
             import tempfile
             f = tempfile.NamedTemporaryFile(delete=False)
             f.close()
@@ -199,6 +198,18 @@ class methods(object) :
             mstree.T[:2] = presence[mstree.T[:2]]
             return mstree.tolist() + shortcuts.tolist()
         except :
+            wdist = np.round(dist, 0) + weight.reshape([weight.size, -1])
+            np.fill_diagonal(wdist, 0.0)
+
+            presence = np.arange(weight.shape[0])
+            shortcuts = get_shortcut(dist, weight)
+            for (s, t, d) in shortcuts :
+                wdist[s, wdist[s] > wdist[t]] = wdist[t, wdist[s] > wdist[t]]
+                wdist[wdist.T[s] > wdist.T[t], s] = wdist[wdist.T[s] > wdist.T[t], t]
+                presence[t] = -1
+            wdist = wdist.T[presence >= 0].T[presence >= 0]
+            presence = presence[presence >=0]
+
             g = nx.DiGraph(wdist)
             ms = nx.minimum_spanning_arborescence(g)
             return [[presence[d[0]], presence[d[1]], int(d[2]['weight'])] for d in ms.edges(data=True)] + shortcuts.tolist()
@@ -383,6 +394,11 @@ class methods(object) :
         fin.close()
         Popen('{0} -i {1} -m N'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
         tree = dp.Tree.get_from_path(fin.name + '_fastme_tree.nwk', schema='newick')
+        try :
+            tree.reroot_at_midpoint()
+        except :
+            pass
+        tree.is_rooted = False
         from glob import glob
         for fname in glob(fin.name + '*') :
             os.unlink(fname)

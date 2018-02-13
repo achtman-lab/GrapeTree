@@ -871,18 +871,46 @@ function D3BaseTree(element_id,metadata,height,width){
 	
 }
 
-D3BaseTree.prototype.parseNewick =  function (a){
+D3BaseTree.prototype.parseNewick =  function (a, taxa_map){
 	this.newickTree = a;
 	for(var e=[],r={},s=a.split(/\s*(;|\(|\)|,|:)\s*/),t=0;t<s.length;t++){
 		var n=s[t];
 		switch(n){
 			case"(":var c={};r.children=[c],e.push(r),r=c;break;
 			case",":var c={};e[e.length-1].children.push(c),r=c;break;
-			case")":r=e.pop();break;case":":break;
-			default:var h=s[t-1];")"===h||"("===h||","===h?r.name=n:":"===h&&(r.length=parseFloat(n));
+			case")":r=e.pop();break;
+			case":":break;
+			default: {
+				var h=s[t-1];
+				")"===h||"("===h||","===h ? (r.name=taxa_map && taxa_map[n] ? taxa_map[n] : n) : ":"===h && (r.length=parseFloat(n));
+			}
 		}
 	}
 	return r;
+};
+D3BaseTree.prototype.parseNexus =  function (tre){
+	var a1 = tre.split(/begin trees;\s+/)[1];
+	var taxa_map = {};
+	if (a1.search('translate') >= 0) {
+		var aa = a1.split(';');
+		var [a3, a2] = [aa[0], aa[1]];
+		for (var a4=a3.split(/[\s,]+/), t=1; t+1 <a4.length; t+= 2) {
+			taxa_map[a4[t]] = a4[t+1];
+		}
+	} else {
+		var [a3, a2] = [null, a1.split(';')[0]];
+	}
+	var a2 = ['(', a2.split(/^[^(]+\(/)[1], ';'].join('').split(/(\[|\])/);
+	var a = [];
+	for (var a = [], t=0, inNote=0; t < a2.length; t ++) {
+		var n = a2[t];
+		switch(n) {
+			case"[": inNote = 1; break;
+			case"]": inNote = 0; break;
+			default: if (! inNote) a.push(n);
+		}
+	}
+	return this.parseNewick(a.join(''), taxa_map);
 };
 
 
