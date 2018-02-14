@@ -471,8 +471,10 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 					this.hypo_record[node.id] = node.id;
 
 					//add dummy metadata
-					if (!this.metadata_map[node.id]) {
+					if (!this.metadata[node.id]) {
 						this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
+					}
+					if (!this.metadata_map[node.id]) {
 						this.metadata_map[node.id]=[node.id];
 					}
                 }
@@ -511,6 +513,15 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
                 }
 				this.hypo_record[l.target.id] = l.source.id;
         }
+        for (var index=0; index < this.force_links.length; index ++) {
+                var l = this.force_links[index];
+                        var id = l.target.id;
+                        while (id != this.hypo_record[id]) {
+                                id = this.hypo_record[id];
+                        }
+                this.hypo_record[l.target.id] = id;
+        }
+
         this.grouped_nodes = {};
         var new_force_nodes = {};
         for (var id in this.hypo_record) {
@@ -554,19 +565,21 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 				})
 			}
         }
+        this.force_links = this.force_links.map(function(l) {
+        	if (self.hypo_record[l.source.id] !== self.hypo_record[l.target.id]) {
+        		return new_force_nodes[self.hypo_record[l.target.id]].link;
+        	}
+        }).filter(function(l) {
+        	return l;
+        });
         this.force_nodes = this.force_nodes.map(function(n) {
         	var grp = self.hypo_record[n.id];
         	var n = new_force_nodes[grp];
+        	if (n) {n.children = Object.values(n.children);}
         	delete new_force_nodes[grp];
         	return n;
         }).filter(function(n) {
         	return n;
-        });
-        this.force_links = this.force_nodes.map(function(n) {
-        	n.children = Object.values(n.children);
-        	return n.link;
-        }).filter(function(l) {
-        	return l;
         });
 
         this.node_collapsed_value=max_distance;
