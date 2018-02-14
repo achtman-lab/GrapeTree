@@ -1057,7 +1057,7 @@ D3MSTree.prototype.delNodes = function(nodes) {
 		if (markedNodes[id]) {
 			markedNodes[this.hypo_record[id]] = 1;
 		} else if (markedNodes[this.hypo_record[id]]) {
-			markedNode[id] = 1;
+			markedNodes[id] = 1;
 		}
 	}
 	var shortcutted = {};
