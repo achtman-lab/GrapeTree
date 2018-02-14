@@ -438,11 +438,12 @@ D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
 D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 		var self = this;
 		if (this.original_links.length > 50000) {
-			this.original_links.sort(function(n1, n2) {return n2.distance-n1.distance});
-			if (max_distance < this.original_links[50000].distance) {
-				max_distance = this.original_links[50000].distance;
+			var link_distances = this.original_links.map(function(l) {return l.distance;}).sort(function(n1, n2) {return n2-n1});
+			if (max_distance < link_distances[50000]) {
+				max_distance = link_distances[50000];
 				alert('Too many nodes. Branches <= '+max_distance+' are collapsed.');
 			}
+			delete link_distances;
 		}
         //value is 0 reset original values to the current ones
 		if ( this.node_collapsed_value <= 0 && ! this.manual_collapsing_value && layout ){
