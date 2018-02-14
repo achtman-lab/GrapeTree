@@ -473,10 +473,8 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 					this.hypo_record[node.id] = node.id;
 
 					//add dummy metadata
-					if (!this.metadata[node.id]) {
-						this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
-					}
 					if (!this.metadata_map[node.id]) {
+						this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
 						this.metadata_map[node.id]=[node.id];
 					}
                 }
