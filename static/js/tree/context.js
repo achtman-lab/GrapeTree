@@ -44,6 +44,8 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 		<div id='legend-svg-menu' style='display:none' class='sub-context'> \
 			<div class='context-option toggle-legend'>Hide figure legend</div> \
 			<hr class='context-hr'> \
+			<b style='font-size:85%'><center>Colour By:&nbsp; \
+			<select style='margin:10px' class='context-select' id='color-colname'></select></center></b> \
 			<div style='font-size:90%'>Maximum group numbers</div> \
 			<center><input id='group-num-input' type='text' class='spin-group context-input' style='width:39px;height:15px' ></input></center> \
 			<hr class='context-hr'> \
@@ -72,13 +74,18 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 			<div class='context-option selectAll'>Select all</div> \
 			<div class='context-option clearSelection'>Unselect all</div> \
 			<hr class='context-hr'> \
+			<div class='context-option' id='go-left'>Go to left</div> \
+			<div class='context-option' id='go-right'>Go to right</div> \
 			<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 			<div class='context-option toggle-metadata'>Hide metadata table</div> \
 				<hr class='context-hr'> \
 				<b style='font-size:85%'><center>Column:&nbsp; \
-				<select style='margin-top:10px' class='context-select' id='hover-colname'></select></center></b> \
+				<div class='context-option' id='moveleft-category'>Move to left</div> \
+				<div class='context-option' id='moveright-category'>Move to right</div> \
+				<select style='margin:5px;margin-top:10px;margin-bottom:10px' class='context-select' id='hover-colname'></select></center></b> \
 				<div id='allowed-color'> \
-					<div class='context-option' id='change-category'>Set as figure legend</div> \
+					<hr class='context-hr'> \
+					<div class='context-option' id='change-category'><label>Set as figure legend</label></div> \
 					<hr class='context-hr'> \
 					<label> Data Category</label> \
 					<select style='margin-left:30px;margin-bottom:10px' class='context-select coltype'> \
@@ -160,7 +167,13 @@ D3MSTreeContextMenu.prototype._init=function(){
 		e.stopPropagation();
 	})
 	.change(function(e) {
-		if (e.target.id == 'hover-colname') {
+		if (e.target.id === 'color-colname') {
+			var colname = $("#color-colname").val();
+			self.tree.changeCategory(colname);
+			$(".coltype").val(self.tree.metadata_info[colname].coltype);
+			$(".grouptype").val(self.tree.metadata_info[colname].grouptype);
+			$(".colorscheme").val(self.tree.metadata_info[colname].colorscheme);
+		} else if (e.target.id == 'hover-colname') {
 			var colname = $("#hover-colname").val();
 			if (! self.tree.metadata_info[colname]) {
 				$("#allowed-color").hide();
@@ -230,6 +243,38 @@ D3MSTreeContextMenu.prototype._init=function(){
 	$("#uncollapse_node").click(function(e) {
 		self.tree.collapseSpecificNodes(self.tree.getSelectedNodeIDs(),true)
 	});
+	$("#go-left").click(function(e) {
+		var row = self.meta_grid.grid.getActiveCell() ? self.meta_grid.grid.getActiveCell().row : 0;
+		var col = self.meta_grid.columns[0].field === '__selected' ? 1 : 0;
+		self.meta_grid.grid.gotoCell(row, col);
+	});
+	$("#go-right").click(function(e) {
+		var row = self.meta_grid.grid.getActiveCell() ? self.meta_grid.grid.getActiveCell().row : 0;
+		self.meta_grid.grid.gotoCell(row,self.meta_grid.columns.length-1);
+	});
+	$("#moveleft-category").click(function(e) {
+		var colname = $("#hover-colname").val();
+		for (var id in self.meta_grid.columns) {
+			var c = self.meta_grid.columns[id];
+			if (c.id === colname) {
+				var x = self.meta_grid.columns.splice(id, 1);
+				self.meta_grid.columns.unshift(x[0]);
+				break;
+			}
+		}
+		self.meta_grid.updateMetadataTable();
+	})
+	$("#moveright-category").click(function(e) {
+		var colname = $("#hover-colname").val();
+		for (var id in self.meta_grid.columns) {
+			var c = self.meta_grid.columns[id];
+			if (c.id === colname) {
+				self.meta_grid.columns.push(self.meta_grid.columns.splice(id, 1));
+				break;
+			}
+		}
+		self.meta_grid.updateMetadataTable();
+	})
 	
 	$("#change-category").click(function(e) {
 		var colname = $("#hover-colname").val();
@@ -294,6 +339,15 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 			$(".grouptype").val(this.tree.metadata_info[category].grouptype);
 			$(".colorscheme").val(this.tree.metadata_info[category].colorscheme);
 		}
+		$("#color-colname").empty().append(function() {
+			var col = Object.keys(self.tree.metadata_info).sort();
+			var output = col.map(function(category) {
+				var label = self.tree.metadata_info[category]['label'];
+				return "<option value='"+category+"'>" + label+ "</option>";
+			});
+			return output.join('');
+		});
+		$("#color-colname").val(category);
 
 		$("#group-num-input").spinner("value", this.tree.category_num);
 
@@ -303,12 +357,12 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 
 	} else if (target == 'myGrid') {
 		$("#hover-colname").empty().append(function() {
-			output = '';
-			for(var category in self.tree.metadata_info) {
+			var col = Object.keys(self.tree.metadata_info).sort();
+			var output = col.map(function(category) {
 				var label = self.tree.metadata_info[category]['label'];
-				output += "<option value='"+category+"'>" + label+ "</option>";
-			}
-			return output;
+				return "<option value='"+category+"'>" + label+ "</option>";
+			});
+			return output.join('');
 		})
 
 		var colname = $("#myGrid .ui-state-hover").text();

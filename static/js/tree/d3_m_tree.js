@@ -832,24 +832,17 @@ D3MSTree.prototype.getLayout=function(){
 
 D3MSTree.prototype._drawLinks=function(){
         var self=this;
-        this.link_elements.selectAll("line").style('stroke', function(it){
-                if (it.value >= self.hide_link_length){
-                        return "white";
-                }
-                else if (it.value > self.max_link_length){
-                        return "black";
-                }
-                return "black";
-        }).attr('stroke-dasharray', function(it){
-                if (self.max_link_length && it.value > self.max_link_length){
-                        return "3,5";
-                }
-                        return "";
+        this.link_elements.selectAll("line")
+        .style('stroke', 'black')
+        .style('opacity', function(it){
+			return (it.value >= self.hide_link_length) ? '0.0' : '1.0';
+        })
+        .attr('stroke-dasharray', function(it){
+            return (self.max_link_length && it.value > self.max_link_length) ? "3,5" : "";
         })
         .attr("stroke-width","3px");
         
         this.link_elements.selectAll(".distance-label").attr("font-size",this.link_font_size);
-                       
 }
 
 
@@ -881,7 +874,6 @@ D3MSTree.prototype.toggleHypotheticalNodes=function(){
 */
 
 D3MSTree.prototype.collapseSpecificNodes=function(nodes,uncollapse){
-	var self = this;
 	var val = uncollapse?1:2
 	for (var i in nodes) {
 		var node=nodes[i];
@@ -1315,14 +1307,11 @@ D3MSTree.prototype._getLink=function(target_node){
 		var log_adjust2 = self.distance_scale(max_link_distance)/(Math.log(self.distance_scale(max_link_distance)) - log_adjust1);
         this.link_elements.each(function(d){			
 			var length =  self.node_radii[d.source.id] + self.node_radii[d.target.id];
-			if (strict){
-					d.value=d.original_value;
-			}
+			if (strict) d.value=d.original_value;
+
 			var line_len = d.value;
-			if (self.max_link_length){
-					if (line_len>self.max_link_length){
-							line_len=self.max_link_length;
-					}
+			if (self.max_link_length && line_len>self.max_link_length){
+				line_len=self.max_link_length;
 			}
 			if (self.log_link_scale){
 				length = (Math.log(self.distance_scale(line_len)) - log_adjust1)*log_adjust2+length;
