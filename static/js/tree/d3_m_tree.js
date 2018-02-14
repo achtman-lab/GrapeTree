@@ -191,12 +191,12 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale, node_size) {
         var max_radial = 0.0, min_arc = 0.0;
         for (var id in nodes) {
                 var node = nodes[id];
-                if (node.length > max_radial) {
-                        max_radial = node.length;
+                if (node.link && node.link.value > max_radial) {
+                        max_radial = node.link.value;
                 }
                 min_arc += node.size;
         }
-        var min_radial = max_radial/link_scale * (2*Math.sqrt(node_size));
+        var min_radial = max_radial/link_scale * (2*Math.pow(node.size, this.size_power));
         var min_arc = min_radial * Math.PI / min_arc;
         
         for (var iteration=0; iteration < 20; iteration ++) {
@@ -208,12 +208,13 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale, node_size) {
                         for (var id = nodes.length-1; id >= 0; id --) {
                                 node = nodes[id];
                                 if (node.spacing) continue ;
-                                var span1 = [min_radial*Math.sqrt(node.size), Math.asin(min_arc*Math.sqrt(node.size) / min_radial)]; // node span
+                                var nr = Math.pow(node.size, this.size_power);
+                                var span1 = [min_radial*nr, Math.asin(min_arc*nr / min_radial)]; // node span
                                 var radial_sum = 0, angle_sum = 0;  // descending span
                                 for (var jd in node.children) {
                                         child = node.children[jd];
                                         if (! child.des_span) continue;
-                                        self_radial = min_radial * Math.sqrt(node.size) + child.length;
+                                        self_radial = min_radial * Math.sqrt(node.size) + child.link.value;
                                         if (Math.cos(Math.PI - child.des_span[1]) > child.des_span[0] / self_radial ) {
                                                 if (child.des_span[0] < self_radial) {
                                                         var span = [self_radial, Math.asin(child.des_span[0] / self_radial)];
@@ -279,7 +280,7 @@ D3MSTree.prototype.greedy_layout = function(nodes, link_scale, node_size) {
                         for (var jd=0; jd < node.children.length; ++ jd) {
                                 var child = node.children[jd];
                                 var min_angle = node.spacing/child.self_span[0];
-                                child.polar = [child.length + self_radial, initial_angle + child.self_span[1] + min_angle + node.polar[1]];
+                                child.polar = [child.link.value + self_radial, initial_angle + child.self_span[1] + min_angle + node.polar[1]];
                                 initial_angle += (child.self_span[1] + min_angle + gap)*2;
                                 child.coordinates = to_Cartesian(child.polar);
                                 child.coordinates[0] += node.coordinates[0], child.coordinates[1] += node.coordinates[1];
@@ -565,14 +566,14 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 				})
 			}
         }
-        this.force_links = this.force_links.map(function(l) {
+        var new_force_links = this.force_links.map(function(l) {
         	if (self.hypo_record[l.source.id] !== self.hypo_record[l.target.id]) {
         		return new_force_nodes[self.hypo_record[l.target.id]].link;
         	}
         }).filter(function(l) {
         	return l;
         });
-        this.force_nodes = this.force_nodes.map(function(n) {
+        var new_force_nodes = this.force_nodes.map(function(n) {
         	var grp = self.hypo_record[n.id];
         	var n = new_force_nodes[grp];
         	if (n) {n.children = Object.values(n.children);}
@@ -581,7 +582,14 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
         }).filter(function(n) {
         	return n;
         });
-
+		this.force_links.length = 0;
+		new_force_links.forEach(function(l) {
+			self.force_links.push(l);
+		});
+		this.force_nodes.length = 0;
+		new_force_nodes.forEach(function(l) {
+			self.force_nodes.push(l);
+		});
         this.node_collapsed_value=max_distance;
 
 		this.node_map = {};
@@ -604,7 +612,6 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 					}
 				}
                 node.size = (node.hypothetical ? 0.01 : this.grouped_nodes[node.id].length);
-                if (node.link) node.length = node.link.value;
         }
 	//update the node to which the metadata is associated  
     this._updateNodeRadii();
@@ -809,23 +816,20 @@ D3MSTree.prototype.getLayout=function(){
                 }
         }
         var nodes_links = { 
-                max_link_length:this.max_link_length,
-                max_link_scale:this.max_link_scale,
-                base_node_size:this.base_node_size,
-                size_power:this.size_power,
-                link_font_size:this.link_font_size,
-                show_link_labels:this.show_link_labels,
-                show_node_labels:this.show_node_labels,
-                node_font_size:this.node_font_size,
-                custom_colours:this.custom_colours,
-                hide_link_length:this.hide_link_length,
-                show_individual_segments:this.show_individual_segments,
-                node_collapsed_value:this.node_collapsed_value,
-		node_text_value:this.node_text_value,
-		manual_collapsing:this.manual_collapsing,
-		
-		
-                
+			max_link_length:this.max_link_length,
+			max_link_scale:this.max_link_scale,
+			base_node_size:this.base_node_size,
+			size_power:this.size_power,
+			link_font_size:this.link_font_size,
+			show_link_labels:this.show_link_labels,
+			show_node_labels:this.show_node_labels,
+			node_font_size:this.node_font_size,
+			custom_colours:this.custom_colours,
+			hide_link_length:this.hide_link_length,
+			show_individual_segments:this.show_individual_segments,
+			node_collapsed_value:this.node_collapsed_value,
+			node_text_value:this.node_text_value,
+			manual_collapsing:this.manual_collapsing,
         };
         if (this.log_link_scale){
                 nodes_links['log_link_scale']= "true";
@@ -1041,7 +1045,65 @@ D3MSTree.prototype._setNodeText = function(){
 };
 
 
-
+D3MSTree.prototype.delNodes = function(nodes) {
+	var self =this;
+	var markedNodes = {};
+	nodes.filter(function(n) {
+		return ! n.startsWith('_hypo');
+	}).forEach(function(n) {
+		markedNodes[n] = 1;
+	});
+	for (var id in this.hypo_record) {
+		if (markedNodes[id]) {
+			markedNodes[this.hypo_record[id]] = 1;
+		} else if (markedNodes[this.hypo_record[id]]) {
+			markedNode[id] = 1;
+		}
+	}
+	var shortcutted = {};
+	var todel = 1;
+	while (todel) {
+		todel = 0;
+		this.force_nodes.forEach(function(n) {
+			n.children = n.children.filter(function(c) {
+					return ! markedNodes[c.id];
+			});
+			var n_child = n.children.length;
+			if (n.parent && markedNodes[n.parent.id]) {
+				n.parent = null;
+			}
+			var n_parent = n.parent ? 1 : 0;
+			if (n.hypothetical && ! markedNodes[n.id]) {
+				if (n_child + n_parent <= 1) {
+					markedNodes[n.id] = 1;
+					todel = 1;
+				} else if (n_parent === 1 && n_child === 1) {
+					markedNodes[n.id] = 1;
+					todel = 1;
+					n.children[0].link.original_value += n.link.original_value;
+					n.children[0].link.value += n.link.value;
+					n.children[0].parent = n.children[0].link.source = n.parent;
+					n.parent.children.push(n.children[0]);
+				}
+			}
+		});
+	}
+	self.original_links = self.original_links.filter(function(l) {
+		return ! (markedNodes[self.original_nodes[l.source]] || markedNodes[self.original_nodes[l.target]]);
+	});
+	self.original_nodes = self.original_nodes.filter(function(n) {
+		return ! markedNodes[n];
+	});
+	self.force_links = self.force_links.filter(function(l) {
+		return ! (markedNodes[l.source.id] || markedNodes[l.target.id]);
+	});
+	self.force_nodes = self.force_nodes.filter(function(n) {
+		return ! markedNodes[n.id];
+	});
+	this.max_link_distance = Math.max.apply(Math, self.force_links.map(function(l) {return l.value;}))
+	this._collapseNodes(this.node_collapsed_value);
+	this.refreshGraph(null, true);
+}
 
 
 D3MSTree.prototype._calculateArc=function(){

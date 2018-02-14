@@ -39,6 +39,8 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 			<div class='context-option' id='center-tree'>Center Tree</div> \
 			<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 			<hr class='context-hr'> \
+			<div class='context-option' id='delete-node'>Delete selected nodes</div> \
+			<hr class='context-hr'> \
 			</span><div class='context-option toggle-legend'>Show figure legend</div> \
 		</div> \
 		<div id='legend-svg-menu' style='display:none' class='sub-context'> \
@@ -228,9 +230,11 @@ D3MSTreeContextMenu.prototype._init=function(){
 	});
 	
 	$("#collapse_node").click(function(e) {	
-		self.tree.collapseSpecificNodes(self.tree.getSelectedNodeIDs());		
+		self.tree.collapseSpecificNodes(self.tree.getSelectedNodeIDs());
 	});
-	
+	$("#delete-node").click(function(e) {
+		self.tree.delNodes(self.tree.getSelectedNodeIDs());
+	});
 	
 	$("#uncollapse_all").click(function(e) {
 		self.tree.manual_collapsing = {};
