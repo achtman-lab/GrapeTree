@@ -74,15 +74,13 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 			<div class='context-option selectAll'>Select all</div> \
 			<div class='context-option clearSelection'>Unselect all</div> \
 			<hr class='context-hr'> \
-			<div class='context-option' id='go-left'>Go to left</div> \
-			<div class='context-option' id='go-right'>Go to right</div> \
 			<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 			<div class='context-option toggle-metadata'>Hide metadata table</div> \
 				<hr class='context-hr'> \
 				<b style='font-size:85%'><center>Column:&nbsp; \
+				<select style='margin:5px;margin-top:10px;margin-bottom:10px' class='context-select' id='hover-colname'></select></center></b> \
 				<div class='context-option' id='moveleft-category'>Move to left</div> \
 				<div class='context-option' id='moveright-category'>Move to right</div> \
-				<select style='margin:5px;margin-top:10px;margin-bottom:10px' class='context-select' id='hover-colname'></select></center></b> \
 				<div id='allowed-color'> \
 					<hr class='context-hr'> \
 					<div class='context-option' id='change-category'><label>Set as figure legend</label></div> \
@@ -375,6 +373,15 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 			}
 
 		}
+		if (! this.tree.metadata_info[colname]) {
+			for (var c in this.tree.metadata_info) {
+				if (this.tree.metadata_info[c].label === colname) {
+					colname = c;
+					break;
+				}
+			}
+		}
+
 		$("#hover-colname").val(colname);
 
 		if (! this.tree.metadata_info[colname]) {

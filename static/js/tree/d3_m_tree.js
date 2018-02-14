@@ -498,22 +498,18 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 			}
         }
 
+		var valid_label = {};
         for (var index=this.force_links.length-1; index >=0; index --) {
         		var l = this.force_links[index];
                 if ( !l || (l.value > max_distance && to_collapse[l.source.id] !== 2) || (l.value && to_collapse[l.source.id] === 1) ) continue;
+                if (l.source.hypothetical && ! valid_label[l.source.id]) {
+                	if (! l.target.hypothetical) {
+                		valid_label[l.source.id] = l.target.id;
+                	} else if (valid_label[l.target.id]) {
+                		valid_label[l.source.id] = valid_label[l.target.id];
+                	}
+                }
 				this.hypo_record[l.target.id] = l.source.id;
-        }
-        var valid_label = {};
-        for (var index=0; index < this.force_links.length; index ++) {
-        	var l = this.force_links[index];
-			var id = l.target.id;
-			while (id != this.hypo_record[id]) {
-				id = this.hypo_record[id];
-			}
-        	this.hypo_record[l.target.id] = id;
-        	if (! valid_label.id && ! l.target.id.startsWith('_hypo')) {
-        		valid_label[id] = l.target.id;
-        	}
         }
         this.grouped_nodes = {};
         var new_force_nodes = {};
