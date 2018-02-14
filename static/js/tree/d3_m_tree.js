@@ -1339,22 +1339,23 @@ D3MSTree.prototype._addLinks=function(links,ids){
 			  var n=this.force_nodes[i];
 			  _findNode[n.id] = n;
 	   }
-	   this.force_links = new_links.map(function(x) {
-				if (x.value > self.max_link_distance){
-					   self.max_link_distance=x.value;
-				}
-				var target_node = _findNode[x.target];
-				var source_node = _findNode[x.source];
-				if (! source_node.children) source_node.children = [];
-				source_node.children.push(target_node);
-				target_node.parent = source_node;
-				return {
+	   for (var id in new_links) {
+		   	var x = new_links[id];
+			if (x.value > self.max_link_distance){
+				   self.max_link_distance=x.value;
+			}
+			var target_node = _findNode[x.target];
+			var source_node = _findNode[x.source];
+			if (! source_node.children) source_node.children = [];
+			source_node.children.push(target_node);
+			target_node.parent = source_node;
+			this.force_links.push( {
 					   source: source_node,
 					   target: target_node,
 					   value: x.value,
-					   original_value:x.value
-				};
-	   });
+					   original_value:x.value,
+			});
+	   }
 	   this.force_links.forEach(function(l) {
 	   		l.target.link = l;
 	   });
