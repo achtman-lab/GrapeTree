@@ -187,7 +187,7 @@ class methods(object) :
             presence = presence[presence >=0]
 
             import tempfile
-            f = tempfile.NamedTemporaryFile(delete=False)
+            f = tempfile.NamedTemporaryFile(delete=False, dir='.')
             f.close()
             with open(f.name, 'w') as fout :
                 for d in wdist :
