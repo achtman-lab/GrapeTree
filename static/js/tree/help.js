@@ -93,3 +93,7 @@ help_text['enterobase'] = '<h2><a id="Saving_in_GrapeTree_13"></a>Interaction Wi
 <li><strong>Update</strong>: Will update the tree with any metadata  that has changed  in Enterobase since the tree was created or the last update.  Also any data from custom columns, which has changed in Enterobase will also be updated in ther tree.</li>\
 <li><strong>Info</strong>: Shows information about the tree such as the parameters used for construction, number of strains, last modified etc. </li>\
 </ul>';
+
+for (var k in help_text) {
+    help_text[k] = [help_text[k], '<br><br>The complete documentation can be found in <a href="https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree" target="_blank">Online Documents</a>'];
+}

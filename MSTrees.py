@@ -165,7 +165,7 @@ class methods(object) :
     @staticmethod
     def _asymmetric(dist, weight, **params) :
         def get_shortcut(dist, weight, cutoff=4) :
-            if dist.shape[0] < 20000 :
+            if dist.shape[0] < 10000 :
                 cutoff = 1
             link = np.array(np.where(dist < cutoff))
             link = link.T[weight[link[0]] < weight[link[1]]].T
@@ -492,7 +492,7 @@ def backend(**parameters) :
     if fmt == 'fasta' :
         for line in fin[line_id:] :
             if line.startswith('>') :
-                names.append(line.strip().split()[0])
+                names.append(line[1:].strip().split()[0])
                 profiles.append([])
             else :
                 profiles[-1].extend(line.strip().split())
