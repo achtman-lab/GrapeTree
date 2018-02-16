@@ -1,6 +1,6 @@
 import numpy as np, dendropy as dp, networkx as nx
 from subprocess import Popen, PIPE
-import sys, os, tempfile, platform, re
+import sys, os, tempfile, platform, re, tempfile
 
 params = dict(method='MSTreeV2', # MSTree , NJ
               matrix_type='symmetric',
@@ -18,31 +18,34 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               )
 
 def parallel_distance(callup) :
-    func, missing_data, index_range = callup
-    profiles = np.load('GrapeTree.npy')
+    func, prof_file, sub_prefix, missing_data, index_range = callup
+    profiles = np.load(prof_file)
     res = eval('distance_matrix.'+func)(profiles, missing_data, index_range)
-    np.save('GrapeTree.'+str(index_range[0])+'.npy', res)
+    subfile = sub_prefix.format(index_range[0])
+    np.save(subfile, res)
+    return subfile
 
 
 class distance_matrix(object) :
     @staticmethod
     def get_distance(func, profiles, missing_data) :
         from multiprocessing import Pool
-        n_proc = params['n_proc']
-        n_proc = min(n_proc, profiles.shape[0])
+        n_profile = profiles.shape[0]
+        n_proc = min(params['n_proc'], profiles.shape[0])
         pool = Pool(n_proc)
         indices = np.array([[profiles.shape[0]*v/n_proc+0.5, profiles.shape[0]*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
-        np.save('GrapeTree.npy', profiles)
-        pool.map(parallel_distance, [[func, missing_data, idx] for idx in indices])
+        np.save(params['prof_file'], profiles)
+        del profiles
+        subfiles = pool.map(parallel_distance, [[func, params['prof_file'], params['dist_subfile'], missing_data, idx] for idx in indices])
         pool.close()
         del pool
-        os.unlink('GrapeTree.npy')
-        res = np.hstack([ np.load('GrapeTree.'+str(idx)+'.npy') for idx in indices.T[0] ])
-        for idx in indices.T[0] :
-            try:
-                os.unlink('GrapeTree.'+str(idx)+'.npy')
+        res = np.hstack([ np.load(subfile) for subfile in subfiles ])
+        for subfile in subfiles :
+            try :
+                os.unlink(subfile)
             except :
                 pass
+        np.save(params['dist_file'], res)
         if func == 'symmetric' :
             res[res.T > res] = res.T[res.T > res]
         return res
@@ -78,16 +81,13 @@ class distance_matrix(object) :
         else :
             presences = np.repeat(np.sum(profiles >0, 0) >= profiles.shape[0], profiles.shape[0]).reshape([profiles.shape[1], profiles.shape[0]]).T
 
-        #distances = np.zeros(shape=[index_range[1] - index_range[0], profiles.shape[0]])
         distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]])
-
         if missing_data in ('pair_delete',) :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
                 comparable = (presences[:id] * presence)
                 diffs = np.sum((profiles[:id] != profile) & comparable, axis=1) * float(presence.size) / np.sum(comparable, axis=1)
                 distances[:id, i2] = diffs
-                #distances[id, :i2] = diffs[index_range[0]:index_range[0]+id]
         else :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
@@ -164,10 +164,10 @@ class methods(object) :
 
     @staticmethod
     def _asymmetric(dist, weight, **params) :
-        def get_shortcut(dist, weight, cutoff=4) :
+        def get_shortcut(dist, weight, cutoff=20) :
             if dist.shape[0] < 10000 :
                 cutoff = 1
-            link = np.array(np.where(dist < cutoff))
+            link = np.array(np.where(dist < (cutoff+1) ))
             link = link.T[weight[link[0]] < weight[link[1]]].T
             link = np.vstack([link, dist[link.tolist()] + weight[link[0]]])
             link = link.T[np.lexsort(link)]
@@ -176,39 +176,38 @@ class methods(object) :
         try:
             wdist = np.round(dist, 0) + weight.reshape([weight.size, -1])
             np.fill_diagonal(wdist, 0.0)
+            del dist
 
             presence = np.arange(weight.shape[0])
-            shortcuts = get_shortcut(dist, weight)
+            shortcuts = get_shortcut(wdist, weight)
             for (s, t, d) in shortcuts :
                 wdist[s, wdist[s] > wdist[t]] = wdist[t, wdist[s] > wdist[t]]
-                wdist[wdist.T[s] > wdist.T[t], s] = wdist[wdist.T[s] > wdist.T[t], t]
                 presence[t] = -1
             wdist = wdist.T[presence >= 0].T[presence >= 0]
             presence = presence[presence >=0]
 
-            import tempfile
-            f = tempfile.NamedTemporaryFile(delete=False, dir='.')
-            f.close()
-            with open(f.name, 'w') as fout :
+            wdist_file = params['tempfix'] + '.wdist.list'
+            with open(wdist_file, 'w') as fout :
                 for d in wdist :
                     fout.write('{0}\n'.format('\t'.join([str(dd) for dd in (d+1.)])))
             del wdist, d
-            mstree = Popen([params['edmonds_' + platform.system()], f.name], stdin=PIPE, stdout=PIPE).communicate()[0]
-            os.unlink(f.name)
+            mstree = Popen([params['edmonds_' + platform.system()], wdist_file], stdout=PIPE).communicate()[0]
+            os.unlink(wdist_file)
             mstree = np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int)
             assert mstree.size > 0
             mstree.T[2] -= 1
             mstree.T[:2] = presence[mstree.T[:2]]
             return mstree.tolist() + shortcuts.tolist()
         except :
+            dist = np.load(params['dist_file'])
             wdist = np.round(dist, 0) + weight.reshape([weight.size, -1])
             np.fill_diagonal(wdist, 0.0)
+            del dist
 
             presence = np.arange(weight.shape[0])
-            shortcuts = get_shortcut(dist, weight)
+            shortcuts = get_shortcut(wdist, weight)
             for (s, t, d) in shortcuts :
                 wdist[s, wdist[s] > wdist[t]] = wdist[t, wdist[s] > wdist[t]]
-                wdist[wdist.T[s] > wdist.T[t], s] = wdist[wdist.T[s] > wdist.T[t], t]
                 presence[t] = -1
             wdist = wdist.T[presence >= 0].T[presence >= 0]
             presence = presence[presence >=0]
@@ -339,13 +338,15 @@ class methods(object) :
 
     @staticmethod
     def MSTree(names, profiles, embeded, matrix_type='asymmetric', edge_weight='harmonic', branch_recrafting='T', missing_data='pair_delete', **params) :
+        n_loci = profiles.shape[1]
         dist = distance_matrix.get_distance(matrix_type, profiles, missing_data)
         weight = eval('distance_matrix.'+edge_weight)(dist, [len(embeded[n]) for n in names])
 
         tree = eval('methods._'+matrix_type)(dist, weight, **params)
         if branch_recrafting != 'F' :
-            tree = methods._branch_recrafting(tree, dist, weight, profiles.shape[1])
-        tree = distance_matrix.symmetric_link(profiles, tree, missing_data= missing_data)
+            tree = methods._branch_recrafting(tree, np.load(params['dist_file']), weight, n_loci)
+            del dist
+        tree = distance_matrix.symmetric_link(np.load(params['prof_file']), tree, missing_data= missing_data)
         tree = methods._network2tree(tree, names)
         return tree
 
@@ -387,23 +388,22 @@ class methods(object) :
     @staticmethod
     def NJ(names, profiles, embeded, missing_data='pair_delete', **params) :
         dist = distance_matrix.get_distance('symmetric', profiles, missing_data)
-        dist_txt = ['    {0}'.format(dist.shape[0])]
-        for n, d in enumerate(dist) :
-            dist_txt.append('{0!s:10} {1}'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])))
 
-        #write profile
-        fin = tempfile.NamedTemporaryFile(delete=False)
-        fin.write('\n'.join(dist_txt))
-        fin.close()
-        Popen('{0} -i {1} -m N'.format(params['NJ_{0}'.format(platform.system())], fin.name).split(), stdout=PIPE).communicate()
-        tree = dp.Tree.get_from_path(fin.name + '_fastme_tree.nwk', schema='newick')
+        dist_file = params['tempfix'] + 'dist.list'
+        with open(dist_file, 'w') as fout :
+            fout.write('    {0}\n'.format(dist.shape[0]))
+            for n, d in enumerate(dist) :
+                fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
+
+        Popen('{0} -i {1} -m N'.format(params['NJ_{0}'.format(platform.system())], dist_file).split(), stdout=PIPE).communicate()
+        tree = dp.Tree.get_from_path(dist_file + '_fastme_tree.nwk', schema='newick')
         try :
             tree.reroot_at_midpoint()
         except :
             pass
         tree.is_rooted = False
         from glob import glob
-        for fname in glob(fin.name + '*') :
+        for fname in glob(dist_file + '*') :
             os.unlink(fname)
         for taxon in tree.taxon_namespace :
             taxon.label = names[int(taxon.label)]
@@ -411,7 +411,7 @@ class methods(object) :
 
 def nonredundant(names, profiles) :
     encoded_profile = np.array([np.unique(p, return_inverse=True)[1]+1 for p in profiles.T]).T
-    encoded_profile[(profiles == '-') | (profiles == '0')] = 0
+    encoded_profile[ (profiles == '0') | (profiles == 'N') | (profiles == '-')] = 0
 
     names = names[np.lexsort(encoded_profile.T)]
     profiles = encoded_profile[np.lexsort(encoded_profile.T)]
@@ -484,7 +484,7 @@ def backend(**parameters) :
         if line.startswith('#') :
             if not line.startswith('##') :
                 header = line.strip().split('\t')
-                allele_cols = np.array([ id for id, col in enumerate(header) if not col.startswith('#')])
+                allele_cols = np.array([ id for id, col in enumerate(header) if id > 0 and not col.startswith('#')])
             continue
         fmt = 'fasta' if line.startswith('>') else 'profile'
         break
@@ -508,19 +508,34 @@ def backend(**parameters) :
                 profiles.append(np.array(part)[allele_cols])
             else :
                 profiles.append(part[1:])
-
+    profiles = np.char.upper(profiles)
     names = [re.sub(r'[\(\)\ \,\"\';]', '_', n) for n in names]
     names, profiles, embeded = nonredundant(np.array(names), np.array(profiles))
-    tre = eval('methods.' + params['method'])(names, profiles, embeded, **params)
-    if params['method'] != 'distance' :
-        for taxon in tre.taxon_namespace :
-            embeded_group = embeded[taxon.label]
-            if len(embeded_group) > 1 :
-                taxon.label = '({0}:0)'.format(':0,'.join(embeded_group))
+    with tempfile.NamedTemporaryFile(delete=True, dir='.') as f :
+        params['tempfix'] = f.name
+        params['prof_file'] = params['tempfix']+'.prof.npy'
+        params['dist_file'] = params['tempfix']+'.dist.npy'
+        params['dist_subfile'] = params['tempfix']+'.dist.{0}.npy'
+        tre = eval('methods.' + params['method'])(names, profiles, embeded, **params)
+        if params['method'] != 'distance' :
+            for taxon in tre.taxon_namespace :
+                embeded_group = embeded[taxon.label]
+                if len(embeded_group) > 1 :
+                    taxon.label = '({0}:0)'.format(':0,'.join(embeded_group))
 
-        return tre.as_string('newick').replace("'", "")
-    else :
-        return '\n'.join(tre)
+            for fname in (params['prof_file'], params['dist_file']) :
+                try:
+                    os.unlink(fname)
+                except :
+                    pass
+            return tre.as_string('newick').replace("'", "")
+        else :
+            for fname in (params['prof_file'], params['dist_file']) :
+                try:
+                    os.unlink(fname)
+                except :
+                    pass
+            return '\n'.join(tre)
 
 
 if __name__ == '__main__' :
