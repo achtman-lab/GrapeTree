@@ -352,7 +352,7 @@ class methods(object) :
 
     @staticmethod
     def goeBurst(names, profiles, embeded, missing_data='pair_delete', **params) :
-        goeburst = Popen('{0} -t'.format(params['goeburst_Linux']).split(), stdin=PIPE, stdout=PIPE)
+        goeburst = Popen([params['goeburst_Linux']] + ['-t'], stdin=PIPE, stdout=PIPE)
         if missing_data == 'pair_delete' :
             for n, p in enumerate(profiles) :
                 goeburst.stdin.write('{0}\t{1}\n'.format(n, '\t'.join([str(pp) if pp > 0 else '-' for pp in p])))
@@ -395,7 +395,7 @@ class methods(object) :
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
 
-        Popen('{0} -i {1} -m N'.format(params['NJ_{0}'.format(platform.system())], dist_file).split(), stdout=PIPE).communicate()
+        Popen([params['NJ_{0}'.format(platform.system())], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
         tree = dp.Tree.get_from_path(dist_file + '_fastme_tree.nwk', schema='newick')
         try :
             tree.reroot_at_midpoint()
