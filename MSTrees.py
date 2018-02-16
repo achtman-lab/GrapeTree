@@ -31,15 +31,18 @@ class distance_matrix(object) :
     def get_distance(func, profiles, missing_data) :
         from multiprocessing import Pool
         n_profile = profiles.shape[0]
-        n_proc = min(params['n_proc'], profiles.shape[0])
-        pool = Pool(n_proc)
-        indices = np.array([[profiles.shape[0]*v/n_proc+0.5, profiles.shape[0]*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
-        np.save(params['prof_file'], profiles)
-        del profiles
-        subfiles = pool.map(parallel_distance, [[func, params['prof_file'], params['dist_subfile'], missing_data, idx] for idx in indices])
-        pool.close()
-        del pool
-        res = np.hstack([ np.load(subfile) for subfile in subfiles ])
+        n_proc = min(int(params['n_proc']), profiles.shape[0])
+        if n_proc > 1 :
+            pool = Pool(n_proc)
+            indices = np.array([[profiles.shape[0]*v/n_proc+0.5, profiles.shape[0]*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
+            np.save(params['prof_file'], profiles)
+            del profiles
+            subfiles = pool.map(parallel_distance, [[func, params['prof_file'], params['dist_subfile'], missing_data, idx] for idx in indices])
+            pool.close()
+            del pool
+            res = np.hstack([ np.load(subfile) for subfile in subfiles ])
+        else :
+            parallel_distance([func, params['prof_file'], params['dist_subfile'], missing_data, [0, n_profile]])
         for subfile in subfiles :
             try :
                 os.unlink(subfile)
@@ -352,7 +355,7 @@ class methods(object) :
 
     @staticmethod
     def goeBurst(names, profiles, embeded, missing_data='pair_delete', **params) :
-        goeburst = Popen('{0} -t'.format(params['goeburst_Linux']).split(), stdin=PIPE, stdout=PIPE)
+        goeburst = Popen([params['goeburst_Linux']] + ['-t'], stdin=PIPE, stdout=PIPE)
         if missing_data == 'pair_delete' :
             for n, p in enumerate(profiles) :
                 goeburst.stdin.write('{0}\t{1}\n'.format(n, '\t'.join([str(pp) if pp > 0 else '-' for pp in p])))
@@ -395,7 +398,7 @@ class methods(object) :
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
 
-        Popen('{0} -i {1} -m N'.format(params['NJ_{0}'.format(platform.system())], dist_file).split(), stdout=PIPE).communicate()
+        Popen([params['NJ_{0}'.format(platform.system())], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
         tree = dp.Tree.get_from_path(dist_file + '_fastme_tree.nwk', schema='newick')
         try :
             tree.reroot_at_midpoint()
