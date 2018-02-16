@@ -805,7 +805,6 @@ function D3BaseTree(element_id,metadata,height,width){
 	}
 	this.show_legend=true;
 	
-			
 	this.svg = d3.select("#"+element_id).append('svg')
 	 .attr("width",this.width)
 	.attr("height",this.height)
