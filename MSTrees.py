@@ -31,15 +31,18 @@ class distance_matrix(object) :
     def get_distance(func, profiles, missing_data) :
         from multiprocessing import Pool
         n_profile = profiles.shape[0]
-        n_proc = min(params['n_proc'], profiles.shape[0])
-        pool = Pool(n_proc)
-        indices = np.array([[profiles.shape[0]*v/n_proc+0.5, profiles.shape[0]*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
-        np.save(params['prof_file'], profiles)
-        del profiles
-        subfiles = pool.map(parallel_distance, [[func, params['prof_file'], params['dist_subfile'], missing_data, idx] for idx in indices])
-        pool.close()
-        del pool
-        res = np.hstack([ np.load(subfile) for subfile in subfiles ])
+        n_proc = min(int(params['n_proc']), profiles.shape[0])
+        if n_proc > 1 :
+            pool = Pool(n_proc)
+            indices = np.array([[profiles.shape[0]*v/n_proc+0.5, profiles.shape[0]*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
+            np.save(params['prof_file'], profiles)
+            del profiles
+            subfiles = pool.map(parallel_distance, [[func, params['prof_file'], params['dist_subfile'], missing_data, idx] for idx in indices])
+            pool.close()
+            del pool
+            res = np.hstack([ np.load(subfile) for subfile in subfiles ])
+        else :
+            parallel_distance([func, params['prof_file'], params['dist_subfile'], missing_data, [0, n_profile]])
         for subfile in subfiles :
             try :
                 os.unlink(subfile)
