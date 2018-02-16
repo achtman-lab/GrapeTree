@@ -42,8 +42,8 @@ class distance_matrix(object) :
             del pool
             res = np.hstack([ np.load(subfile) for subfile in subfiles ])
         else :
-            subfile = parallel_distance([func, params['prof_file'], params['dist_subfile'], missing_data, [0, n_profile]])
-            res = np.load(subfile)
+            subfiles = [parallel_distance([func, params['prof_file'], params['dist_subfile'], missing_data, [0, n_profile]])]
+            res = np.load(subfile[0])
         for subfile in subfiles :
             try :
                 os.unlink(subfile)
