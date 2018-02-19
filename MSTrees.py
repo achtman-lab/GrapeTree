@@ -1,6 +1,6 @@
 import numpy as np, dendropy as dp, networkx as nx
 from subprocess import Popen, PIPE
-import sys, os, tempfile, platform, re, tempfile
+import sys, os, tempfile, platform, re, tempfile, psutil
 
 params = dict(method='MSTreeV2', # MSTree , NJ
               matrix_type='symmetric',
@@ -15,6 +15,7 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux'),
               goeburst_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'goeburst'),
               n_proc = 5,
+              checkEnv = False,
               )
 
 def parallel_distance(callup) :
@@ -515,6 +516,11 @@ def backend(**parameters) :
     profiles = np.char.upper(profiles)
     names = [re.sub(r'[\(\)\ \,\"\';]', '_', n) for n in names]
     names, profiles, embeded = nonredundant(np.array(names), np.array(profiles))
+    if int(params.get('checkEnv', False)) :
+        time, memory = estimate_Consumption(platform.system(), params['method'], params['matrix_type'], int(params['n_proc']), profiles.shape[1], profiles.shape[0])
+        free_memory = psutil.virtual_memory().available
+        import json
+        return json.dumps(dict(time=time, memory=memory, affordable=free_memory >= memory))
     with tempfile.NamedTemporaryFile(delete=True, dir='.') as f :
         params['tempfix'] = f.name
         params['prof_file'] = params['tempfix']+'.prof.npy'
@@ -541,6 +547,31 @@ def backend(**parameters) :
                     pass
             return '\n'.join(tre)
 
+def estimate_Consumption(platform, method, matrix, n_proc, n_loci, n_profile) :
+    if method == 'MSTree' :
+        if matrix == 'asymmetric' :
+            if platform == 'Windows' :
+                time = 5.600754e-6 * n_profile * n_profile + 6.22306e-9 * n_loci * n_profile * n_profile/n_proc + 22.71
+                memory = 182.16 * n_profile * n_profile + 282674000
+            else :
+                time = 2.431284e-6 * n_profile * n_profile + 2.701426667e-9 * n_loci * n_profile * n_profile/n_proc + 33.753
+                memory = 103.77 * n_profile * n_profile + 516625000
+        else :
+            if platform == 'Windows' :
+                time = 3.362214e-6 * n_profile * n_profile + 3.735793333e-9 * n_loci * n_profile * n_profile/n_proc + 20
+                memory = 70.140 * n_profile * n_profile + 292156000
+            else :
+                time = 2.272428e-6 * n_profile * n_profile + 32.625 + 2.52492e-9 * n_loci * n_profile * n_profile/n_proc
+                memory = 66.297 * n_profile * n_profile + 429570000
+    elif method == 'NJ' :
+        if platform == 'Windows' :
+            time = 1.149e-8 *  n_profile * n_profile * n_profile
+            memory = max(0.058292 *  n_profile * n_profile * n_profile, 1.39e6 * n_profile - 9.86e8)
+        else :
+            time = 1.1042e-8 *  n_profile * n_profile * n_profile
+            memory = max(0.058292 *  n_profile * n_profile * n_profile, 1.39e6 * n_profile - 9.86e8)
+
+    return max(time, 5), max(memory, 50*1024*1024)
 
 if __name__ == '__main__' :
     tre = backend(**dict([p.split('=') for p in sys.argv[1:]]))

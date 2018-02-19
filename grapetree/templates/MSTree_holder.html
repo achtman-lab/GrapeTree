@@ -59,6 +59,7 @@
 			   <option class='show-tooltip' title='A traditional Minimum spanning tree + eBurst weighting' value='MSTree'>MSTree</option>
 			   <option class='show-tooltip' title='FastME V2.0 is implemented for Neighbor-Joining phylogeny.' value='NJ'>Neighbour Joining</option>
 		   </select>
+		   <label><input id ='check-memory' type="checkbox" checked /> Check memory usage</label>
 	   </div>
       </div>
       <div class="modal-footer">
@@ -871,8 +872,73 @@ function showModalForParams(){
 
 tree_raw = {};
  function processProfileFile(profile_file){
-
-        readFile(profile_file,function(profile){
+        readFile(profile_file,function(profile) {
+			if ($("#check-memory").prop('checked')) {
+				profile2check(profile);
+			} else {
+				profile2tree(profile);
+			}
+		});
+ };
+ 
+function profile2check(profile) {
+	  try{
+		$.ajax({
+				method: "POST",
+				url: "/maketree",
+				data: {
+				profile:profile,
+				method:$("#method-select").val(),
+				checkEnv:1,
+			},
+			startTime : new Date(),
+		}).done(function(result){
+				$("#information-div").modal("hide");
+				var sys_info = JSON.parse(result);
+				$("body").append('<div id="send-to-tree" title="Estimated memory / time usage"></div>');
+				var diag = $("#send-to-tree");
+				diag.append("<p><label>Memory (MB): </label>"+Math.round(sys_info.memory/1024/1024) + "</p>");
+				var deltaTime = new Date() - this.startTime;
+				diag.append("<p><label>Time (minutes): </label>"+Math.round((sys_info.time+deltaTime/1000)/6)/10 + "</p>");
+				diag.append("<p>Numbers are raw estimates and may be different from your system. </p>");
+				if (! sys_info.affordable) {
+					diag.append("<p><label style='font-color:red'>WARNING: More memory are required than you current have. The tree may still be calculated because some system can automatically compress the memory. However the calculation will take more time and may crash! </label></p>");
+				}
+				diag.append("<p><label>Confirm to calculate the tree? </label></p>");
+				
+				diag.dialog({
+					width: 400,
+					resizable: false,
+					height: "auto",
+					modal: true,
+					buttons: {
+						Confirm: function(){
+							profile2tree(profile);
+							$(this).dialog("close");
+							$("#send-to-tree").remove();
+						},
+						Cancel: function() {
+							$(this).dialog("close");
+							$("#send-to-tree").remove();
+						}
+					}
+				});
+	   }).fail(function( jqXHR, textStatus){
+				if (jqXHR.status == 405 || jqXHR.status == 404) {
+					loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/martinSergeant/EnteroMSTree/");
+				} else {
+					console.log(textStatus);
+					loadFailed("There server returned an error. Is the profile file in the right format?");
+				}
+	   });
+	   }catch(e){
+				loadFailed("The server could not be contacted");
+	   }
+		$("#waiting-information").text("Estimating memory / time usage...");
+}
+ 
+ function profile2tree(profile) {
+ $("#information-div").modal("show");
               try{
                 $.ajax({
                         method: "POST",
@@ -880,6 +946,7 @@ tree_raw = {};
                         data: {
 						profile:profile,
 						method:$("#method-select").val(),
+						checkEnv: 0,
 				}
                 }).done(function(result){
 						tree_raw = {"nwk":result,"layout_algorithm":$("#layout-select").val()};
@@ -890,15 +957,14 @@ tree_raw = {};
 							loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/martinSergeant/EnteroMSTree/");
 						} else {
 							console.log(textStatus);
-							loadFailed("There server returned an error. Is the profile file in the right format");
+							loadFailed("There server returned an error. Is the profile file in the right format?");
 						}
                });
                }catch(e){
                         loadFailed("The server could not be contacted");
                }
                 $("#waiting-information").text("Computing Tree");
-        });
- };
+ }
 
  function showWaitingDialog(msg){
 	$("#information-div").modal("show");
@@ -1400,7 +1466,7 @@ window.onload = function (){
 		if (profile_file){
 			processProfileFile(profile_file);
 			$(this).data("profile_file",null);
-			$("#modal-oj-button").html("Close");
+			$("#modal-ok-button").html("Close");
 			$("#param-panel").hide();
 			e.stopImmediatePropagation();
 			$("#modal-title").hide();
