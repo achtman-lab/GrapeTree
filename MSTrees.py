@@ -398,7 +398,7 @@ class methods(object) :
             fout.write('    {0}\n'.format(dist.shape[0]))
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
-
+        del dist, d
         Popen([params['NJ_{0}'.format(platform.system())], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
         tree = dp.Tree.get_from_path(dist_file + '_fastme_tree.nwk', schema='newick')
         try :
