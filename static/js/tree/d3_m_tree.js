@@ -763,6 +763,7 @@ D3MSTree.prototype.setLayout = function(layout_data){
                 for (var i in this.force_nodes){
                         var node = this.force_nodes[i];
                         var pos = layout_data['node_positions'][node.id];
+                        var pos = pos ? pos : [0, 0];
                         node.x=pos[0];
                         node.px=pos[0];
                         node.y=pos[1];
@@ -1051,7 +1052,8 @@ D3MSTree.prototype._setNodeText = function(){
 
 D3MSTree.prototype.delOtherNodes = function(nodes) {
 	var nn = {};
-	nodes.forEach(function(n){nn[n]=1;});
+	var self = this;
+	nodes.forEach(function(n){self.grouped_nodes[n].forEach(function(x) {nn[x]=1});});
 	this.delNodes(this.original_nodes.filter(function(n){return ! nn[n];}));
 }
 
