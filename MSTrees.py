@@ -169,7 +169,7 @@ class methods(object) :
 
     @staticmethod
     def _asymmetric(dist, weight, **params) :
-        def get_shortcut(dist, weight, cutoff=20) :
+        def get_shortcut(dist, weight, cutoff=5) :
             if dist.shape[0] < 10000 :
                 cutoff = 1
             link = np.array(np.where(dist < (cutoff+1) ))
