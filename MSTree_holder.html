@@ -96,7 +96,7 @@
 	<div class='panel panel-default'>
 		<div class ='panel-heading mst-menu-title' id= 'tree-menu'> <b id>Tree Layout</b><span id = 'tree-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 		<div class = "panel-body" id ='tree-menu-panel' style='padding:0px;' ><br>
-			<button id = 'button-goback' style='margin-left:15px;' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Unmodified tree</button>
+			<button id = 'button-goback' style='margin-left:15px;' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Original tree</button>
 			<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:15px" onclick="getHelpBox('tree_layout');"></span>
 			<br>
 			<button id = 'button-refresh' style='margin-left:15px;' > Static Redraw </button>
@@ -192,7 +192,7 @@
 		<div class ='panel-heading mst-menu-title' id= 'mst-layout-menu'> <b id>Rendering</b><span id = 'mst-layout-menu-icon' class="glyphicon glyphicon-menu-right"></span></div>
 		<div class = "panel-body" id ='mst-layout-menu-panel'>
 			<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('rendering');"></span>
-			<div><input type='radio' name='render-method' class='render-method' value='automatic'/><b>Automatic</b></div>
+			<div><input type='radio' name='render-method' class='render-method' value='automatic'/><b>Dynamic</b></div>
 			<div style='margin-left:20px;font-size:90%'><input id ='render-selected-only' type="checkbox" checked /> Selected Only</div>
 			
 			<div style="margin-top:20px"><input type='radio' name='render-method' class='render-method' value='static' checked /><b>Static</b></div>

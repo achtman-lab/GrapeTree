@@ -133,6 +133,7 @@ function D3MSTree(element_id,data,callback,height,width){
         } else {
 			this.original_nodes=data['nodes'];
 			this.original_links=data['links'];
+			this.backup=data.backup;
 			this.newickTree=data['newickTree'];
         }
 
@@ -1003,6 +1004,7 @@ D3MSTree.prototype.getTreeAsObject=function(){
         var obj = {
                 links:this.original_links,
                 nodes:this.original_nodes,
+                backup : this.backup,
                 layout_data:this.getLayout(),
                 metadata:this.metadata,
                 initial_category:this.display_category,
@@ -1047,9 +1049,53 @@ D3MSTree.prototype._setNodeText = function(){
         });
 };
 
+D3MSTree.prototype.delOtherNodes = function(nodes) {
+	var nn = {};
+	nodes.forEach(function(n){nn[n]=1;});
+	this.delNodes(this.original_nodes.filter(function(n){return ! nn[n];}));
+}
+
+D3MSTree.prototype.undeleteNodes = function() {
+	var self = this;
+	if (self.backup) {
+		self.original_nodes = JSON.parse(JSON.stringify(self.backup.nodes));
+		self.original_links = JSON.parse(JSON.stringify(self.backup.links));
+		var selected = {}
+		self.force_nodes.filter(function(n) {return n.selected}).forEach(function(n) {selected[n.id] = 1;});
+		self.force_nodes.length = self.force_links.length = 0;
+		this.original_node_positions = this.backup.positions;
+		this.node_collapsed_value = this.backup.node_collapsed_value;
+		this._collapseNodes(this.node_collapsed_value);
+		self.force_nodes.forEach(function(n) {
+			if (selected[n.id]) {
+				n.selected = true;
+			}
+		})
+
+		this._addHalos(function(d){return d.selected},5,"red"); 
+		for (var i in this.nodesSelectedListeners){
+			 this.nodesSelectedListeners[i](this);    
+       	}
+
+		this._start(null,{"node_positions":this.original_node_positions,"scale":this.scale,"translate":this.translate});
+	}
+}
 
 D3MSTree.prototype.delNodes = function(nodes) {
 	var self =this;
+	var layout = {}
+	this.force_nodes.forEach(function(node) {
+		layout[node.id] = [node.x, node.y];
+	});
+
+	if (!self.backup) self.backup = {};
+	if (!self.backup.links) self.backup.links = JSON.parse(JSON.stringify(self.original_links));
+	if (!self.backup.nodes) self.backup.nodes = JSON.parse(JSON.stringify(self.original_nodes));
+	if (self.backup.nodes.length === self.original_nodes.length) {
+		self.backup.node_collapsed_value = this.node_collapsed_value;
+		self.backup.positions = JSON.parse(JSON.stringify(layout));
+	}
+
 	var markedNodes = {};
 	nodes.filter(function(n) {
 		return ! n.startsWith('_hypo');
@@ -1091,21 +1137,21 @@ D3MSTree.prototype.delNodes = function(nodes) {
 			}
 		});
 	}
+	self.force_nodes = self.force_nodes.filter(function(n) {
+		return ! markedNodes[n.id];
+	});
+	self.force_links = self.force_links.filter(function(l) {
+		return ! (markedNodes[l.source.id] || markedNodes[l.target.id]);
+	});
 	self.original_links = self.original_links.filter(function(l) {
 		return ! (markedNodes[self.original_nodes[l.source]] || markedNodes[self.original_nodes[l.target]]);
 	});
 	self.original_nodes = self.original_nodes.filter(function(n) {
 		return ! markedNodes[n];
 	});
-	self.force_links = self.force_links.filter(function(l) {
-		return ! (markedNodes[l.source.id] || markedNodes[l.target.id]);
-	});
-	self.force_nodes = self.force_nodes.filter(function(n) {
-		return ! markedNodes[n.id];
-	});
 	this.max_link_distance = Math.max.apply(Math, self.force_links.map(function(l) {return l.value;}))
 	this._collapseNodes(this.node_collapsed_value);
-	this.refreshGraph(null, true);
+	this._start(null,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
 }
 
 
@@ -1996,6 +2042,7 @@ D3MSTree.prototype._tagParent = function(it, flag) {
 
 //Dragging Functions
 D3MSTree.prototype._dragStarted= function(it, pos){
+	var self= this;
        if (! this.fixed_mode){
               return;
        }
@@ -2003,7 +2050,7 @@ D3MSTree.prototype._dragStarted= function(it, pos){
        this.stopForce();
        if (!it.parent) {
                var parent = it.children[0];
-               this.drag_link =this._getLink(parent);
+               this.drag_link = parent ? this._getLink(parent) : null;
        } else {
                var parent = it.parent;
                this.drag_link =this._getLink(it);
@@ -2235,7 +2282,7 @@ D3MSTree.prototype.brushEnded=function(extent){
 
 D3MSTree.prototype.selectAll=function(){
 	this.node_elements.filter(function(n) {n.selected=true;});
-	this._addHalos(function(d){return d.selected},5,"red");
+	this._addHalos(function(d){return d.selected},5,"red"); 
 	for (var i in this.nodesSelectedListeners){
 		 this.nodesSelectedListeners[i](this);    
        }
