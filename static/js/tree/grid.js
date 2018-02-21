@@ -48,6 +48,7 @@ function  D3MSMetadataTable(tree,context_menu){
 		  self.grid.render();
 	});
 	$(this.grid.getHeaderRow()).delegate(":input", "change keyup", function (e, args) {
+		$("#metadata-filter").prop('checked', true);
 		var columnId = $(this).data("columnId");
 		if (columnId != null) {
 			self.columnFilters[columnId] = $.trim($(this).val());
@@ -106,6 +107,7 @@ function  D3MSMetadataTable(tree,context_menu){
 	  });
 	  data.sort(function (dataRow1, dataRow2) {
 	  	var sign = args.sortAsc ? 1 : -1;
+	  	var result;
 		var [value1, t1, value2, t2] = [dataRow1.___v, dataRow1.___t, dataRow2.___v, dataRow2.___t];
 		  var result = (t1 - t2)* sign;
 		  if (t1 == t2) {
@@ -192,7 +194,7 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 		<span id ='meta_help' class='glyphicon glyphicon-question-sign' style='top:-3px;float:right;margin-right:5px'></span>\
 		<span title='Download This Table' id='metadata-download' class='glyphicon glyphicon-download show-tooltip'><span>Download</span></span>\
 		<span title='Add A New Category' id='metadata-add-icon' class='glyphicon glyphicon-plus show-tooltip'><span>Add Columns</span></span>\
-		<input type='checkBox' id='metadata-filter' checked=''><span title='Show Filtering Bar?' class='glyphicon glyphicon-filter show-tooltip'><span>Filter</span></span>\
+		<input type='checkBox' id='metadata-filter'><span title='Show Filtering Bar?' class='glyphicon glyphicon-filter show-tooltip'><span>Filter</span></span>\
 		<input type='checkBox' id='hypo-filter'><span title='Show hypothetical nodes?' class='glyphicon glyphicon-screenshot show-tooltip'><span>Hypo nodes?</span></span>\
 	</div>\
 	<div id='myGrid' style='width:100%;height:580px'></div>\
@@ -271,17 +273,10 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 		$('#metadata-div').hide(300);
 	});
 	$("#metadata-filter").change(function(e) {
-		if (this.checked) {
-			$(".slick-headerrow").show(300);
-			self.grid.resizeCanvas();
-			$("#myGrid").height($("#myGrid").height()+30);
-			$("#metadata-div").height($("#metadata-div").height()+30);
-			self.grid.resizeCanvas();
-		} else {
-			$(".slick-headerrow").hide(300);
-			self.grid.resizeCanvas();
-			$("#myGrid").height($("#myGrid").height()-30);
-			$("#metadata-div").height($("#metadata-div").height()-30);
+		if (! this.checked) {
+			self.columnFilters = {};
+			self.dataView.refresh();
+			$(self.grid.getHeaderRow()).find(':input').val('');
 		}
 	});
 	$("#hypo-filter").change(function(e) {
@@ -328,7 +323,7 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 			headers.push(col.id);
 		}
 		output.push(headers.join('\t'));
-		data = self.grid.getData().getFilteredItems();
+		var data = self.grid.getData().getFilteredItems();
 		for (var id in data) {
 			var d = data[id];
 			var out = []; out.length = headers.length;
@@ -375,9 +370,9 @@ D3MSMetadataTable.prototype.updateMetadataTable =function() {
 	}
 	
 	var curr_cols = this.grid.getColumns();
-	for (var id in curr_cols) {
-		delete cols[curr_cols[id].field]
-	}
+	curr_cols.forEach(function(c) {
+		delete cols[c.field];
+	});
 	cc = Object.keys(cols).sort();
 	for (var c_id in cc) {
 		var c = cc[c_id];

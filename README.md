@@ -12,6 +12,8 @@ program as you would in EnteroBase; through a web browser. We recommend
 
 **For detailed help please see: https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree**
 
+**For a formal description, please see the preprint:  https://www.biorxiv.org/content/early/2017/11/09/216788**
+
 ## Installing and Running GrapeTree
 There are number of different ways to interact with GrapeTree, the easiest to 
 download the software here: [https://github.com/martinSergeant/EnteroMSTree/releases](https://github.com/martinSergeant/EnteroMSTree/releases)
@@ -112,7 +114,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 
 ## Citation
-EnteroMSTree - GrapeTree has not been formally published yet. If you use GrapeTree please cite the website directly: https://github.com/martinSergeant/EnteroMSTree.
+EnteroMSTree - GrapeTree has not been formally published yet. If you use GrapeTree please cite the preprint:  https://www.biorxiv.org/content/early/2017/11/09/216788
 
 An extended citation could be:
-Z Zhou,  MJ Sergeant, NF Alikhan, M Achtman  (2017) "GrapeTree: Phylogenetic visualisation for large genomic datasets", Available: https://github.com/martinSergeant/EnteroMSTree
+Z Zhou,  NF Alikhan, MJ Sergeant, N Luhmann, C Vaz, AP Francisco, JA Carrico, M Achtman  (2017) "GrapeTree: Visualization of core genomic relationships among 100,000 bacterial pathogens", bioRxiv 216788; doi: https://doi.org/10.1101/216788
