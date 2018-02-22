@@ -7,6 +7,7 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               edge_weight = 'eBurst',
               missing_data = 'pair_delete', # complete_delete , absolute_distance , as_allele
               branch_recrafting='F',
+              scheme = 'cgMLST',
               NJ_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme.exe'),
               NJ_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-osx'),
               NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32'),
@@ -54,6 +55,27 @@ class distance_matrix(object) :
         if func == 'symmetric' :
             res[res.T > res] = res.T[res.T > res]
         return res
+    @staticmethod
+    def asymmetric_wgMLST(profiles, missing_data = 'pair_delete', index_range=None) :
+        if index_range is None :
+            index_range = [0, profiles.shape[0]]
+
+        presences = (profiles > 0)
+        pp = np.sum(presences, 0).astype(float)
+        pp = pp*(pp-1)/(presences.shape[0]*(presences.shape[0]-1))
+        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]])
+
+        if missing_data not in ('absolute_distance', ) :
+            for i2, id in enumerate(np.arange(*index_range)) :
+                profile, presence = profiles[id], presences[id]
+                diffs = np.sum(((profiles != profile) & (presences * presence))+(presences < presence)*pp, axis=1) * float(presence.size)/np.sum(presence)
+                distances[:, i2] = diffs
+        else :
+            for i2, id in enumerate(np.arange(*index_range)) :
+                profile, presence = profiles[id], presences[id]
+                diffs = np.sum((profiles != profile) & presence, axis=1)
+                distances[:, i2] = diffs
+        return distances
 
     @staticmethod
     def asymmetric(profiles, missing_data = 'pair_delete', index_range=None) :
@@ -480,7 +502,8 @@ def backend(**parameters) :
             edge_weight = 'harmonic',
             branch_recrafting = 'T'
         ))
-
+    if params['scheme'] == 'wgMLST' and matrix_type == 'asymmetric' :
+        matrix_type = 'asymmetric_wgMLST'
     names, profiles = [], []
     fin = open(params['profile']).readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
 

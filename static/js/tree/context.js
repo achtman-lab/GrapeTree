@@ -279,7 +279,8 @@ D3MSTreeContextMenu.prototype._init=function(){
 		for (var id in self.meta_grid.columns) {
 			var c = self.meta_grid.columns[id];
 			if (c.id === colname) {
-				self.meta_grid.columns.push(self.meta_grid.columns.splice(id, 1));
+				var tmp = self.meta_grid.columns.splice(id, 1);
+				self.meta_grid.columns.push(tmp);
 				break;
 			}
 		}
