@@ -1062,6 +1062,7 @@ D3MSTree.prototype.undeleteNodes = function() {
 	if (self.backup) {
 		self.original_nodes = JSON.parse(JSON.stringify(self.backup.nodes));
 		self.original_links = JSON.parse(JSON.stringify(self.backup.links));
+		self.manual_collapsing = JSON.parse(JSON.stringify(self.backup.manual_collapsing));
 		var selected = {}
 		self.force_nodes.filter(function(n) {return n.selected}).forEach(function(n) {selected[n.id] = 1;});
 		self.force_nodes.length = self.force_links.length = 0;
@@ -1080,6 +1081,7 @@ D3MSTree.prototype.undeleteNodes = function() {
        	}
 
 		this._start(null,{"node_positions":self.backup.positions,"scale":this.scale,"translate":this.translate});
+		self.backup = null;
 	}
 }
 
@@ -1095,72 +1097,85 @@ D3MSTree.prototype.delNodes = function(nodes) {
 	if (!self.backup.nodes) self.backup.nodes = JSON.parse(JSON.stringify(self.original_nodes));
 	if (self.backup.nodes.length === self.original_nodes.length) {
 		self.backup.node_collapsed_value = this.node_collapsed_value;
+		self.backup.manual_collapsing = JSON.parse(JSON.stringify(self.manual_collapsing));
 		self.backup.original_positions = JSON.parse(JSON.stringify(self.original_node_positions));
 		self.backup.positions = JSON.parse(JSON.stringify(layout));
 	}
 
-	var markedNodes = {};
+	var nodesToDel = {};
 	nodes.filter(function(n) {
 		return ! n.startsWith('_hypo');
 	}).forEach(function(n) {
-		markedNodes[n] = 1;
+		nodesToDel[n] = 1;
 	});
-	for (var id in this.hypo_record) {
-		if (markedNodes[id]) {
-			markedNodes[this.hypo_record[id]] = 1;
-		} else if (markedNodes[this.hypo_record[id]]) {
-			markedNodes[id] = 1;
+
+	var nodes = this.original_nodes.map(function(n) {
+		return {
+			id : n, 
+			hypothetical : n.startsWith('_hypo'),
+			children : [], 
+			parent : null,
 		}
-	}
-	var shortcutted = {};
+	});
+
+	this.original_links.forEach(function(l) {
+		var s = l.source,
+			t = l.target;
+		nodes[s].children.push(nodes[t]);
+		nodes[t].parent = nodes[s];
+		nodes[t].link_length = l.distance > 0 ? l.distance : 0;
+	});
+
 	var todel = 1;
 	while (todel) {
 		todel = 0;
-		this.force_nodes.forEach(function(n) {
+		nodes.forEach(function(n) {
 			n.children = n.children.filter(function(c) {
-					return ! markedNodes[c.id];
+					return ! nodesToDel[c.id];
 			});
-			var n_child = n.children.length;
-			if (n.parent && markedNodes[n.parent.id]) {
+			if (n.parent && nodesToDel[n.parent.id]) {
 				n.parent = null;
 			}
-			var n_parent = n.parent ? 1 : 0;
-			if (n.hypothetical && ! markedNodes[n.id]) {
+			var n_child = n.children.length,
+				n_parent = n.parent ? 1 : 0;
+			if (n.hypothetical && ! nodesToDel[n.id]) {
 				if (n_child + n_parent <= 1) {
-					markedNodes[n.id] = 1;
+					nodesToDel[n.id] = 1;
 					todel = 1;
 				} else if (n_parent === 1 && n_child === 1) {
-					markedNodes[n.id] = 1;
+					nodesToDel[n.id] = 1;
 					todel = 1;
-					n.children[0].link.original_value += n.link.original_value;
-					n.children[0].link.value += n.link.value;
-					n.children[0].parent = n.children[0].link.source = n.parent;
+					n.children[0].link_length += n.link_length;
+					n.children[0].parent = n.parent;
 					n.parent.children.push(n.children[0]);
 				}
 			}
 		});
 	}
-	self.force_nodes = self.force_nodes.filter(function(n) {
-		return ! markedNodes[n.id];
-	});
-	self.force_links = self.force_links.filter(function(l) {
-		return ! (markedNodes[l.source.id] || markedNodes[l.target.id]);
-	});
-	self.original_nodes = self.original_nodes.filter(function(n) {
-		return ! markedNodes[n];
-	});
-	var on = {};
-	for (var id in self.original_nodes) on[self.original_nodes[id]] = id;
-	self.original_links = self.original_links.filter(function(l) {
-		if ( ! (markedNodes[self.backup.nodes[l.source]] || markedNodes[self.backup.nodes[l.target]]) ) {
-			l.source = on[ self.backup.nodes[l.source] ];
-			l.target = on[ self.backup.nodes[l.target] ];
+	self.force_nodes.length = self.force_links.length = 0;
+
+	var index = 0;
+	nodes = nodes.filter(function(n) {
+		if (! nodesToDel[n.id]) {
+			n.index = index;
+			index += 1;
 			return true;
-		} else {
-			return false;
+		} 
+		return false;
+	})
+	self.original_nodes = nodes.map(function(n) {
+		return n.id;
+	});
+	self.original_links = nodes.filter(function(n) {
+		return n.parent;
+	}).map(function(n) {
+		return {
+			source : n.parent.index,
+			target : n.index,
+			distance : n.link_length,
 		}
 	});
-	this.max_link_distance = Math.max.apply(Math, self.force_links.map(function(l) {return l.value;}))
+	this.max_link_distance = Math.max.apply(Math, self.original_links.map(function(l) {return l.distance;}));
 	this._collapseNodes(this.node_collapsed_value);
 	this._start(null,{"node_positions":layout,"scale":this.scale,"translate":this.translate});
 }
@@ -1361,10 +1376,12 @@ D3MSTree.prototype._addNodes=function(ids){
                 var node = {
                       id:id,
                       value:-1,
-                      selected:false
+                      selected:false,
+                      children : [],
+                      parent : null,
                 };
-                 if (id.substring(0,6)==="_hypo_"){
-                        node['hypothetical']=true;
+                 if (id.startsWith("_hypo_")){
+                        node.hypothetical = true;
                  }
                 
                 this.force_nodes.push(node);    
@@ -1393,17 +1410,14 @@ D3MSTree.prototype._addLinks=function(links,ids){
 			};
 	   })
 	   this.link_distances = {};
-	   this.max_link_distance=0;
+	   this.max_link_distance=Math.max.apply(Math, new_links.map(function(l) {return l.value}));
 	   var _findNode = {};
-	   for (var i in this.force_nodes){
-			  var n=this.force_nodes[i];
-			  _findNode[n.id] = n;
-	   }
+		this.force_nodes.forEach(function(n) {
+			_findNode[n.id] = n;
+		});
+
 	   for (var id in new_links) {
 		   	var x = new_links[id];
-			if (x.value > self.max_link_distance){
-				   self.max_link_distance=x.value;
-			}
 			var target_node = _findNode[x.target];
 			var source_node = _findNode[x.source];
 			if (! source_node.children) source_node.children = [];
@@ -1763,8 +1777,8 @@ D3MSTree.prototype._correctLinkLengths= function(it){
         var source = it.source;
         var target =it.target;
         if (target.x == source.x && target.y == source.y) {
-        	target.x += Math.sqrt(it.link_distance*it.link_distance/2.0);
-        	target.y += Math.sqrt(it.link_distance*it.link_distance/2.0);
+        	target.x += it.link_distance/1.4142135623730950488016887242097;
+        	target.y += it.link_distance/1.4142135623730950488016887242097;
         }
         var x_dif = target.x - source.x;
         var y_dif = target.y - source.y;

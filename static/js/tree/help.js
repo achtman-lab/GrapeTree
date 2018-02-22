@@ -30,10 +30,12 @@ help_text['save_grapetree'] = '<h2><a id="Saving_in_GrapeTree_13"></a>Saving in 
 </ul>';
 help_text['tree_layout'] = '<h2><a id="Modifying_the_Tree_Layout_18"></a>Modifying the Tree Layout</h2>\
 <ul>\
-<li><strong>Unmodified Tree</strong>: Reverts the tree to the original state when it was loaded. You will lose all your changes!</li>\
+<li><strong>Original Tree</strong>: Reverts the tree to the original state when it was loaded. You will lose all your changes!</li>\
 <li><strong>Static redraw</strong>: Redraws the tree using the static layout. You will lose any manual adjustments to node positioning!</li>\
 <li><strong>Centre Tree</strong>: Adjusts view settings to place entire tree in the centre of the window.</li>\
 <li><strong>Show Tooltips</strong>: Shows tooltips for branches and nodes.</li>\
+<li><strong>Drag Icon to Rotate</strong>: Rotate the whole tree by dragging the icon around its original location.</li>\
+<li><strong>Zoom</strong>: Enlarge or reduce the size of the tree. </li>\
 </ul>';
 help_text['show_labels'] = '<h2><a id="Customising_node_labels_24"></a>Customising node labels</h2>\
 <ul>\
