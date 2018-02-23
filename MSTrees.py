@@ -8,7 +8,7 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               heuristic = 'eBurst',
               handle_missing = 'pair_delete', # complete_delete , absolute_distance , as_allele
               branch_recraft=False,
-              scheme = 'cgMLST',
+              wgMLST = False,
               n_proc = 5,
               checkEnv = False,
               NJ_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme.exe'),
@@ -34,19 +34,7 @@ def add_args() :
     parser.add_argument('--check', '-c', dest='checkEnv', help='Do not calculate the tree but only show the expected time/memory consumption. ', default=False, action="store_true")
     args = parser.parse_args()
     args.handle_missing = ['pair_delete', 'complete_delete', 'as_allele', 'absolute_distance'][args.handle_missing]
-
-    global params
-    params.update(args.__dict__)
-    if params['method'] == 'MSTreeV2' :
-        params.update(dict(
-            method = 'MSTree',
-            matrix_type = 'asymmetric',
-            heuristic = 'harmonic',
-            branch_recraft = True,
-        ))
-    if params['wgMLST'] and params['matrix_type'] == 'asymmetric' :
-        matrix_type = 'asymmetric_wgMLST'
-    return
+    return args.__dict__
 
 def parallel_distance(callup) :
     func, prof_file, sub_prefix, handle_missing, index_range = callup
@@ -489,7 +477,7 @@ def nonredundant(names, profiles) :
     profiles = profiles[uniqueness>0]
     return names, profiles, embeded
 
-def backend() :
+def backend(**args) :
     '''
     paramters :
         profile: input file or the content of the file as a string. Can be either profile or fasta. Headings start with an '#' will be ignored.
@@ -523,6 +511,19 @@ def backend() :
         NJ:  MSTrees.py profile=<filename> method=NJ
         distance:  MSTrees.py profile=<filename> method=distance
     '''
+    global params
+    params.update(args)
+    if params['method'] == 'MSTreeV2' :
+        params.update(dict(
+            method = 'MSTree',
+            matrix_type = 'asymmetric',
+            heuristic = 'harmonic',
+            branch_recraft = True,
+        ))
+    if params['wgMLST'] and params['matrix_type'] == 'asymmetric' :
+        matrix_type = 'asymmetric_wgMLST'
+
+
     names, profiles = [], []
     fin = open(params['profile']).readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
 
@@ -616,7 +617,6 @@ def estimate_Consumption(platform, method, matrix, n_proc, n_loci, n_profile) :
     return max(time, 5), max(memory, 50*1024*1024)
 
 if __name__ == '__main__' :
-    add_args()
-    tre = backend()
+    tre = backend(**add_args())
     print tre
 
