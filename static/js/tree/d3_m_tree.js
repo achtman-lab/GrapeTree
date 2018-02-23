@@ -339,9 +339,11 @@ D3MSTree.prototype._start= function(callback,layout_data){
         
         link_enter.call(this.force_drag)
         .on("mouseover",function(d){
+        	if (! self.dragging) {
                 for (var i in self.link_over_listeners){
                         self.link_over_listeners[i](d);    
                 }
+        	}
         })
         .on("mouseout",function(d){
                  for (var i in self.link_out_listeners){
@@ -2074,7 +2076,7 @@ D3MSTree.prototype._dragStarted= function(it, pos){
        if (! this.fixed_mode){
               return;
        }
-      
+      this.dragging = true;
        this.stopForce();
        if (!it.parent) {
                var parent = it.children[0];
@@ -2193,6 +2195,7 @@ D3MSTree.prototype._dragEnded=function(it){
        this._tagAllChildren(it,false);
        this._tagParent(it, false);
        this.stopForce();
+       this.dragging = false;
 }
 
 D3MSTree.prototype.createLinksFromNewick=function(node,parent_id){

@@ -37,6 +37,7 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 			<div class='context-option' id='uncollapse_all'>Expand all</div> \
 			<hr class='context-hr'> \
 			<div class='context-option' id='center-tree'>Center Tree</div> \
+			<div class='context-option' id='refresh-tree'>Static Redraw</div> \
 			<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 			<hr class='context-hr'> \
 			<div class='context-option' id='delete-node'>Hide selected nodes</div> \
@@ -232,6 +233,14 @@ D3MSTreeContextMenu.prototype._init=function(){
 	
 	$("#center-tree").click(function(e) {
 		self.tree.centerGraph();
+	});
+	
+	$("#refresh-tree").click(function(e) {
+		showWaitingDialog("Refreshing The Tree");
+		setTimeout(function(){
+			the_tree.refreshGraph();
+			$("#information-div").modal("hide");
+		},500);
 	});
 	
 	$("#collapse_node").click(function(e) {	
