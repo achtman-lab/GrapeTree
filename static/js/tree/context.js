@@ -37,6 +37,7 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 			<div class='context-option' id='uncollapse_all'>Expand all</div> \
 			<hr class='context-hr'> \
 			<div class='context-option' id='center-tree'>Center Tree</div> \
+			<div class='context-option' id='refresh-tree'>Static Redraw</div> \
 			<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 			<hr class='context-hr'> \
 			<div class='context-option' id='delete-node'>Hide selected nodes</div> \
@@ -77,6 +78,9 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 			<hr class='context-hr replaceSelection'> \
 			<div class='context-option selectAll'>Select all</div> \
 			<div class='context-option clearSelection'>Unselect all</div> \
+			<hr class='context-hr'> \
+			<div class='context-option' id='go-left'>Go to left</div> \
+			<div class='context-option' id='go-right'>Go to right</div> \
 			<hr class='context-hr'> \
 			<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 			<div class='context-option toggle-metadata'>Hide metadata table</div> \
@@ -231,6 +235,14 @@ D3MSTreeContextMenu.prototype._init=function(){
 		self.tree.centerGraph();
 	});
 	
+	$("#refresh-tree").click(function(e) {
+		showWaitingDialog("Refreshing The Tree");
+		setTimeout(function(){
+			the_tree.refreshGraph();
+			$("#information-div").modal("hide");
+		},500);
+	});
+	
 	$("#collapse_node").click(function(e) {	
 		self.tree.collapseSpecificNodes(self.tree.getSelectedNodeIDs());
 	});
@@ -280,7 +292,7 @@ D3MSTreeContextMenu.prototype._init=function(){
 			var c = self.meta_grid.columns[id];
 			if (c.id === colname) {
 				var tmp = self.meta_grid.columns.splice(id, 1);
-				self.meta_grid.columns.push(tmp);
+				self.meta_grid.columns.push(tmp[0]);
 				break;
 			}
 		}

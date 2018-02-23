@@ -1,13 +1,16 @@
 import numpy as np, dendropy as dp, networkx as nx
 from subprocess import Popen, PIPE
 import sys, os, tempfile, platform, re, tempfile, psutil
+import argparse
 
 params = dict(method='MSTreeV2', # MSTree , NJ
               matrix_type='symmetric',
-              edge_weight = 'eBurst',
-              missing_data = 'pair_delete', # complete_delete , absolute_distance , as_allele
-              branch_recrafting='F',
-              scheme = 'cgMLST',
+              heuristic = 'eBurst',
+              handle_missing = 'pair_delete', # complete_delete , absolute_distance , as_allele
+              branch_recraft=False,
+              wgMLST = False,
+              n_proc = 5,
+              checkEnv = False,
               NJ_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme.exe'),
               NJ_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-osx'),
               NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32'),
@@ -15,14 +18,28 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               edmonds_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-osx'),
               edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux'),
               goeburst_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'goeburst'),
-              n_proc = 5,
-              checkEnv = False,
               )
 
+
+def add_args() :
+    parser = argparse.ArgumentParser(description='Parameters for command line version of GrapeTree. \nYou can drag the Newick output into the web interface. ', formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('--profile', '-p', help='A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.', required=True)
+    parser.add_argument('--method', '-m', help='backend algorithms to call. Allowed values are "MSTreeV2" [default], "MSTree" and "NJ"', default='MSTreeV2')
+    parser.add_argument('--matrix', '-x', dest='matrix_type', help='Either "symmetric" [default for MSTree and NJ] \nor "asymmetric" [default for MSTreeV2]. ', default='symmetric')
+    parser.add_argument('--recraft', '-r', dest='branch_recraft', help='Allows local branch recrafting after tree construction. Default in MSTreeV2. ', default=False, action="store_true")
+    parser.add_argument('--missing', '-y', dest='handle_missing', help='Alternative ways of handling missing data.\n0: missing data are ignored in pairwise comparisons [default]. \n1: Columns that have missing data are ignored in the whole analysis. \n2: missing data are treated as a special value (allele). \n3: Naive counting of absolute differences between profiles. ', default=0, type=int)
+    parser.add_argument('--wgMLST', '-w', help='Use when > 20 %% of values in the input are missing.', default=False, action="store_true")
+    parser.add_argument('--heuristic', '-t', dest='heuristic', help='Tiebreak rules between co-optimal edges. Only used in MSTree [default: eBurst] and MSTreeV2 [default: harmonic]', default='eBurst')
+    parser.add_argument('--n_proc', '-n', help='Number of processes. Default: 5. ', type=int, default=5)
+    parser.add_argument('--check', '-c', dest='checkEnv', help='Do not calculate the tree but only show the expected time/memory consumption. ', default=False, action="store_true")
+    args = parser.parse_args()
+    args.handle_missing = ['pair_delete', 'complete_delete', 'as_allele', 'absolute_distance'][args.handle_missing]
+    return args.__dict__
+
 def parallel_distance(callup) :
-    func, prof_file, sub_prefix, missing_data, index_range = callup
+    func, prof_file, sub_prefix, handle_missing, index_range = callup
     profiles = np.load(prof_file)
-    res = eval('distance_matrix.'+func)(profiles, missing_data, index_range)
+    res = eval('distance_matrix.'+func)(profiles, handle_missing, index_range)
     subfile = sub_prefix.format(index_range[0])
     np.save(subfile, res)
     return subfile
@@ -30,7 +47,7 @@ def parallel_distance(callup) :
 
 class distance_matrix(object) :
     @staticmethod
-    def get_distance(func, profiles, missing_data) :
+    def get_distance(func, profiles, handle_missing) :
         from multiprocessing import Pool
         n_profile = profiles.shape[0]
         n_proc = min(int(params['n_proc']), profiles.shape[0])
@@ -39,12 +56,12 @@ class distance_matrix(object) :
             pool = Pool(n_proc)
             indices = np.array([[n_profile*v/n_proc+0.5, n_profile*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
             del profiles
-            subfiles = pool.map(parallel_distance, [[func, params['prof_file'], params['dist_subfile'], missing_data, idx] for idx in indices])
+            subfiles = pool.map(parallel_distance, [[func, params['prof_file'], params['dist_subfile'], handle_missing, idx] for idx in indices])
             pool.close()
             del pool
             res = np.hstack([ np.load(subfile) for subfile in subfiles ])
         else :
-            subfiles = [parallel_distance([func, params['prof_file'], params['dist_subfile'], missing_data, [0, n_profile]])]
+            subfiles = [parallel_distance([func, params['prof_file'], params['dist_subfile'], handle_missing, [0, n_profile]])]
             res = np.load(subfiles[0])
         for subfile in subfiles :
             try :
@@ -56,7 +73,7 @@ class distance_matrix(object) :
             res[res.T > res] = res.T[res.T > res]
         return res
     @staticmethod
-    def asymmetric_wgMLST(profiles, missing_data = 'pair_delete', index_range=None) :
+    def asymmetric_wgMLST(profiles, handle_missing = 'pair_delete', index_range=None) :
         if index_range is None :
             index_range = [0, profiles.shape[0]]
 
@@ -65,7 +82,7 @@ class distance_matrix(object) :
         pp = pp*(pp-1)/(presences.shape[0]*(presences.shape[0]-1))
         distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]])
 
-        if missing_data not in ('absolute_distance', ) :
+        if handle_missing not in ('absolute_distance', ) :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
                 diffs = np.sum(((profiles != profile) & (presences * presence))+(presences < presence)*pp, axis=1) * float(presence.size)/np.sum(presence)
@@ -78,14 +95,14 @@ class distance_matrix(object) :
         return distances
 
     @staticmethod
-    def asymmetric(profiles, missing_data = 'pair_delete', index_range=None) :
+    def asymmetric(profiles, handle_missing = 'pair_delete', index_range=None) :
         if index_range is None :
             index_range = [0, profiles.shape[0]]
 
         presences = (profiles > 0)
         distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]])
 
-        if missing_data not in ('absolute_distance', ) :
+        if handle_missing not in ('absolute_distance', ) :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
                 diffs = np.sum(((profiles != profile) & presence), axis=1) * float(presence.size)/np.sum(presence)
@@ -97,19 +114,19 @@ class distance_matrix(object) :
                 distances[:, i2] = diffs
         return distances
     @staticmethod
-    def symmetric(profiles, missing_data = 'pair_delete', index_range=None) :
+    def symmetric(profiles, handle_missing = 'pair_delete', index_range=None) :
         if index_range is None :
             index_range = [0, profiles.shape[0]]
 
-        if missing_data in ('as_allele', ) :
+        if handle_missing in ('as_allele', ) :
             presences = np.ones(shape=profiles.shape, dtype=int)
-        elif missing_data in ('pair_delete', 'absolute_distance') :
+        elif handle_missing in ('pair_delete', 'absolute_distance') :
             presences = (profiles > 0)
         else :
             presences = np.repeat(np.sum(profiles >0, 0) >= profiles.shape[0], profiles.shape[0]).reshape([profiles.shape[1], profiles.shape[0]]).T
 
         distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]])
-        if missing_data in ('pair_delete',) :
+        if handle_missing in ('pair_delete',) :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
                 comparable = (presences[:id] * presence)
@@ -124,10 +141,10 @@ class distance_matrix(object) :
         return distances
 
     @staticmethod
-    def symmetric_link(profiles, links, missing_data = 'pair_delete') :
-        if missing_data in ('as_allele', ) :
+    def symmetric_link(profiles, links, handle_missing = 'pair_delete') :
+        if handle_missing in ('as_allele', ) :
             presences = np.ones(shape=profiles.shape, dtype=int)
-        elif missing_data in ('pair_delete', 'absolute_distance') :
+        elif handle_missing in ('pair_delete', 'absolute_distance') :
             presences = (profiles > 0)
         else :
             presences = np.repeat(np.sum(profiles >0, 0) >= profiles.shape[0], profiles.shape[0]).reshape([profiles.shape[1], profiles.shape[0]]).T
@@ -244,7 +261,7 @@ class methods(object) :
             return [[presence[d[0]], presence[d[1]], int(d[2]['weight'])] for d in ms.edges(data=True)] + shortcuts.tolist()
 
     @staticmethod
-    def _branch_recrafting(branches, dist, weights, n_loci) :
+    def _branch_recraft(branches, dist, weights, n_loci) :
         def contemporary(a,b,c) :
             a[0], a[1] = max(min(a[0], n_loci-0.5), 0.5), max(min(a[1], n_loci-0.5), 0.5);
             b, c = max(min(b, n_loci-0.5), 0.5), max(min(c, n_loci-0.5), 0.5)
@@ -364,23 +381,23 @@ class methods(object) :
 
 
     @staticmethod
-    def MSTree(names, profiles, embeded, matrix_type='asymmetric', edge_weight='harmonic', branch_recrafting='T', missing_data='pair_delete', **params) :
+    def MSTree(names, profiles, embeded, matrix_type='asymmetric', heuristic='harmonic', branch_recraft=True, handle_missing='pair_delete', **params) :
         n_loci = profiles.shape[1]
-        dist = distance_matrix.get_distance(matrix_type, profiles, missing_data)
-        weight = eval('distance_matrix.'+edge_weight)(dist, [len(embeded[n]) for n in names])
+        dist = distance_matrix.get_distance(matrix_type, profiles, handle_missing)
+        weight = eval('distance_matrix.'+heuristic)(dist, [len(embeded[n]) for n in names])
 
         tree = eval('methods._'+matrix_type)(dist, weight, **params)
-        if branch_recrafting != 'F' :
-            tree = methods._branch_recrafting(tree, np.load(params['dist_file']), weight, n_loci)
+        if branch_recraft :
+            tree = methods._branch_recraft(tree, np.load(params['dist_file']), weight, n_loci)
             del dist
-        tree = distance_matrix.symmetric_link(np.load(params['prof_file']), tree, missing_data= missing_data)
+        tree = distance_matrix.symmetric_link(np.load(params['prof_file']), tree, handle_missing= handle_missing)
         tree = methods._network2tree(tree, names)
         return tree
 
     @staticmethod
-    def goeBurst(names, profiles, embeded, missing_data='pair_delete', **params) :
+    def goeBurst(names, profiles, embeded, handle_missing='pair_delete', **params) :
         goeburst = Popen([params['goeburst_Linux']] + ['-t'], stdin=PIPE, stdout=PIPE)
-        if missing_data == 'pair_delete' :
+        if handle_missing == 'pair_delete' :
             for n, p in enumerate(profiles) :
                 goeburst.stdin.write('{0}\t{1}\n'.format(n, '\t'.join([str(pp) if pp > 0 else '-' for pp in p])))
         else :
@@ -391,11 +408,11 @@ class methods(object) :
             nodes = line.strip().split(' ')
             if len(nodes) > 1 :
                 tree.append([int(nodes[0]), int(nodes[1]), 0])
-        tree = distance_matrix.symmetric_link(profiles, tree, missing_data= missing_data)
+        tree = distance_matrix.symmetric_link(profiles, tree, handle_missing= handle_missing)
         tree = methods._network2tree(tree, names)
         return tree
     @staticmethod
-    def distance(names, profiles, embeded, matrix_type='symmetric', missing_data='pair_delete', **params) :
+    def distance(names, profiles, embeded, matrix_type='symmetric', handle_missing='pair_delete', **params) :
         ids = {n:id for id, n in enumerate(names)}
         ids = { gg:ids[k] for k,g in embeded.iteritems() for gg in g }
         names, indices = [], []
@@ -403,7 +420,7 @@ class methods(object) :
             names.append(n)
             indices.append(i)
         indices = np.array(indices)
-        d = distance_matrix.get_distance(matrix_type, profiles, missing_data)
+        d = distance_matrix.get_distance(matrix_type, profiles, handle_missing)
         dist = np.zeros([len(names), len(names)])
         for i, i2 in enumerate(indices) :
             dist[i] = d[i2, indices]
@@ -413,8 +430,8 @@ class methods(object) :
         return dist_txt
 
     @staticmethod
-    def NJ(names, profiles, embeded, missing_data='pair_delete', **params) :
-        dist = distance_matrix.get_distance('symmetric', profiles, missing_data)
+    def NJ(names, profiles, embeded, handle_missing='pair_delete', **params) :
+        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
 
         dist_file = params['tempfix'] + 'dist.list'
         with open(dist_file, 'w') as fout :
@@ -439,7 +456,8 @@ class methods(object) :
 def nonredundant(names, profiles) :
     encoded_profile = np.array([np.unique(p, return_inverse=True)[1]+1 for p in profiles.T]).T
     encoded_profile[ (profiles == '0') | (profiles == 'N') | (profiles == '-')] = 0
-
+    if params['handle_missing'] == 'complete_delete' :
+        encoded_profile = encoded_profile[:, np.sum(encoded_profile == 0, 0) > 0]
     names = names[np.lexsort(encoded_profile.T)]
     profiles = encoded_profile[np.lexsort(encoded_profile.T)]
     presence = (np.sum(profiles > 0, 1) > 0)
@@ -459,14 +477,14 @@ def nonredundant(names, profiles) :
     profiles = profiles[uniqueness>0]
     return names, profiles, embeded
 
-def backend(**parameters) :
+def backend(**args) :
     '''
     paramters :
         profile: input file or the content of the file as a string. Can be either profile or fasta. Headings start with an '#' will be ignored.
         method: MSTreeV2, MSTree or NJ
         matrix_type: asymmetric or symmetric
-        edge_weight: harmonic or eBurst
-        branch_recrafting: T or F
+        heuristic: harmonic or eBurst
+        branch_recraft: T or F
 
     Outputs :
         A string of a NEWICK tree
@@ -494,16 +512,18 @@ def backend(**parameters) :
         distance:  MSTrees.py profile=<filename> method=distance
     '''
     global params
-    params.update(parameters)
+    params.update(args)
     if params['method'] == 'MSTreeV2' :
         params.update(dict(
             method = 'MSTree',
             matrix_type = 'asymmetric',
-            edge_weight = 'harmonic',
-            branch_recrafting = 'T'
+            heuristic = 'harmonic',
+            branch_recraft = True,
         ))
-    if params['scheme'] == 'wgMLST' and matrix_type == 'asymmetric' :
+    if params['wgMLST'] and params['matrix_type'] == 'asymmetric' :
         matrix_type = 'asymmetric_wgMLST'
+
+
     names, profiles = [], []
     fin = open(params['profile']).readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
 
@@ -597,6 +617,6 @@ def estimate_Consumption(platform, method, matrix, n_proc, n_loci, n_profile) :
     return max(time, 5), max(memory, 50*1024*1024)
 
 if __name__ == '__main__' :
-    tre = backend(**dict([p.split('=') for p in sys.argv[1:]]))
+    tre = backend(**add_args())
     print tre
 

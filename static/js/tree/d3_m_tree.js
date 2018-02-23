@@ -160,7 +160,16 @@ function D3MSTree(element_id,data,callback,height,width){
         var tmp_collapsing = this.manual_collapsing;
         this.manual_collapsing = {};
        positions = this._collapseNodes(0, positions);
-       
+
+		if (this.original_links.length > 10000) {
+       		var link_distances = this.original_links.map(function(l) {return l.distance;}).sort(function(n1, n2) {return n2-n1});
+			if (to_collapse < link_distances[10000]) {
+				to_collapse = link_distances[10000];
+				alert('Too many nodes. Branches <= '+max_distance+' are collapsed in initial layout. You can uncollapse them later. ');
+			}
+			delete link_distances;
+		}
+
        if (to_collapse > 0 || Object.keys(tmp_collapsing).length > 0) {
        		this.manual_collapsing = tmp_collapsing;
        		this._collapseNodes(to_collapse);
@@ -330,9 +339,11 @@ D3MSTree.prototype._start= function(callback,layout_data){
         
         link_enter.call(this.force_drag)
         .on("mouseover",function(d){
+        	if (! self.dragging) {
                 for (var i in self.link_over_listeners){
                         self.link_over_listeners[i](d);    
                 }
+        	}
         })
         .on("mouseout",function(d){
                  for (var i in self.link_out_listeners){
@@ -439,13 +450,7 @@ D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
 D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 		var self = this;
 		if (this.original_links.length > 50000) {
-		this.original_links.sort(function(n1, n2) {return n2.distance-n1.distance});
-			var link_distances = this.original_links.map(function(l) {return l.distance;}).sort(function(n1, n2) {return n2-n1});
-			if (max_distance < link_distances[50000]) {
-				max_distance = link_distances[50000];
-				alert('Too many nodes. Branches <= '+max_distance+' are collapsed.');
-			}
-			delete link_distances;
+			this.original_links.sort(function(n1, n2) {return n2.distance-n1.distance});
 		}
         //value is 0 reset original values to the current ones
 		if ( this.node_collapsed_value <= 0 && ! this.manual_collapsing_value && layout ){
@@ -2071,7 +2076,7 @@ D3MSTree.prototype._dragStarted= function(it, pos){
        if (! this.fixed_mode){
               return;
        }
-      
+      this.dragging = true;
        this.stopForce();
        if (!it.parent) {
                var parent = it.children[0];
@@ -2190,6 +2195,7 @@ D3MSTree.prototype._dragEnded=function(it){
        this._tagAllChildren(it,false);
        this._tagParent(it, false);
        this.stopForce();
+       this.dragging = false;
 }
 
 D3MSTree.prototype.createLinksFromNewick=function(node,parent_id){
