@@ -78,6 +78,9 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 			<div class='context-option selectAll'>Select all</div> \
 			<div class='context-option clearSelection'>Unselect all</div> \
 			<hr class='context-hr'> \
+			<div class='context-option' id='go-left'>Go to left</div> \
+			<div class='context-option' id='go-right'>Go to right</div> \
+			<hr class='context-hr'> \
 			<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 			<div class='context-option toggle-metadata'>Hide metadata table</div> \
 				<hr class='context-hr'> \
@@ -280,7 +283,7 @@ D3MSTreeContextMenu.prototype._init=function(){
 			var c = self.meta_grid.columns[id];
 			if (c.id === colname) {
 				var tmp = self.meta_grid.columns.splice(id, 1);
-				self.meta_grid.columns.push(tmp);
+				self.meta_grid.columns.push(tmp[0]);
 				break;
 			}
 		}
