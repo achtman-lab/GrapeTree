@@ -70,7 +70,7 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 			<select style='margin-left:30px;margin-bottom:10px' class='context-select colorscheme'> \
 				<option value='category'>Category</option> \
 				<option value='category2'>Category 2</option> \
-				<option value='gradient_warm'>Gradient: Warm</option> \
+				<option value='gradient'>Gradient: Warm</option> \
 				<option value='gradient_cool'>Gradient: Cold</option> \
 				<option value='gradient_rainbow'>Rainbow</option> \
 				<option value='gradient_rainbow2'>Rainbow Bright</option> \
@@ -117,7 +117,7 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 					<select style='margin-left:30px;margin-bottom:10px' class='context-select colorscheme'> \
 						<option value='category'>Category</option> \
 						<option value='category2'>Category 2</option> \
-						<option value='gradient_warm'>Gradient: Warm</option> \
+						<option value='gradient'>Gradient: Warm</option> \
 						<option value='gradient_cool'>Gradient: Cool</option> \
 						<option value='gradient_rainbow'>Rainbow</option> \
 						<option value='gradient_rainbow2'>Rainbow Bright</option> \
@@ -225,9 +225,14 @@ D3MSTreeContextMenu.prototype._init=function(){
 			var legend_text = $('<div style="width:12em;height:20em;resize:none;overflow:auto;white-space:nowrap;float: left;" readonly id="legend_text" ></div>').appendTo(ccs_div)
 									.html(d3.selectAll('.legend-item').data().map(function(d) { return '<div style="float:left; width:0.9em; height:0.9em; margin-right:0.1em; background:'+d.group_colour+'"></div>' + d.group}).join('<br>'));
 			var ccs_text = $('<textarea style="width:8em;height:20em;resize:none;overflow:auto;white-space:nowrap;float: left;" id="ccs_text" ></textarea>').appendTo(ccs_div);
+			legend_text.on('scroll', function () {
+				ccs_text.scrollTop($(this).scrollTop());
+			});
 			ccs_text.on('change keyup paste', function(e) {
 				var colors = $(this).val().split('\n');
 				legend_text.html(d3.selectAll('.legend-item').data().map(function(d, i) {  return '<div style="float:left; width:0.9em; height:0.9em; margin-right:0.1em; background:'+colors[i]+'"></div>' + d.group}).join('<br>'));
+			}).on('scroll', function () {
+				legend_text.scrollTop($(this).scrollTop());
 			});
 			ccs_text.val(colors.join('\n'));
 			ccs_div.dialog({
@@ -441,7 +446,12 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 			}
 			this._fill_metadata_option(this.tree.metadata_info[category]);
 		}
-		$(".select-group").data('group', [category, d3.select(e.target).data()[0].real_group]);
+		try {
+			$(".select-group").data('group', [category, d3.select(e.target).data()[0].real_group]);
+			$(".select-group").show();
+		} catch (e) {
+			$(".select-group").hide();
+		};
 		$("#color-colname").empty().append(function() {
 			var col = Object.keys(self.tree.metadata_info).sort();
 			var output = col.map(function(category) {

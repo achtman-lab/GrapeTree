@@ -859,11 +859,11 @@ function D3BaseTree(element_id,metadata,height,width){
 				.interpolate(d3.interpolateHcl);
 			return Array.apply(null, {length: num}).map(Number.call, Number).map(function(n) {return scale(n);});
 		},
-		gradient_warm: function(num) {
+		gradient: function(num) {
 			var n = num - 1;
 			var scale = d3.scale.linear()
-				.domain([0, n/4, n/2, n*3/4, n])
-				.range(["#FFFF00", "#FF0000", "#FF00FF", "#0000FF", "#00007D"])
+				.domain([0, n/4, n*3/4, n])
+				.range(["#FFFF7D", "#FFFF00", "#FF0000", "#7D0000"])
 				.interpolate(d3.interpolateHcl);
 			return Array.apply(null, {length: num}).map(Number.call, Number).map(function(n) {return scale(n);});
 		},
