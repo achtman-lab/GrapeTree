@@ -14,5 +14,6 @@ packaging==16.8
 py==1.4.33
 pyparsing==2.2.0
 pytest==3.0.7
+psutil==5.4.3
 six==1.10.0
 Werkzeug==0.12.2

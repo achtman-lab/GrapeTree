@@ -815,7 +815,7 @@ function D3BaseTree(element_id,metadata,height,width){
 	this.legend=null;
 	this.legend_background;
 	this.color_schemes = {
-		default: d3.scale.category20().range().concat(
+		category: d3.scale.category20().range().concat(
 			d3.scale.category20b().range(), d3.scale.category20c().range(), 
 			["#FFFF00","#1CE6FF","#FF34FF","#FF4A46","#008941","#006FA6","#A30059","#FFDBE5","#7A4900","#0000A6","#63FFAC","#B79762","#004D43","#8FB0FF","#997D87","#5A0007","#809693","#FEFFE6","#1B4400","#4FC601",
 			 "#3B5DFF","#4A3B53","#FF2F80","#61615A","#BA0900","#6B7900","#00C2A0","#FFAA92","#FF90C9","#B903AA","#D16100","#DDEFFF","#000035","#7B4F4B","#A1C299","#300018","#0AA6D8","#013349","#00846F","#372101",
@@ -830,9 +830,69 @@ function D3BaseTree(element_id,metadata,height,width){
 			 "#3B000A","#C86240","#29607C","#402334","#7D5A44","#CCB87C","#B88183","#AA5199","#B5D6C3","#A38469","#9F94F0","#A74571","#B894A6","#71BB8C","#00B433","#789EC9","#6D80BA","#953F00","#5EFF03","#E4FFFC",
 			 "#1BE177","#BCB1E5","#76912F","#003109","#0060CD","#D20096","#895563","#29201D","#5B3213","#A76F42","#89412E","#1A3A2A","#494B5A","#A88C85","#F4ABAA","#A3F3AB","#00C6C8","#EA8B66","#958A9F","#BDC9D2",
 			 "#9FA064","#BE4700","#658188","#83A485","#453C23","#47675D","#3A3F00","#061203","#DFFB71","#868E7E","#98D058","#6C8F7D","#D7BFC2","#3C3E6E","#D83D66","#2F5D9B","#6C5E46","#D25B88","#5B656C","#00B57F",
-			 "#545C46","#866097","#365D25","#252F99","#00CCFF","#674E60","#FC009C","#92896B"]), 
+			 "#545C46","#866097","#365D25","#252F99","#00CCFF","#674E60","#FC009C","#92896B"])
+		, 
+		category2: 
+			["#FFFF00","#1CE6FF","#FF34FF","#FF4A46","#008941","#006FA6","#A30059","#FFDBE5","#7A4900","#0000A6","#63FFAC","#B79762","#004D43","#8FB0FF","#997D87","#5A0007","#809693","#FEFFE6","#1B4400","#4FC601",
+			 "#3B5DFF","#4A3B53","#FF2F80","#61615A","#BA0900","#6B7900","#00C2A0","#FFAA92","#FF90C9","#B903AA","#D16100","#DDEFFF","#000035","#7B4F4B","#A1C299","#300018","#0AA6D8","#013349","#00846F","#372101",
+			 "#FFB500","#C2FFED","#A079BF","#CC0744","#C0B9B2","#C2FF99","#001E09","#00489C","#6F0062","#0CBD66","#EEC3FF","#456D75","#B77B68","#7A87A1","#788D66","#885578","#FAD09F","#FF8A9A","#D157A0","#BEC459",
+			 "#456648","#0086ED","#886F4C","#34362D","#B4A8BD","#00A6AA","#452C2C","#636375","#A3C8C9","#FF913F","#938A81","#575329","#00FECF","#B05B6F","#8CD0FF","#3B9700","#04F757","#C8A1A1","#1E6E00","#7900D7",
+			 "#A77500","#6367A9","#A05837","#6B002C","#772600","#D790FF","#9B9700","#549E79","#FFF69F","#201625","#72418F","#BC23FF","#99ADC0","#3A2465","#922329","#5B4534","#FDE8DC","#404E55","#0089A3","#CB7E98",
+			 "#A4E804","#324E72","#6A3A4C","#83AB58","#001C1E","#D1F7CE","#004B28","#C8D0F6","#A3A489","#806C66","#222800","#BF5650","#E83000","#66796D","#DA007C","#FF1A59","#8ADBB4","#1E0200","#5B4E51","#C895C5",
+			 "#320033","#FF6832","#66E1D3","#CFCDAC","#D0AC94","#7ED379","#012C58","#7A7BFF","#D68E01","#353339","#78AFA1","#FEB2C6","#75797C","#837393","#943A4D","#B5F4FF","#D2DCD5","#9556BD","#6A714A","#001325",
+			 "#02525F","#0AA3F7","#E98176","#DBD5DD","#5EBCD1","#3D4F44","#7E6405","#02684E","#962B75","#8D8546","#9695C5","#E773CE","#D86A78","#3E89BE","#CA834E","#518A87","#5B113C","#55813B","#E704C4","#00005F",
+			 "#A97399","#4B8160","#59738A","#FF5DA7","#F7C9BF","#643127","#513A01","#6B94AA","#51A058","#A45B02","#1D1702","#E20027","#E7AB63","#4C6001","#9C6966","#64547B","#97979E","#006A66","#391406","#F4D749",
+			 "#0045D2","#006C31","#DDB6D0","#7C6571","#9FB2A4","#00D891","#15A08A","#BC65E9","#FFFFFE","#C6DC99","#203B3C","#671190","#6B3A64","#F5E1FF","#FFA0F2","#CCAA35","#374527","#8BB400","#797868","#C6005A",
+			 "#3B000A","#C86240","#29607C","#402334","#7D5A44","#CCB87C","#B88183","#AA5199","#B5D6C3","#A38469","#9F94F0","#A74571","#B894A6","#71BB8C","#00B433","#789EC9","#6D80BA","#953F00","#5EFF03","#E4FFFC",
+			 "#1BE177","#BCB1E5","#76912F","#003109","#0060CD","#D20096","#895563","#29201D","#5B3213","#A76F42","#89412E","#1A3A2A","#494B5A","#A88C85","#F4ABAA","#A3F3AB","#00C6C8","#EA8B66","#958A9F","#BDC9D2",
+			 "#9FA064","#BE4700","#658188","#83A485","#453C23","#47675D","#3A3F00","#061203","#DFFB71","#868E7E","#98D058","#6C8F7D","#D7BFC2","#3C3E6E","#D83D66","#2F5D9B","#6C5E46","#D25B88","#5B656C","#00B57F",
+			 "#545C46","#866097","#365D25","#252F99","#00CCFF","#674E60","#FC009C","#92896B"].concat(
+				d3.scale.category20().range(), d3.scale.category20b().range(), d3.scale.category20c().range(), )
+		, 
+		custom: d3.scale.category20().range().concat(
+			d3.scale.category20b().range(), d3.scale.category20c().range()), 
+		gradient_cool: function(num) {
+			var n = num - 1;
+			var scale = d3.scale.linear()
+				.domain([0, n/4, n/2, n*3/4, n])
+				.range(["#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#00007D"])
+				.interpolate(d3.interpolateHcl);
+			return Array.apply(null, {length: num}).map(Number.call, Number).map(function(n) {return scale(n);});
+		},
+		gradient: function(num) {
+			var n = num - 1;
+			var scale = d3.scale.linear()
+				.domain([0, n/4, n*3/4, n])
+				.range(["#FFFF7D", "#FFFF00", "#FF0000", "#7D0000"])
+				.interpolate(d3.interpolateHcl);
+			return Array.apply(null, {length: num}).map(Number.call, Number).map(function(n) {return scale(n);});
+		},
+		gradient_rainbow: function(num) {
+			var n = num - 1;
+			var scale = d3.scale.linear()
+				.domain([0, n/5, n*2/5, n*3/5, n*4/5, n])
+				.range(["#FF0000", "#FFFF00", "#00FF00", "#00FFFF", "#0000FF", "#FF00FF"])
+				.interpolate(d3.interpolateHcl);
+			return Array.apply(null, {length: num}).map(Number.call, Number).map(function(n) {return scale(n);});
+		},
+		gradient_rainbow2: function(num) {
+			var n = num - 1;
+			var scale = d3.scale.linear()
+				.domain([0, n/5, n*2/5, n*3/5, n*4/5, n])
+				.range(["#FFAFAF", "#FFFFAF", "#AFFFAF", "#AFFFFF", "#AFAFFF", "#FFAFFF"])
+				.interpolate(d3.interpolateHcl);
+			return Array.apply(null, {length: num}).map(Number.call, Number).map(function(n) {return scale(n);});
+		},
+		gradient_rainbow3: function(num) {
+			var n = num - 1;
+			var scale = d3.scale.linear()
+				.domain([0, n/5, n*2/5, n*3/5, n*4/5, n])
+				.range(["#AF0000", "#AFAF00", "#00AF00", "#00AFAF", "#0000AF", "#AF00AF"])
+				.interpolate(d3.interpolateHcl);
+			return Array.apply(null, {length: num}).map(Number.call, Number).map(function(n) {return scale(n);});
+		}
 	};
-	this.legend_colours = ['default', this.color_schemes.default];
+	//this.legend_colours = ['default', this.color_schemes.default];
 	this.category_num = 30;
 	this.default_colour= "white";
 	this.category_colours={};
@@ -1073,41 +1133,40 @@ D3BaseTree.prototype.setTranslate=function(x_y){
 
 
 D3BaseTree.prototype._changeCategory=function(category){
-	var coltype = 'character', grouptype = 'size', colorscheme = 'category';
+	var coltype = 'character', grouptype = 'size', colorscheme = 'category', minnum = 0;
 	if (this.metadata_info && this.metadata_info[category]) {
 		coltype = this.metadata_info[category].coltype;
 		grouptype = this.metadata_info[category].grouptype;
 		colorscheme = this.metadata_info[category].colorscheme;
+		minnum = this.metadata_info[category].minnum;
 	}
 	var cust_col = this.custom_colours[category];
 	this.display_category = category;
 	var cat_count={};
-	var colour_count=0;
-	this.category_colours={};
-	for (var key in this.metadata){
-
-		if (this.node_map[ this.metadata[key].ID ]) {
-
-			var val = this.metadata[key][category];
-			if (!val && val !==0){
-				continue;
-			}
-			if (!cat_count[val]){
-				cat_count[val]=1;
-			}
-			else{
-				cat_count[val]++;
+	if (category != 'nothing') {
+		for (var key in this.metadata){
+			if (this.node_map[ this.metadata[key].ID ]) {
+				var val = this.metadata[key][category];
+				if (val || val === 0){
+					cat_count[val] = cat_count[val] ? cat_count[val] + 1 : 1;
+				}
 			}
 		}
 	}
+	for (var key in cat_count) {
+		if (cat_count[key] < minnum) {
+			delete cat_count[key];
+		}
+	}
 
-	cat_count_list=[]
+	this.category_colours={};
+	var cat_count_list=[];
 	for (var val in cat_count){
 		if (coltype != 'character' && isNumber(val)) {
 			val = parseFloat(val);
-			cat_count_list.push([val,cat_count[val], '', 0]);
+			cat_count_list.push([val, cat_count[val], '', 0]);
 		} else {
-			cat_count_list.push([val,cat_count[val], '', 1]);
+			cat_count_list.push([val, cat_count[val], '', 1]);
 		}
 		
 	}
@@ -1118,38 +1177,29 @@ D3BaseTree.prototype._changeCategory=function(category){
 			return (a[1] == b[1]) ? ((a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3]) : (a[1]<b[1]?1:-1);
 		}
 	});
-	var len = Math.min(cat_count_list.length, this.category_num); //, this.legend_colours.length);
+	
+	if (cat_count_list.length > this.category_num) {
+		cat_count_list = cat_count_list.slice(0, this.category_num);
+	}
+
 	var cust_col= this.custom_colours[category];
+	try {
+		var auto_col = this.color_schemes[colorscheme](cat_count_list.length);
+	} catch (e) {
+		var auto_col = this.color_schemes[colorscheme];
+	}
 	for (var colour_count in cat_count_list){
 		var val = cat_count_list[colour_count][0];
-		if (category == 'nothing' || colour_count >= len) {
-			this.category_colours[val]=this.default_colour;
-			continue
-		}
+
 		if (cust_col && cust_col[val]){
 			this.category_colours[val]=cust_col[val];
 			cat_count_list[colour_count][2] = cust_col[val];
 			continue;	
-		} else if (colorscheme == 'category') {
-			this.category_colours[val]=this.legend_colours[1][colour_count % this.legend_colours[1].length];
-			cat_count_list[colour_count][2] = this.legend_colours[1][colour_count % this.legend_colours[1].length];
+		} else if (! auto_col[colour_count]) {
+			cat_count_list[colour_count][2] = this.category_colours[val] = this.default_colour;
 		} else {
-			var prop = len == 1 ? 100 : 200 * parseFloat(colour_count) / (len-1);
-			var rgb;
-			if (prop <= 80) {
-				var dp = prop;
-				rgb = 'rgb(100%, '+(100-dp/4)+'%, '+(80-dp)+'%)';
-			} else if (prop <= 160) {
-				var dp = prop-80;
-				rgb = 'rgb('+(100-dp/4)+'%, '+(80-dp)+'%, 0%)';
-			} else {
-				var dp = prop-160;
-				rgb = 'rgb('+(80-dp)+'%, 0%, 0%)';
-			}
-			this.category_colours[val]=rgb;
-			cat_count_list[colour_count][2]=rgb;
+			cat_count_list[colour_count][2] = this.category_colours[val] = auto_col[colour_count];
 		}
-
 	}
 	//this.category_colours["Others"] = this.default_colour;
 	this.updateLegend(category, cat_count_list);
@@ -1264,14 +1314,16 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 		else {
 			legend_data.push({
 				group: group[0] + '  ['+group[1]+']',
-				group_colour: group[2]
+				group_colour: group[2], 
+				real_group : group[0], 
 			});
 		}
 	}
 	if (others) {
 		legend_data.push({
 				 group:"Others [" + others + ']',
-				 group_colour:this.default_colour
+				 group_colour:this.default_colour, 
+				 real_group : 'Others', 
 		});
 	}
 	
