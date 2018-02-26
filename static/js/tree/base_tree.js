@@ -831,8 +831,9 @@ function D3BaseTree(element_id,metadata,height,width){
 			 "#1BE177","#BCB1E5","#76912F","#003109","#0060CD","#D20096","#895563","#29201D","#5B3213","#A76F42","#89412E","#1A3A2A","#494B5A","#A88C85","#F4ABAA","#A3F3AB","#00C6C8","#EA8B66","#958A9F","#BDC9D2",
 			 "#9FA064","#BE4700","#658188","#83A485","#453C23","#47675D","#3A3F00","#061203","#DFFB71","#868E7E","#98D058","#6C8F7D","#D7BFC2","#3C3E6E","#D83D66","#2F5D9B","#6C5E46","#D25B88","#5B656C","#00B57F",
 			 "#545C46","#866097","#365D25","#252F99","#00CCFF","#674E60","#FC009C","#92896B"]), 
+		random: randomColor({count: 300, luminosity: 'dark'}), 
 	};
-	this.legend_colours = ['default', this.color_schemes.default];
+	this.legend_colours = ['default', this.color_schemes.random];
 	this.category_num = 30;
 	this.default_colour= "white";
 	this.category_colours={};
@@ -1073,41 +1074,41 @@ D3BaseTree.prototype.setTranslate=function(x_y){
 
 
 D3BaseTree.prototype._changeCategory=function(category){
-	var coltype = 'character', grouptype = 'size', colorscheme = 'category';
+	var coltype = 'character', grouptype = 'size', colorscheme = 'category', minnum = 0;
 	if (this.metadata_info && this.metadata_info[category]) {
 		coltype = this.metadata_info[category].coltype;
 		grouptype = this.metadata_info[category].grouptype;
 		colorscheme = this.metadata_info[category].colorscheme;
+		minnum = this.metadata_info[category].minnum;
 	}
 	var cust_col = this.custom_colours[category];
 	this.display_category = category;
 	var cat_count={};
-	var colour_count=0;
-	this.category_colours={};
-	for (var key in this.metadata){
-
-		if (this.node_map[ this.metadata[key].ID ]) {
-
-			var val = this.metadata[key][category];
-			if (!val && val !==0){
-				continue;
-			}
-			if (!cat_count[val]){
-				cat_count[val]=1;
-			}
-			else{
-				cat_count[val]++;
+	if (category != 'nothing') {
+		for (var key in this.metadata){
+			if (this.node_map[ this.metadata[key].ID ]) {
+				var val = this.metadata[key][category];
+				if (val || val === 0){
+					cat_count[val] = cat_count[val] ? cat_count[val] + 1 : 1;
+				}
 			}
 		}
 	}
+	for (var key in cat_count) {
+		if (cat_count[key] < minnum) {
+			delete cat_count[key];
+		}
+	}
 
-	cat_count_list=[]
+	var colour_count=0;
+	this.category_colours={};
+	var cat_count_list=[];
 	for (var val in cat_count){
 		if (coltype != 'character' && isNumber(val)) {
 			val = parseFloat(val);
-			cat_count_list.push([val,cat_count[val], '', 0]);
+			cat_count_list.push([val, cat_count[val], '', 0]);
 		} else {
-			cat_count_list.push([val,cat_count[val], '', 1]);
+			cat_count_list.push([val, cat_count[val], '', 1]);
 		}
 		
 	}
@@ -1118,14 +1119,15 @@ D3BaseTree.prototype._changeCategory=function(category){
 			return (a[1] == b[1]) ? ((a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3]) : (a[1]<b[1]?1:-1);
 		}
 	});
-	var len = Math.min(cat_count_list.length, this.category_num); //, this.legend_colours.length);
+	
+	if (cat_count_list.length > this.category_num) {
+		cat_count_list = cat_count_list.slice(0, this.category_num);
+	}
+
 	var cust_col= this.custom_colours[category];
 	for (var colour_count in cat_count_list){
 		var val = cat_count_list[colour_count][0];
-		if (category == 'nothing' || colour_count >= len) {
-			this.category_colours[val]=this.default_colour;
-			continue
-		}
+
 		if (cust_col && cust_col[val]){
 			this.category_colours[val]=cust_col[val];
 			cat_count_list[colour_count][2] = cust_col[val];
