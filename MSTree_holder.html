@@ -218,7 +218,6 @@
 
 
 <script src ="static/js/main/bootstrap.min.js"></script>
-<script charset="utf-8" src="static/js/main/randomColor.js"></script>
 <script charset="utf-8" src="static/js/main/d3.min.js"></script>
 <script charset="utf-8" src="static/js/main/spin.min.js"></script>
 <script charset="utf-8" src="static/js/tree/base_tree.js?version={{config['JAVASCRIPT_VERSION']}}"></script>
@@ -728,8 +727,8 @@ function profile2check(profile) {
 		}).done(function(result){
 				$("#information-div").modal("hide");
 				var sys_info = JSON.parse(result);
-				$("body").append('<div id="send-to-tree" title="Estimated memory / time usage"></div>');
-				var diag = $("#send-to-tree");
+				var diag = $('<div id="send-to-tree" title="Estimated memory / time usage"></div>').appendTo($("body"));
+
 				diag.append("<p><label>Memory (MB): </label>"+Math.round(sys_info.memory/1024/1024) + "</p>");
 				var deltaTime = new Date() - this.startTime;
 				diag.append("<p><label>Time (minutes): </label>"+Math.round((sys_info.time+deltaTime/1000)/6)/10 + "</p>");
@@ -737,22 +736,23 @@ function profile2check(profile) {
 				if (! sys_info.affordable) {
 					diag.append("<p><label style='font-color:red'>WARNING: More memory are required than you current have. The tree may still be calculated because some system can automatically compress the memory. However the calculation will take more time and may crash! </label></p>");
 				}
-				diag.append("<p><label>Confirm to calculate the tree? </label></p>");
+				diag.append("<p><label>Calculate the tree? </label></p>");
 				
 				diag.dialog({
 					width: 400,
 					resizable: false,
 					height: "auto",
 					modal: true,
+					close : function(e) {
+						diag.dialog('destroy').remove();
+					}, 
 					buttons: {
-						Confirm: function(){
+						Yes: function(){
 							profile2tree(profile);
 							$(this).dialog("close");
-							$("#send-to-tree").remove();
 						},
-						Cancel: function() {
+						No: function() {
 							$(this).dialog("close");
-							$("#send-to-tree").remove();
 						}
 					}
 				});
@@ -1092,12 +1092,11 @@ window.onload = function (){
         });
 
 		$("#button-files").click(function(e) {
-				$("body").append('<div id="read-text" title="Paste or read files"></div>');
-				var diag = $("#read-text");
-				diag.append("<p><label>Paste a tree, profile or metadata here: </label></p>")
-					.append("<textarea id='paste-text' rows='10' cols='100'>")
-					.append("<p><label>Or load the files directly: </label></p>")
-					.append("<button title='Handles trees, profiles and metadata files' id = 'button-load-nwk' class = 'show-tooltip'> Load Files</button>");
+				var diag = $('<div id="read-text" title="Paste or read files"></div>').appendTo($('body'))
+								.append("<p><label>Paste a tree, profile or metadata here: </label></p>")
+								.append("<textarea id='paste-text' rows='10' cols='100'>")
+								.append("<p><label>Or load the files directly: </label></p>")
+								.append("<button title='Handles trees, profiles and metadata files' id = 'button-load-nwk' class = 'show-tooltip'> Load Files</button>");
 				$("#button-load-nwk").click(function(e){
 						file_chooser.setFilter("");
 						file_chooser.showOpenDialog(function(files){
@@ -1112,7 +1111,7 @@ window.onload = function (){
 					height: "auto",
 					modal: false,
 					close: function() {
-						$("#read-text").remove();
+						$("#read-text").dialog('destroy').remove();
 					},
 					buttons: {
 						Confirm: function(){

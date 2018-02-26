@@ -84,6 +84,9 @@ function D3MSTree(element_id,data,callback,height,width){
         if (data['initial_category']){
                 this.display_category=data['initial_category'];
         }
+        if (data['custom_color_scheme']) {
+        	this.color_schemes.custom = data['custom_color_scheme'];
+        }
 	
 		if (data['metadata_options']){
 			this.addMetadataOptions(data['metadata_options']);
@@ -769,10 +772,8 @@ D3MSTree.prototype.setLayout = function(layout_data){
                         var node = this.force_nodes[i];
                         var pos = layout_data['node_positions'][node.id];
                         var pos = pos ? pos : [0, 0];
-                        node.x=pos[0];
-                        node.px=pos[0];
-                        node.y=pos[1];
-                        node.py=pos[1];
+                        node.px=node.x=pos[0];
+                        node.py=node.y=pos[1];
                       
                 }        
                 this._fixAllNodes();
@@ -1014,6 +1015,7 @@ D3MSTree.prototype.getTreeAsObject=function(){
                 layout_data:this.getLayout(),
                 metadata:this.metadata,
                 initial_category:this.display_category,
+                custom_color_scheme : this.color_schemes.custom, 
 		newickTree:this.newickTree,
 		metadata_options:this.metadata_info
         }
@@ -1080,10 +1082,7 @@ D3MSTree.prototype.undeleteNodes = function() {
 			}
 		})
 
-		this._addHalos(function(d){return d.selected},5,"red"); 
-		for (var i in this.nodesSelectedListeners){
-			 this.nodesSelectedListeners[i](this);    
-       	}
+		this._updateSelectionStatus();
 
 		this._start(null,{"node_positions":self.backup.positions,"scale":this.scale,"translate":this.translate});
 		self.backup = null;
@@ -2310,16 +2309,14 @@ D3MSTree.prototype.brushEnded=function(extent){
                 this.clearSelection(true);
         }
      
-       this._addHalos(function(d){return d.selected},5,"red");
-       for (var i in this.nodesSelectedListeners){
-		 this.nodesSelectedListeners[i](this);
-       
-       }
-	
+       this._updateSelectionStatus();
 }
 
 D3MSTree.prototype.selectAll=function(){
 	this.node_elements.filter(function(n) {n.selected=true;});
+	this._updateSelectionStatus();
+}
+D3MSTree.prototype._updateSelectionStatus = function() {
 	this._addHalos(function(d){return d.selected},5,"red"); 
 	for (var i in this.nodesSelectedListeners){
 		 this.nodesSelectedListeners[i](this);    
