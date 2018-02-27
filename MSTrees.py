@@ -75,6 +75,25 @@ class distance_matrix(object) :
                 distances[:, i2] = diffs
         return distances
     @staticmethod
+    def asymmetric2(profiles, missing_data = 'pair_delete', index_range=None) :
+        if index_range is None :
+            index_range = [0, profiles.shape[0]]
+
+        presences = (profiles > 0)
+        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]])
+
+        if missing_data not in ('absolute_distance', ) :
+            for i2, id in enumerate(np.arange(*index_range)) :
+                profile, presence = profiles[id], presences[id]
+                diffs = np.sum(((profiles != profile) & presence), axis=1) * float(presence.size)/np.sum(presence)
+                distances[:, i2] = diffs
+        else :
+            for i2, id in enumerate(np.arange(*index_range)) :
+                profile, presence = profiles[id], presences[id]
+                diffs = np.sum((profiles != profile) & presence, axis=1)
+                distances[:, i2] = diffs
+        return distances
+    @staticmethod
     def symmetric(profiles, missing_data = 'pair_delete', index_range=None) :
         if index_range is None :
             index_range = [0, profiles.shape[0]]
@@ -169,7 +188,7 @@ class methods(object) :
 
     @staticmethod
     def _asymmetric(dist, weight, **params) :
-        def get_shortcut(dist, weight, cutoff=20) :
+        def get_shortcut(dist, weight, cutoff=10) :
             if dist.shape[0] < 10000 :
                 cutoff = 1
             link = np.array(np.where(dist < (cutoff+1) ))
