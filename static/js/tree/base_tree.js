@@ -1355,8 +1355,8 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	*/
 	legend_items.append('text').attr('x', 20).attr('y', 9).attr('dy', ".35em").attr("font-family", "Arial").style('text-anchor', 'start').text(function(it){
 		var name = it.group;
-		if (name.length >30){
-			name = name.substring(0,30)+"..."
+		if (name.length >25){
+			name = name.substring(0,25)+"..."
 		}
 		return name;
 	});
@@ -1501,6 +1501,9 @@ D3BaseTree.prototype.addMetadataOptions=function(options){
 			if(!value["colorscheme"]){
 				value['colorscheme']='category';
 			}
+			if (! value["minnum"]) {
+				value['minnum'] = 0;
+			}
 			
 			this.metadata_info[key] =value
 		}
@@ -1512,7 +1515,8 @@ D3BaseTree.prototype.addMetadataOptions=function(options){
 				label:options[key],
 				coltype : 'character', 
 				grouptype : 'size', 
-				colorscheme : 'category'
+				colorscheme : 'category', 
+				minnum : 0, 
 			}
 		}
 	}
