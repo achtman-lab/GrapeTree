@@ -30,9 +30,9 @@
 
 <script src= "static/js/tree/context.js?version={{config['JAVASCRIPT_VERSION']}}"></script>
 
-<script src='static/js/tree/grid.js?version={{config['JAVASCRIPT_VERSION']}}'></script>
+<script src="static/js/tree/grid.js?version={{config['JAVASCRIPT_VERSION']}}"></script>
 
-<script src='static/js/tree/help.js?version={{config['JAVASCRIPT_VERSION']}}'></script>
+<script src="static/js/tree/help.js?version={{config['JAVASCRIPT_VERSION']}}"></script>
 
 
 <!--information divs-->
@@ -73,7 +73,7 @@
 	<div>
 		<a class='show-tooltip' title="EnteroBase" href="https://enterobase.warwick.ac.uk" target = '_blank'><img src="static/js/img/enterobase.png" alt="Enterobase" style="width:40px;height:45px;"></a>&nbsp;&nbsp;|&nbsp;&nbsp;
 		<a class='show-tooltip' title='GrapeTree GitHub repository' href="https://github.com/martinSergeant/EnteroMSTree" target = '_blank'><img src="static/js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>&nbsp;&nbsp;|&nbsp;&nbsp;
-		<a class='show-tooltip' title='Help' href="https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree" target = '_blank'><img src="static/js/img/question.PNG" alt="Help" style="width:20px;height:24px;"></a>
+		<a class='show-tooltip' title='Help' href="https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree" target = '_blank'><span class="glyphicon glyphicon-question-sign" style="font-size:30px;height:50px;margin-right:5px;top:10px"></span></a>
 		<h3 id="headertag" style="font-family: times, serif; font-size:12pt; font-style:italic">GrapeTree</h3>
 	</div>
 	<br>
@@ -81,7 +81,7 @@
 		<div class ='panel-heading mst-menu-title' id= 'file-menu'> <b id='input-output-title'>Inputs/Outputs</b><span id = 'file-menu-icon' class='glyphicon glyphicon-menu-down'> </span></div>
 		<div class = "panel-body" id ='file-menu-panel'>
 		<div id ='load-panel'>
-			<button title='Handles trees, profiles and metadata files' id = 'button-load-nwk' class = 'show-tooltip'> Load Files</button>
+			<button title='Handles trees, profiles and metadata files' id = 'button-files' class = 'show-tooltip'> Load Files</button>
 			<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('load_files');"></span>
 			<hr>
 		</div>
@@ -96,7 +96,7 @@
 	<div class='panel panel-default'>
 		<div class ='panel-heading mst-menu-title' id= 'tree-menu'> <b id>Tree Layout</b><span id = 'tree-menu-icon' class='glyphicon glyphicon-menu-right'> </span></div>
 		<div class = "panel-body" id ='tree-menu-panel' style='padding:0px;' ><br>
-			<button id = 'button-goback' style='margin-left:15px;' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);}'> Original tree</button>
+			<button id = 'button-goback' style='margin-left:15px;' onclick='loadMSTree(tree_raw);if(current_metadata_file) {loadMetadataText(current_metadata_file[0], current_metadata_file[1]);}'> Original tree</button>
 			<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:15px" onclick="getHelpBox('tree_layout');"></span>
 			<br>
 			<button id = 'button-refresh' style='margin-left:15px;' > Static Redraw </button>
@@ -222,6 +222,7 @@
 <script charset="utf-8" src="static/js/main/spin.min.js"></script>
 <script charset="utf-8" src="static/js/tree/base_tree.js?version={{config['JAVASCRIPT_VERSION']}}"></script>
 <script charset="utf-8" src="static/js/tree/d3_m_tree.js?version={{config['JAVASCRIPT_VERSION']}}"></script>
+<script charset="utf-8" src="static/js/tree/grapetree_fileHandler.js?version={{config['JAVASCRIPT_VERSION']}}"></script>
 <script> var tree_id = null</script>
 
 <!--
@@ -257,83 +258,7 @@
 		Enterobase.modalAlert(msg);
 	}
 
-        function MSCSCReader(file,delimiter,callback){
-                var reader = new FileReader();
-                reader.onload = function(progressEvent){
-                        var return_data=[];
-                        try{
-                                var data =this.result;
-                                var lines =  data.split(/\r\n|\r|\n/g);
-                                var header = lines[0].split(delimiter);
-                                var header_index={}
-                                for (var i=0;i<header.length;i++){
-                                        header_index[i]=header[i];
 
-                                }
-
-                                for (var i=1;i<lines.length;i++){
-                                        var map = {};
-                                         var arr = lines[i].split(delimiter);
-                                         for (var col in arr){
-                                                map[header_index[col]]=arr[col];
-                                         }
-                                         return_data.push(map);
-                                }
-
-                        }catch(error){
-                                callback("Error",error.message)
-
-                        }
-                        callback("OK",return_data,header_index);
-                };
-                reader.readAsText(file);
-        };
-
-        function saveTextAsFile (text,suggested_name){
-                var save = $("<a download><button>Save</button></a>").click(function(){
-                        var name=$("#filename").val();
-                        if(!name){
-                            return;
-                        }
-                        //windows - don't actually use the file download anchor
-                        if(window.navigator.msSaveOrOpenBlob) {
-                            var data = new Blob([text], {type: 'text/plain'});
-                            window.navigator.msSaveBlob(data,name);
-                        }
-                        //others
-                        else{
-                            var data = new Blob([text], {type: 'text/plain'});
-
-                            this.textFile = window.URL.createObjectURL(data);
-                            //set file name and contents before click event propogates
-                            $(this).attr("download",name);
-                            $(this).attr("href",this.textFile);
-
-                        }
-                        $(this).parent().dialog().dialog("close");
-                });
-				
-				var notification = "<p style='font-size:10'> Some browsers allow you to select a folder after you click the 'Save' Button.<br> Whereas many browsers, such as Chrome, by default save the downloaded file into:<br><b>Windows</b>: <code>'&#92;Users&#92;&lt;username&gt;&#92;Downloads'</code><br><b>Mac</b>: <code>'/Users/&lt;username&gt;/Downloads'</code><br><b>Linux</b>: <code>'home/&lt;username&gt;/Downloads'</code><br></p>";
-				var filenamebar = $("<input title='Suffix will be automatically added in some browsers if you have got a file with the same name.' type='text' id ='filename' value='"+suggested_name+"'>");
-                //the actual dailog box
-                $("<div id ='savedailog'></div>")
-                .html(notification + "File Name: ")
-                .dialog({
-                    autoOpen: true,
-                    modal: true,
-                    title: "Save File",
-                    buttons: {
-                        "Cancel": function () {
-                            $(this).dialog("close");
-                        }
-                    },
-                    close: function () {
-                        $(this).dialog('destroy').remove();
-                    },
-					width: "400px",
-                }).append(filenamebar).append(save);
-        };
-	
 	function getHelpBox(help_item){
 	if (help_item in help_text){
 		document.getElementById("welcome-div-text").innerHTML = help_text[help_item];
@@ -574,25 +499,19 @@
 			max: tree.max_link_distance,
 				step:(tree.max_link_distance/1000.0).toPrecision(1)
 			});
-			$( "#spinner-collapse-nodes" ).spinner({
+		$( "#spinner-collapse-nodes" ).spinner({
 			min: 0,
 			max: tree.max_link_distance,
 			value: tree.node_collapsed_value,
 			step: 0.000001,
-                });
+		});
 
-                $( "#slider-collapse-nodes" ).slider({
-                        min:Math.log(1e-7)*1000,
-                        max: Math.log(tree.max_link_distance+0.01)*1000,
-                        value: Math.log(tree.node_collapsed_value)*1000,
-                });
-                tree.centerGraph();
-                for (var index in all_files){
-			if (all_files[index].name === metadata_file_name){
-				loadMetadataFile(all_files[index],current_metadata_file[1]);
-				break;
-			}
-                }
+		$( "#slider-collapse-nodes" ).slider({
+			min:Math.log(1e-7)*1000,
+			max: Math.log(tree.max_link_distance+0.01)*1000,
+			value: Math.log(tree.node_collapsed_value)*1000,
+		});
+		tree.centerGraph();
 		$(waiting_spinner.el).hide();
                  $("#waiting-information").text("Complete. Tree has "+tree.force_nodes.length+" nodes");
                 $("#waiting-image").attr("src","static/js/img/ms_complete_1.png").show();
@@ -614,42 +533,7 @@
         }
 
 
-        function loadTreeFile(file){
-              initiateLoading("Processing "+file.name)
-              //give time to dialog to display
-              setTimeout(function(){
-                        readFile(file,function(tree){
-                                 var data={};
-								 var suffix = getSuffix(file.name);
-                                 if (suffix === 'json'){
-                                     data =JSON.parse(tree);
-                                 }
-                                 else if (tree.substring(0,6)==="#NEXUS"){
-                                        data['nexus']=tree;
-										data['layout_algorithm']=$("#layout-select").val();
-                                 }
-                                 else{
-                                        data['nwk']=tree;
-										data['layout_algorithm']=$("#layout-select").val();
-                                 }
-								 tree_raw = data;
-                                 loadMSTree(tree_raw);
-                        });
-                },500);
-        }
-
-        function readFile(file,callback){
-                var reader = new FileReader();
-                reader.onload = function(progressEvent){
-                        callback(this.result);
-                }
-                reader.readAsText(file);
-        }
-
-
-
-
-        function loadFailed(msg){
+    function loadFailed(msg){
 		$("#information-div").modal("show");
 		$(waiting_spinner.el).hide();
                 $("#waiting-image").attr("src","static/js/img/ms_failed_1.png").show();
@@ -748,13 +632,6 @@
 				hideToolTip();
 		});
 		the_tree.resize();
-					
-					// metadata
-
-		//	  $("#metadata-select").append($("<option>").attr("value",'nothing').text('No Category'));
-		//}
-		//addMetadataOptions('ID','ID');
-		// the_tree.addMetadataOptions({'nothing': 'No Category'});
 
 		if (the_tree.metadata_info){
 				addMetadataOptions(the_tree.metadata_info);
@@ -772,7 +649,7 @@
 			setControlPanel(default_control_panel_values);
 		}
 		if (current_metadata_file) {
-			loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);
+			loadMetadataText(current_metadata_file[0], current_metadata_file[1]);
 		} else {
 			//updateMetadataTable();
 		}
@@ -811,49 +688,6 @@
 		$('.panel-default').find('input, textarea, button, select, div, span').css("opacity", 1.0).prop('disabled',false);
 	}
 
-var current_metadata_file=null;
- function filesDropped(files){
-	current_metadata_file=null;
-	var tree_file=null, profile_file =null;
-	for (var i=0;i<files.length;i++){
-		var file = files[i];
-		var first_blob = file.slice(0, 2048);
-		var reader = new FileReader();
-		reader.onload = function(progressEvent){
-			var head_line = this.result.split(/[\n\r]/)[0];
-
-			if ((head_line.startsWith(">")  || (head_line.startsWith("#")) && ! head_line.startsWith("#NEXUS") && !head_line.startsWith("#nexus"))) {
-				if (cannot_connect){
-					loadFailed("Cannot Connect to the backend server");
-					return;
-				}
-				profile_file=this.file;
-				initiateLoading("Reading Profile File");
-				$("#param-panel").show();
-				$("#modal-ok-button").data("profile_file",profile_file);
-				$("#modal-ok-button").html("OK");
-				$(waiting_spinner.el).hide();
-				$("#modal-title").show().text("Parameters For Tree Creation");
-				$("#waiting-information").hide();
-				$("#headertag").text(this.file.name);
-			}
-
-			else if ((head_line.indexOf(",") >=0 || head_line.indexOf("\t")>=0) && !head_line.startsWith("(") && !head_line.startsWith("{")) {
-				var dl = (head_line.indexOf(",") >= 0 ? "," : "\t");
-				current_metadata_file=[this.file, dl];
-				metadata_file_name = this.file.name;
-				if (the_tree) loadMetadataFile(current_metadata_file[0], current_metadata_file[1]);
-			}
-			else {
-				tree_file = this.file;
-				loadTreeFile(tree_file);
-				document.getElementById("headertag").innerHTML = this.file.name;
-			}
-		};
-		reader.file = file;
-		reader.readAsText(first_blob);
-	}
- }
 
  function initiateLoading(msg){
 	$("#welcome-div-close").show();
@@ -871,14 +705,12 @@ function showModalForParams(){
 }
 
 tree_raw = {};
- function processProfileFile(profile_file){
-        readFile(profile_file,function(profile) {
-			if ($("#check-memory").prop('checked')) {
-				profile2check(profile);
-			} else {
-				profile2tree(profile);
-			}
-		});
+ function processProfileFile(profile){
+	if ($("#check-memory").prop('checked')) {
+		profile2check(profile);
+	} else {
+		profile2tree(profile);
+	}
  };
  
 function profile2check(profile) {
@@ -895,8 +727,8 @@ function profile2check(profile) {
 		}).done(function(result){
 				$("#information-div").modal("hide");
 				var sys_info = JSON.parse(result);
-				$("body").append('<div id="send-to-tree" title="Estimated memory / time usage"></div>');
-				var diag = $("#send-to-tree");
+				var diag = $('<div id="send-to-tree" title="Estimated memory / time usage"></div>').appendTo($("body"));
+
 				diag.append("<p><label>Memory (MB): </label>"+Math.round(sys_info.memory/1024/1024) + "</p>");
 				var deltaTime = new Date() - this.startTime;
 				diag.append("<p><label>Time (minutes): </label>"+Math.round((sys_info.time+deltaTime/1000)/6)/10 + "</p>");
@@ -904,22 +736,23 @@ function profile2check(profile) {
 				if (! sys_info.affordable) {
 					diag.append("<p><label style='font-color:red'>WARNING: More memory are required than you current have. The tree may still be calculated because some system can automatically compress the memory. However the calculation will take more time and may crash! </label></p>");
 				}
-				diag.append("<p><label>Confirm to calculate the tree? </label></p>");
+				diag.append("<p><label>Calculate the tree? </label></p>");
 				
 				diag.dialog({
 					width: 400,
 					resizable: false,
 					height: "auto",
 					modal: true,
+					close : function(e) {
+						diag.dialog('destroy').remove();
+					}, 
 					buttons: {
-						Confirm: function(){
+						Yes: function(){
 							profile2tree(profile);
 							$(this).dialog("close");
-							$("#send-to-tree").remove();
 						},
-						Cancel: function() {
+						No: function() {
 							$(this).dialog("close");
-							$("#send-to-tree").remove();
 						}
 					}
 				});
@@ -974,129 +807,8 @@ function profile2check(profile) {
  }
 
 
- function loadMetadataFile(file, dl){
-	MSCSCReader(file,dl,parseMetadata);
- };
- 
-function loadNetFiles() {
-	function getJsonFromUrl(hashBased) {
-	  var query;
-	  if(hashBased) {
-		var pos = location.href.indexOf("?");
-		if(pos==-1) return [];
-		query = location.href.substr(pos+1);
-	  } else {
-		query = location.search.substr(1);
-	  }
-	  var result = {};
-	  query.split("&").forEach(function(part) {
-		if(!part) return;
-		part = part.split("+").join(" "); // replace every + with space, regexp-free version
-		var eq = part.indexOf("=");
-		var key = eq>-1 ? part.substr(0,eq) : part;
-		var val = eq>-1 ? decodeURIComponent(part.substr(eq+1)) : "";
-		var from = key.indexOf("[");
-		if(from==-1) result[decodeURIComponent(key)] = val;
-		else {
-		  var to = key.indexOf("]",from);
-		  var index = decodeURIComponent(key.substring(from+1,to));
-		  key = decodeURIComponent(key.substring(0,from));
-		  if(!result[key]) result[key] = [];
-		  if(!index) result[key].push(val);
-		  else result[key][index] = val;
-		}
-	  });
-	  return result;
-	}
-	var params = getJsonFromUrl();
-	var tree = null, metadata = null;
-	for (var key in params) {
-		params[key] = params[key].replace('www.dropbox.com', 'dl.dropboxusercontent.com');
-		if (key === 'tree') {
-		    tree = params[key];
-		} else if (key == 'metadata') {
-		    metadata = params[key];
-		}
-	}
-	if (tree) {
-		$.ajax({
-			type: "GET",
-			url: tree,
-			success: function(tree){
-				try {
-					data = JSON.parse(tree);
-				}
-				catch(error) {
-					 data = {};
-					 if (tree.substring(0,6)==="#NEXUS"){
-							data['nexus']=tree;
-					 }
-					 else{
-							data['nwk']=tree;
-					 }
-					data['layout_algorithm']=$("#layout-select").val();
-				}
-				finally {
-					tree_raw = data;
-					loadMSTree(tree_raw);
-				}
-				if (the_tree && metadata) {
-					$.ajax({
-						type: "GET",
-						url: metadata,
-						success: function(data){
-							try {
-								var return_data = [];
-								var lines = data.split(/\r\n|\r|\n/g);
-								var delimiter = lines[0].search(/\t/) >= 0 ? '\t': ',';
-								var header = lines[0].split(delimiter);
-								var header_index={}
-								for (var i=0;i<header.length;i++){
-									header_index[i]=header[i];
-								}
-
-								for (var i=1;i<lines.length;i++){
-									var map = {};
-									 var arr = lines[i].split(delimiter);
-									 for (var col in arr){
-											map[header_index[col]]=arr[col];
-									 }
-									 return_data.push(map);
-								}
-								parseMetadata("OK",return_data,header_index);
-							}
-							catch(error) {
-								parseMetadata("Error",error.message)
-							}
-						}
-					}); 
-				}
-			}
-		}); 
-	}
-}
 
 		
-function parseMetadata (msg,lines,header_index){
-	var meta={};
-	id_name = header_index[0];
-	for (var i in lines){
-		var line = lines[i];
-		meta[line[id_name]]=line;
-	}
-
-	var category = 'nothing';
-	var options={};
-	category = Object.keys(header_index).length > 1 ? header_index[1] : header_index[0];
-	for (var i in header_index){
-		var header = header_index[i];
-		options[header]=header;
-	}
-	the_tree.addMetadataOptions(options);
-	$("#metadata-select").val(category);
-	the_tree.addMetadata(meta);
-	the_tree.changeCategory(category);
-};
  
 
 
@@ -1203,28 +915,10 @@ window.onload = function (){
                the_tree.setNodeText($(this).val());
         });
 
-        /*$(window).resize(function(){
-                var winh = ($(window).height())-15;
-                var winw = ($(window).width());
-                var div  = $("#graph-div");
-                var sb_width = $("#sidebar").width();
-		  var sb_height = $("#sidebar").height();
-		  if (sb_height>winh){
-			winh=sb_height;
-		  }
-                div.height(winh).css({"max-height":winh+"px","min-height":winh+"px"});
-                $("#graph-div").width(winw-sb_width);
-        });
-        $(window).trigger("resize");*/
-
-
         $("#mst-download-svg").click(function(e){
-                var svg = the_tree.getSVG();
-		saveTextAsFile(svg,"MSTree.svg");
+			saveTextAsFile(the_tree.getSVG(),"MSTree.svg");
         });
 
-
-       
         $(".panel-body").hide();
 
         $( "#slider-linklength" ).on("change", function(e) {
@@ -1397,20 +1091,40 @@ window.onload = function (){
                 the_tree.setLogLinkScale($(this).is(":checked"));
         });
 
-        $("#button-load-nwk").click(function(e){
-                file_chooser.setFilter("");
-                file_chooser.showOpenDialog(function(files){
-                        filesDropped(files);
-
-                });
-        });
-
-          $("#button-load-meta").click(function(e){
-                file_chooser.setFilter(".txt,.csv");
-                file_chooser.showOpenDialog(function(files){
-                        filesDropped(files);
-                });
-        });
+		$("#button-files").click(function(e) {
+				var diag = $('<div id="read-text" title="Paste or read files"></div>').appendTo($('body'))
+								.append("<p><label>Paste a tree, profile or metadata here: </label></p>")
+								.append("<textarea id='paste-text' rows='10' cols='100'>")
+								.append("<p><label>Or load the files directly: </label></p>")
+								.append("<button title='Handles trees, profiles and metadata files' id = 'button-load-nwk' class = 'show-tooltip'> Load Files</button>");
+				$("#button-load-nwk").click(function(e){
+						file_chooser.setFilter("");
+						file_chooser.showOpenDialog(function(files){
+								filesDropped(files);
+								diag.dialog("close");
+						});
+				});
+				
+				diag.dialog({
+					width: "auto",
+					resizable: false,
+					height: "auto",
+					modal: false,
+					close: function() {
+						$("#read-text").dialog('destroy').remove();
+					},
+					buttons: {
+						Confirm: function(){
+							distributeFile($("#paste-text").val(), '');
+							$(this).dialog("close");
+						},
+						Cancel: function() {
+							$(this).dialog("close");
+						}
+					}
+				});
+		});
+		
 
          $( "#slider-collapse-nodes" ).on("change", function(e) {
 			var val = Math.exp($(this).slider('value')/1000);
@@ -1437,15 +1151,12 @@ window.onload = function (){
 	});
 
 	$("#save-tree-json").click(function(e){
-			var obj= the_tree.getTreeAsObject();
-			saveTextAsFile(JSON.stringify(obj),"ms_tree.json");
+			saveTextAsFile(JSON.stringify(the_tree.getTreeAsObject()),"ms_tree.json");
 	});
 
 	$("#save-tree-nwk").click(function(e){
-			var newick= the_tree.getTreeAsNewick();
-			saveTextAsFile(newick,"ms_tree.nwk");
+			saveTextAsFile(the_tree.getTreeAsNewick(),"ms_tree.nwk");
 	});
-
 
 	$("#center-graph-button").click(function(e){
 		 the_tree.centerGraph();
@@ -1487,7 +1198,7 @@ window.onload = function (){
 		$("#graph-div").on('dblclick', function(e){
 		    if (the_tree) the_tree.clearSelection();
        })
-	try_backend();
+	
 	var target = document.getElementById('modal-header');
 	waiting_spinner= new Spinner({color:'black', lines: 12,top:"13%"}).spin(target);
 
@@ -1495,8 +1206,8 @@ window.onload = function (){
 	$('.panel-default').find('input, textarea, button, select, span, div').css("opacity", 0.3).prop('disabled',true);
 	if (! tree_id){
 		$("#file-menu-panel").css("opacity", 1.0).addClass("open-menu-panel").show();
-		$("#button-load-nwk").parent().css('opacity', 1.0);
-		$("#button-load-nwk").css("opacity", 1.0).prop("disabled", false).trigger('mouseenter');
+		$("#button-files").parent().css('opacity', 1.0);
+		$("#button-files").css("opacity", 1.0).prop("disabled", false).trigger('mouseenter');
 	}
 
 	window.addEventListener("beforeunload", function (e) {
@@ -1529,11 +1240,8 @@ window.onload = function (){
 			icon.attr("class","glyphicon glyphicon-menu-down");
 			
 		}
-		/*setTimeout(function(){
-			   $(window).trigger("resize");
-		},300);*/
-
 	});
+	try_backend();
 	loadNetFiles();
 };
 

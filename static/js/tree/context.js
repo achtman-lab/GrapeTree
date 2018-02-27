@@ -37,6 +37,7 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 			<div class='context-option' id='uncollapse_all'>Expand all</div> \
 			<hr class='context-hr'> \
 			<div class='context-option' id='center-tree'>Center Tree</div> \
+			<div class='context-option' id='refresh-tree'>Static Redraw</div> \
 			<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 			<hr class='context-hr'> \
 			<div class='context-option' id='delete-node'>Hide selected nodes</div> \
@@ -47,6 +48,8 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 		</div> \
 		<div id='legend-svg-menu' style='display:none' class='sub-context'> \
 			<div class='context-option toggle-legend'>Hide figure legend</div> \
+			<hr class='context-hr'> \
+			<div class='context-option select-group'>Select related nodes</div> \
 			<hr class='context-hr'> \
 			<b style='font-size:85%'><center>Colour By:&nbsp; \
 			<select style='margin:10px' class='context-select' id='color-colname'></select></center></b> \
@@ -66,8 +69,16 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 			<label> Color Scheme</label> \
 			<select style='margin-left:30px;margin-bottom:10px' class='context-select colorscheme'> \
 				<option value='category'>Category</option> \
-				<option value='gradient'>Gradient</option> \
+				<option value='category2'>Category 2</option> \
+				<option value='gradient'>Gradient: Warm</option> \
+				<option value='gradient_cool'>Gradient: Cold</option> \
+				<option value='gradient_rainbow'>Rainbow</option> \
+				<option value='gradient_rainbow2'>Rainbow Bright</option> \
+				<option value='gradient_rainbow3'>Rainbow Dark</option> \
+				<option value='custom'>Custom</option> \
 			</select> \
+			<label> Min Group Size</label> \
+			<center><input type='text' class='spin-group context-input group-size-input' style='width:39px;height:15px' ></input></center> \
 		</div> \
 	</div>";
 
@@ -77,6 +88,9 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 			<hr class='context-hr replaceSelection'> \
 			<div class='context-option selectAll'>Select all</div> \
 			<div class='context-option clearSelection'>Unselect all</div> \
+			<hr class='context-hr'> \
+			<div class='context-option' id='go-left'>Go to left</div> \
+			<div class='context-option' id='go-right'>Go to right</div> \
 			<hr class='context-hr'> \
 			<div class='context-option switch-hypo'>Hypothetical nodes</div> \
 			<div class='context-option toggle-metadata'>Hide metadata table</div> \
@@ -102,8 +116,16 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 					<label> Color Scheme</label> \
 					<select style='margin-left:30px;margin-bottom:10px' class='context-select colorscheme'> \
 						<option value='category'>Category</option> \
-						<option value='gradient'>Gradient</option> \
+						<option value='category2'>Category 2</option> \
+						<option value='gradient'>Gradient: Warm</option> \
+						<option value='gradient_cool'>Gradient: Cool</option> \
+						<option value='gradient_rainbow'>Rainbow</option> \
+						<option value='gradient_rainbow2'>Rainbow Bright</option> \
+						<option value='gradient_rainbow3'>Rainbow Dark</option> \
+						<option value='custom'>Custom</option> \
 					</select> \
+					<label> Min Group Size</label> \
+					<center><input type='text' class='spin-group context-input group-size-input' style='width:39px;height:15px' ></input></center> \
 				</div> \
 		</div> \
 	";
@@ -121,10 +143,9 @@ function D3MSTreeContextMenu(tree,meta_grid,hide_tree_functions){
 		min:0,
 		max:100000
 	});
-	$("#legend-size-input").spinner({
-		value:100,
-		min:10,
-		max:1000
+	$(".group-size-input").spinner({
+		min:0, 
+		max:100000, 
 	});
 	document.addEventListener("contextmenu", function(e){
 		e.preventDefault();
@@ -172,17 +193,13 @@ D3MSTreeContextMenu.prototype._init=function(){
 		if (e.target.id === 'color-colname') {
 			var colname = $("#color-colname").val();
 			self.tree.changeCategory(colname);
-			$(".coltype").val(self.tree.metadata_info[colname].coltype);
-			$(".grouptype").val(self.tree.metadata_info[colname].grouptype);
-			$(".colorscheme").val(self.tree.metadata_info[colname].colorscheme);
+			self._fill_metadata_option(self.tree.metadata_info[colname]);
 		} else if (e.target.id == 'hover-colname') {
 			var colname = $("#hover-colname").val();
 			if (! self.tree.metadata_info[colname]) {
 				$("#allowed-color").hide();
 			} else {
-				$(".coltype").val(self.tree.metadata_info[colname].coltype);
-				$(".grouptype").val(self.tree.metadata_info[colname].grouptype);
-				$(".colorscheme").val(self.tree.metadata_info[colname].colorscheme);
+				self._fill_metadata_option(self.tree.metadata_info[colname]);
 				$("#allowed-color").show();
 				$("#context-menu").height($("#context-menu").height()+$("#allowed-color").height())
 			}
@@ -194,6 +211,47 @@ D3MSTreeContextMenu.prototype._init=function(){
 			if (category == self.tree.display_category) {
 				self.tree.changeCategory(self.tree.display_category);
 			}
+		}
+	});
+
+	$(".colorscheme").change(function(e, ui) {
+		var value = $(this).val();
+		if (value === 'custom') {
+			var ccs_div = $('<div title="Customize a color scheme" style="width:20em; height:22em" id="custom_color_scheme"></div>').appendTo($('body'));
+			ccs_div.append('<div style="margin-bottom:5px">Paste color codes into the text box. <br>One color per line. <br> The colors can be in their names, <br>HEX codes or other HTML compatible codes.<br> Find the details in <a href="https://www.w3schools.com/html/html_colors.asp" target="_blank">THIS LINK</a></div>')
+			ccs_div.data('data', self.tree.color_schemes);
+
+			var colors = self.tree.color_schemes.custom;
+			var legend_text = $('<div style="width:12em;height:20em;resize:none;overflow:auto;white-space:nowrap;float: left;" readonly id="legend_text" ></div>').appendTo(ccs_div)
+									.html(d3.selectAll('.legend-item').data().map(function(d) { return '<div style="float:left; width:0.9em; height:0.9em; margin-right:0.1em; background:'+d.group_colour+'"></div>' + d.group}).join('<br>'));
+			var ccs_text = $('<textarea style="width:8em;height:20em;resize:none;overflow:auto;white-space:nowrap;float: left;" id="ccs_text" ></textarea>').appendTo(ccs_div);
+			legend_text.on('scroll', function () {
+				ccs_text.scrollTop($(this).scrollTop());
+			});
+			ccs_text.on('change keyup paste', function(e) {
+				var colors = $(this).val().split('\n');
+				legend_text.html(d3.selectAll('.legend-item').data().map(function(d, i) {  return '<div style="float:left; width:0.9em; height:0.9em; margin-right:0.1em; background:'+colors[i]+'"></div>' + d.group}).join('<br>'));
+			}).on('scroll', function () {
+				legend_text.scrollTop($(this).scrollTop());
+			});
+			ccs_text.val(colors.join('\n'));
+			ccs_div.dialog({
+				width : 'auto',
+				height : 'auto', 
+				buttons: {
+					Confirm: function(){
+						$(this).data('data').custom = ccs_text.val().split('\n');
+						self.tree.changeCategory(self.tree.display_category);
+						$(this).dialog("close");
+					},
+					Cancel: function() {
+						$(this).dialog("close");
+					}
+				},
+				close: function (e) {
+					ccs_div.dialog('destroy').remove();
+				}
+			});
 		}
 	});
 
@@ -218,6 +276,13 @@ D3MSTreeContextMenu.prototype._init=function(){
 			$('#metadata-div').hide(300);
 		}
 	});
+	$(".select-group").click(function(e) {
+		var [category, group] = $(this).data('group');
+		var node_ids = {};
+		Object.values(self.tree.metadata).filter(function(d) {return d[category] === group;}).forEach(function(d) {return node_ids[d.__Node] = 1;});
+		self.tree.force_nodes.filter(function(n) {return node_ids[n.id]}).forEach(function(n){n.selected=true});		
+		self.tree._updateSelectionStatus();
+	});
 	
 	$(".toggle-legend").click(function(e) {
 		if (self.tree.legend_div.css("display") === "none") {
@@ -229,6 +294,14 @@ D3MSTreeContextMenu.prototype._init=function(){
 	
 	$("#center-tree").click(function(e) {
 		self.tree.centerGraph();
+	});
+	
+	$("#refresh-tree").click(function(e) {
+		showWaitingDialog("Refreshing The Tree");
+		setTimeout(function(){
+			the_tree.refreshGraph();
+			$("#information-div").modal("hide");
+		},500);
 	});
 	
 	$("#collapse_node").click(function(e) {	
@@ -279,7 +352,8 @@ D3MSTreeContextMenu.prototype._init=function(){
 		for (var id in self.meta_grid.columns) {
 			var c = self.meta_grid.columns[id];
 			if (c.id === colname) {
-				self.meta_grid.columns.push(self.meta_grid.columns.splice(id, 1));
+				var tmp = self.meta_grid.columns.splice(id, 1);
+				self.meta_grid.columns.push(tmp[0]);
 				break;
 			}
 		}
@@ -293,15 +367,33 @@ D3MSTreeContextMenu.prototype._init=function(){
 		}
 		self.tree.changeCategory(colname);
 	});
-
-	$("#group-num-input").on("change", function(e) {
-		self.tree.category_num = parseInt($("#group-num-input").val());
+	$(".group-size-input").on("change", function(e) {
+		$(this).data('data').minnum = parseInt($(this).val());
 		self.tree.changeCategory($("#metadata-select").val());
 	})
 	.spinner({
 		spin: function(e, ui) {
 			$(this).spinner("value", ui.value);
-			//$(this).trigger('change');
+		},
+		change: function(e, ui) {
+			$(this).trigger('change');
+		}
+	}).keypress(function(e){
+		if (e.which === 13) {
+			$(this).spinner("value", $(this).val());
+		}
+	});
+
+	$("#group-num-input").on("change", function(e) {
+		var n = parseInt($("#group-num-input").val());
+		if ( n !== self.tree.category_num ) {
+			self.tree.category_num = n;
+			self.tree.changeCategory($("#metadata-select").val());
+		}
+	})
+	.spinner({
+		spin: function(e, ui) {
+			$(this).spinner("value", ui.value);
 		},
 		change: function(e, ui) {
 			$(this).trigger('change');
@@ -314,7 +406,14 @@ D3MSTreeContextMenu.prototype._init=function(){
 };
 
 
-
+D3MSTreeContextMenu.prototype._fill_metadata_option = function(source) {
+	if (! source) source = {};
+	$(".coltype").val(source.coltype ? source.coltype : 'character');
+	$(".grouptype").val(source.grouptype ? source.grouptype : 'size');
+	$(".colorscheme").val(source.colorscheme ? source.colorscheme : 'category');
+	$(".group-size-input").data('data', source);
+	$(".group-size-input").val(source.minnum ? source.minnum : 0);
+};
 
 D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 	var self = this;
@@ -343,11 +442,15 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 		var category = this.tree.display_category;
 		if (category != 'nothing') {
 			if (! this.tree.metadata_info[category]) {
-				this.tree.metadata_info[category] = {coltype : 'character', grouptype : 'size', colorscheme : 'category'};
+				this.tree.metadata_info[category] = {coltype : 'character', grouptype : 'size', colorscheme : 'category', minnum: 0};
 			}
-			$(".coltype").val(this.tree.metadata_info[category].coltype);
-			$(".grouptype").val(this.tree.metadata_info[category].grouptype);
-			$(".colorscheme").val(this.tree.metadata_info[category].colorscheme);
+			this._fill_metadata_option(this.tree.metadata_info[category]);
+		}
+		try {
+			$(".select-group").data('group', [category, d3.select(e.target).data()[0].real_group]);
+			$(".select-group").show();
+		} catch(e) {
+			$(".select-group").hide();
 		}
 		$("#color-colname").empty().append(function() {
 			var col = Object.keys(self.tree.metadata_info).sort();
@@ -359,7 +462,7 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 		});
 		$("#color-colname").val(category);
 
-		$("#group-num-input").spinner("value", this.tree.category_num);
+		$("#group-num-input").val(this.tree.category_num).spinner("value", this.tree.category_num);
 
 		$("#legend-svg-menu").show();
 		$("#context-menu").draggable().css("left", e.pageX).css("top", e.pageY).show();
@@ -400,9 +503,7 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 			$("#allowed-color").hide();
 		} else {
 			$("#allowed-color").show();
-			$(".coltype").val(this.tree.metadata_info[colname].coltype);
-			$(".grouptype").val(this.tree.metadata_info[colname].grouptype);
-			$(".colorscheme").val(this.tree.metadata_info[colname].colorscheme);
+			this._fill_metadata_option(this.tree.metadata_info[colname]);
 		}
 
 		$("#myGrid-menu").show();
