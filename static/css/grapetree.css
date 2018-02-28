@@ -12,6 +12,11 @@ body{
 		left:220px;
 		right:0px;
 		bottom:0px;
+		cursor: pointer;
+}
+
+#legend-svg {
+	cursor: default; 
 }
 
 #sidebar {
@@ -47,6 +52,10 @@ body{
 }
 .slider-class .ui-slider-handle {
 		height:12px;
+}
+
+.mst-element {
+	cursor:move;
 }
 
 .mst-menu-title {
