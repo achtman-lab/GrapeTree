@@ -113,6 +113,8 @@ class distance_matrix(object) :
                 diffs = np.sum((profiles != profile) & presence, axis=1)
                 distances[:, i2] = diffs
         return distances
+
+    @staticmethod
     def symmetric(profiles, handle_missing = 'pair_delete', index_range=None) :
         if index_range is None :
             index_range = [0, profiles.shape[0]]
