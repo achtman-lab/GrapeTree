@@ -84,9 +84,6 @@ function D3MSTree(element_id,data,callback,height,width){
         if (data['initial_category']){
                 this.display_category=data['initial_category'];
         }
-        if (data['custom_color_scheme']) {
-        	this.color_schemes.custom = data['custom_color_scheme'];
-        }
 	
 		if (data['metadata_options']){
 			this.addMetadataOptions(data['metadata_options']);
@@ -121,12 +118,19 @@ function D3MSTree(element_id,data,callback,height,width){
         
         this.force_nodes = this.d3_force_directed_graph.nodes();
         this.force_links = this.d3_force_directed_graph.links();
-        if (data['nexus'] || data['nwk']){
-			var root = data['nexus'] ? this.parseNexus(data['nexus']) : this.parseNewick(data['nwk']);   
 
-			this.original_nodes=[];
-			this.original_links=[];
-			this.createLinksFromNewick(root);
+        if (data['nexus'] || data['nwk']){
+			var root = data['nexus'] ? this.parseNexus(data['nexus']) : this.parseNewick(data['nwk']);
+			if (data['layout_data'] && data['layout_data'].nodes_links && data['layout_data'].nodes_links.backup) {
+				this.backup = data['layout_data'].nodes_links.backup;
+				this.original_nodes = JSON.parse(JSON.stringify(this.backup.curr_nodes));
+				this.original_links = JSON.parse(JSON.stringify(this.backup.curr_links));
+
+			} else {
+				this.original_nodes=[];
+				this.original_links=[];
+				this.createLinksFromNewick(root);
+			}
 
 			for (var i in this.original_nodes){
 				var name = this.original_nodes[i];
@@ -136,35 +140,24 @@ function D3MSTree(element_id,data,callback,height,width){
         } else {
 			this.original_nodes=data['nodes'];
 			this.original_links=data['links'];
-			this.backup=data.backup;
 			this.newickTree=data['newickTree'];
         }
 
-        var positions = data['layout_data'] ? data['layout_data']['node_positions'] : null;
-        
-        if (positions){
-                this.original_node_positions=positions;
-                if (data['layout_data']['nodes_links']){
-                	var to_collapse = this.node_collapsed_value=data['layout_data']['nodes_links']['node_collapsed_value'];
-			   		this.manual_collapsing = data['layout_data']['nodes_links']['manual_collapsing'] ? data['layout_data']['nodes_links']['manual_collapsing'] : {};
-                } else {
-                    var to_collapse = this.node_collapsed_value=0;
-                    this.manual_collapsing = {};
-                }
-        } else {
-        	var to_collapse=0;
-        }
-      
         if (callback){
-                callback(this,this.original_nodes ? "Collapsing Nodes:"+this.original_nodes.length : "Collapsing Nodes.");
+			callback(this,this.original_nodes ? "Collapsing Nodes:"+this.original_nodes.length : "Collapsing Nodes.");
         }
-        
-		
-        var tmp_collapsing = this.manual_collapsing;
-        this.manual_collapsing = {};
-       positions = this._collapseNodes(0, positions);
 
-		if (this.original_links.length > 20000) {
+       	this._collapseNodes(0);
+		this.original_node_positions =  this.greedy_layout(this.force_nodes, this.max_link_scale, this.base_node_size); 
+
+        var positions = data['layout_data'] ? data['layout_data']['node_positions'] : null;
+
+		var to_collapse=this.node_collapsed_value=0;
+		this.manual_collapsing = {};
+        if (positions && data['layout_data']['nodes_links']){
+			to_collapse = this.node_collapsed_value=data['layout_data']['nodes_links']['node_collapsed_value'];
+			this.manual_collapsing = data['layout_data']['nodes_links']['manual_collapsing'] ? data['layout_data']['nodes_links']['manual_collapsing'] : {};
+        } else if (this.original_links.length > 20000) {
        		var link_distances = this.original_links.map(function(l) {return l.distance;}).sort(function(n1, n2) {return n2-n1});
 			if (to_collapse < link_distances[20000]) {
 				to_collapse = link_distances[20000];
@@ -172,11 +165,8 @@ function D3MSTree(element_id,data,callback,height,width){
 			}
 			delete link_distances;
 		}
+		this._collapseNodes(to_collapse);
 
-       if (to_collapse > 0 || Object.keys(tmp_collapsing).length > 0) {
-       		this.manual_collapsing = tmp_collapsing;
-       		this._collapseNodes(to_collapse);
-       }
         if (callback){
                 callback(this,"Nodes"+this.force_nodes.length);
         }
@@ -794,6 +784,8 @@ D3MSTree.prototype.setLayout = function(layout_data){
                 this.show_node_labels= data['show_node_labels'] ? data['show_node_labels'] : false;
                 this.hide_link_length= data["hide_link_length"]?data["hide_link_length"]:this.hide_link_length
                 this.custom_colours = data['custom_colours']?data['custom_colours']:this.custom_colours;
+                this.color_schemes.custom = data.custom_color_scheme ? data.custom_color_scheme : this.color_schemes.custom;
+                this.backup = data.backup ? data.backup : null;
                 this._updateNodeRadii();
                 this._setLinkDistance();
                 this.setLinkLength(this.max_link_scale);                                  
@@ -801,7 +793,6 @@ D3MSTree.prototype.setLayout = function(layout_data){
         else{              
                 this.setLinkLength(this.max_link_scale);
                 this.setNodeSize(this.base_node_size);
-                          
         }
         var s=layout_data['scale']?layout_data['scale']:1;
         this.setScale(s);
@@ -820,6 +811,9 @@ D3MSTree.prototype.getLayout=function(){
         for (var i in this.force_nodes){
                 var node = this.force_nodes[i];            
                 node_positions[node.id]=[node.x,node.y];
+                this.grouped_nodes[node.id].forEach(function(d) {
+                	node_positions[d] = [node.x, node.y];
+                })
         }
         for (var node in this.original_node_positions){
                 if (!node_positions[node]){
@@ -841,6 +835,8 @@ D3MSTree.prototype.getLayout=function(){
 			node_collapsed_value:this.node_collapsed_value,
 			node_text_value:this.node_text_value,
 			manual_collapsing:this.manual_collapsing,
+			backup : this.backup,
+			custom_color_scheme : this.color_schemes.custom, 
         };
         if (this.log_link_scale){
                 nodes_links['log_link_scale']= "true";
@@ -1011,11 +1007,9 @@ D3MSTree.prototype.getTreeAsObject=function(){
         var obj = {
                 links:this.original_links,
                 nodes:this.original_nodes,
-                backup : this.backup,
                 layout_data:this.getLayout(),
                 metadata:this.metadata,
                 initial_category:this.display_category,
-                custom_color_scheme : this.color_schemes.custom, 
 		newickTree:this.newickTree,
 		metadata_options:this.metadata_info
         }
@@ -1111,6 +1105,11 @@ D3MSTree.prototype.delNodes = function(nodes) {
 		return ! n.startsWith('_hypo');
 	}).forEach(function(n) {
 		nodesToDel[n] = 1;
+		if (self.grouped_nodes[n]) {
+			self.grouped_nodes[n].forEach(function(nn) {
+				nodesToDel[nn] = 1;
+			});
+		}
 	});
 
 	var nodes = this.original_nodes.map(function(n) {
@@ -1179,6 +1178,9 @@ D3MSTree.prototype.delNodes = function(nodes) {
 			distance : n.link_length,
 		}
 	});
+	self.backup.curr_links = JSON.parse(JSON.stringify(self.original_links));
+	self.backup.curr_nodes = JSON.parse(JSON.stringify(self.original_nodes));
+
 	this.max_link_distance = self.original_links.map(function(l) {return l.distance;}).reduce(function(v1, v2) {
 		return v1 > v2 ? v1 : v2;
 	});

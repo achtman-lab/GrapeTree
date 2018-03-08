@@ -41,12 +41,12 @@ help_text['show_labels'] = '<h2><a id="Customising_node_labels_24"></a>Customisi
 <ul>\
 <li><strong>Show Labels</strong>: Check to show node labels</li>\
 <li><strong>Font Size</strong>: Choose font size of node labels. Use the slider to change the value, or enter a specific value into the box</li>\
-<li><strong>Label Text</strong>: Choose metadata field to show as node labels</li>\
 </ul>';
 help_text['node_size'] = '<h2><a id="Customising_node_size_29"></a>Customising node size</h2>\
 <ul>\
 <li><strong>Node Size</strong>: Increase/Decrease size of all nodes. Click rewind icon to revert to default value. Use the slider to change the value, or enter a specific value into the box</li>\
-<li><strong>Relative Scaling</strong>: Increase/Decrease relative size of all nodes. Nodes with large number of members will look more distinct. Click rewind icon to revert to default value. Use the slider to change the value, or enter a specific value into the box</li>\
+<li><strong>Kurtosis</strong>: Increase/Decrease kurtosis of all nodes. Nodes with large number of members will look more distinct. Click rewind icon to revert to default value. Use the slider to change the value, or enter a specific value into the box. By default the area of the nodes correlate with the numbers of members in them. </li>\
+<li><strong>Highlight Label</strong>: An easy way to find nodes associate with particular metdata in their displayed labels. Support regular expression. </li>\
 <li><strong>Show Pie Chart</strong>: Shows breakdown of members contained within a node, categorized on "Colour by" setting</li>\
 </ul>';
 help_text['branch_labels'] = '<h2><a id="Modifying_Branch_length_and_Collapsing_branches_34"></a>Modifying Branch length and Collapsing branches</h2>\
@@ -68,7 +68,7 @@ help_text['rendering'] = '<h2><a id="Layout_rendering_options_47"></a>Layout ren
 <p>Layout Rendering gives options on how nodes are positioned on the tree</p>\
 <ul>\
 <li><strong>Static</strong>: Tree layout is calculated when the tree is initially created and remains static. Relative branch length scaling (as specified in the original tree data)  will be maintained if "Real Branch Length" option is checked.</li>\
-<li><strong>Automatic</strong>: Nodes are positioned dynamically similar to a <a href="https://bl.ocks.org/mbostock/4062045">Force Directed Layout</a>. Nodes will try to fan out and distance themselves from neighbours. This may improve the aesthetic of the tree but will modify branch length scaling. Branch lengths are NOT to scale when this is used. The dynamic positioning can applied only to selected nodes if the "Selected Only" option is checked.</li>\
+<li><strong>Dynamic</strong>: Nodes are positioned dynamically similar to a <a href="https://bl.ocks.org/mbostock/4062045">Force Directed Layout</a>. Nodes will try to fan out and distance themselves from neighbours. This may improve the aesthetic of the tree but will modify branch length scaling. Branch lengths are NOT to scale when this is used. The dynamic positioning can applied only to selected nodes if the "Selected Only" option is checked.</li>\
 </ul>';
 help_text['context_menu'] = '<h2><a id="Context_menu_52"></a>Context menu</h2>\
 <p>Provides quick links to contextual menus, which are usually accessed by right click; this is for devices that do not have an easy right-click option such as tablets and mobile devices.</p>\
