@@ -120,7 +120,8 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-## Citation EnteroMSTree - GrapeTree has not been formally published yet. If
+## Citation 
+EnteroMSTree - GrapeTree has not been formally published yet. If
 you use GrapeTree please cite the preprint:
 https://www.biorxiv.org/content/early/2017/11/09/216788
 
