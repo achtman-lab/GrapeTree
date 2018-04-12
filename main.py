@@ -49,28 +49,11 @@ def open_browser(PORT):
 
 def main() :
     try:
-        start_time = time.time()
         desc = __doc__.split('\n\n')[1].strip()
         parser = argparse.ArgumentParser(description=desc, epilog=epi)
-        parser.add_argument('-v', '--verbose', action='store_true',
-                            default=False, help='verbose output')
-        parser.add_argument('--version', action='version',
-                            version='%(prog)s ' + __version__)
-        parser.add_argument('-o', '--output', action='store',
-                            help='output prefix')
         args = parser.parse_args()
-        if not getattr(sys, 'frozen', False):
-            shutil.copy('MSTree_holder.html', 'grapetree/templates/MSTree_holder.html')
-        if args.verbose:
-            print "Executing @ " + time.asctime()
         open_browser(app.config.get('PORT'))
         app.run(port=app.config.get('PORT'))	
-        if args.verbose:
-            print "Ended @ " + time.asctime()
-        if args.verbose:
-            print 'total time in minutes:',
-        if args.verbose:
-            print (time.time() - start_time) / 60.0
         sys.exit(0)
     except KeyboardInterrupt, e:  # Ctrl-C
         raise e
