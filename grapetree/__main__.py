@@ -13,10 +13,16 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-GrapeTree draws awesome trees
+Web interface of GrapTree, which is a program for phylogenetic analysis.
 
-TODO: Detailed description
+GrapeTree is an integral part of EnteroBase and we advise that you use GrapeTree
+through EnteroBase for the best results. However, many people have asked for a 
+stand-alone GrapeTree version that they could use offline or integrate into the
+other applications. 
 
+The stand-alone version emulates the EnteroBase version through a lightweight 
+webserver running on your local computer.  You will be interacting with the 
+program as you would in EnteroBase; through a web browser.
 """
 
 import threading
@@ -31,9 +37,9 @@ import os
 import sys
 
 __licence__ = 'GPLv3'
-__author__ = 'Zhemin Zhou, Martin Sergeant, Nabil-Fareed Alikhan & Mark Achtman'
-__author_email__ = ' M.J.Sergeant@warwick.ac.uk'
-__version__ = '0.0.8'
+__author__ = 'EnteroBase development team'
+__author_email__ = 'zhemin.zhou@warwick.ac.uk'
+__version__ = '1.2.0'
 
 epi = "Licence: " + __licence__ + " by " + __author__ + \
     " <" + __author_email__ + ">"

@@ -1,1 +1,6 @@
-include *
+include binaries/*
+include GT_icon*
+include LICENSE
+include README*
+recursive-include grapetree/templates *
+recursive-include grapetree/static *
