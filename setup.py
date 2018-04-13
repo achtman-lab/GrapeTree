@@ -8,7 +8,11 @@ https://github.com/pypa/sampleproject
 from setuptools import setup, find_packages
 from codecs import open
 from os import path, walk
-from grapetree.__main__ import __author_email__, __author__, __version__
+
+__licence__ = 'GPLv3'
+__author__ = 'EnteroBase development team'
+__author_email__ = 'zhemin.zhou@warwick.ac.uk'
+__version__ = '1.2.3'
 
 def package_files(directory):
     paths = []
@@ -46,7 +50,7 @@ setup(
     packages = ['grapetree'], 
     package_data={'templates':['*'],
                   'static': ['*']},
-    install_requires=['DendroPy', 'numpy', 'Flask', 'networkx', 'numpy', 'psutil'],
+    install_requires=['DendroPy', 'numpy', 'Flask', 'networkx', 'psutil'],
     entry_points={
         'console_scripts': [
             'grapetree=grapetree.__main__:main',

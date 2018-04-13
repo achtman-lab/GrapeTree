@@ -24,11 +24,9 @@ The stand-alone version emulates the EnteroBase version through a lightweight
 webserver running on your local computer.  You will be interacting with the 
 program as you would in EnteroBase; through a web browser.
 """
-
+from grapetree import app
 import threading
 import webbrowser
-from flask import Flask
-from grapetree import app
 import shutil
 import traceback
 import time
@@ -39,7 +37,6 @@ import sys
 __licence__ = 'GPLv3'
 __author__ = 'EnteroBase development team'
 __author_email__ = 'zhemin.zhou@warwick.ac.uk'
-__version__ = '1.2.0'
 
 epi = "Licence: " + __licence__ + " by " + __author__ + \
     " <" + __author_email__ + ">"
