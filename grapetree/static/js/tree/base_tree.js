@@ -1178,13 +1178,11 @@ D3BaseTree.prototype._changeCategory=function(category){
 		}
 	});
 	
-	if (cat_count_list.length > this.category_num) {
-		cat_count_list = cat_count_list.slice(0, this.category_num);
-	}
+	var color_num = cat_count_list.length > this.category_num ? this.category_num : cat_count_list.length;
 
 	var cust_col= this.custom_colours[category];
 	try {
-		var auto_col = this.color_schemes[colorscheme](cat_count_list.length);
+		var auto_col = this.color_schemes[colorscheme](color_num);
 	} catch (e) {
 		var auto_col = this.color_schemes[colorscheme];
 	}
@@ -1196,7 +1194,7 @@ D3BaseTree.prototype._changeCategory=function(category){
 			cat_count_list[colour_count][2] = cust_col[val];
 			continue;	
 		} else if (! auto_col[colour_count]) {
-			cat_count_list[colour_count][2] = this.category_colours[val] = this.default_colour;
+			cat_count_list[colour_count][2] = this.category_colours[val] = ''; //this.default_colour;
 		} else {
 			cat_count_list[colour_count][2] = this.category_colours[val] = auto_col[colour_count];
 		}
