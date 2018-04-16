@@ -474,6 +474,7 @@
 			}
 			else if (type === 'nodes_collapased'){
 				$( "#spinner-collapse-nodes" ).val(data);
+				$( "#spinner-collapse-nodes" ).spinner('value', data);
 				var v = parseFloat(data);
 				$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
 			}
@@ -497,13 +498,14 @@
 		$("#spinner-hide-link-length").spinner({
 			min: 0,
 			max: tree.max_link_distance,
-				step:(tree.max_link_distance/1000.0).toPrecision(1)
+				step:Math.max(1e-6, (tree.max_link_distance/1000.0).toPrecision(1)),
 			});
+		$( "#spinner-collapse-nodes" ).data('branches', $.unique(tree.original_links.map(function(d) {return d.distance}).sort(function(d1, d2) {return d1-d2})));
 		$( "#spinner-collapse-nodes" ).spinner({
 			min: 0,
 			max: tree.max_link_distance,
 			value: tree.node_collapsed_value,
-			step: 0.000001,
+			step: 1e-6, 
 		});
 
 		$( "#slider-collapse-nodes" ).slider({
@@ -877,7 +879,7 @@ window.onload = function (){
 				the_tree.setHideLinkLength(the_tree.max_link_distance+1);
 			}
 		});
-		$("#spinner-hide-link-length").on('change', function(e) {
+		$("#spinner-hide-link-length").on('change', function(e, ui) {
 			var max = $("#spinner-hide-link-length").val();
 			if (!max) {
 				max = the_tree.max_link_distance+1;
@@ -958,11 +960,11 @@ window.onload = function (){
 				$(this).spinner("value", ui.value);
 			},
 			change: function(e) {
-				$(this).trigger('change');
+				$(this).trigger('change', e);
 			}
 		}).keypress(function(e){
 			if (e.which === 13) {
-				$(this).spinner("value", $(this).val());
+				$(this).trigger('change', e);
 			}
 		});
 
@@ -1137,8 +1139,8 @@ window.onload = function (){
 			value: 0,
         });
 
-	$( "#spinner-collapse-nodes" ).on("change", function(e) {
-		var v = parseFloat($(this).spinner('value'));
+	$( "#spinner-collapse-nodes" ).on("change", function(e, ui) {
+		var v = parseFloat($("#spinner-collapse-nodes").val());
 		if (v != $(this).data.v) {
 			$(this).data.v = v;
 			$("#slider-collapse-nodes").slider('value', Math.log(v)*1000);
