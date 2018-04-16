@@ -1,12 +1,65 @@
-from setuptools import setup
+"""A setuptools based setup module for Grapetree.
+
+See:
+https://packaging.python.org/en/latest/distributing.html
+https://github.com/pypa/sampleproject
+"""
+
+from setuptools import setup, find_packages
+from codecs import open
+from os import path, walk
+
+__licence__ = 'GPLv3'
+__author__ = 'EnteroBase development team'
+__author_email__ = 'zhemin.zhou@warwick.ac.uk'
+__version__ = '1.2.3'
+
+def package_files(directory):
+    paths = []
+    for (pathz, directories, filenames) in walk(directory):
+        for filename in filenames:
+            paths.append(path.join('..', pathz, filename))
+    return paths
+
+here = path.abspath(path.dirname(__file__))
+
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
-    name='GrapeTree',    # This is the name of your PyPI-package.
-	description='Web interface of GrapTree, which is a program for phylogenetic analysis.',
-	license='GPLv3',
-	url='https://github.com/martinSergeant/EnteroMSTree',
-    version='1.0',                          # Update the version number for new releases
-    scripts=['GTree'],                  # The name of your scipt, and also the command you'll be using for calling it
-	install_requires=['DendroPy', 'numpy', 'Flask', 'networkx'],
-	include_package_data=True
+    name='grapetree',  
+    version= __version__,  
+    description='Web interface of GrapTree, which is a program for phylogenetic analysis.',
+    long_description=long_description, 
+    long_description_content_type='text/markdown',  
+    url='https://github.com/martinSergeant/EnteroMSTree',
+    author= __author__,  
+    author_email= __author_email__, 
+    classifiers=[  # Optional
+        'Development Status :: 5 - Production/Stable',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+    ],
+    py_modules=['MSTrees'],
+    keywords='visulisation bioinformatics microbial genomics', 
+    packages = ['grapetree'], 
+    package_data={'templates':['*'],
+                  'static': ['*']},
+    install_requires=['DendroPy', 'numpy', 'Flask', 'networkx', 'psutil'],
+    entry_points={
+        'console_scripts': [
+            'grapetree=grapetree.__main__:main',
+        ],
+    },
+    scripts=['MSTrees.py'],
+    include_package_data=True,
+    project_urls={ 
+        'Bug Reports': 'https://github.com/martinSergeant/EnteroMSTree/issues',
+        'Source': 'https://github.com/martinSergeant/EnteroMSTree',
+    },
 )

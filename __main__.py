@@ -13,16 +13,20 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-GrapeTree draws awesome trees
+Web interface of GrapTree, which is a program for phylogenetic analysis.
 
-TODO: Detailed description
+GrapeTree is an integral part of EnteroBase and we advise that you use GrapeTree
+through EnteroBase for the best results. However, many people have asked for a
+stand-alone GrapeTree version that they could use offline or integrate into the
+other applications.
 
+The stand-alone version emulates the EnteroBase version through a lightweight
+webserver running on your local computer.  You will be interacting with the
+program as you would in EnteroBase; through a web browser.
 """
-
+from grapetree import app
 import threading
 import webbrowser
-from flask import Flask
-from grapetree import app
 import shutil
 import traceback
 import time
@@ -31,9 +35,8 @@ import os
 import sys
 
 __licence__ = 'GPLv3'
-__author__ = 'Zhemin Zhou, Martin Sergeant, Nabil-Fareed Alikhan & Mark Achtman'
-__author_email__ = ' M.J.Sergeant@warwick.ac.uk'
-__version__ = '0.0.8'
+__author__ = 'EnteroBase development team'
+__author_email__ = 'zhemin.zhou@warwick.ac.uk'
 
 epi = "Licence: " + __licence__ + " by " + __author__ + \
     " <" + __author_email__ + ">"
@@ -49,28 +52,11 @@ def open_browser(PORT):
 
 def main() :
     try:
-        start_time = time.time()
         desc = __doc__.split('\n\n')[1].strip()
         parser = argparse.ArgumentParser(description=desc, epilog=epi)
-        parser.add_argument('-v', '--verbose', action='store_true',
-                            default=False, help='verbose output')
-        parser.add_argument('--version', action='version',
-                            version='%(prog)s ' + __version__)
-        parser.add_argument('-o', '--output', action='store',
-                            help='output prefix')
         args = parser.parse_args()
-        if not getattr(sys, 'frozen', False):
-            shutil.copy('MSTree_holder.html', 'grapetree/templates/MSTree_holder.html')
-        if args.verbose:
-            print "Executing @ " + time.asctime()
         open_browser(app.config.get('PORT'))
-        app.run(port=app.config.get('PORT'))	
-        if args.verbose:
-            print "Ended @ " + time.asctime()
-        if args.verbose:
-            print 'total time in minutes:',
-        if args.verbose:
-            print (time.time() - start_time) / 60.0
+        app.run(port=app.config.get('PORT'))
         sys.exit(0)
     except KeyboardInterrupt, e:  # Ctrl-C
         raise e
@@ -79,7 +65,7 @@ def main() :
     except Exception, e:
         print 'ERROR, UNEXPECTED EXCEPTION'
         print str(e)
-        traceback.print_exc()	
+        traceback.print_exc()
         os._exit(1)
 
 if __name__ == "__main__":

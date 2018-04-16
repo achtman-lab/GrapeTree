@@ -44,7 +44,8 @@ to install these modules is with pip:
 pip install -r requirements.txt
 chmod +x binaries/
 ```
-On Linux or MacOSX you need to make sure the binaries in binaries/ can be executed. To run GrapeTree;
+On Linux or MacOSX you need to make sure the binaries in binaries/ can be
+executed. To run GrapeTree;
 
 1. Navigate to the directory where you installed GrapeTree. 
 1. Run it through python as below. 
@@ -105,16 +106,27 @@ pytest
 
 
 ## License
-Copyright Warwick University
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+Copyright Warwick University This program is free software: you can
+redistribute it and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, but without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose. See the GNU General Public License for more details.
+This program is distributed in the hope that it will be useful, but without
+any warranty; without even the implied warranty of merchantability or fitness
+for a particular purpose. See the GNU General Public License for more
+details.
 
-You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-## Citation
-EnteroMSTree - GrapeTree has not been formally published yet. If you use GrapeTree please cite the preprint:  https://www.biorxiv.org/content/early/2017/11/09/216788
+## Citation 
+EnteroMSTree - GrapeTree has not been formally published yet. If
+you use GrapeTree please cite the preprint:
+https://www.biorxiv.org/content/early/2017/11/09/216788
 
 An extended citation could be:
-Z Zhou,  NF Alikhan, MJ Sergeant, N Luhmann, C Vaz, AP Francisco, JA Carrico, M Achtman  (2017) "GrapeTree: Visualization of core genomic relationships among 100,000 bacterial pathogens", bioRxiv 216788; doi: https://doi.org/10.1101/216788
+Z Zhou, NF Alikhan, MJ Sergeant, N Luhmann, C Vaz, AP Francisco, JA Carrico,
+M Achtman (2017) "GrapeTree: Visualization of core genomic relationships
+among 100,000 bacterial pathogens", bioRxiv 216788; doi:
+https://doi.org/10.1101/216788
