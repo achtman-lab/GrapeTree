@@ -3,6 +3,8 @@ from subprocess import Popen, PIPE
 import sys, os, tempfile, platform, re, tempfile, psutil
 import argparse
 
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 params = dict(method='MSTreeV2', # MSTree , NJ
               matrix_type='symmetric',
               heuristic = 'eBurst',
@@ -11,14 +13,14 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               wgMLST = False,
               n_proc = 5,
               checkEnv = False,
-              NJ_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme.exe'),
-              NJ_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-osx'),
-              NJ_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'fastme-2.1.5-linux32'),
-              edmonds_Windows = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds.exe'),
-              edmonds_Darwin = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-osx'),
-              edmonds_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'edmonds-linux'),
-              goeburst_Linux = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binaries', 'goeburst'),
-              )
+              NJ_Windows = os.path.join(base_dir, 'binaries', 'fastme.exe'),
+              NJ_Darwin = os.path.join(base_dir, 'binaries', 'fastme-2.1.5-osx'),
+              NJ_Linux = os.path.join(base_dir, 'binaries', 'fastme-2.1.5-linux32'),
+              edmonds_Windows = os.path.join(base_dir, 'binaries', 'edmonds.exe'),
+              edmonds_Darwin = os.path.join(base_dir, 'binaries', 'edmonds-osx'),
+              edmonds_Linux = os.path.join(base_dir, 'binaries', 'edmonds-linux'),
+              goeburst_Linux = os.path.join(base_dir, 'binaries', 'goeburst'),
+             )
 
 
 def add_args() :
@@ -244,6 +246,10 @@ class methods(object) :
             mstree.T[:2] = presence[mstree.T[:2]]
             return mstree.tolist() + shortcuts.tolist()
         except :
+            try :
+                os.unlink(wdist_file)
+            except :
+                pass
             dist = np.load(params['dist_file'])
             wdist = np.round(dist, 0) + weight.reshape([weight.size, -1])
             np.fill_diagonal(wdist, 0.0)
