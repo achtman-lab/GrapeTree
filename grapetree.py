@@ -53,7 +53,7 @@ def open_browser(PORT):
 
 def main() :
     if len(sys.argv) > 1 :
-        print backend(add_args(sys.argv))
+        print backend(**add_args())
     else :
         try:
             desc = __doc__.split('\n\n')[1].strip()
