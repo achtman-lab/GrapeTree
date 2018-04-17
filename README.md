@@ -4,7 +4,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Docs Status](https://readthedocs.org/projects/enterobase/badge/)](http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html)
 
-[Click here for the live demo of GrapeTree!](https://achtman-lab.github.io/GrapeTree/MSTree_holder.html)
+** [Click here for the live demo of GrapeTree!](https://achtman-lab.github.io/GrapeTree/MSTree_holder.html) ** 
 
 GrapeTree is an integral part of EnteroBase and we advise that you use GrapeTree
 through EnteroBase for the best results. However, many people have asked for a 
@@ -82,33 +82,38 @@ pytest
 ```
 
 ## Usage - Command line module for generating Trees - MSTrees.py
-### parameters :
-        profile: input file. Can be either profile or fasta. Headings start with an '#' will be ignored. 
-        method: MST or NJ
-        matrix_type: asymmetric or symmetric
-        edge_weight: harmonic or eBurst
-        neighbor_branch_reconnection: T or F
-    
-### Outputs :
-        A string of a NEWICK tree
-    
-### Examples :
-        To run a Balanced Spanning Arborescence (BSA), use :
-        backend(profile=<filename>, method='MST', matrix_type='asymmetric', edge_weight='harmonic', neighbor_branch_reconnection='T')
-    
-        OR simply
-        backend(profile=<filename>)
-        
-        To run a standard minimum spanning tree :
-        backend(profile=<filename>, method='MST', matrix_type='symmetric', edge_weight='eBurst', neighbor_branch_reconnection='F')
-        
-        To run a NJ tree (using FastME 2.0) :
-        backend(profile=<filename>, method='NJ')
-    
-### Can also be called in command line:
-        BSA: MSTrees.py profile=<filename> method=MST matrix_type=asymmetric edge_weight=harmonic neighbor_branch_reconnection=T
-        MST: MSTrees.py profile=<filename> method=MST matrix_type=symmetric edge_weight=eBurst neighbor_branch_reconnection=F
-        NJ:  MSTrees.py profile=<filename> method=NJ
+``bash
+usage: MSTrees.py [-h] --profile PROFILE [--method METHOD]
+                  [--matrix MATRIX_TYPE] [--recraft]
+                  [--missing HANDLE_MISSING] [--wgMLST]
+                  [--heuristic HEURISTIC] [--n_proc N_PROC] [--check]
+
+Parameters for command line version of GrapeTree. 
+You can drag the Newick output into the web interface. 
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --profile PROFILE, -p PROFILE
+                        A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.
+  --method METHOD, -m METHOD
+                        backend algorithms to call. Allowed values are "MSTreeV2" [default], "MSTree" and "NJ"
+  --matrix MATRIX_TYPE, -x MATRIX_TYPE
+                        Either "symmetric" [default for MSTree and NJ] 
+                        or "asymmetric" [default for MSTreeV2]. 
+  --recraft, -r         Allows local branch recrafting after tree construction. Default in MSTreeV2. 
+  --missing HANDLE_MISSING, -y HANDLE_MISSING
+                        Alternative ways of handling missing data.
+                        0: missing data are ignored in pairwise comparisons [default]. 
+                        1: Columns that have missing data are ignored in the whole analysis. 
+                        2: missing data are treated as a special value (allele). 
+                        3: Naive counting of absolute differences between profiles. 
+  --wgMLST, -w          Use when > 20 % of values in the input are missing.
+  --heuristic HEURISTIC, -t HEURISTIC
+                        Tiebreak rules between co-optimal edges. Only used in MSTree [default: eBurst] and MSTreeV2 [default: harmonic]
+  --n_proc N_PROC, -n N_PROC
+                        Number of processes. Default: 5. 
+  --check, -c           Do not calculate the tree but only show the expected time/memory consumption. 
+```
 
 
 ## License
