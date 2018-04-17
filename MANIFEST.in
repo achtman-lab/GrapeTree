@@ -1,6 +1,7 @@
+include MSTree_holder.html
 include binaries/*
 include GT_icon*
 include LICENSE
 include README*
-recursive-include grapetree/templates *
-recursive-include grapetree/static *
+recursive-include module *
+recursive-include static *
