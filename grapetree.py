@@ -24,7 +24,7 @@ The stand-alone version emulates the EnteroBase version through a lightweight
 webserver running on your local computer.  You will be interacting with the
 program as you would in EnteroBase; through a web browser.
 """
-from grapetree import app
+from module import app
 import threading
 import webbrowser
 import shutil

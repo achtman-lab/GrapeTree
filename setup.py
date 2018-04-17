@@ -26,6 +26,9 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+def recursive(folder) :
+    return [path.join(p, '*') for (p, directories, filenames) in walk(folder)]
+
 setup(
     name='grapetree',  
     version= __version__,  
@@ -43,22 +46,18 @@ setup(
     ],
 	entry_points={
         'console_scripts': [
-            'grapetree = grapetree.interface:main',
+            'grapetree = grapetree.grapetree:main',
         ],
     },
     keywords=['bioinformatics', 'microbial', 'genomics', 'MLST', 'visulisation'],
     package_data={'grapetree':[
         'MSTree_holder.html',
-		'GT_icon*',
-		'README*',
+        'GT_icon*',
+        'README*',
         'LICENSE',
-        'static/*',
-		'static/css/*',
-		'static/fonts/*',
-		'static/js/*',
-		'grapetree/*',
+        'module/*',
         'binaries/*',
-    ]},
+    ]+recursive('static')},
     packages = ['grapetree'],
     package_dir = {'grapetree':'.'},
     install_requires=['DendroPy', 'numpy', 'Flask', 'networkx', 'psutil'],

@@ -3,5 +3,5 @@ include binaries/*
 include GT_icon*
 include LICENSE
 include README*
-recursive-include grapetree *
+recursive-include module *
 recursive-include static *
