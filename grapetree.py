@@ -33,6 +33,7 @@ import time
 import argparse
 import os
 import sys
+from module.MSTrees import backend, add_args
 
 __licence__ = 'GPLv3'
 __author__ = 'EnteroBase development team'
@@ -51,22 +52,25 @@ def open_browser(PORT):
 
 
 def main() :
-    try:
-        desc = __doc__.split('\n\n')[1].strip()
-        parser = argparse.ArgumentParser(description=desc, epilog=epi)
-        args = parser.parse_args()
-        open_browser(app.config.get('PORT'))
-        app.run(port=app.config.get('PORT'))
-        sys.exit(0)
-    except KeyboardInterrupt, e:  # Ctrl-C
-        raise e
-    except SystemExit, e:  # sys.exit()
-        raise e
-    except Exception, e:
-        print 'ERROR, UNEXPECTED EXCEPTION'
-        print str(e)
-        traceback.print_exc()
-        os._exit(1)
+    if len(sys.argv) > 1 :
+        print backend(add_args(sys.argv))
+    else :
+        try:
+            desc = __doc__.split('\n\n')[1].strip()
+            parser = argparse.ArgumentParser(description=desc, epilog=epi)
+            args = parser.parse_args()
+            open_browser(app.config.get('PORT'))
+            app.run(port=app.config.get('PORT'))
+            sys.exit(0)
+        except KeyboardInterrupt, e:  # Ctrl-C
+            raise e
+        except SystemExit, e:  # sys.exit()
+            raise e
+        except Exception, e:
+            print 'ERROR, UNEXPECTED EXCEPTION'
+            print str(e)
+            traceback.print_exc()
+            os._exit(1)
 
 if __name__ == "__main__":
-    main();
+    main()
