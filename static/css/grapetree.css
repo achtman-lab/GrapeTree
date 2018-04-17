@@ -1,0 +1,199 @@
+
+body{
+		width:100%;
+		height:100%;
+		position: fixed; 
+		overflow: hidden;
+}
+
+#graph-div{
+		position: fixed;
+		top:0px;
+		left:220px;
+		right:0px;
+		bottom:0px;
+		cursor: pointer;
+}
+
+#legend-svg {
+	cursor: default; 
+}
+
+#sidebar {
+		position:fixed;
+		top:0px;
+		bottom:0px;
+		width:220px;
+		margin-left:5px;
+		overflow-y:auto;
+		overflow-x: hidden;
+}
+.brush.extent {
+	stroke: #fff;
+	fill-opacity: .125;
+	shape-rendering: crispEdges;
+}
+.selected{
+		background-color:blue;
+}
+
+
+.graph-selection-indicator {
+  position: absolute;
+  background: transparent;
+  border: 1px solid orange;
+}
+ .slider-class{
+		float: left;
+		clear: left;
+		width: 90px;
+		height:5px;
+		margin: 5px;
+}
+.slider-class .ui-slider-handle {
+		height:12px;
+}
+
+.mst-element {
+	cursor:move;
+}
+
+.mst-menu-title {
+
+		cursor:pointer;
+
+}
+.panel-body {
+	display:none;
+}
+.panel-body label{
+		margin-bottom:1px;
+		margin-top:4px;
+
+}
+.zoom-icon{
+		cursor:pointer;
+		font-size:22px;
+
+}
+.upload-download-icon{
+		cursor:pointer;
+		font-size:22px;
+
+}
+.add-data-icon{
+		cursor:pointer;
+		float:right;
+}
+
+.mst-menu-title span{
+		display:block;
+		float:right;
+}
+.panel-default{
+		margin-bottom:2px;
+}
+div.tooltip {
+		position: absolute;
+		text-align: center;
+		height: 28px;
+		padding: 2px;
+		font: 16px sans-serif;
+		background: lightsteelblue;
+		border: 0px;
+		border-radius: 8px;
+		pointer-events: none;
+}
+
+ #welcome-div {
+position: fixed;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ height:400px;
+ width:600px;
+ #border-style:solid;
+
+}
+#handler {
+	padding:10px 10px;
+	background-color:#f1f1f1;
+	width:100%;
+	height:auto;
+	border-radius:5px;
+	border: 0px solid transparent;
+}
+#handler .glyphicon,input[type=checkbox] {
+	zoom:1.5;
+}
+#handler .glyphicon {
+	margin-right:15px
+}
+
+#handler .glyphicon span {
+	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font-size: 0.8em;
+	top:-2px;
+	position:relative;
+}
+.slick-headerrow-columns .slick-headerrow-column input {
+	height:100%;
+	width:100%;
+}
+.cell-title {
+  font-weight: bold;
+}
+.cell-effort-driven {
+  text-align: center;
+}
+.slick-header.ui-state-default {
+	height: 24px
+}
+.slick-header .ui-state-default.slick-header-column {
+	height: 24px
+}
+
+.ui-dialog-titlebar {
+    background: #337ab7;
+    border: 0;
+    color: #fff;
+    font-weight: normal;
+}
+.slick-row.odd {
+	background: #ffffcc;
+}
+.slick-row.even {
+	background: #ccffcc;
+}
+.slick-cell {
+	border-right: 1px solid silver;
+}
+.navbar-nav > li > a {
+	padding-top: 5px;
+    height: 30px;
+}
+.slick-column-name {
+	color: #505050;
+}
+.navbar {
+	min-height:30px;
+	margin-bottom:0px
+}
+.grid-canvas >.odd >.uneditable-cell {
+	background: #e5e5b7;
+}
+.grid-canvas >.even >.uneditable-cell {
+	background: #b7e5b7;
+}
+
+.sub-panel {
+	margin-left: 10px;
+}
+.spin-group {
+	width:25px;
+	height:15px;
+}
+
+.panel button {
+	margin-top: 8px;
+}
