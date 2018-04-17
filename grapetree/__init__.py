@@ -12,4 +12,4 @@ else:
 
 app.config.from_object(config)
 
-from grapetree import views
+import views
