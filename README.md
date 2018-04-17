@@ -1,5 +1,7 @@
 # GrapeTree
 
+[Click here for the live demo of GrapeTree!](https://achtman-lab.github.io/GrapeTree/MSTree_holder.html)
+
 GrapeTree is an integral part of EnteroBase and we advise that you use GrapeTree
 through EnteroBase for the best results. However, many people have asked for a 
 stand-alone GrapeTree version that they could use offline or integrate into the
