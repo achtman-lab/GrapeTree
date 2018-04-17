@@ -82,7 +82,7 @@ pytest
 ```
 
 ## Usage - Command line module for generating Trees - MSTrees.py
-``bash
+```bash
 usage: MSTrees.py [-h] --profile PROFILE [--method METHOD]
                   [--matrix MATRIX_TYPE] [--recraft]
                   [--missing HANDLE_MISSING] [--wgMLST]
