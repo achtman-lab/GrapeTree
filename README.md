@@ -16,9 +16,9 @@ webserver running on your local computer.  You will be interacting with the
 program as you would in EnteroBase; through a web browser. We recommend 
 [Google Chrome](https://www.google.com/chrome/index.html) for best results.
 
-**For detailed help please see: http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html**
+**For detailed help please see: [http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html](http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html)**
 
-**For a formal description, please see the preprint:  https://www.biorxiv.org/content/early/2017/11/09/216788**
+**For a formal description, please see the preprint: [https://www.biorxiv.org/content/early/2017/11/09/216788](https://www.biorxiv.org/content/early/2017/11/09/216788)**
 
 ## Installing and Running GrapeTree
 There are number of different ways to interact with GrapeTree, the easiest to 
@@ -45,8 +45,6 @@ and some additional python modules (listed in requirements.txt). The easiest way
 to install these modules is with pip:
 
 ```
-#!bash
-
 pip install -r requirements.txt
 chmod +x binaries/
 ```
@@ -57,13 +55,9 @@ executed. To run GrapeTree;
 1. Run it through python as below. 
 
 ```
-#!bash
-
 \GrapeTree>python main.py
  * Running on http://127.0.0.1:8000/ (Press CTRL+C to quit)
 ```
-
-**Running GrapeTree with no installation**
 
 The program will automatically open your web browser and you will see the 
 GrapeTree Splash Screen. If at anytime you want to restart the page you can 
@@ -78,13 +72,13 @@ Developers may wish to look at the [JavaScript documentation](https://achtman-la
 
 ### Tests
 To run tests, run pytests in the top level directory.
-```bash
+```
 pytest
 
 ```
 
 ## Usage - Command line module for generating Trees - MSTrees.py
-```bash
+```
 usage: MSTrees.py [-h] --profile PROFILE [--method METHOD]
                   [--matrix MATRIX_TYPE] [--recraft]
                   [--missing HANDLE_MISSING] [--wgMLST]
@@ -140,4 +134,4 @@ you use GrapeTree please cite the preprint:
 Z Zhou, NF Alikhan, MJ Sergeant, N Luhmann, C Vaz, AP Francisco, JA Carrico,
 M Achtman (2017) "GrapeTree: Visualization of core genomic relationships
 among 100,000 bacterial pathogens", bioRxiv 216788; doi:
-https://doi.org/10.1101/216788
+[https://doi.org/10.1101/216788](https://doi.org/10.1101/216788)

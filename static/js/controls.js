@@ -647,7 +647,7 @@ tree_raw = {};
 						loadMSTree(tree_raw);
                }).fail(function( jqXHR, textStatus){
 						if (jqXHR.status == 405 || jqXHR.status == 404) {
-							loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/martinSergeant/EnteroMSTree/");
+							loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/achtman-lab/GrapeTree/");
 						} else {
 							console.log(textStatus);
 							loadFailed("There server returned an error. Is the profile file in the right format");

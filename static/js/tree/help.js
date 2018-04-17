@@ -97,5 +97,5 @@ help_text['enterobase'] = '<h2><a id="Saving_in_GrapeTree_13"></a>Interaction Wi
 </ul>';
 
 for (var k in help_text) {
-    help_text[k] = [help_text[k], '<br><br>The complete documentation can be found in <a href="https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree" target="_blank">Online Documents</a>'];
+    help_text[k] = [help_text[k], '<br><br>The complete documentation can be found in <a href="http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html" target="_blank">Online Documents</a>'];
 }

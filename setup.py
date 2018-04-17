@@ -35,7 +35,7 @@ setup(
     description='Web interface of GrapeTree, which is a program for phylogenetic analysis.',
     long_description=long_description, 
     long_description_content_type='text/markdown',  
-    url='https://github.com/martinSergeant/EnteroMSTree',
+    url='https://github.com/achtman-lab/GrapeTree',
     author= __author__,  
     author_email= __author_email__, 
     classifiers=[  # Optional
@@ -63,7 +63,7 @@ setup(
     install_requires=['DendroPy', 'numpy', 'Flask', 'networkx', 'psutil'],
     include_package_data=True,
     project_urls={ 
-        'Bug Reports': 'https://github.com/martinSergeant/EnteroMSTree/issues',
-        'Source': 'https://github.com/martinSergeant/EnteroMSTree',
+        'Bug Reports': 'https://github.com/achtman-lab/GrapeTree/issues',
+        'Source': 'https://github.com/achtman-lab/GrapeTree',
     },
 )
