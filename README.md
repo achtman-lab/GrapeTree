@@ -1,4 +1,4 @@
-# EnteroMSTree - GrapeTree
+# GrapeTree
 
 GrapeTree is an integral part of EnteroBase and we advise that you use GrapeTree
 through EnteroBase for the best results. However, many people have asked for a 
@@ -10,13 +10,13 @@ webserver running on your local computer.  You will be interacting with the
 program as you would in EnteroBase; through a web browser. We recommend 
 [Google Chrome](https://www.google.com/chrome/index.html) for best results.
 
-**For detailed help please see: https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree**
+**For detailed help please see: http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html**
 
 **For a formal description, please see the preprint:  https://www.biorxiv.org/content/early/2017/11/09/216788**
 
 ## Installing and Running GrapeTree
 There are number of different ways to interact with GrapeTree, the easiest to 
-download the software here: [https://github.com/martinSergeant/EnteroMSTree/releases](https://github.com/martinSergeant/EnteroMSTree/releases)
+download the software here: [https://github.com/achtman-lab/GrapeTree/releases](https://github.com/achtman-lab/GrapeTree/releases)
 
 **Running on Mac: Download GrapeTree_mac.zip**
 
@@ -123,9 +123,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 ## Citation 
 EnteroMSTree - GrapeTree has not been formally published yet. If
 you use GrapeTree please cite the preprint:
-https://www.biorxiv.org/content/early/2017/11/09/216788
 
-An extended citation could be:
 Z Zhou, NF Alikhan, MJ Sergeant, N Luhmann, C Vaz, AP Francisco, JA Carrico,
 M Achtman (2017) "GrapeTree: Visualization of core genomic relationships
 among 100,000 bacterial pathogens", bioRxiv 216788; doi:
