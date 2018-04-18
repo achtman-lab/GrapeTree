@@ -34,6 +34,8 @@ import argparse
 import os
 import sys
 from module.MSTrees import backend, add_args
+import psutil
+
 
 __licence__ = 'GPLv3'
 __author__ = 'EnteroBase development team'
@@ -73,4 +75,6 @@ def main() :
             os._exit(1)
 
 if __name__ == "__main__":
+    import multiprocessing
+    multiprocessing.freeze_support()
     main()
