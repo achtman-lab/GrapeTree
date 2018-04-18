@@ -87,12 +87,12 @@ To run tests, run pytests in the top level directory.
 
    pytest
 
-Usage - Command line module for generating Trees - MSTrees.py
+Usage - Command line mode for generating Trees
 -------------------------------------------------------------
 
 .. code-block::
 
-   usage: MSTrees.py [-h] --profile PROFILE [--method METHOD]
+   usage: grapetree [-h] --profile PROFILE [--method METHOD]
                   [--matrix MATRIX_TYPE] [--recraft]
                   [--missing HANDLE_MISSING] [--wgMLST]
                   [--heuristic HEURISTIC] [--n_proc N_PROC] [--check]
@@ -121,7 +121,7 @@ Usage - Command line module for generating Trees - MSTrees.py
   --wgMLST, -w          Use when > 20 % of values in the input are missing.
   --heuristic HEURISTIC, -t HEURISTIC
                         Tiebreak rules between co-optimal edges. Only used in MSTree [default: eBurst] 
-  and MSTreeV2 [default: harmonic]
+                        and MSTreeV2 [default: harmonic]
   --n_proc N_PROC, -n N_PROC
                         Number of processes. Default: 5. 
   --check, -c           Do not calculate the tree but only show the expected time/memory consumption. 
