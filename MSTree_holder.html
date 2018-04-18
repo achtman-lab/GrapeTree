@@ -72,8 +72,8 @@
 <div id='sidebar'>
 	<div>
 		<a class='show-tooltip' title="EnteroBase" href="https://enterobase.warwick.ac.uk" target = '_blank'><img src="static/js/img/enterobase.png" alt="Enterobase" style="width:40px;height:45px;"></a>&nbsp;&nbsp;|&nbsp;&nbsp;
-		<a class='show-tooltip' title='GrapeTree GitHub repository' href="https://github.com/martinSergeant/EnteroMSTree" target = '_blank'><img src="static/js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>&nbsp;&nbsp;|&nbsp;&nbsp;
-		<a class='show-tooltip' title='Help' href="https://bitbucket.org/enterobase/enterobase-web/wiki/GrapeTree" target = '_blank'><span class="glyphicon glyphicon-question-sign" style="font-size:30px;height:50px;margin-right:5px;top:10px"></span></a>
+		<a class='show-tooltip' title='GrapeTree GitHub repository' href="https://github.com/achtman-lab/GrapeTree" target = '_blank'><img src="static/js/img/GrapeTree.PNG" alt="GrapeTree" style="width:40px;height:50px;"></a>&nbsp;&nbsp;|&nbsp;&nbsp;
+		<a class='show-tooltip' title='Help' href="http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html" target = '_blank'><span class="glyphicon glyphicon-question-sign" style="font-size:30px;height:50px;margin-right:5px;top:10px"></span></a>
 		<h3 id="headertag" style="font-family: times, serif; font-size:12pt; font-style:italic">GrapeTree</h3>
 	</div>
 	<br>
@@ -760,7 +760,7 @@ function profile2check(profile) {
 				});
 	   }).fail(function( jqXHR, textStatus){
 				if (jqXHR.status == 405 || jqXHR.status == 404) {
-					loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/martinSergeant/EnteroMSTree/");
+					loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/achtman-lab/GrapeTree/");
 				} else {
 					console.log(textStatus);
 					loadFailed("There server returned an error. Is the profile file in the right format?");
@@ -789,7 +789,7 @@ function profile2check(profile) {
 						loadMSTree(tree_raw);
                }).fail(function( jqXHR, textStatus){
 						if (jqXHR.status == 405 || jqXHR.status == 404) {
-							loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/martinSergeant/EnteroMSTree/");
+							loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/achtman-lab/GrapeTree/");
 						} else {
 							console.log(textStatus);
 							loadFailed("There server returned an error. Is the profile file in the right format?");
