@@ -21,8 +21,14 @@ program as you would in EnteroBase; through a web browser. We recommend
 **For a formal description, please see the preprint: [https://www.biorxiv.org/content/early/2017/11/09/216788](https://www.biorxiv.org/content/early/2017/11/09/216788)**
 
 ## Installing and Running GrapeTree
-There are number of different ways to interact with GrapeTree, the easiest to 
-download the software here: [https://github.com/achtman-lab/GrapeTree/releases](https://github.com/achtman-lab/GrapeTree/releases)
+There are number of different ways to interact with GrapeTree, for **best results install via pip** :
+
+```
+pip install grapetree
+grapetree
+```
+
+We also have ready-made binaries for download here: [https://github.com/achtman-lab/GrapeTree/releases](https://github.com/achtman-lab/GrapeTree/releases)
 
 **Running on Mac: Download GrapeTree_mac.zip**
 
@@ -40,7 +46,7 @@ text: "More info", and then the button "Run Anyway".
 
 **Running from Source code** 
 
-EnteroMSTree - GrapeTree requires [Python 2.7](https://www.python.org/downloads/release/python-2712/) 
+GrapeTree requires [Python 2.7](https://www.python.org/downloads/release/python-2712/) 
 and some additional python modules (listed in requirements.txt). The easiest way
 to install these modules is with pip:
 
