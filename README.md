@@ -28,7 +28,7 @@ pip install grapetree
 grapetree
 ```
 
-We also have ready-made binaries for download here: [https://github.com/achtman-lab/GrapeTree/releases](https://github.com/achtman-lab/GrapeTree/releases)
+**We also have ready-made binaries for download here: [https://github.com/achtman-lab/GrapeTree/releases](https://github.com/achtman-lab/GrapeTree/releases)**
 
 **Running on Mac: Download GrapeTree_mac.zip**
 
