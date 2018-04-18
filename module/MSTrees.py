@@ -623,7 +623,7 @@ def estimate_Consumption(platform, method, matrix, n_proc, n_loci, n_profile) :
 
     return max(time, 5), max(memory, 50*1024*1024)
 
-#if __name__ == '__main__' :
-    #tre = backend(**add_args())
-    #print tre
+if __name__ == '__main__' :
+    tre = backend(**add_args())
+    print tre
 

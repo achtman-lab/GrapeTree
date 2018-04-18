@@ -12,7 +12,7 @@ from os import path, walk
 __licence__ = 'GPLv3'
 __author__ = 'EnteroBase development team'
 __author_email__ = 'zhemin.zhou@warwick.ac.uk'
-__version__ = '1.3.3'
+__version__ = '1.3.5'
 
 def package_files(directory):
     paths = []
@@ -23,7 +23,7 @@ def package_files(directory):
 
 here = path.abspath(path.dirname(__file__))
 
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 def recursive(folder) :
@@ -34,7 +34,7 @@ setup(
     version= __version__,  
     description='Web interface of GrapeTree, which is a program for phylogenetic analysis.',
     long_description=long_description, 
-    long_description_content_type='text/x-rst',  
+    long_description_content_type='text/markdown',  
     url='https://github.com/achtman-lab/GrapeTree',
     author= __author__,  
     author_email= __author_email__, 
