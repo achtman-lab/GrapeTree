@@ -20,7 +20,7 @@ def generate_tree():
         for param in params:
             if isinstance(params[param], list):
                 params[param] = params[param][0]
-        tree = backend (profile= params['profile'],
+        tree = backend(profile= params['profile'],
                         method=params['method'],
                         checkEnv = params['checkEnv'],
                         )

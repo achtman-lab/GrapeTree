@@ -1,6 +1,6 @@
 import os 
 
-VERSION = '1.3.3'
+VERSION = '1.3.5'
 JAVASCRIPT_VERSION = '0.1.8'
 DEBUG = False
 PORT = 8000
