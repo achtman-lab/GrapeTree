@@ -15,7 +15,8 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               checkEnv = False,
               NJ_Windows = os.path.join(base_dir, 'binaries', 'fastme.exe'),
               NJ_Darwin = os.path.join(base_dir, 'binaries', 'fastme-2.1.5-osx'),
-              NJ_Linux = os.path.join(base_dir, 'binaries', 'fastme-2.1.5-linux32'),
+              NJ_Linux = os.path.join(base_dir, 'binaries', 'fastme-2.1.5-linux64'),
+              NJ_Linux32 = os.path.join(base_dir, 'binaries', 'fastme-2.1.5-linux32'),
               edmonds_Windows = os.path.join(base_dir, 'binaries', 'edmonds.exe'),
               edmonds_Darwin = os.path.join(base_dir, 'binaries', 'edmonds-osx'),
               edmonds_Linux = os.path.join(base_dir, 'binaries', 'edmonds-linux'),
@@ -30,7 +31,7 @@ def add_args() :
     parser.add_argument('--matrix', '-x', dest='matrix_type', help='Either "symmetric" [default for MSTree and NJ] \nor "asymmetric" [default for MSTreeV2]. ', default='symmetric')
     parser.add_argument('--recraft', '-r', dest='branch_recraft', help='Allows local branch recrafting after tree construction. Default in MSTreeV2. ', default=False, action="store_true")
     parser.add_argument('--missing', '-y', dest='handle_missing', help='Alternative ways of handling missing data.\n0: missing data are ignored in pairwise comparisons [default]. \n1: Columns that have missing data are ignored in the whole analysis. \n2: missing data are treated as a special value (allele). \n3: Naive counting of absolute differences between profiles. ', default=0, type=int)
-    parser.add_argument('--wgMLST', '-w', help='Use when > 20 %% of values in the input are missing.', default=False, action="store_true")
+    parser.add_argument('--wgMLST', '-w', help='Experimental option for a better support of wgMLST schemes.', default=False, action="store_true")
     parser.add_argument('--heuristic', '-t', dest='heuristic', help='Tiebreak rules between co-optimal edges. Only used in MSTree [default: eBurst] and MSTreeV2 [default: harmonic]', default='eBurst')
     parser.add_argument('--n_proc', '-n', help='Number of processes. Default: 5. ', type=int, default=5)
     parser.add_argument('--check', '-c', dest='checkEnv', help='Do not calculate the tree but only show the expected time/memory consumption. ', default=False, action="store_true")
@@ -446,7 +447,13 @@ class methods(object) :
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
         del dist, d
-        Popen([params['NJ_{0}'.format(platform.system())], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
+        try :
+            Popen([params['NJ_{0}'.format(platform.system())], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
+        except Exception as e :
+            if platform.system() == 'Linux' :
+                Popen([params['NJ_Linux32'], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
+            else :
+                raise e
         tree = dp.Tree.get_from_path(dist_file + '_fastme_tree.nwk', schema='newick')
         try :
             tree.reroot_at_midpoint()

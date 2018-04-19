@@ -83,9 +83,9 @@ pytest
 
 ```
 
-## Usage - Command line module for generating Trees - MSTrees.py
+## Usage - Command line module for generating Trees
 ```
-usage: MSTrees.py [-h] --profile PROFILE [--method METHOD]
+usage: grapetree [-h] --profile PROFILE [--method METHOD]
                   [--matrix MATRIX_TYPE] [--recraft]
                   [--missing HANDLE_MISSING] [--wgMLST]
                   [--heuristic HEURISTIC] [--n_proc N_PROC] [--check]
@@ -109,7 +109,7 @@ optional arguments:
                         1: Columns that have missing data are ignored in the whole analysis. 
                         2: missing data are treated as a special value (allele). 
                         3: Naive counting of absolute differences between profiles. 
-  --wgMLST, -w          Use when > 20 % of values in the input are missing.
+  --wgMLST, -w          Experimental option for a better support of wgMLST schemes.
   --heuristic HEURISTIC, -t HEURISTIC
                         Tiebreak rules between co-optimal edges. Only used in MSTree [default: eBurst] and MSTreeV2 [default: harmonic]
   --n_proc N_PROC, -n N_PROC
