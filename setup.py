@@ -12,7 +12,7 @@ from os import path, walk
 __licence__ = 'GPLv3'
 __author__ = 'EnteroBase development team'
 __author_email__ = 'zhemin.zhou@warwick.ac.uk'
-__version__ = '1.3.6'
+__version__ = '1.3.7'
 
 def package_files(directory):
     paths = []
@@ -27,7 +27,8 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 def recursive(folder) :
-    return [path.join(p, '*') for (p, directories, filenames) in walk(folder)]
+    return [path.join(p, fn) for (p, directories, filenames) in walk('static') for fn in filenames ]
+
 
 setup(
     name='grapetree',  
