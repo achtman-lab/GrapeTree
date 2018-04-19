@@ -6,4 +6,4 @@ DEBUG = False
 PORT = 8000
 
 # MS Tree generation options
-PARAMS = dict(method='MST', #MST, NJ)
+PARAMS = dict(method='MST') #MST, NJ)

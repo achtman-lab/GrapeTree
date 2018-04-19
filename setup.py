@@ -12,7 +12,7 @@ from os import path, walk
 __licence__ = 'GPLv3'
 __author__ = 'EnteroBase development team'
 __author_email__ = 'zhemin.zhou@warwick.ac.uk'
-__version__ = '1.3.8'
+__version__ = '1.4'
 
 def package_files(directory):
     paths = []
