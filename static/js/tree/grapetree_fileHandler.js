@@ -70,7 +70,7 @@ function loadNetFiles() {
 								var lines = data.split(/\r\n|\r|\n/g);
 								var delimiter = lines[0].search(/\t/) >= 0 ? '\t': ',';
 								var header = lines[0].split(delimiter);
-								var header_index={}
+								var header_index= [];
 								for (var i=0;i<header.length;i++){
 									header_index[i]=header[i];
 								}
