@@ -417,6 +417,7 @@ D3MSTreeContextMenu.prototype._fill_metadata_option = function(source) {
 
 D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 	var self = this;
+	var cntx = $("#context-menu")
 	$('.sub-context').hide();
 
 	$(".switch-hypo").text(this.tree.show_hypothetical_nodes ? "Hide hypothetical" : "Show hypothetical")
@@ -436,8 +437,8 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 	}
 	if (target == 'mst-svg') {
 		$("#mst-svg-menu").show();
-		$("#context-menu").draggable().css("left", e.pageX).css("top", e.pageY).show();
-		$("#context-menu").height($("#mst-svg-menu").height()+5);
+		cntx.draggable().css("left", e.pageX).css("top", e.pageY).show();
+		cntx.height($("#mst-svg-menu").height()+5);
 	} else if (target == 'legend-svg') {
 		var category = this.tree.display_category;
 		if (category != 'nothing') {
@@ -465,8 +466,8 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 		$("#group-num-input").val(this.tree.category_num).spinner("value", this.tree.category_num);
 
 		$("#legend-svg-menu").show();
-		$("#context-menu").draggable().css("left", e.pageX).css("top", e.pageY).show();
-		$("#context-menu").height($("#legend-svg-menu").height()+5);
+		cntx.draggable().css("left", e.pageX).css("top", e.pageY).show();
+		cntx.height($("#legend-svg-menu").height()+5);
 
 	} else if (target == 'myGrid') {
 		$("#hover-colname").empty().append(function() {
@@ -507,9 +508,15 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 		}
 
 		$("#myGrid-menu").show();
-		$("#context-menu").draggable().css("left", e.pageX).css("top", e.pageY).show();
-		$("#context-menu").height($("#myGrid-menu").height()+5);
+		cntx.draggable().css("left", e.pageX).css("top", e.pageY).show();
+		cntx.height($("#myGrid-menu").height()+5);
 	};
+	if (cntx.height() + cntx.offset().top + 10 > $("body").height()) {
+		cntx.css("top", Math.max( $("body").offset().top, $("body").height()- cntx.height() -10 ))
+	}
+	if (cntx.width() + cntx.offset().left > $("body").width()) {
+		cntx.css("left", Math.max( $("body").offset().left, $("body").width()- cntx.width() ))
+	}
 };
 
 
