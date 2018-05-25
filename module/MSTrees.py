@@ -423,7 +423,7 @@ class methods(object) :
         tree = distance_matrix.symmetric_link(profiles, tree, handle_missing= handle_missing)
         tree = methods._network2tree(tree, names)
         return tree
-    
+
     @staticmethod
     def distance(names, profiles, embeded, matrix_type='symmetric', handle_missing='pair_delete', **params) :
         ids = {n:id for id, n in enumerate(names)}
@@ -504,7 +504,7 @@ class methods(object) :
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
         del dist, d
-        free_memory = int(0.9*psutil.virtual_memory().total/(1024.**2))
+        free_memory = str(int(0.9*psutil.virtual_memory().total/(1024.**2)))
         ninja_out = Popen(['java', '-server', '-Xmx'+free_memory+'M', '-jar', params['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
         tree = dp.Tree.get_from_string(ninja_out[0], schema='newick')
         for edge in tree.edges() :
