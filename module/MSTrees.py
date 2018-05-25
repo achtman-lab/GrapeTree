@@ -20,7 +20,11 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               edmonds_Windows = os.path.join(base_dir, 'binaries', 'edmonds.exe'),
               edmonds_Darwin = os.path.join(base_dir, 'binaries', 'edmonds-osx'),
               edmonds_Linux = os.path.join(base_dir, 'binaries', 'edmonds-linux'),
-              goeburst_Linux = os.path.join(base_dir, 'binaries', 'goeburst'),
+              ninja_Linux = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
+              ninja_Darwin = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
+              ninja_Windows = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
+              rapidnj_Linux = os.path.join(base_dir, 'binaries', 'rapidnj'),
+              fnj_Linux = os.path.join(base_dir, 'binaries', 'fnj'),
              )
 
 
@@ -201,14 +205,14 @@ class methods(object) :
         np.fill_diagonal(dist, 0.0)
         dist[dist > dist.T] = dist.T[dist > dist.T]
         try:
-            res = minimum_spanning_tree(dist)
-            dist = np.round(dist, 0)
-            return res
-        except :
             g = nx.Graph(dist)
             ms = nx.minimum_spanning_tree(g)
             dist = np.round(dist, 0)
             return [[d[0], d[1], int(d[2]['weight'])] for d in ms.edges(data=True)]
+        except :
+            res = minimum_spanning_tree(dist)
+            dist = np.round(dist, 0)
+            return res
 
     @staticmethod
     def _asymmetric(dist, weight, **params) :
@@ -419,6 +423,7 @@ class methods(object) :
         tree = distance_matrix.symmetric_link(profiles, tree, handle_missing= handle_missing)
         tree = methods._network2tree(tree, names)
         return tree
+    
     @staticmethod
     def distance(names, profiles, embeded, matrix_type='symmetric', handle_missing='pair_delete', **params) :
         ids = {n:id for id, n in enumerate(names)}
@@ -459,6 +464,82 @@ class methods(object) :
             tree.reroot_at_midpoint()
         except :
             pass
+        tree.is_rooted = False
+        from glob import glob
+        for fname in glob(dist_file + '*') :
+            os.unlink(fname)
+        for taxon in tree.taxon_namespace :
+            taxon.label = names[int(taxon.label)]
+        return tree
+    @staticmethod
+    def rapidnj(names, profiles, embeded, handle_missing='pair_delete', **params) :
+        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
+
+        dist_file = params['tempfix'] + 'dist.list'
+        with open(dist_file, 'w') as fout :
+            fout.write('    {0}\n'.format(dist.shape[0]))
+            for n, d in enumerate(dist) :
+                fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
+        del dist, d
+        Popen([params['rapidnj_{0}'.format(platform.system())], '-x', dist_file+'_rapidnj.nwk', '-i', 'pd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
+        tree = dp.Tree.get_from_path(dist_file + '_rapidnj.nwk', schema='newick')
+        #try :
+            #tree.reroot_at_midpoint()
+        #except :
+            #pass
+        tree.is_rooted = False
+        from glob import glob
+        for fname in glob(dist_file + '*') :
+            os.unlink(fname)
+        for taxon in tree.taxon_namespace :
+            taxon.label = names[int(taxon.label)]
+        return tree
+    @staticmethod
+    def ninja(names, profiles, embeded, handle_missing='pair_delete', **params) :
+        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
+        dist = dist/profiles.shape[1]
+        dist_file = params['tempfix'] + 'dist.list'
+        with open(dist_file, 'w') as fout :
+            fout.write('    {0}\n'.format(dist.shape[0]))
+            for n, d in enumerate(dist) :
+                fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
+        del dist, d
+        free_memory = int(0.9*psutil.virtual_memory().total/(1024.**2))
+        ninja_out = Popen(['java', '-server', '-Xmx'+free_memory+'M', '-jar', params['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
+        tree = dp.Tree.get_from_string(ninja_out[0], schema='newick')
+        for edge in tree.edges() :
+            if edge.length :
+                edge.length *= profiles.shape[1]
+        #try :
+            #tree.reroot_at_midpoint()
+        #except :
+            #pass
+        tree.is_rooted = False
+        from glob import glob
+        for fname in glob(dist_file + '*') :
+            os.unlink(fname)
+        for taxon in tree.taxon_namespace :
+            taxon.label = names[int(taxon.label)]
+        return tree
+    @staticmethod
+    def fnj(names, profiles, embeded, handle_missing='pair_delete', **params) :
+        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
+        dist = dist/profiles.shape[1]
+        dist_file = params['tempfix'] + 'dist.list'
+        with open(dist_file, 'w') as fout :
+            fout.write('    {0}\n'.format(dist.shape[0]))
+            for n, d in enumerate(dist) :
+                fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
+        del dist, d
+        fnj_out = Popen([params['fnj_{0}'.format(platform.system())], '-I', 'phylip', '-O', 'newick', dist_file], stdout=PIPE, stderr=PIPE).communicate()
+        tree = dp.Tree.get_from_string(fnj_out[0], schema='newick')
+        for edge in tree.edges() :
+            if edge.length :
+                edge.length *= profiles.shape[1]
+        #try :
+            #tree.reroot_at_midpoint()
+        #except :
+            #pass
         tree.is_rooted = False
         from glob import glob
         for fname in glob(dist_file + '*') :
@@ -516,14 +597,11 @@ def backend(**args) :
         To run a NJ tree (using FastME 2.0) :
         backend(profile=<filename>, method='NJ')
 
+        To run a fast NJ tree (using ninja [needs java]) :
+        backend(profile=<filename>, method='ninja')
+
         To obtain a standard distance matrix :
         backend(profile=<filename>, method='distance')
-
-    Can also be called in command line:
-        MSTreeV2: MSTrees.py profile=<filename> method=MSTreeV2
-        MSTree: MSTrees.py profile=<filename> method=MSTree
-        NJ:  MSTrees.py profile=<filename> method=NJ
-        distance:  MSTrees.py profile=<filename> method=distance
     '''
     global params
     params.update(args)
@@ -605,7 +683,7 @@ def backend(**args) :
             return '\n'.join(tre)
 
 def estimate_Consumption(platform, method, matrix, n_proc, n_loci, n_profile) :
-    if method == 'MSTree' :
+    if method in ('MSTree', 'ninja') :
         if matrix == 'asymmetric' :
             if platform == 'Windows' :
                 time = 5.600754e-6 * n_profile * n_profile + 6.22306e-9 * n_loci * n_profile * n_profile/n_proc + 22.71
