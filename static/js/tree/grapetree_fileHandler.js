@@ -89,10 +89,10 @@ function loadNetFiles() {
 								parseMetadata("Error",error.message)
 							}
 						}
-					}); 
+					});
 				}
 			}
-		}); 
+		});
 	}
 }
 
@@ -127,7 +127,7 @@ function loadNetFiles() {
 			$("#headertag").text(filename);
 		}
 
-		else if ((head_line.indexOf(",") >=0 || head_line.indexOf("\t")>=0) && !head_line.startsWith("(") && !head_line.startsWith("{")) {
+		else if ((head_line.indexOf(",") >=0 || head_line.indexOf("\t")>=0) && !head_line.startsWith("(") && !head_line.startsWith("[") && !head_line.startsWith(" ") && !head_line.startsWith("{")) {
 			var dl = (head_line.indexOf(",") >= 0 ? "," : "\t");
 			current_metadata_file = [text, dl];
 			if (the_tree) {
