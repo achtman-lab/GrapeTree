@@ -47,7 +47,7 @@ def contemporary(a,b,c, n_loci) :
 def add_args() :
     parser = argparse.ArgumentParser(description='Parameters for command line version of GrapeTree. \nYou can drag the Newick output into the web interface. ', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--profile', '-p', help='A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.', required=True)
-    parser.add_argument('--method', '-m', help='backend algorithms to call. Allowed values are "MSTreeV2" [default], "MSTree" and "NJ"', default='MSTreeV2')
+    parser.add_argument('--method', '-m', help='backend algorithms to call. Allowed values are "MSTreeV2" [default], "MSTree", "NJ" and "distance" (distance matrix in phylip format)', default='MSTreeV2')
     parser.add_argument('--matrix', '-x', dest='matrix_type', help='Either "symmetric" [default for MSTree and NJ] \nor "asymmetric" [default for MSTreeV2]. ', default='symmetric')
     parser.add_argument('--recraft', '-r', dest='branch_recraft', help='Allows local branch recrafting after tree construction. Default in MSTreeV2. ', default=False, action="store_true")
     parser.add_argument('--missing', '-y', dest='handle_missing', help='Alternative ways of handling missing data.\n0: missing data are ignored in pairwise comparisons [default]. \n1: Columns that have missing data are ignored in the whole analysis. \n2: missing data are treated as a special value (allele). \n3: Naive counting of absolute differences between profiles. ', default=0, type=int)
