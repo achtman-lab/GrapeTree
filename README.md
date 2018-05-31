@@ -120,6 +120,19 @@ optional arguments:
   --check, -c           Do not calculate the tree but only show the expected time/memory consumption. 
 ```
 
+## Command line examples
+#### MSTree V2
+```
+python grapetree.py -p examples/simulated_data.profile -m MSTreeV2
+```
+#### NJ tree
+```
+python grapetree.py -p examples/simulated_data.profile -m NJ
+```
+#### distance matrix
+```
+python grapetree.py -p examples/simulated_data.profile -m distance
+```
 
 ## License
 Copyright Warwick University This program is free software: you can
