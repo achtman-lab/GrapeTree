@@ -431,9 +431,9 @@ class methods(object) :
     @staticmethod
     def distance(names, profiles, embeded, matrix_type='symmetric', handle_missing='pair_delete', **params) :
         ids = {n:id for id, n in enumerate(names)}
-        ids = { gg:ids[k] for k,g in embeded.iteritems() for gg in g }
+        ids = { gg:ids[k] for k,g in embeded.items() for gg in g }
         names, indices = [], []
-        for n, i in sorted(ids.iteritems(), key=lambda x:(x[1], x[0])) :
+        for n, i in sorted(ids.reverseitems(), key=lambda x:(x[1], x[0])) :
             names.append(n)
             indices.append(i)
         indices = np.array(indices)
