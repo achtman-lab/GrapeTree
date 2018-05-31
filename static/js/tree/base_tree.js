@@ -1193,7 +1193,7 @@ D3BaseTree.prototype._changeCategory=function(category){
 			this.category_colours[val]=cust_col[val];
 			cat_count_list[colour_count][2] = cust_col[val];
 			continue;	
-		} else if (! auto_col[colour_count]) {
+		} else if (! auto_col[colour_count] || colour_count >= color_num) {
 			cat_count_list[colour_count][2] = this.category_colours[val] = ''; //this.default_colour;
 		} else {
 			cat_count_list[colour_count][2] = this.category_colours[val] = auto_col[colour_count];
