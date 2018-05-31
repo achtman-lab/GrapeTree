@@ -98,7 +98,10 @@ optional arguments:
   --profile PROFILE, -p PROFILE
                         A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.
   --method METHOD, -m METHOD
-                        backend algorithms to call. Allowed values are "MSTreeV2" [default], "MSTree", "NJ" and "ninja"
+                        backend algorithms to call. Allowed values are "MSTreeV2" [default]: Direct minimum spanning tree with post-correction, 
+                        "MSTree": Standard minimum spanning tree, 
+                        "NJ": Standard NJ implemented in FastME V2,
+                        "distance": distance matrix in PHYLIP format
   --matrix MATRIX_TYPE, -x MATRIX_TYPE
                         Either "symmetric" [default for MSTree and NJ] 
                         or "asymmetric" [default for MSTreeV2]. 
@@ -134,7 +137,6 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 ## External programs
 Detailed information for the standard NJ implemented in FastME V2: http://www.atgc-montpellier.fr/fastme/
-For ninja, please refer to: http://wheelerlab.org/software/ninja/docs.html
 
 ## Citation 
 EnteroMSTree - GrapeTree has not been formally published yet. If
