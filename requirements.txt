@@ -1,12 +1,11 @@
 click==6.7
 decorator==4.3.0
-DendroPy==4.3.0
-Flask==0.12.2
-grapetree==1.3.2
+DendroPy==4.4.0
+Flask==1.0.2
 itsdangerous==0.24
 Jinja2==2.10
 MarkupSafe==1.0
 networkx==2.1
-numpy==1.14.2
+numpy==1.14.3
 psutil==5.4.5
 Werkzeug==0.14.1
