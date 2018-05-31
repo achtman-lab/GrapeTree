@@ -1,7 +1,7 @@
 from flask import render_template, request, make_response
 from . import app
 import numpy as np
-from MSTrees import methods, backend
+from .MSTrees import methods, backend
 import traceback, json
 import dendropy as dp
 

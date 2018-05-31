@@ -1,7 +1,6 @@
 from flask import Flask
-import config
-import sys
-import os
+from . import config
+import sys, os
 
 if getattr(sys, 'frozen', False):
     template_folder = sys._MEIPASS #os.path.join(sys._MEIPASS, 'templates')
@@ -12,4 +11,4 @@ else:
 
 app.config.from_object(config)
 
-import views
+from . import views

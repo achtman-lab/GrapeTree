@@ -24,6 +24,8 @@ The stand-alone version emulates the EnteroBase version through a lightweight
 webserver running on your local computer.  You will be interacting with the
 program as you would in EnteroBase; through a web browser.
 """
+from __future__ import print_function
+
 from module import app
 import threading
 import webbrowser
@@ -55,7 +57,7 @@ def open_browser(PORT):
 
 def main() :
     if len(sys.argv) > 1 :
-        print backend(**add_args())
+        print (backend(**add_args()))
     else :
         try:
             desc = __doc__.split('\n\n')[1].strip()
@@ -64,13 +66,13 @@ def main() :
             open_browser(app.config.get('PORT'))
             app.run(port=app.config.get('PORT'))
             sys.exit(0)
-        except KeyboardInterrupt, e:  # Ctrl-C
+        except KeyboardInterrupt as e:  # Ctrl-C
             raise e
-        except SystemExit, e:  # sys.exit()
+        except SystemExit as e:  # sys.exit()
             raise e
-        except Exception, e:
-            print 'ERROR, UNEXPECTED EXCEPTION'
-            print str(e)
+        else :
+            print ('ERROR, UNEXPECTED EXCEPTION')
+            print (str(e))
             traceback.print_exc()
             os._exit(1)
 
