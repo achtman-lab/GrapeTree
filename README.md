@@ -121,6 +121,36 @@ optional arguments:
                         Number of processes. Default: 5. 
   --check, -c           Do not calculate the tree but only show the expected time/memory consumption. 
 ```
+## Input format
+#### profile
+The profile file is a tab-delimited text file. 
+
+Follow an example here: https://github.com/achtman-lab/GrapeTree/blob/master/examples/simulated_data.profile
+```
+#Strain	Gene_1	Gene_2	Gene_3	Gene_4	Gene_5	Gene_6	Gene_7 ...
+0 1	1	1	1	1	1	1 ...
+1	1	1	1	1	1	1	1 ...
+2	1	2	2	2	2	2	2 ...
+...
+```
+The first line is required, and has to starts with a '#'. Each row after that presents a different strain. 
+Collumns starts with a '#' is treated as comments and will not be used in downstream analysis. 
+The first column is a unique identifier for the strain. 
+
+#### metadata
+The metadata file is either a tab-delimited or a comma-delimited text file. 
+
+Follow an example here: https://github.com/achtman-lab/GrapeTree/blob/master/examples/simulated_data.metadata.txt
+```
+ID	Country	Year
+0	China	1983
+1	China	1984
+...
+```
+Each row presents a different strain and each column presents a metadata category. 
+The first row is required and describes the labels of the categories. 
+A category labeled as "ID" is used to correlate metadata with profiles. 
+The first column will be used if there is no "ID" column. 
 
 ## Command line examples
 #### MSTree V2
