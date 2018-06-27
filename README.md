@@ -157,7 +157,7 @@ The first column will be used if there is no "ID" column.
 The tree is described in NEWICK format. https://en.wikipedia.org/wiki/Newick_format
 
 #### distance matrix
-option '--method distance' generates a distance matrix without calculating the tree. 
+Use the option '--method distance' to generate a distance matrix without calculating the tree. 
 The matrix is described in PHYLIP format. http://evolution.genetics.washington.edu/phylip/doc/distance.html
 
 ## Command line examples
