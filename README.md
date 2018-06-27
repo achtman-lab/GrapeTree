@@ -91,12 +91,14 @@ usage: grapetree [-h] --profile PROFILE [--method METHOD]
                   [--heuristic HEURISTIC] [--n_proc N_PROC] [--check]
 
 Parameters for command line version of GrapeTree. 
-You can drag the Newick output into the web interface. 
+Generate a tree in NEWICK format. 
+The output writes into screen directly. 
+You can redirect the output into a file, and drag it into the web interface.
 
 optional arguments:
   -h, --help            show this help message and exit
   --profile PROFILE, -p PROFILE
-                        A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.
+                        [INPUT, REQUIRED] A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.
   --method METHOD, -m METHOD
                         backend algorithms to call. Allowed values are "MSTreeV2" [default]: Direct minimum spanning tree with post-correction, 
                         "MSTree": Standard minimum spanning tree, 
