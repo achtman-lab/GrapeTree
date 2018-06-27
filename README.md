@@ -153,7 +153,12 @@ A category labeled as "ID" is used to correlate metadata with profiles.
 The first column will be used if there is no "ID" column. 
 
 ## outputs
+#### tree
 The tree is described in NEWICK format. https://en.wikipedia.org/wiki/Newick_format
+
+#### distance matrix
+option '--method distance' generates a distance matrix without calculating the tree. 
+The matrix is described in PHYLIP format. http://evolution.genetics.washington.edu/phylip/doc/distance.html
 
 ## Command line examples
 #### MSTree V2
