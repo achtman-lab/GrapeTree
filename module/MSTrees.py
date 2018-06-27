@@ -45,8 +45,8 @@ def contemporary(a,b,c, n_loci) :
     return p1 >= p2
 
 def add_args() :
-    parser = argparse.ArgumentParser(description='Parameters for command line version of GrapeTree. \nYou can drag the Newick output into the web interface. ', formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--profile', '-p', help='A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.', required=True)
+    parser = argparse.ArgumentParser(description='Parameters for command line version of GrapeTree. \nGenerate a tree in NEWICK format. \nThe output writes into screen directly. \nYou can redirect the output into a file, and drag it into the web interface. ', formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('--profile', '-p', help='[INPUT, REQUIRED] A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.', required=True)
     parser.add_argument('--method', '-m', help='backend algorithms to call. Allowed values are "MSTreeV2" [default]: Direct minimum spanning tree with post-correction, \n"MSTree": Standard minimum spanning tree \n"NJ": Standard NJ implemented in FastME V2\n "distance": distance matrix in PHYLIP format.', default='MSTreeV2')
     parser.add_argument('--matrix', '-x', dest='matrix_type', help='Either "symmetric" [default for MSTree and NJ] \nor "asymmetric" [default for MSTreeV2]. ', default='symmetric')
     parser.add_argument('--recraft', '-r', dest='branch_recraft', help='Allows local branch recrafting after tree construction. Default in MSTreeV2. ', default=False, action="store_true")
@@ -54,7 +54,7 @@ def add_args() :
     parser.add_argument('--wgMLST', '-w', help='Experimental option for a better support of wgMLST schemes.', default=False, action="store_true")
     parser.add_argument('--heuristic', '-t', dest='heuristic', help='Tiebreak rules between co-optimal edges. Only used in MSTree [default: eBurst] and MSTreeV2 [default: harmonic]', default='eBurst')
     parser.add_argument('--n_proc', '-n', help='Number of processes. Default: 5. ', type=int, default=5)
-    parser.add_argument('--check', '-c', dest='checkEnv', help='Do not calculate the tree but only show the expected time/memory consumption. ', default=False, action="store_true")
+    parser.add_argument('--check', '-c', dest='checkEnv', help='Show only the expected time/memory consumption without calculating a tree. ', default=False, action="store_true")
     args = parser.parse_args()
     args.handle_missing = ['pair_delete', 'complete_delete', 'as_allele', 'absolute_distance'][args.handle_missing]
     return args.__dict__
