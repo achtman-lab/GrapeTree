@@ -121,7 +121,7 @@ optional arguments:
                         Number of processes. Default: 5. 
   --check, -c           Do not calculate the tree but only show the expected time/memory consumption. 
 ```
-## Input format
+## Inputs
 #### profile
 The profile file is a tab-delimited text file. 
 
@@ -151,6 +151,9 @@ Each row presents a different strain and each column presents a metadata categor
 The first row is required and describes the labels of the categories. 
 A category labeled as "ID" is used to correlate metadata with profiles. 
 The first column will be used if there is no "ID" column. 
+
+## outputs
+The tree is described in NEWICK format. https://en.wikipedia.org/wiki/Newick_format
 
 ## Command line examples
 #### MSTree V2
