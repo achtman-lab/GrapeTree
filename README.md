@@ -91,7 +91,7 @@ usage: grapetree [-h] --profile PROFILE [--method METHOD]
                   [--heuristic HEURISTIC] [--n_proc N_PROC] [--check]
 
 Parameters for command line version of GrapeTree. 
-Generate a tree in NEWICK format. 
+Generate a tree in NEWICK format, or a distance matrix when using '--method distance'
 The output writes into screen directly. 
 You can redirect the output into a file, and drag it into the web interface.
 
