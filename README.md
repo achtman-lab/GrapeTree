@@ -4,16 +4,16 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Docs Status](https://readthedocs.org/projects/enterobase/badge/)](http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html)
 
-**[Click here for the live demo of GrapeTree!](https://achtman-lab.github.io/GrapeTree/MSTree_holder.html)** 
+**[Click here for the live demo of GrapeTree!](https://achtman-lab.github.io/GrapeTree/MSTree_holder.html)**
 
 GrapeTree is an integral part of EnteroBase and we advise that you use GrapeTree
-through EnteroBase for the best results. However, many people have asked for a 
+through EnteroBase for the best results. However, many people have asked for a
 stand-alone GrapeTree version that they could use offline or integrate into the
-other applications. 
+other applications.
 
-The stand-alone version emulates the EnteroBase version through a lightweight 
-webserver running on your local computer.  You will be interacting with the 
-program as you would in EnteroBase; through a web browser. We recommend 
+The stand-alone version emulates the EnteroBase version through a lightweight
+webserver running on your local computer.  You will be interacting with the
+program as you would in EnteroBase; through a web browser. We recommend
 [Google Chrome](https://www.google.com/chrome/index.html) for best results.
 
 **For detailed help please see: [http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html](http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html)**
@@ -32,21 +32,21 @@ grapetree
 
 **Running on Mac: Download GrapeTree_mac.zip**
 
-You will need to unzip GrapeTree_mac.zip (just double click). Inside there will 
-be an app you can drag into your Applications folder. You may be warned about 
-Security settings, if you right click on the GrapeTree app and then click "Open" 
-it should be fine. 
+You will need to unzip GrapeTree_mac.zip (just double click). Inside there will
+be an app you can drag into your Applications folder. You may be warned about
+Security settings, if you right click on the GrapeTree app and then click "Open"
+it should be fine.
 
 **Running on Windows: Download GrapeTree_win.zip**
 
-Once downloaded, you will need to untzip GrapeTree_win.zip and then open the 
-extracted folder and  run GrapeTree_win.exe. When you run it the first time on 
-windows you might get a prompt about security. On Windows 10, click the small 
-text: "More info", and then the button "Run Anyway". 
+Once downloaded, you will need to untzip GrapeTree_win.zip and then open the
+extracted folder and  run GrapeTree_win.exe. When you run it the first time on
+windows you might get a prompt about security. On Windows 10, click the small
+text: "More info", and then the button "Run Anyway".
 
-**Running from Source code** 
+**Running from Source code**
 
-GrapeTree requires [Python 2.7](https://www.python.org/downloads/release/python-2712/) 
+GrapeTree requires [Python 2.7](https://www.python.org/downloads/release/python-2712/)
 and some additional python modules (listed in requirements.txt). The easiest way
 to install these modules is with pip:
 
@@ -57,22 +57,22 @@ chmod +x binaries/
 On Linux or MacOSX you need to make sure the binaries in binaries/ can be
 executed. To run GrapeTree;
 
-1. Navigate to the directory where you installed GrapeTree. 
-1. Run it through python as below. 
+1. Navigate to the directory where you installed GrapeTree.
+1. Run it through python as below.
 
 ```
 \GrapeTree>python main.py
  * Running on http://127.0.0.1:8000/ (Press CTRL+C to quit)
 ```
 
-The program will automatically open your web browser and you will see the 
-GrapeTree Splash Screen. If at anytime you want to restart the page you can 
-visit [http://localhost:8000](http://localhost:8000) in your web browser. To 
+The program will automatically open your web browser and you will see the
+GrapeTree Splash Screen. If at anytime you want to restart the page you can
+visit [http://localhost:8000](http://localhost:8000) in your web browser. To
 view a tree (newick or Nexus) or create a tree from an allele profile, just drag
-and drop the file into the browser window. 
+and drop the file into the browser window.
 
 ### Configuration
-Runtime behaviour can be configured in grapetree/config.py. 
+Runtime behaviour can be configured in grapetree/config.py.
 
 Developers may wish to look at the [JavaScript documentation](https://achtman-lab.github.io/GrapeTree/documentation/developer/index.html) (JSDoc).
 
@@ -86,49 +86,50 @@ pytest
 ## Usage - Command line module for generating Trees
 ```
 >grapetree -h
-usage: grapetree [-h] --profile PROFILE [--method METHOD]
-                  [--matrix MATRIX_TYPE] [--recraft]
-                  [--missing HANDLE_MISSING] [--wgMLST]
-                  [--heuristic HEURISTIC] [--n_proc N_PROC] [--check]
+usage: MSTrees.py [-h] --profile FNAME [--method TREE] [--matrix MATRIX_TYPE]
+                  [--recraft] [--missing HANDLER] [--wgMLST]
+                  [--heuristic HEURISTIC] [--n_proc NUMBER_OF_PROCESSES]
+                  [--check]
 
-Parameters for command line version of GrapeTree. 
-Generate a tree in NEWICK format, or a distance matrix when using '--method distance'
-The output writes into screen directly. 
-You can redirect the output into a file, and drag it into the web interface.
+For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/README.md".
+In brief, GrapeTree generates a NEWICK tree to the default output (screen)
+or a redirect output, e.g., a file.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --profile PROFILE, -p PROFILE
-                        [INPUT, REQUIRED] A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.
-                        For details, see "https://github.com/achtman-lab/GrapeTree/edit/master/README.md"
-  --method METHOD, -m METHOD
-                        backend algorithms to call. Allowed values are 
-                        "MSTreeV2" [default]: Direct minimum spanning tree with post-correction, 
-                        "MSTree": Standard minimum spanning tree, 
-                        "NJ": Standard NJ implemented in FastME V2,
-                        "distance": generate a pair-wise distance matrix in PHYLIP format. 
+  --profile FNAME, -p FNAME
+                        [REQUIRED] An input filename of a file containing MLST or SNP character data, OR a fasta file containing aligned sequences.
+  --method TREE, -m TREE
+                        "MSTreeV2" [DEFAULT]
+                        "MSTree"
+                        "NJ": FastME V2 NJ tree
+                         "distance": p-distance matrix in PHYLIP format.
   --matrix MATRIX_TYPE, -x MATRIX_TYPE
-                        Either "symmetric" [default for MSTree and NJ] 
-                        or "asymmetric" [default for MSTreeV2]. 
-                        For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"
-  --recraft, -r         Allows local branch recrafting after tree construction. Default in MSTreeV2. 
-                        For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf"
-  --missing HANDLE_MISSING, -y HANDLE_MISSING
-                        Alternative ways of handling missing data. Only work for symmetric distance matrix. 
-                        0: missing data are ignored in pairwise comparisons [default]. 
-                        1: Columns that have missing data are ignored in the whole analysis. 
-                        2: missing data are treated as a special value (allele). 
-                        3: Naive counting of absolute differences between profiles. 
+                        "symmetric": [DEFAULT: MSTree and NJ]
+                        "asymmetric": [DEFAULT: MSTreeV2].
+  --recraft, -r         Triggers local branch recrafting. [DEFAULT: MSTreeV2].
+  --missing HANDLER, -y HANDLER
+                        ONLY FOR symmetric DISTANCE MATRIX.
+                        0: [DEFAULT] ignore missing data in pairwise comparison.
+                        1: Remove column with missing data.
+                        2: treat data as an allele.
+                        3: Absolute number of allelic differences.
   --heuristic HEURISTIC, -t HEURISTIC
-                        Tiebreak rules between co-optimal edges. Only used in MSTree [default: eBurst] and MSTreeV2 [default: harmonic]
-                        For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf"
-  --n_proc N_PROC, -n N_PROC
-                        Number of processes. Default: 5. 
-  --check, -c           Do not calculate the tree but only show the expected time/memory consumption. 
+                        Tiebreak heuristic used only in MSTree and MSTreeV2
+                        "eBurst" [DEFAULT: MSTree]
+                        "harmonic" [DEFAULT: MSTreeV2]
+  --n_proc NUMBER_OF_PROCESSES, -n NUMBER_OF_PROCESSES
+                        Number of CPU processes in parallel use. [DEFAULT]: 5.
+  --check, -c           Only calculate the expected time/memory requirements.
 ```
+NOTE:
+* Detailed description for "--matrix" see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"
+* Detailed description for "--recraft" see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"
+* Detailed description for "--heuristic" see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"
+
 ## Inputs
 #### profile
-The profile file is a tab-delimited text file. 
+The profile file is a tab-delimited text file.
 
 Follow an example here: https://github.com/achtman-lab/GrapeTree/blob/master/examples/simulated_data.profile
 ```
@@ -138,11 +139,11 @@ Follow an example here: https://github.com/achtman-lab/GrapeTree/blob/master/exa
 2	1	2	2	2	2	2	2	...
 ...
 ```
-The first row is required and represents column labels. It has to start with a '#'. Collumn labels that start with a '#' are treated as comments and will not be used in downstream analysis. The first column needs to be unique identifiers for strains. 
-Eacg if the remaining rows presents a different strain. 
+The first row is required and represents column labels. It has to start with a '#'. Collumn labels that start with a '#' are treated as comments and will not be used in downstream analysis. The first column needs to be unique identifiers for strains.
+Eacg if the remaining rows presents a different strain.
 
 #### metadata
-The metadata file is either a tab-delimited or a comma-delimited text file. This is only used for tree presentation in the standardalone version. 
+The metadata file is either a tab-delimited or a comma-delimited text file. This is only used for tree presentation in the standardalone version.
 
 Follow an example here: https://github.com/achtman-lab/GrapeTree/blob/master/examples/simulated_data.metadata.txt
 ```
@@ -151,14 +152,14 @@ ID	Country	Year
 1	China	1984
 ...
 ```
-The first row is required and describes the labels of the columns. If a column labeled with "ID" presents, it will be used to correlate metadata with profiles, otherwise the first column will be used.  
+The first row is required and describes the labels of the columns. If a column labeled with "ID" presents, it will be used to correlate metadata with profiles, otherwise the first column will be used.
 
 ## outputs
 #### tree
 The tree is described in NEWICK format. https://en.wikipedia.org/wiki/Newick_format
 
 #### distance matrix
-Use the option '--method distance' to generate a distance matrix without calculating the tree. 
+Use the option '--method distance' to generate a distance matrix without calculating the tree.
 The matrix is presented in PHYLIP format. http://evolution.genetics.washington.edu/phylip/doc/distance.html
 
 ## Command line examples
@@ -192,7 +193,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 ## External programs
 Detailed information for the standard NJ implemented in FastME V2: http://www.atgc-montpellier.fr/fastme/
 
-## Citation 
+## Citation
 EnteroMSTree - GrapeTree has not been formally published yet. If
 you use GrapeTree please cite the preprint:
 

@@ -45,18 +45,21 @@ def contemporary(a,b,c, n_loci) :
     return p1 >= p2
 
 def add_args() :
-    parser = argparse.ArgumentParser(description='Parameters for command line version of GrapeTree. \nGenerate a tree in NEWICK format. \nThe output writes into screen directly. \nYou can redirect the output into a file, and drag it into the web interface. ', formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--profile', '-p', help='[INPUT, REQUIRED] A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.\nFor details, see "https://github.com/achtman-lab/GrapeTree/blob/master/README.md"', required=True)
-    parser.add_argument('--method', '-m', help='backend algorithms to call. Allowed values are \n"MSTreeV2" [default]: Direct minimum spanning tree with post-correction, \n"MSTree": Standard minimum spanning tree \n"NJ": Standard NJ implemented in FastME V2\n "distance": generate a pair-wise distance matrix in PHYLIP format.', default='MSTreeV2')
-    parser.add_argument('--matrix', '-x', dest='matrix_type', help='Either "symmetric" [default for MSTree and NJ] \nor "asymmetric" [default for MSTreeV2].\nFor details, see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"', default='symmetric')
-    parser.add_argument('--recraft', '-r', dest='branch_recraft', help='Allows local branch recrafting after tree construction. Default in MSTreeV2. \nFor details, see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf"', default=False, action="store_true")
-    parser.add_argument('--missing', '-y', dest='handle_missing', help='Alternative ways of handling missing data. Only work for symmetric distance matrix. \n0: missing data are ignored in pairwise comparisons [default]. \n1: Columns that have missing data are ignored in the whole analysis. \n2: missing data are treated as a special value (allele). \n3: Naive counting of absolute differences between profiles. ', default=0, type=int)
-    parser.add_argument('--wgMLST', '-w', help='Experimental option for a better support of wgMLST schemes.', default=False, action="store_true")
-    parser.add_argument('--heuristic', '-t', dest='heuristic', help='Tiebreak rules between co-optimal edges. Only used in MSTree [default: eBurst] and MSTreeV2 [default: harmonic]\nFor details, see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf"', default='eBurst')
-    parser.add_argument('--n_proc', '-n', help='Number of processes. Default: 5. ', type=int, default=5)
-    parser.add_argument('--check', '-c', dest='checkEnv', help='Show only the expected time/memory consumption without calculating a tree. ', default=False, action="store_true")
+    parser = argparse.ArgumentParser(description='For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/README.md".\nIn brief, GrapeTree generates a NEWICK tree to the default output (screen) \nor a redirect output, e.g., a file. ', formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('--profile', '-p', dest='fname', help='[REQUIRED] An input filename of a file containing MLST or SNP character data, OR a fasta file containing aligned sequences. \n', required=True)
+    parser.add_argument('--method', '-m', dest='tree', help='"MSTreeV2" [DEFAULT]\n"MSTree"\n"NJ": FastME V2 NJ tree\n "distance": p-distance matrix in PHYLIP format.', default='MSTreeV2')
+    parser.add_argument('--matrix', '-x', dest='matrix_type', help='"symmetric": [DEFAULT: MSTree and NJ] \n"asymmetric": [DEFAULT: MSTreeV2].\n', default='symmetric')
+    parser.add_argument('--recraft', '-r', dest='branch_recraft', help='Triggers local branch recrafting. [DEFAULT: MSTreeV2]. ', default=False, action="store_true")
+    parser.add_argument('--missing', '-y', dest='handler', help='ONLY FOR symmetric DISTANCE MATRIX. \n0: [DEFAULT] ignore missing data in pairwise comparison. \n1: Remove column with missing data. \n2: treat data as an allele. \n3: Absolute number of allelic differences. ', default=0, type=int)
+    parser.add_argument('--wgMLST', '-w', help='[EXPERIMENTAL] a better support of wgMLST schemes.', default=False, action="store_true")
+    parser.add_argument('--heuristic', '-t', dest='heuristic', help='Tiebreak heuristic used only in MSTree and MSTreeV2\n"eBurst" [DEFAULT: MSTree]\n"harmonic" [DEFAULT: MSTreeV2]', default='eBurst')
+    parser.add_argument('--n_proc', '-n',  dest='number_of_processes', help='Number of CPU processes in parallel use. [DEFAULT]: 5. ', type=int, default=5)
+    parser.add_argument('--check', '-c', dest='checkEnv', help='Only calculate the expected time/memory requirements. ', default=False, action="store_true")
     args = parser.parse_args()
-    args.handle_missing = ['pair_delete', 'complete_delete', 'as_allele', 'absolute_distance'][args.handle_missing]
+    args.profile = args.fname
+    args.method = args.tree
+    args.n_proc = args.number_of_processes
+    args.handle_missing = ['pair_delete', 'complete_delete', 'as_allele', 'absolute_distance'][args.handler]
     return args.__dict__
 
 def parallel_distance(callup) :
