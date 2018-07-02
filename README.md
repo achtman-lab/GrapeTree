@@ -102,7 +102,8 @@ optional arguments:
                         [INPUT, REQUIRED] A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.
                         For details, see "https://github.com/achtman-lab/GrapeTree/edit/master/README.md"
   --method METHOD, -m METHOD
-                        backend algorithms to call. Allowed values are "MSTreeV2" [default]: Direct minimum spanning tree with post-correction, 
+                        backend algorithms to call. Allowed values are 
+                        "MSTreeV2" [default]: Direct minimum spanning tree with post-correction, 
                         "MSTree": Standard minimum spanning tree, 
                         "NJ": Standard NJ implemented in FastME V2,
                         "distance": generate a pair-wise distance matrix in PHYLIP format. 
