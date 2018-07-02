@@ -99,6 +99,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --profile PROFILE, -p PROFILE
                         [INPUT, REQUIRED] A file contains either MLST / SNP profiles or multile aligned sequences in fasta format.
+                        For details, see "https://github.com/achtman-lab/GrapeTree/edit/master/README.md"
   --method METHOD, -m METHOD
                         backend algorithms to call. Allowed values are "MSTreeV2" [default]: Direct minimum spanning tree with post-correction, 
                         "MSTree": Standard minimum spanning tree, 
@@ -107,9 +108,9 @@ optional arguments:
   --matrix MATRIX_TYPE, -x MATRIX_TYPE
                         Either "symmetric" [default for MSTree and NJ] 
                         or "asymmetric" [default for MSTreeV2]. 
-                        Find details in "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"
+                        For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"
   --recraft, -r         Allows local branch recrafting after tree construction. Default in MSTreeV2. 
-                        Find details in "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf"
+                        For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf"
   --missing HANDLE_MISSING, -y HANDLE_MISSING
                         Alternative ways of handling missing data. Only work for symmetric distance matrix. 
                         0: missing data are ignored in pairwise comparisons [default]. 
@@ -118,7 +119,7 @@ optional arguments:
                         3: Naive counting of absolute differences between profiles. 
   --heuristic HEURISTIC, -t HEURISTIC
                         Tiebreak rules between co-optimal edges. Only used in MSTree [default: eBurst] and MSTreeV2 [default: harmonic]
-                        Find details in "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf"
+                        For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf"
   --n_proc N_PROC, -n N_PROC
                         Number of processes. Default: 5. 
   --check, -c           Do not calculate the tree but only show the expected time/memory consumption. 
