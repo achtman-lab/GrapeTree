@@ -85,6 +85,7 @@ pytest
 
 ## Usage - Command line module for generating Trees
 ```
+>grapetree -h
 usage: grapetree [-h] --profile PROFILE [--method METHOD]
                   [--matrix MATRIX_TYPE] [--recraft]
                   [--missing HANDLE_MISSING] [--wgMLST]
