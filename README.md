@@ -103,7 +103,7 @@ optional arguments:
                         backend algorithms to call. Allowed values are "MSTreeV2" [default]: Direct minimum spanning tree with post-correction, 
                         "MSTree": Standard minimum spanning tree, 
                         "NJ": Standard NJ implemented in FastME V2,
-                        "distance": distance matrix in PHYLIP format
+                        "distance": generate a pair-wise distance matrix of the profiles in PHYLIP format. 
   --matrix MATRIX_TYPE, -x MATRIX_TYPE
                         Either "symmetric" [default for MSTree and NJ] 
                         or "asymmetric" [default for MSTreeV2]. 
@@ -138,7 +138,7 @@ Collumns starts with a '#' is treated as comments and will not be used in downst
 The first column is a unique identifier for the strain. 
 
 #### metadata
-The metadata file is either a tab-delimited or a comma-delimited text file. 
+The metadata file is either a tab-delimited or a comma-delimited text file. It is only used for tree presentation. 
 
 Follow an example here: https://github.com/achtman-lab/GrapeTree/blob/master/examples/simulated_data.metadata.txt
 ```
