@@ -138,9 +138,8 @@ Follow an example here: https://github.com/achtman-lab/GrapeTree/blob/master/exa
 2	1	2	2	2	2	2	2	...
 ...
 ```
-The first line is required, and has to starts with a '#'. Each row after that presents a different strain. 
-Collumns starts with a '#' is treated as comments and will not be used in downstream analysis. 
-The first column is a unique identifier for the strain. 
+The first row is required and represents column labels. It has to start with a '#'. Collumn labels that start with a '#' are treated as comments and will not be used in downstream analysis. The first column needs to be unique identifiers for strains. 
+Eacg if the remaining rows presents a different strain. 
 
 #### metadata
 The metadata file is either a tab-delimited or a comma-delimited text file. This is only used for tree presentation in the standardalone version. 
@@ -152,10 +151,7 @@ ID	Country	Year
 1	China	1984
 ...
 ```
-Each row presents a different strain and each column presents a metadata category. 
-The first row is required and describes the labels of the categories. 
-A category labeled as "ID" is used to correlate metadata with profiles. 
-The first column will be used if there is no "ID" column. 
+The first row is required and describes the labels of the columns. If a column labeled with "ID" presents, it will be used to correlate metadata with profiles, otherwise the first column will be used.  
 
 ## outputs
 #### tree
@@ -163,7 +159,7 @@ The tree is described in NEWICK format. https://en.wikipedia.org/wiki/Newick_for
 
 #### distance matrix
 Use the option '--method distance' to generate a distance matrix without calculating the tree. 
-The matrix is described in PHYLIP format. http://evolution.genetics.washington.edu/phylip/doc/distance.html
+The matrix is presented in PHYLIP format. http://evolution.genetics.washington.edu/phylip/doc/distance.html
 
 ## Command line examples
 #### MSTree V2
