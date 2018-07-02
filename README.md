@@ -103,20 +103,22 @@ optional arguments:
                         backend algorithms to call. Allowed values are "MSTreeV2" [default]: Direct minimum spanning tree with post-correction, 
                         "MSTree": Standard minimum spanning tree, 
                         "NJ": Standard NJ implemented in FastME V2,
-                        "distance": generate a pair-wise distance matrix of the profiles in PHYLIP format. 
+                        "distance": generate a pair-wise distance matrix in PHYLIP format. 
   --matrix MATRIX_TYPE, -x MATRIX_TYPE
                         Either "symmetric" [default for MSTree and NJ] 
                         or "asymmetric" [default for MSTreeV2]. 
+                        Find details in "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"
   --recraft, -r         Allows local branch recrafting after tree construction. Default in MSTreeV2. 
+                        Find details in "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf"
   --missing HANDLE_MISSING, -y HANDLE_MISSING
-                        Alternative ways of handling missing data.
+                        Alternative ways of handling missing data. Only work for symmetric distance matrix. 
                         0: missing data are ignored in pairwise comparisons [default]. 
                         1: Columns that have missing data are ignored in the whole analysis. 
                         2: missing data are treated as a special value (allele). 
                         3: Naive counting of absolute differences between profiles. 
-  --wgMLST, -w          Experimental option for a better support of wgMLST schemes.
   --heuristic HEURISTIC, -t HEURISTIC
                         Tiebreak rules between co-optimal edges. Only used in MSTree [default: eBurst] and MSTreeV2 [default: harmonic]
+                        Find details in "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf"
   --n_proc N_PROC, -n N_PROC
                         Number of processes. Default: 5. 
   --check, -c           Do not calculate the tree but only show the expected time/memory consumption. 
@@ -138,7 +140,7 @@ Collumns starts with a '#' is treated as comments and will not be used in downst
 The first column is a unique identifier for the strain. 
 
 #### metadata
-The metadata file is either a tab-delimited or a comma-delimited text file. It is only used for tree presentation. 
+The metadata file is either a tab-delimited or a comma-delimited text file. This is only used for tree presentation in the standardalone version. 
 
 Follow an example here: https://github.com/achtman-lab/GrapeTree/blob/master/examples/simulated_data.metadata.txt
 ```
