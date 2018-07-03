@@ -140,7 +140,16 @@ Follow an example here: https://github.com/achtman-lab/GrapeTree/blob/master/exa
 ...
 ```
 The first row is required and represents column labels. It has to start with a '#'. Collumn labels that start with a '#' are treated as comments and will not be used in downstream analysis. The first column needs to be unique identifiers for strains.
-Eacg if the remaining rows presents a different strain.
+Each of the remaining rows presents a different strain.
+
+Use '-' or '0' to represent missing alleles. 
+
+#### Aligned FASTA
+An aligned FASTA file contains multiple sequences of the same length in FASTA format. Many sequence alignment tools, e.g., MAFFT and MUSCLE, use FASTA as a default format for their outputs. 
+
+Find an example here: http://wwwabi.snv.jussieu.fr/public/Clustal2Dna/fastali.html
+
+Note that GrapeTree supports only p-distance for the moment.  
 
 #### metadata
 The metadata file is either a tab-delimited or a comma-delimited text file. This is only used for tree presentation in the standardalone version.
