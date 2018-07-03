@@ -104,7 +104,8 @@ optional arguments:
                         "MSTreeV2" [DEFAULT]
                         "MSTree"
                         "NJ": FastME V2 NJ tree
-                         "distance": p-distance matrix in PHYLIP format.
+                        "RapidNJ": RapidNJ for very large datasets
+                        "distance": p-distance matrix in PHYLIP format.
   --matrix MATRIX_TYPE, -x MATRIX_TYPE
                         "symmetric": [DEFAULT: MSTree and NJ]
                         "asymmetric": [DEFAULT: MSTreeV2].
