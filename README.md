@@ -98,7 +98,8 @@ or a redirect output, e.g., a file.
 optional arguments:
   -h, --help            show this help message and exit
   --profile FNAME, -p FNAME
-                        [REQUIRED] An input filename of a file containing MLST or SNP character data, OR a fasta file containing aligned sequences.
+                        [REQUIRED] An input filename of a file containing MLST or SNP character data, 
+                        OR a fasta file containing aligned sequences.
   --method TREE, -m TREE
                         "MSTreeV2" [DEFAULT]
                         "MSTree"
