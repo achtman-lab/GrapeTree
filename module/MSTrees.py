@@ -435,11 +435,14 @@ class methods(object) :
         ids = {n:id for id, n in enumerate(names)}
         ids = { gg:ids[k] for k,g in embeded.items() for gg in g }
         names, indices = [], []
-        for n, i in sorted(ids.reverseitems(), key=lambda x:(x[1], x[0])) :
+        for n, i in sorted(ids.items(), key=lambda x:(x[1], x[0])) :
             names.append(n)
             indices.append(i)
         indices = np.array(indices)
         d = distance_matrix.get_distance(matrix_type, profiles, handle_missing)
+        if handle_missing != 'absolute_distance' :
+            d /= profiles.shape[1]
+
         dist = np.zeros([len(names), len(names)])
         for i, i2 in enumerate(indices) :
             dist[i] = d[i2, indices]

@@ -12,7 +12,7 @@ from os import path, walk
 __licence__ = 'GPLv3'
 __author__ = 'EnteroBase development team'
 __author_email__ = 'zhemin.zhou@warwick.ac.uk'
-__version__ = '1.4.2'
+__version__ = '1.5'
 
 def package_files(directory):
     paths = []
@@ -44,6 +44,7 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 	entry_points={
         'console_scripts': [
