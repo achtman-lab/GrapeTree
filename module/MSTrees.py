@@ -22,10 +22,9 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               edmonds_Windows = os.path.join(base_dir, 'binaries', 'edmonds.exe'),
               edmonds_Darwin = os.path.join(base_dir, 'binaries', 'edmonds-osx'),
               edmonds_Linux = os.path.join(base_dir, 'binaries', 'edmonds-linux'),
-              ninja_Linux = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
-              ninja_Darwin = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
-              ninja_Windows = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
-              rapidnj_Linux = os.path.join(base_dir, 'binaries', 'rapidnj'),
+              RapidNJ_Linux = os.path.join(base_dir, 'binaries', 'rapidnj'),
+              RapidNJ_Darwin = os.path.join(base_dir, 'binaries', 'rapidnj-osx'),
+              RapidNJ_Windows = os.path.join(base_dir, 'binaries', 'rapidnj.exe'),
              )
 
 @jit
@@ -47,7 +46,7 @@ def contemporary(a,b,c, n_loci) :
 def add_args() :
     parser = argparse.ArgumentParser(description='For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/README.md".\nIn brief, GrapeTree generates a NEWICK tree to the default output (screen) \nor a redirect output, e.g., a file. ', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--profile', '-p', dest='fname', help='[REQUIRED] An input filename of a file containing MLST or SNP character data, OR a fasta file containing aligned sequences. \n', required=True)
-    parser.add_argument('--method', '-m', dest='tree', help='"MSTreeV2" [DEFAULT]\n"MSTree"\n"NJ": FastME V2 NJ tree\n "distance": p-distance matrix in PHYLIP format.', default='MSTreeV2')
+    parser.add_argument('--method', '-m', dest='tree', help='"MSTreeV2" [DEFAULT]\n"MSTree"\n"NJ": FastME V2 NJ tree\n"RapidNJ": RapidNJ for very large datasets\n"distance": p-distance matrix in PHYLIP format.', default='MSTreeV2')
     parser.add_argument('--matrix', '-x', dest='matrix_type', help='"symmetric": [DEFAULT: MSTree and NJ] \n"asymmetric": [DEFAULT: MSTreeV2].\n', default='symmetric')
     parser.add_argument('--recraft', '-r', dest='branch_recraft', help='Triggers local branch recrafting. [DEFAULT: MSTreeV2]. ', default=False, action="store_true")
     parser.add_argument('--missing', '-y', dest='handler', help='ONLY FOR symmetric DISTANCE MATRIX. \n0: [DEFAULT] ignore missing data in pairwise comparison. \n1: Remove column with missing data. \n2: treat data as an allele. \n3: Absolute number of allelic differences. ', default=0, type=int)
@@ -496,10 +495,6 @@ class methods(object) :
             else :
                 raise e
         tree = dp.Tree.get_from_path(dist_file + '_fastme_tree.nwk', schema='newick')
-        try :
-            tree.reroot_at_midpoint()
-        except :
-            pass
         tree.is_rooted = False
         from glob import glob
         for fname in glob(dist_file + '*') :
@@ -508,7 +503,7 @@ class methods(object) :
             taxon.label = names[int(taxon.label)]
         return tree
     @staticmethod
-    def rapidnj(names, profiles, embeded, handle_missing='pair_delete', **params) :
+    def RapidNJ(names, profiles, embeded, handle_missing='pair_delete', **params) :
         dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
 
         dist_file = params['tempfix'] + 'dist.list'
@@ -517,7 +512,7 @@ class methods(object) :
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
         del dist, d
-        Popen([params['rapidnj_{0}'.format(platform.system())], '-x', dist_file+'_rapidnj.nwk', '-i', 'pd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([params['RapidNJ_{0}'.format(platform.system())], '-x', dist_file+'_rapidnj.nwk', '-i', 'pd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
         tree = dp.Tree.get_from_path(dist_file + '_rapidnj.nwk', schema='newick')
         tree.is_rooted = False
         from glob import glob
@@ -685,7 +680,7 @@ def backend(**args) :
             return '\n'.join(tre)
 
 def estimate_Consumption(platform, method, matrix, n_proc, n_loci, n_profile) :
-    if method in ('MSTree', 'ninja') :
+    if method in ('MSTree', 'RapidNJ') :
         if matrix == 'asymmetric' :
             if platform == 'Windows' :
                 time = 5.600754e-6 * n_profile * n_profile + 6.22306e-9 * n_loci * n_profile * n_profile/n_proc + 22.71
