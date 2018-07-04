@@ -125,9 +125,9 @@ optional arguments:
   --check, -c           Only calculate the expected time/memory requirements.
 ```
 NOTE:
-* Detailed description for "--matrix" see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"
-* Detailed description for "--recraft" see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf"
-* Detailed description for "--heuristic" see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf
+* Detailed description for "--matrix" see [**here**](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf)
+* Detailed description for "--recraft" see [**here**](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf)
+* Detailed description for "--heuristic" see [**here**](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf)
 
 ## Inputs
 #### profile
