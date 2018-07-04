@@ -126,8 +126,8 @@ optional arguments:
 ```
 NOTE:
 * Detailed description for "--matrix" see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"
-* Detailed description for "--recraft" see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"
-* Detailed description for "--heuristic" see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf"
+* Detailed description for "--recraft" see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf"
+* Detailed description for "--heuristic" see "https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf
 
 ## Inputs
 #### profile
