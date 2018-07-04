@@ -61,7 +61,7 @@ executed. To run GrapeTree;
 1. Run it through python as below.
 
 ```
-\GrapeTree>python main.py
+\GrapeTree>python grapetree.py
  * Running on http://127.0.0.1:8000/ (Press CTRL+C to quit)
 ```
 
