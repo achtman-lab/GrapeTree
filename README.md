@@ -18,7 +18,9 @@ program as you would in EnteroBase; through a web browser. We recommend
 
 **For detailed help please see: [http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html](http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html)**
 
-**For a formal description, please see the preprint: [https://www.biorxiv.org/content/early/2017/11/09/216788](https://www.biorxiv.org/content/early/2017/11/09/216788)**
+**For a formal description, please see the accepted manuscript in Genome Research: [https://doi.org/10.1101/gr.232397.117
+](https://doi.org/10.1101/gr.232397.117
+)**
 
 ## Installing and Running GrapeTree
 There are number of different ways to interact with GrapeTree, for **best results install via pip** :
