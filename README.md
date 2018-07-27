@@ -203,10 +203,9 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 Detailed information for the standard NJ implemented in FastME V2: http://www.atgc-montpellier.fr/fastme/
 
 ## Citation
-EnteroMSTree - GrapeTree has not been formally published yet. If
-you use GrapeTree please cite the preprint:
+EnteroMSTree - GrapeTree has been formally accepted by Genome Research. Please use the citation:
 
 Z Zhou, NF Alikhan, MJ Sergeant, N Luhmann, C Vaz, AP Francisco, JA Carrico,
-M Achtman (2017) "GrapeTree: Visualization of core genomic relationships
-among 100,000 bacterial pathogens", bioRxiv 216788; doi:
-[https://doi.org/10.1101/216788](https://doi.org/10.1101/216788)
+M Achtman (2018) "GrapeTree: Visualization of core genomic relationships among 
+100,000 bacterial pathogens", Genome Res; doi:
+[https://doi.org/10.1101/gr.232397.117](https://doi.org/10.1101/gr.232397.117)
