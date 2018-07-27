@@ -48,7 +48,7 @@ text: "More info", and then the button "Run Anyway".
 
 **Running from Source code**
 
-GrapeTree requires [Python 2.7](https://www.python.org/downloads/release/python-2712/)
+GrapeTree requires [Python 2.7](https://www.python.org/downloads/release/python-2712/) or [Python 3.6](https://www.python.org/downloads/release/python-360/)
 and some additional python modules (listed in requirements.txt). The easiest way
 to install these modules is with pip:
 
