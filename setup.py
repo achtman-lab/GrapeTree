@@ -12,7 +12,7 @@ from os import path, walk
 __licence__ = 'GPLv3'
 __author__ = 'EnteroBase development team'
 __author_email__ = 'zhemin.zhou@warwick.ac.uk'
-__version__ = '1.5'
+__version__ = '1.6'
 
 def package_files(directory):
     paths = []
@@ -62,7 +62,7 @@ setup(
     ]+recursive('static')},
     packages = ['grapetree'],
     package_dir = {'grapetree':'.'},
-    install_requires=['DendroPy', 'numpy', 'Flask', 'networkx', 'psutil', 'numba'],
+    install_requires=['ete3', 'numpy', 'Flask', 'networkx', 'psutil', 'numba'],
     include_package_data=True,
     project_urls={
         'Bug Reports': 'https://github.com/achtman-lab/GrapeTree/issues',
