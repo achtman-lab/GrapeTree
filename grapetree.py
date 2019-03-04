@@ -29,14 +29,13 @@ from __future__ import print_function
 from module import app
 import threading
 import webbrowser
-import shutil
 import traceback
 import time
 import argparse
-import os
-import sys
+import os, sys, shutil
 from module.MSTrees import backend, add_args
 import psutil
+import multiprocessing
 
 
 __licence__ = 'GPLv3'
@@ -77,6 +76,5 @@ def main() :
             os._exit(1)
 
 if __name__ == "__main__":
-    import multiprocessing
     multiprocessing.freeze_support()
     main()

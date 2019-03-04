@@ -3,7 +3,7 @@ from . import config
 import sys, os
 
 if getattr(sys, 'frozen', False):
-    template_folder = sys._MEIPASS #os.path.join(sys._MEIPASS, 'templates')
+    template_folder = sys._MEIPASS
     static_folder = os.path.join(sys._MEIPASS, 'static')
     app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
 else:

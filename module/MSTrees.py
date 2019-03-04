@@ -635,7 +635,10 @@ def backend(**args) :
 
 
     names, profiles = [], []
-    fin = open(params['profile']).readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
+    try :
+        fin = open(params['profile']).readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
+    except :
+        fin = params['profile'].split('\n')
 
     allele_cols = None
     for line_id, line in enumerate(fin) :
