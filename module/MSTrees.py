@@ -1,9 +1,10 @@
 from __future__ import print_function
-import numpy as np, dendropy as dp, networkx as nx
+import numpy as np, networkx as nx, argparse
 from numba import jit
+from glob import glob
+from ete3 import Tree
 from subprocess import Popen, PIPE
 import sys, os, tempfile, platform, re, tempfile, psutil
-import argparse
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -27,7 +28,7 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               RapidNJ_Windows = os.path.join(base_dir, 'binaries', 'rapidnj.exe'),
              )
 
-@jit
+@jit(nopython=True)
 def contemporary(a,b,c, n_loci) :
     a[0], a[1] = max(min(a[0], n_loci-0.5), 0.5), max(min(a[1], n_loci-0.5), 0.5);
     b, c = max(min(b, n_loci-0.5), 0.5), max(min(c, n_loci-0.5), 0.5)
@@ -380,21 +381,22 @@ class methods(object) :
                     remain.append(br)
             branches = remain
 
-        tre = dp.Tree()
-        node = tre.seed_node
-        node.taxon = tre.taxon_namespace.new_taxon(label=branch[0][0])
+        tre = Tree()
+        nodeFinder = {}
+        
+        tre.name = branch[0][0]
+        nodeFinder[tre.name] = tre
         for src, tgt, dif in branch :
-            node = tre.find_node_with_taxon_label(src)
-            n = dp.Node(taxon=node.taxon)
-            node.add_child(n)
-            n.edge_length = 0.0
-            node.__dict__['taxon'] = None
-
-            n = dp.Node(taxon=tre.taxon_namespace.new_taxon(label=tgt))
-            node.add_child(n)
-            n.edge_length = dif
-        for taxon in tre.taxon_namespace :
-            taxon.label = names[taxon.label]
+            node = nodeFinder[src]
+            child = node.add_child(name=tgt, dist=dif)
+            nodeFinder[child.name] = child
+        for node in tre.traverse('postorder') :
+            if not node.is_leaf() :
+                name = node.name
+                node.name = ''
+                node.add_child(name=names[name], dist=0.)
+            else :
+                node.name = names[node.name]
         return tre
 
 
@@ -468,17 +470,18 @@ class methods(object) :
                 Popen([params['NJ_Linux32'], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
             else :
                 raise e
-        tree = dp.Tree.get_from_path(dist_file + '_fastme_tree.nwk', schema='newick')
-        try :
-            tree.reroot_at_midpoint()
-        except :
-            pass
-        tree.is_rooted = False
-        from glob import glob
+        tree = Tree(dist_file + '_fastme_tree.nwk')
         for fname in glob(dist_file + '*') :
             os.unlink(fname)
-        for taxon in tree.taxon_namespace :
-            taxon.label = names[int(taxon.label)]
+        
+        try:
+            tree.set_outgroup(tree.get_midpoint_outgroup())
+            tree.unroot()            
+        except :
+            pass
+
+        for leaf in tree.get_leaves() :
+            leaf.name = names[int(leaf.name.strip("'"))]
         return tree
     @staticmethod
     def NJ(names, profiles, embeded, handle_missing='pair_delete', **params) :
@@ -497,13 +500,18 @@ class methods(object) :
                 Popen([params['NJ_Linux32'], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
             else :
                 raise e
-        tree = dp.Tree.get_from_path(dist_file + '_fastme_tree.nwk', schema='newick')
-        tree.is_rooted = False
-        from glob import glob
+        tree = Tree(dist_file + '_fastme_tree.nwk')
         for fname in glob(dist_file + '*') :
             os.unlink(fname)
-        for taxon in tree.taxon_namespace :
-            taxon.label = names[int(taxon.label)]
+        
+        try:
+            tree.set_outgroup(tree.get_midpoint_outgroup())
+            tree.unroot()            
+        except :
+            pass
+
+        for leaf in tree.get_leaves() :
+            leaf.name = names[int(leaf.name.strip("'"))]
         return tree
     @staticmethod
     def RapidNJ(names, profiles, embeded, handle_missing='pair_delete', **params) :
@@ -515,14 +523,19 @@ class methods(object) :
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
         del dist, d
-        Popen([params['RapidNJ_{0}'.format(platform.system())], '-x', dist_file+'_rapidnj.nwk', '-i', 'pd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
-        tree = dp.Tree.get_from_path(dist_file + '_rapidnj.nwk', schema='newick')
-        tree.is_rooted = False
-        from glob import glob
+        Popen([params['RapidNJ_{0}'.format(platform.system())], '-n', '-x', dist_file+'_rapidnj.nwk', '-i', 'pd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
+        tree = Tree(dist_file + '_rapidnj.nwk')
         for fname in glob(dist_file + '*') :
             os.unlink(fname)
-        for taxon in tree.taxon_namespace :
-            taxon.label = names[int(taxon.label)]
+        
+        try:
+            tree.set_outgroup(tree.get_midpoint_outgroup())
+            tree.unroot()            
+        except :
+            pass
+
+        for leaf in tree.get_leaves() :
+            leaf.name = names[int(leaf.name.strip("'"))]
         return tree
     @staticmethod
     def ninja(names, profiles, embeded, handle_missing='pair_delete', **params) :
@@ -536,16 +549,21 @@ class methods(object) :
         del dist, d
         free_memory = int(0.9*psutil.virtual_memory().total/(1024.**2))
         ninja_out = Popen(['java', '-server', '-Xmx'+str(free_memory)+'M', '-jar', params['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
-        tree = dp.Tree.get_from_string(ninja_out[0], schema='newick')
-        for edge in tree.edges() :
-            if edge.length :
-                edge.length *= profiles.shape[1]
-        tree.is_rooted = False
-        from glob import glob
+        tree = Tree(ninja_out[0])
+        
+        for node in tree.traverse() :
+            edge.dist *= profiles.shape[1]
         for fname in glob(dist_file + '*') :
             os.unlink(fname)
-        for taxon in tree.taxon_namespace :
-            taxon.label = names[int(taxon.label)]
+        
+        try:
+            tree.set_outgroup(tree.get_midpoint_outgroup())
+            tree.unroot()            
+        except :
+            pass
+
+        for leaf in tree.get_leaves() :
+            leaf.name = names[int(leaf.name.strip("'"))]
         return tree
 
 def nonredundant(names, profiles) :
@@ -597,8 +615,8 @@ def backend(**args) :
         To run a NJ tree (using FastME 2.0) :
         backend(profile=<filename>, method='NJ')
 
-        To run a fast NJ tree (using ninja [needs java]) :
-        backend(profile=<filename>, method='ninja')
+        To run a RapidNJ tree :
+        backend(profile=<filename>, method='RapidNJ')
 
         To obtain a standard distance matrix :
         backend(profile=<filename>, method='distance')
@@ -663,17 +681,28 @@ def backend(**args) :
         params['dist_subfile'] = params['tempfix']+'.dist.{0}.npy'
         tre = eval('methods.' + params['method'])(names, profiles, embeded, **params)
         if params['method'] != 'distance' :
-            for taxon in tre.taxon_namespace :
-                embeded_group = embeded[taxon.label]
+            maxDist = 0.
+            for node in tre.iter_descendants() :
+                if node.dist > maxDist: maxDist = node.dist
+            if maxDist > 3 :
+                for node in tre.iter_descendants('postorder') :
+                    if node.dist < 0.1 and node.dist > 0 :
+                        for s in node.get_sisters() :
+                            s.dist += node.dist
+                        node.dist = 0
+            for leaf in tre.get_leaves() :
+                embeded_group = embeded[leaf.name]
                 if len(embeded_group) > 1 :
-                    taxon.label = '({0}:0)'.format(':0,'.join(embeded_group))
+                    leaf.name = ''
+                    for n in embeded_group :
+                        leaf.add_child(name=n, dist=0.)
 
             for fname in (params['prof_file'], params['dist_file']) :
                 try:
                     os.unlink(fname)
                 except :
                     pass
-            return tre.as_string('newick').replace("'", "")
+            return tre.write(format=1).replace("'", "")
         else :
             for fname in (params['prof_file'], params['dist_file']) :
                 try:
