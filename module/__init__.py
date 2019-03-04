@@ -1,7 +1,6 @@
 from flask import Flask
+import sys, os
 import config
-import sys
-import os
 
 if getattr(sys, 'frozen', False):
     template_folder = sys._MEIPASS #os.path.join(sys._MEIPASS, 'templates')
