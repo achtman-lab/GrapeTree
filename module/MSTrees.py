@@ -240,7 +240,7 @@ class methods(object) :
                 cutoff = 1
             link = np.array(np.where(dist < (cutoff+1) ))
             link = link.T[weight[link[0]] < weight[link[1]]].T
-            link = np.vstack([link, dist[link.tolist()] + weight[link[0]]])
+            link = np.vstack([link, dist[tuple(link.tolist())] + weight[link[0]]])
             link = link.T[np.lexsort(link)]
             return link[np.unique(link.T[1], return_index=True)[1]].astype(int)
 
