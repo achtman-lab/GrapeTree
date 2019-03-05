@@ -166,7 +166,7 @@ function filesDropped(files){
 }
 function distributeFile(text, filename) {
 	var head_line = text.substring(0, 2048).split(/[\n\r]/)[0];
-	if (head_line.startsWith(">")  || (head_line.startsWith("#") && ! head_line.toUpperCase().startsWith("#NEXUS") )) {
+	if (head_line.startsWith(">")  || (head_line.startsWith("#") && ! head_line.toUpperCase().startsWith("#NEXUS")) || (head_line.indexOf('\t') >=0 && ! the_tree)) {
 		if (cannot_connect){
 			loadFailed("Cannot Connect to the backend server");
 			return;

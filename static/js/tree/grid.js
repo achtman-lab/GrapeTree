@@ -18,8 +18,8 @@ function  D3MSMetadataTable(tree,context_menu){
 	this.dataView = new Slick.Data.DataView();
 	this._setupDiv();	
 	this.columns = [
-		{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 20, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
-		{id: "index", name: "index", field: "id", width: 60, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
+		{id: "Selected", name: "<img src='static/js/img/tick.png'>", field: "__selected", width: 30, maxWidth:30, minWidth:30, formatter: Slick.Formatters.Checkmark, sortable: true, editor: Slick.Editors.Checkbox, prop:{category:'character', group_num:30, group_order:'occurence'}},
+		{id: "index", name: "index", field: "id", width: 40, prop:{category:'numeric', group_num:30, group_order:'standard'}, cssClass:'uneditable-cell'},
 	];
 
 	this.options = {
@@ -31,6 +31,7 @@ function  D3MSMetadataTable(tree,context_menu){
 		multiColumnSort: false,
 		showHeaderRow: true,
 		headerRowHeight: 30,
+		rowHeight: 23,
 		explicitInitialization: true,
 	};
 	this.columnFilters = {};	
@@ -86,39 +87,36 @@ function  D3MSMetadataTable(tree,context_menu){
 	});
 	this.dataView.endUpdate();
 
-	this.grid.onSort.subscribe(function (e, args) {
-	  var col = args.sortCol;
-	  var data = self.dataView.getItems();
-	  $.map(data, function(d) {
-		var field = col.field, prop = col.prop;
-		if (prop && prop.coltype == 'numeric') {
-			if (isNumber(d[field])) {
-				d.___v = parseFloat(d[field]), d.___t=0;
-			} else {
-				d.___v = JSON.stringify(d[field]), d.___t=1;
-			}
-			if (d.___v === undefined) d.___v = "";
-		} else if (prop && prop.coltype == 'boolean') {
-			d.___v = (d[field]) ? true : false, d.___t = 1;
-		} else {
-			d.___v = JSON.stringify(d[field]), d.___t=1;
-			if (d.___v === undefined) d.___v = "";
-		}
-	  });
-	  data.sort(function (dataRow1, dataRow2) {
-	  	var sign = args.sortAsc ? 1 : -1;
-	  	var result;
-		var [value1, t1, value2, t2] = [dataRow1.___v, dataRow1.___t, dataRow2.___v, dataRow2.___t];
-		  var result = (t1 - t2)* sign;
-		  if (t1 == t2) {
-		  	if (value1 == value2) {
-		  		result = dataRow1.id - dataRow2.id;
-		  	} else {
-		  		result = (value1 > value2 ? 1 : -1)* sign;
-		  	}
-		  }
-		  return result;
-	  });
+		this.grid.onSort.subscribe(function (e, args) {
+		  var col = args.sortCol;
+		  var data = self.dataView.getItems();
+		  $.map(data, function(d) {
+				var field = col.field, prop = col.prop;
+				if (isNumber(d[field]) && isNumber(parseFloat(d[field]))) {
+						d.___v = parseFloat(d[field]), d.___t=0;
+				} else {
+						d.___t = 1;
+						if (d[field] === undefined || d[field] === null) {
+							d.___v = "";
+						} else {
+							d.___v = JSON.stringify(String(d[field]));
+						}
+				}
+		  });
+		  data.sort(function (dataRow1, dataRow2) {
+				var sign = args.sortAsc ? 1 : -1;
+				var result;
+				var [value1, t1, value2, t2] = [dataRow1.___v, dataRow1.___t, dataRow2.___v, dataRow2.___t];
+				  var result = (t1 - t2)* sign;
+				  if (t1 == t2) {
+						if (value1 == value2) {
+								result = dataRow1.id - dataRow2.id;
+						} else {
+								result = (value1 > value2 ? 1 : -1)* sign;
+						}
+				  }
+				  return result;
+		  });
 		self.dataView.setItems(self.data_reformat(data, true));
 		self.grid.invalidate();
 		self.grid.render();	
@@ -390,7 +388,7 @@ D3MSMetadataTable.prototype.updateMetadataTable =function() {
 			curr_cols.push({id: cols[c],
 				name: cols[c], 
 				field: c, 
-				width:120, 
+				width:80, 
 				editor: Slick.Editors.Text, 
 				sortable: true, 
 				prop: this.tree.metadata_info[cols[c]]

@@ -28,6 +28,9 @@ body{
 		overflow-y:auto;
 		overflow-x: hidden;
 }
+#myGrid {
+	font-size: 0.9em;
+}
 .brush.extent {
 	stroke: #fff;
 	fill-opacity: .125;
@@ -159,6 +162,10 @@ position: fixed;
     color: #fff;
     font-weight: normal;
 }
+.slick-row.active .slick-cell {
+     background-color: #FFB;
+}
+
 .slick-row.odd {
 	background: #ffffcc;
 }
