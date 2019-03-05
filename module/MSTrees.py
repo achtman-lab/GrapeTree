@@ -651,7 +651,7 @@ def backend(**args) :
             fmt = 'fasta'
         else :
             fmt = 'profile'
-            if not allele_cols :
+            if allele_cols is None :
                 header = line.strip().split('\t')
                 allele_cols = np.array([ id for id, col in enumerate(header) if id > 0 and not col.startswith('#') and not col in {'ST_id', 'st_id', 'ST', 'st'} ])
                 line_id += 1
