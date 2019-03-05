@@ -1597,8 +1597,11 @@ D3BaseTree.prototype.addDisplayChangedListener=function (callback){
 	this.displayChangedListeners.push(callback);
 }
 
-
-
+D3BaseTree.prototype.sendToMicroReact = function () {
+	this.newickTree;
+	this.metadata;
+	this.colors;
+}
 
 
 

@@ -110,15 +110,13 @@
 				<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('load_files');"></span>
 				<hr>
 			</div>
-			<div id='export-panel'>
-					<button id ="show-in-microreact">Show in <img src="https://microreact.org/images/logos/microreact.svg" alt="MicroReact" style="width:100px;height:20px"></button>
-					<hr>
-			</div>
 			<div id='save-panel'>
 					<button id ="save-tree-json">Save GrapeTree</button>
 					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('save_grapetree');"></span><br>
 					<button id ="save-tree-nwk">Save as Newick Tree</button><br>
 					<button id ="mst-download-svg">Download SVG</button><br>
+					<hr>
+					<button id ="show-in-microreact">Show in <img src="https://microreact.org/images/logos/microreact.svg" alt="MicroReact" style="width:100px;height:20px"></button>
 			</div>
 		</div>
 	</div>
@@ -886,6 +884,10 @@ window.onload = function (){
 
 	$("#save-tree-nwk").click(function(e){
 		saveTextAsFile(the_tree.getTreeAsNewick(),"ms_tree.nwk");
+	});
+	
+	$("#show-in-microreact").click(function(e) {
+		the_tree.sendToMicroReact();
 	});
 
 	$("#center-graph-button").click(function(e){

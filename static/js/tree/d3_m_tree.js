@@ -2315,7 +2315,7 @@ D3MSTree.prototype.brushEnded=function(extent){
 }
 
 D3MSTree.prototype.selectAll=function(){
-	this.node_elements.filter(function(n) {n.selected=true;});
+	this.node_elements.forEach(function(n) {n.selected=true;});
 	this._updateSelectionStatus();
 }
 D3MSTree.prototype._updateSelectionStatus = function() {

@@ -383,7 +383,7 @@ class methods(object) :
 
         tre = Tree()
         nodeFinder = {}
-        
+
         tre.name = branch[0][0]
         nodeFinder[tre.name] = tre
         for src, tgt, dif in branch :
@@ -473,10 +473,10 @@ class methods(object) :
         tree = Tree(dist_file + '_fastme_tree.nwk')
         for fname in glob(dist_file + '*') :
             os.unlink(fname)
-        
+
         try:
             tree.set_outgroup(tree.get_midpoint_outgroup())
-            tree.unroot()            
+            tree.unroot()
         except :
             pass
 
@@ -503,10 +503,10 @@ class methods(object) :
         tree = Tree(dist_file + '_fastme_tree.nwk')
         for fname in glob(dist_file + '*') :
             os.unlink(fname)
-        
+
         try:
             tree.set_outgroup(tree.get_midpoint_outgroup())
-            tree.unroot()            
+            tree.unroot()
         except :
             pass
 
@@ -527,10 +527,10 @@ class methods(object) :
         tree = Tree(dist_file + '_rapidnj.nwk')
         for fname in glob(dist_file + '*') :
             os.unlink(fname)
-        
+
         try:
             tree.set_outgroup(tree.get_midpoint_outgroup())
-            tree.unroot()            
+            tree.unroot()
         except :
             pass
 
@@ -550,15 +550,15 @@ class methods(object) :
         free_memory = int(0.9*psutil.virtual_memory().total/(1024.**2))
         ninja_out = Popen(['java', '-server', '-Xmx'+str(free_memory)+'M', '-jar', params['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
         tree = Tree(ninja_out[0])
-        
+
         for node in tree.traverse() :
             edge.dist *= profiles.shape[1]
         for fname in glob(dist_file + '*') :
             os.unlink(fname)
-        
+
         try:
             tree.set_outgroup(tree.get_midpoint_outgroup())
-            tree.unroot()            
+            tree.unroot()
         except :
             pass
 
@@ -645,9 +645,16 @@ def backend(**args) :
         if line.startswith('#') :
             if not line.startswith('##') :
                 header = line.strip().split('\t')
-                allele_cols = np.array([ id for id, col in enumerate(header) if id > 0 and not col.startswith('#')])
+                allele_cols = np.array([ id for id, col in enumerate(header) if id > 0 and not col.startswith('#') and not col in {'ST_id', 'st_id', 'ST', 'st'} ])
             continue
-        fmt = 'fasta' if line.startswith('>') else 'profile'
+        if line.startswith('>') :
+            fmt = 'fasta'
+        else :
+            fmt = 'profile'
+            if not allele_cols :
+                header = line.strip().split('\t')
+                allele_cols = np.array([ id for id, col in enumerate(header) if id > 0 and not col.startswith('#') and not col in {'ST_id', 'st_id', 'ST', 'st'} ])
+                line_id += 1
         break
 
     if fmt == 'fasta' :
