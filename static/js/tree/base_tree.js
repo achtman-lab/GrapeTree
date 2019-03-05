@@ -1035,35 +1035,27 @@ D3BaseTree.prototype.readNexusFile = function (text){
 * </pre>
 */
 D3BaseTree.prototype.addMetadata=function(metadata){
-	var metadata_map = {};
-	Object.values(this.metadata).forEach(function(d) {metadata_map[d['ID']] = d});
-	
 	for (var id in metadata){
-		var item =metadata_map[id];
+		var item = this.metadata_map[id];
 		var node_id = metadata[id]['ID'];
 		
 		if (!item){
-			/*if (! node_id){
-				node_id=id;
-
-				metadata[id]['ID']=node_id;
-
+			if (! node_id){
+				metadata[id]['ID']=node_id=id;
 			}
 			//the  node my change if collapsed
 			metadata[id]["__Node"]=node_id;
 			metadata[id]["__strain_id"]=id;
 			var list = this.metadata_map[node_id];
 			if (!list){
-				list=[];
-				this.metadata_map[node_id]=list;
+				this.metadata_map[node_id] = list = [];
 			}
 			list.push(id);
 			this.metadata[id]=metadata[id];
-			*/
 		}
 		else{
 			for (var key in metadata[id]){
-				metadata_map[id][key]=metadata[id][key];
+				this.metadata_map[id][key]=metadata[id][key];
 			}		
 		}
 	}
@@ -1599,17 +1591,6 @@ D3BaseTree.prototype.addNodesSelectedListener=function (callback){
 D3BaseTree.prototype.addDisplayChangedListener=function (callback){
 	this.displayChangedListeners.push(callback);
 }
-
-D3BaseTree.prototype.sendToMicroReact = function () {
-	this.newickTree;
-	this.metadata;
-	this.colors;
-}
-
-
-
-
-
 
 
 D3BaseTree.prototype.keyPressed= function(e){};

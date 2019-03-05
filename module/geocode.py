@@ -1,23 +1,23 @@
-import sys, re, requests, json, pandas as pd, numpy as np
+import os, sys, re, requests, json, pandas as pd, numpy as np
 import copy, unidecode
-def geoCoding_openstreet(location) :
-    countries = pd.read_csv('countries.csv').values
+def geoCoding_openstreet(location, country='') :
+    countries = pd.read_csv(os.path.join(os.path.dirname(__file__), 'countries.csv'), encoding='ISO-8859-1').values
     try:
-        history = np.load('geocode.npz')
+        history = np.load(os.path.join(os.path.dirname(__file__), 'geocode.npz'))
     except:
         history = {}
 
-    if location in history :
-        sys.stdout.write(json.dumps(dict(history[location].tolist()), indent=2, sort_keys=True))
-        return
+    if str(country)+' '+location in history :
+        #sys.stdout.write(json.dumps(dict(history[location].tolist()), indent=2, sort_keys=True))
+        return res
     res = dict(Longitude='',  Latitude='',
                Continient='', Country='',
                admin1='',     admin2='',
                City='',
                confidence='0.',
                )
-    openstreetApi = 'https://nominatim.openstreetmap.org/?format=json&addressdetails=1&limit=10&q={location}&accept-language=en-GB'
-    q = requests.get(openstreetApi.format(location=location))
+    openstreetApi = 'https://nominatim.openstreetmap.org/?format=json&addressdetails=1&limit=10&q={location}&country={country}&accept-language=en-GB'
+    q = requests.get(openstreetApi.format(location=location, country=country))
     if q.status_code == 200 :
         data = json.loads(unidecode.unidecode(q.text))
         if len(data) > 0 :
@@ -31,7 +31,7 @@ def geoCoding_openstreet(location) :
             for id, d1 in enumerate(data) :
                 if d1['importance'] > 0 :
                     db1 = np.array(d1['boundingbox'], dtype=float)
-                    for jd in xrange(id+1, len(data)) :
+                    for jd in range(id+1, len(data)) :
                         d2 = data[jd]
                         if d2['importance'] > 0 :
                             db2 = np.array(d2['boundingbox'], dtype=float)
@@ -39,12 +39,12 @@ def geoCoding_openstreet(location) :
                             if ((e1-s1+1) >= 0.9*(db1[1]-db1[0]+1) or (e1-s1+1) >= 0.9*(db2[1]-db2[0]+1)) and \
                                ((e2-s2+1) >= 0.9*(db1[3]-db1[2]+1) or (e2-s2+1) >= 0.9*(db2[3]-db2[2]+1)) :
                                 if (db2[1]-db2[0]+1)*(db2[3]-db2[2]+1) > (db1[1]-db1[0]+1)*(db1[3]-db1[2]+1) :
-                                    if ('county' in d2['address'] and d1['address']['city'] != d2['address']['county']) or ('county' not in d2['address'] and d1['address']['city'] != d2['address']['state']) :
+                                    if 'city' in d1['address'] and (('county' in d2['address'] and d1['address']['city'] != d2['address']['county']) or ('county' not in d2['address'] and d1['address']['city'] != d2['address']['state'])) :
                                         d2['importance'] = d1['importance']
                                         data[id] = copy.deepcopy(d2)
                                         d1, db1 = data[id], np.array(data[id]['boundingbox'], dtype=float)
                                 elif (db2[1]-db2[0]+1)*(db2[3]-db2[2]+1) < (db1[1]-db1[0]+1)*(db1[3]-db1[2]+1) :
-                                    if ('county' in d1['address'] and d2['address']['city'] == d1['address']['county']) or ('county' not in d1['address'] and d2['address']['city'] == d1['address']['state']) :
+                                    if 'city' in d2['address'] and (('county' in d1['address'] and d2['address']['city'] == d1['address']['county']) or ('county' not in d1['address'] and d2['address']['city'] == d1['address']['state'])) :
                                         d2['importance'] = d1['importance']
                                         data[id] = copy.deepcopy(d2)
                                         d1, db1 = data[id], np.array(data[id]['boundingbox'], dtype=float)
@@ -58,7 +58,7 @@ def geoCoding_openstreet(location) :
             if np.max(country[1]) > 0.5*len(data) :
                 country = countries[countries.T[0] == country[0][(np.argmax(country[1]))].upper(), 3:]
                 if len(country) :
-                    res['Country'], res['Continient'] = country[0]
+                    res['Country'], res['Continient'] = unidecode.unidecode(country[0, 0]), unidecode.unidecode(country[0, 1])
 
             state = np.unique([d['address'].get('state', '') for d in data], return_counts=True)
             if np.max(state[1]) > 0.5*len(data) :
@@ -72,10 +72,11 @@ def geoCoding_openstreet(location) :
     history = dict(history.items())
     history[location] = np.array(list(res.items()))
     np.savez_compressed('geocode.npz', **history)
-    sys.stdout.write(json.dumps(res,indent=2, sort_keys=True))
+    #sys.stdout.write(json.dumps(res,indent=2, sort_keys=True))
+    return res
 
-def geoCoding(location) :
-    geoCoding_openstreet('+'.join([l for loc in location for l in re.split(r'[_-,\s]+', loc.lower()) if l != '']))
+def geoCoding(location, country='') :
+    return geoCoding_openstreet('+'.join([l for l in re.split(r'[_\-,\s]+', location.lower()) if l != '']), country=country)
 
 if __name__ == '__main__' :
     geoCoding(sys.argv[1:])

@@ -76,5 +76,7 @@ def main() :
             os._exit(1)
 
 if __name__ == "__main__":
+    #from module import views
+    #views.sendToMicroReact(debug='debug')
     multiprocessing.freeze_support()
     main()

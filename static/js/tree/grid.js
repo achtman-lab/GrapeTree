@@ -313,24 +313,8 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 			})
 	});
 	$("#metadata-download").click(function(e){
-		var headers = [], header_map = {}, output = [];
-		var curr_cols = self.grid.getColumns();
-		for (var id in curr_cols) {
-			var col = curr_cols[id];
-			header_map[col.field] = headers.length;
-			headers.push(col.id);
-		}
-		output.push(headers.join('\t'));
-		var data = self.grid.getData().getFilteredItems();
-		for (var id in data) {
-			var d = data[id];
-			var out = []; out.length = headers.length;
-			for (key in header_map) {
-				out[header_map[key]] = d[key] ? d[key] : '';
-			}
-			output.push(out.join('\t'));
-		}
-		saveTextAsFile(output.join('\n'), "metadata.txt");
+		var output = this.meta2tsv();
+		saveTextAsFile(output, "metadata.txt");
 	});
 };
 
@@ -339,7 +323,33 @@ D3MSMetadataTable.prototype.setAddColumnFunction= function(callback){
 
 };
 
-		
+D3MSMetadataTable.prototype.meta2tsv = function(excluded=[]) {
+		var header_map = {};
+		var headers = this.grid.getColumns()
+						.filter(function(col) {
+							try {
+								return ! excluded.includes(col.id);
+							} catch (e) {
+								return true;
+							} 
+						})
+						.map(function(col) {
+							header_map[col.field] = Object.keys(header_map).length;
+							return col.id;
+						});
+
+		var data = this.grid.getData().getFilteredItems();
+
+		var output = [headers.join('\t')];
+		output.concat(data.map(function(d) {
+			var out = []; out.length = headers.length;
+			for (key in header_map) {
+				out[header_map[key]] = d[key] ? d[key] : '';
+			}
+			output.push(out.join('\t'));
+		}));
+		return output.join('\n');
+}		
 		
 D3MSMetadataTable.prototype.data_reformat = function(data, sorted) {
 	if (! sorted) {
@@ -426,5 +436,37 @@ D3MSMetadataTable.prototype.toggleDisplay=function(){
 	} else {
 		$('#metadata-div').hide(300);
 	}	
+}
+
+
+D3MSMetadataTable.prototype.sendToMicroReact = function () {
+	var data = {};
+	data.tree = this.tree.newickTree;
+	data.metadata = this.meta2tsv(['Selected', 'index']);
+	var colors = {};
+	var display_field = this.tree.display_category;
+	var display_field = this.grid.getColumns().filter(function(d) {
+			return d.field == display_field;
+		})[0]['id'];
+	colors[display_field] = this.tree.category_colours;
+	data.colors = JSON.stringify(colors);
+	data.name = $("#headertag").html();
+	$.ajax({
+		type: 'POST',
+		url: '/sendToMicroReact', 
+		data: data, 
+		success: function(e, ui) {
+			var microDiag = $("<div id='micro-dialog' title='Sent to MicroReact'>A MicroReact Project has been created. <br>Wait the pop-up window to show. <br>Otherwise click the following link:<br><a id='micro-link' target='_blank'>MicroReact</a><br></div>");
+			microDiag.appendTo($('body'));
+			var microLink = microDiag.find('#micro-link');
+			microLink.attr("href", e);
+			microDiag.dialog({ autoOpen: false, 
+								close:function(e, ui) {
+									$(this).dialog('destroy').remove();
+							} });
+			microDiag.dialog('open');
+			window.open(e, '_blank');
+		}
+	})
 }
 

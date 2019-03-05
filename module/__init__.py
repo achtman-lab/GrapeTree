@@ -1,6 +1,7 @@
 from flask import Flask
-from . import config
 import sys, os
+
+from . import config
 
 if getattr(sys, 'frozen', False):
     template_folder = sys._MEIPASS
