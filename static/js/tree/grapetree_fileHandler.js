@@ -68,7 +68,9 @@ function loadNetFiles() {
 	var params = getJsonFromUrl();
 	var tree = null, metadata = null;
 	for (var key in params) {
-		params[key] = params[key].replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+		params[key] = params[key].replace('www.dropbox.com', 'dl.dropboxusercontent.com')
+						.replace('drive.google.com/open?', 'drive.google.com/uc?')
+						.replace('/blob/', '/').replace('github.com', 'raw.githubusercontent.com')
 		if (key === 'tree') {
 			tree = params[key];
 		} else if (key == 'metadata') {
@@ -78,20 +80,19 @@ function loadNetFiles() {
 	if (tree) {
 		$.ajax({
 			type: "GET",
-			url: tree,
+			url: 'https://cors-anywhere.herokuapp.com/'+tree,
+			headers: {'X-Requested-With': 'XMLHttpRequest'},
 			success: function(tree){
 				try {
-					data = JSON.parse(tree);
-				}
-				catch(error) {
+					data = typeof(tree) == 'string'? JSON.parse(tree) : tree;
+				} catch(error) {
 					data = {};
 					if (tree.substring(0,6)==="#NEXUS"){
 						data['nexus']=tree;
-					}
-					else{
+					}else{
 						data['nwk']=tree;
 					}
-				data['layout_algorithm']=$("#layout-select").val();
+					data['layout_algorithm']=$("#layout-select").val();
 				}
 				finally {
 					tree_raw = data;
@@ -100,31 +101,10 @@ function loadNetFiles() {
 				if (the_tree && metadata) {
 					$.ajax({
 						type: "GET",
-						url: metadata,
+						url: 'https://cors-anywhere.herokuapp.com/'+metadata,
+						headers: {'X-Requested-With': 'XMLHttpRequest'},
 						success: function(data){
-							try {
-								var return_data = [];
-								var lines = data.split(/\r\n|\r|\n/g);
-								var delimiter = lines[0].search(/\t/) >= 0 ? '\t': ',';
-								var header = lines[0].split(delimiter);
-								var header_index= [];
-								for (var i=0;i<header.length;i++){
-									header_index[i]=header[i];
-								}
-
-								for (var i=1;i<lines.length;i++){
-									var map = {};
-										var arr = lines[i].split(delimiter);
-										for (var col in arr){
-											map[header_index[col]]=arr[col];
-										}
-										return_data.push(map);
-								}
-								parseMetadata("OK",return_data,header_index);
-							}
-							catch(error) {
-								parseMetadata("Error",error.message)
-							}
+							loadMetadataText(data);
 						}
 					});
 				}
@@ -184,9 +164,9 @@ function distributeFile(text, filename) {
 
 	else if ((head_line.indexOf(",") >=0 || head_line.indexOf("\t")>=0) && !head_line.startsWith("(") && !head_line.startsWith("[") && !head_line.startsWith(" ") && !head_line.startsWith("{")) {
 		var dl = (head_line.indexOf(",") >= 0 ? "," : "\t");
-		current_metadata_file = [text, dl];
+		current_metadata_file = text;
 		if (the_tree) {
-			loadMetadataText(text, dl);
+			loadMetadataText(text);
 		}
 	}
 	else {
@@ -195,10 +175,11 @@ function distributeFile(text, filename) {
 	}
 }
 
-function loadMetadataText(text, delimiter){
+function loadMetadataText(text){
 	var return_data=[];
 	try{
 		var lines =  text.split(/\r\n|\r|\n/g);
+		var delimiter = (lines[0].indexOf(",") >= 0 ? "," : "\t");
 		var header = lines[0].split(delimiter);
 		for (var i=1;i<lines.length;i++){
 			var map = {};
@@ -224,10 +205,7 @@ function parseMetadata (msg,lines,header_index){
 	} else {
 		id_name = header_index[0];
 	}
-	for (var i in lines){
-		var line = lines[i];
-		meta[line[id_name]]=line;
-	}
+	lines.forEach(function(line) {meta[line[id_name]]=line;});
 
 	var category = 'nothing';
 	var options={};
