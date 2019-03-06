@@ -28,9 +28,6 @@ body{
 		overflow-y:auto;
 		overflow-x: hidden;
 }
-#myGrid {
-	font-size: 0.9em;
-}
 .brush.extent {
 	stroke: #fff;
 	fill-opacity: .125;
