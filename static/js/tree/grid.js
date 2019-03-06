@@ -473,7 +473,7 @@ D3MSMetadataTable.prototype.sendToMicroReact = function (callback, haveBackend) 
 		microDiag.dialog('open');
 		window.open(e, '_blank');
 	})
-	.failed(function(e, ui) {
+	.fail(function(e, ui) {
 		callback();
 		var microDiag = $("<div id='micro-dialog' title='Failed with unknown reason.<br></div>");
 		microDiag.appendTo($('body'));
