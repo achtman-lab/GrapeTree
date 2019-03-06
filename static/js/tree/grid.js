@@ -187,6 +187,8 @@ D3MSMetadataTable.prototype.selectItems = function(item, selectMode='auto') {
 
 D3MSMetadataTable.prototype._setupDiv= function(){
 	var self = this;
+	var grid_html = "<div id = 'metadata-div' style='font-size:0.75em;width:700px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1;display:none'>\
+		<div id='handler' class='ui-draggable-handle'>\
 		<span title='Close The Window' id='metadata-close' class='glyphicon glyphicon-remove show-tooltip' style='top:-3px;float:right;margin-right:0px'></span>\
 		<span id ='meta_help' class='glyphicon glyphicon-question-sign' style='top:-3px;float:right;margin-right:5px'></span>\
 		<span title='Download This Table' id='metadata-download' class='glyphicon glyphicon-download show-tooltip'><span>Download</span></span>\
