@@ -887,7 +887,10 @@ window.onload = function (){
 	});
 	
 	$("#show-in-microreact").click(function(e) {
-		metadata_grid.sendToMicroReact();
+		showWaitingDialog("Sending tree and metadata to MicroReact");
+		metadata_grid.sendToMicroReact(function() {
+			$("#information-div").modal("hide");
+		});
 	});
 
 	$("#center-graph-button").click(function(e){

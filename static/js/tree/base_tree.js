@@ -1035,8 +1035,12 @@ D3BaseTree.prototype.readNexusFile = function (text){
 * </pre>
 */
 D3BaseTree.prototype.addMetadata=function(metadata){
+	var metadata_map = {};
+	Object.values(this.metadata).forEach(function(d) {
+		metadata_map[d.ID] = d;
+	});
 	for (var id in metadata){
-		var item = this.metadata_map[id];
+		var item = metadata_map[id];
 		var node_id = metadata[id]['ID'];
 		
 		if (!item){
@@ -1055,7 +1059,7 @@ D3BaseTree.prototype.addMetadata=function(metadata){
 		}
 		else{
 			for (var key in metadata[id]){
-				this.metadata_map[id][key]=metadata[id][key];
+				metadata_map[id][key]=metadata[id][key];
 			}		
 		}
 	}

@@ -1,5 +1,5 @@
 import numpy as np, json, pandas as pd, re, requests
-from ete3 import Tree   
+from ete3 import Tree
 from flask import render_template, request, make_response
 try:
     from StringIO import StringIO
@@ -37,24 +37,23 @@ def generate_tree():
         return make_response(str(e), 500)
 
 
-def reviseField(df, regex, fld, default='') :
-    columns = list(filter(lambda c: c.find('__') < 0, df.columns))
-    field = list(filter(lambda c: re.search(regex, c.lower()), columns))
-    if len(field) == 0 :
-        df[fld] = default
-    elif fld not in field :
-        df = df.rename(index=str, columns={field[0]:fld} )
-    return df
 
 @app.route("/sendToMicroReact", methods=['POST'])
 def sendToMicroReact(debug=None) :
+    def reviseField(df, regex, fld, default='') :
+        columns = list(filter(lambda c: c.find('__') < 0, df.columns))
+        field = list(filter(lambda c: re.search(regex, c.lower()), columns))
+        if len(field) == 0 :
+            df[fld] = default
+        elif fld not in field :
+            df = df.rename(index=str, columns={field[0]:fld} )
+        return df
     try:
         if debug :
             import pickle
             tree, metaString, colors = pickle.load(open(debug, 'rb'))
         else :
-            params = app.config.get('PARAMS')
-            params.update(dict(request.form))
+            params = dict(request.form)
             tree, metaString, colors, name = params['tree'][0], params['metadata'][0], json.loads(params['colors'][0]), params['name'][0]
 
         metadata = pd.read_csv(StringIO(metaString), sep='\t', header=[0])
@@ -63,17 +62,17 @@ def sendToMicroReact(debug=None) :
                 metadata[fld+'__color'] = metadata[fld].map(lambda v: categories.get(v, '#FFFFFF'))
 
         metadata = metadata.rename(index=str, columns={'ID':'id'} )
-        names = metadata['id'].values
+        names = metadata['id'].values.astype(str)
 
 
-        metadata = reviseField(metadata, r'latitude|^lat$', 'latitude', '')
-        metadata = reviseField(metadata, r'longitude|^lon$', 'longitude', '')
+        metadata = reviseField(metadata, r'latitude|^lat$', 'latitude', np.nan)
+        metadata = reviseField(metadata, r'longitude|^lon$', 'longitude', np.nan)
         metadata = reviseField(metadata, r'year', 'year', 1)
         metadata = reviseField(metadata, r'month', 'month', 1)
         metadata = reviseField(metadata, r'day', 'day', 1)
-        
+
         metadata[['latitude', 'longitude']] = metadata[['latitude', 'longitude']].astype(np.float64)
-        
+
         columns = list(filter(lambda c: c.find('__') < 0, metadata.columns))
         geo_columns = list(filter(lambda c: re.match(r'city|location|state|region|district|geograph', c.lower()), columns))
         country_column = list(filter(lambda c: re.match(r'country', c.lower()), columns))
@@ -85,7 +84,7 @@ def sendToMicroReact(debug=None) :
                     if len(address) or len(country) :
                         geocode = geoCoding(' '.join(address), country[0])
                         metadata.at[index, 'longitude'], metadata.at[index, 'latitude'] = geocode['Longitude'], geocode['Latitude']
-        
+
         column_ids = {c.lower():id for id, c in reversed(list(enumerate(metadata.columns)))}
         metadata = metadata[metadata.columns[sorted(column_ids.values())]]
         metaString = metadata.to_csv()

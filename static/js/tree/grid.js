@@ -439,7 +439,7 @@ D3MSMetadataTable.prototype.toggleDisplay=function(){
 }
 
 
-D3MSMetadataTable.prototype.sendToMicroReact = function () {
+D3MSMetadataTable.prototype.sendToMicroReact = function (callback) {
 	var data = {};
 	data.tree = this.tree.newickTree;
 	data.metadata = this.meta2tsv(['Selected', 'index']);
@@ -456,6 +456,7 @@ D3MSMetadataTable.prototype.sendToMicroReact = function () {
 		url: '/sendToMicroReact', 
 		data: data, 
 		success: function(e, ui) {
+			callback();
 			var microDiag = $("<div id='micro-dialog' title='Sent to MicroReact'>A MicroReact Project has been created. <br>Wait the pop-up window to show. <br>Otherwise click the following link:<br><a id='micro-link' target='_blank'>MicroReact</a><br></div>");
 			microDiag.appendTo($('body'));
 			var microLink = microDiag.find('#micro-link');
