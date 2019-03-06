@@ -6,9 +6,10 @@ def geoCoding_openstreet(location, country='') :
         history = np.load(os.path.join(os.path.dirname(__file__), 'geocode.npz'))
     except:
         history = {}
-
-    if str(country)+' '+location in history :
-        return res
+    key = str(country)+' '+location
+    if key in history :
+        #sys.stdout.write(json.dumps(dict(history[location].tolist()), indent=2, sort_keys=True))
+        return dict(history[key].tolist())
     res = dict(Longitude='',  Latitude='',
                Continient='', Country='',
                admin1='',     admin2='',
@@ -53,11 +54,11 @@ def geoCoding_openstreet(location, country='') :
 
             res['Longitude'], res['Latitude'], res['confidence'] = data[0]['lon'], data[0]['lat'], str(data[0]['importance'])
 
-            country = np.unique([d['address'].get('country_code', '') for d in data], return_counts=True)
-            if np.max(country[1]) > 0.5*len(data) :
-                country = countries[countries.T[0] == country[0][(np.argmax(country[1]))].upper(), 3:]
-                if len(country) :
-                    res['Country'], res['Continient'] = unidecode.unidecode(country[0, 0]), unidecode.unidecode(country[0, 1])
+            country2 = np.unique([d['address'].get('country_code', '') for d in data], return_counts=True)
+            if np.max(country2[1]) > 0.5*len(data) :
+                country2 = countries[countries.T[0] == country2[0][(np.argmax(country2[1]))].upper(), 3:]
+                if len(country2) :
+                    res['Country'], res['Continient'] = unidecode.unidecode(country2[0, 0]), unidecode.unidecode(country2[0, 1])
 
             state = np.unique([d['address'].get('state', '') for d in data], return_counts=True)
             if np.max(state[1]) > 0.5*len(data) :
@@ -69,12 +70,12 @@ def geoCoding_openstreet(location, country='') :
             if np.max(city[1]) > 0.5*len(data) :
                 res['City'] = city[0][np.argmax(city[1])]
     history = dict(history.items())
-    history[location] = np.array(list(res.items()))
-    np.savez_compressed('geocode.npz', **history)
+    history[key] = np.array(list(res.items()))
+    np.savez_compressed(os.path.join(os.path.dirname(__file__), 'geocode.npz'), **history)
     return res
 
 def geoCoding(location, country='') :
     return geoCoding_openstreet('+'.join([l for l in re.split(r'[_\-,\s]+', location.lower()) if l != '']), country=country)
 
 if __name__ == '__main__' :
-    geoCoding(' '.join(sys.argv[1:]))
+    geoCoding(sys.argv[1:])

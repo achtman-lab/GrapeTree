@@ -59,7 +59,7 @@ def sendToMicroReact(debug=None) :
         metadata = pd.read_csv(StringIO(metaString), sep='\t', header=[0])
         for fld, categories in colors.items() :
             if not fld.endswith('__color') :
-                metadata[fld+'__color'] = metadata[fld].map(lambda v: categories.get(v, '#FFFFFF'))
+                metadata[fld+'__color'] = metadata[fld].astype(str).map(lambda v: categories.get(v, '#FFFFFF'))
 
         metadata = metadata.rename(index=str, columns={'ID':'id'} )
         names = metadata['id'].values.astype(str)
@@ -83,7 +83,8 @@ def sendToMicroReact(debug=None) :
                     country = strain[country_column]
                     if len(address) or len(country) :
                         geocode = geoCoding(' '.join(address), country[0])
-                        metadata.at[index, 'longitude'], metadata.at[index, 'latitude'] = geocode['Longitude'], geocode['Latitude']
+                        if geocode['Longitude'] :
+                            metadata.at[index, 'longitude'], metadata.at[index, 'latitude'] = geocode['Longitude'], geocode['Latitude']
 
         column_ids = {c.lower():id for id, c in reversed(list(enumerate(metadata.columns)))}
         metadata = metadata[metadata.columns[sorted(column_ids.values())]]
