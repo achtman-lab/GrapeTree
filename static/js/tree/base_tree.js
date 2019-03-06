@@ -1311,7 +1311,7 @@ D3BaseTree.prototype.showLegend= function (show){
 };
 
 D3BaseTree.prototype._updateScaleDivSize = function(scaleLength) {
-	var d_scale = this.distance_scale(1);
+	var d_scale = this.distance_scale ? this.distance_scale(1) : this.xScale(1);
 	var scaleValue = scaleLength/this.scale/d_scale;
 	var digit = -Math.floor(Math.log10(scaleValue));
 	var scaleValue = digit > 0 ? scaleValue.toFixed(digit) : Math.round(scaleValue/Math.pow(10, -digit))*Math.pow(10, -digit);
