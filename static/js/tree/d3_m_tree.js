@@ -84,7 +84,10 @@ function D3MSTree(element_id,data,callback,height,width){
         if (data['initial_category']){
                 this.display_category=data['initial_category'];
         }
-	
+		if (data['category_num']){
+			this.category_num=data['category_num'];
+        }
+
 		if (data['metadata_options']){
 			this.addMetadataOptions(data['metadata_options']);
 		}
@@ -1010,6 +1013,7 @@ D3MSTree.prototype.getTreeAsObject=function(){
                 layout_data:this.getLayout(),
                 metadata:this.metadata,
                 initial_category:this.display_category,
+                category_num:this.category_num,
 		newickTree:this.newickTree,
 		metadata_options:this.metadata_info
         }

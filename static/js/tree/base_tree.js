@@ -781,7 +781,7 @@ D3BaseTree.prototype.constructor=D3BaseTree;
 function D3BaseTree(element_id,metadata,height,width){
 	var self=this;
 	this.legend_div=$("<div>").css({"position":"absolute","overflow-x":"hidden"}).css({"top":"0px","right":"0px"}).draggable();
-	this.scale_div=$("<div>").css({"position":"absolute","overflow-x":"hidden", "overflow-y":"hidden"}).css({"bottom":"100px","left":"0px"}).draggable();
+	this.scale_div=$("<div>").css({"position":"absolute","overflow-x":"hidden", "overflow-y":"hidden"}).css({"bottom":"100px","left":"20px"}).draggable();
 	this.container = $("#"+element_id)
 				    .css("position","fixed")
 				    .append(this.legend_div)
@@ -1595,9 +1595,9 @@ D3BaseTree.prototype.getSVG=function(){
 	}
 	if (the_tree.scale_div.css("display") === 'block') {
 		var ori_pos = the_tree.scale_div.position();
-		var leg = $(".legend");
-		$("#mst-svg").append(leg);
-		leg.attr("transform","translate("+ori_pos.left+","+ori_pos.top+")");
+		var sb = $(".scale-bar");
+		$("#mst-svg").append(sb);
+		sb.attr("transform","translate("+ori_pos.left+","+ori_pos.top+")");
 	}
 
 	var svgData = $("#mst-svg")[0].outerHTML;
@@ -1607,8 +1607,8 @@ D3BaseTree.prototype.getSVG=function(){
 		$("#legend-svg").append(leg);
 	}
 	if (the_tree.scale_div.css("display") === 'block') {
-		leg.attr("transform","translate(0,0)");
-		$("#scale-svg").append(leg);
+		sb.attr("transform","translate(0,0)");
+		$("#scale-svg").append(sb);
 	}
 
 	return svgData;
