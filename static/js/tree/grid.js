@@ -475,7 +475,7 @@ D3MSMetadataTable.prototype.sendToMicroReact = function (callback, haveBackend) 
 	})
 	.fail(function(e, ui) {
 		callback();
-		var microDiag = $("<div id='micro-dialog' title='Failed with unknown reason.<br></div>");
+		var microDiag = $("<div id='micro-dialog' title='Failed with unknown reason'.>Failed with unknown reason<br></div>");
 		microDiag.appendTo($('body'));
 		var microLink = microDiag.find('#micro-link');
 		microLink.attr("href", e);
@@ -484,7 +484,6 @@ D3MSMetadataTable.prototype.sendToMicroReact = function (callback, haveBackend) 
 								$(this).dialog('destroy').remove();
 						} });
 		microDiag.dialog('open');
-		window.open(e, '_blank');
 	})
 
 }
