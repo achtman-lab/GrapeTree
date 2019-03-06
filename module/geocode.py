@@ -8,7 +8,6 @@ def geoCoding_openstreet(location, country='') :
         history = {}
 
     if str(country)+' '+location in history :
-        #sys.stdout.write(json.dumps(dict(history[location].tolist()), indent=2, sort_keys=True))
         return res
     res = dict(Longitude='',  Latitude='',
                Continient='', Country='',
@@ -72,11 +71,10 @@ def geoCoding_openstreet(location, country='') :
     history = dict(history.items())
     history[location] = np.array(list(res.items()))
     np.savez_compressed('geocode.npz', **history)
-    #sys.stdout.write(json.dumps(res,indent=2, sort_keys=True))
     return res
 
 def geoCoding(location, country='') :
     return geoCoding_openstreet('+'.join([l for l in re.split(r'[_\-,\s]+', location.lower()) if l != '']), country=country)
 
 if __name__ == '__main__' :
-    geoCoding(sys.argv[1:])
+    geoCoding(' '.join(sys.argv[1:]))

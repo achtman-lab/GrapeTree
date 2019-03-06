@@ -780,10 +780,12 @@ D3BaseTree.prototype.constructor=D3BaseTree;
 */
 function D3BaseTree(element_id,metadata,height,width){
 	var self=this;
-	this.legend_div=$("<div>").css({"position":"absolute","overflow-x":"hidden"}).draggable();
+	this.legend_div=$("<div>").css({"position":"absolute","overflow-x":"hidden"}).css({"top":"0px","right":"0px"}).draggable();
+	this.scale_div=$("<div>").css({"position":"absolute","overflow-x":"hidden", "overflow-y":"hidden"}).css({"bottom":"100px","left":"0px"}).draggable();
 	this.container = $("#"+element_id)
 				    .css("position","fixed")
-				    .append(this.legend_div);
+				    .append(this.legend_div)
+				    .append(this.scale_div);
 	
 	this.height=height;
 	this.width=width;
@@ -797,7 +799,6 @@ function D3BaseTree(element_id,metadata,height,width){
 	
 	this.metadata={};
 	this.metadata_info = {nothing:{label:"No Category"}};
-	this.original_grouped_nodes={};
 	this.grouped_nodes={};
 	this.metadata_map={};
 	if (metadata){
@@ -927,6 +928,7 @@ function D3BaseTree(element_id,metadata,height,width){
 			self.canvas.attr('transform', "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
 			self.scale=d3.event.scale;
 			self.translate=d3.event.translate;
+			self.updateScaleDiv();
 		}))
 		.on("dblclick.zoom", null);
 	
@@ -1100,7 +1102,21 @@ D3BaseTree.prototype.resize=function(){
 	this.zoom.scale(temp_scale);
 	this.zoom.translate(temp_trans);
 	this.background_rect.attr('height', this.height).attr('width', this.width);
-	this.legend_div.css({"top":"0px","right":"0px"});
+	//this.legend_div.css({"top":"0px","right":"0px"});
+	if (this.legend_div.position().top < 0) {
+		this.legend_div.css({"top":"0px"});
+	}
+	if (this.legend_div.position().left > this.width-300) {
+		this.legend_div.css({"left":this.width-300});
+	}
+	//this.updateScaleDiv();
+	if (this.scale_div.position().top < 0) {
+		this.scale_div.css({"top":"0px"});
+	}
+	if (this.scale_div.position().left > this.width-300) {
+		this.scale_div.css({"left":this.width-300});
+	}
+
 	/*var l_height = $("#legend-svg").height();
 	var height = l_height + 10;
 	this.legend_div.css({"top":"0px","right":"0px","max-height":height+"px"});
@@ -1293,6 +1309,35 @@ D3BaseTree.prototype.showLegend= function (show){
 	}
 
 };
+
+D3BaseTree.prototype._updateScaleDivSize = function(scaleLength) {
+	var d_scale = this.distance_scale(1);
+	var scaleValue = scaleLength/this.scale/d_scale;
+	var digit = -Math.floor(Math.log10(scaleValue));
+	var scaleValue = digit > 0 ? scaleValue.toFixed(digit) : Math.round(scaleValue/Math.pow(10, -digit))*Math.pow(10, -digit);
+	var scaleLength = scaleValue*d_scale*this.scale;
+	return {scaleValue:scaleValue, scaleLength:scaleLength};
+}
+
+
+
+D3BaseTree.prototype.updateScaleDiv = function() {
+	var self = this;
+	var dim = this._updateScaleDivSize(100);
+	d3.select(this.scale_div[0]).select("svg").remove();
+	var scale_svg = d3.select(this.scale_div[0]).append('svg').attr("id","scale-svg");
+	var scale = scale_svg.append("g").attr('class', 'scale-bar');
+	scale.selectAll('.scale-title').remove();
+	scale.append('text').attr('class', 'scale-title').attr('x', 30).attr('y', 20).attr('font-weight', 'bold').attr("font-family", "Arial")
+	.text(dim.scaleValue);
+	scale.append('line').attr('x1', 0).attr('y1', 25).attr('x2', dim.scaleLength).attr('y2', 25).attr("stroke-width", 2).attr("stroke", "black");
+	scale.append('line').attr('x1', 0).attr('y1', 20).attr('x2', 0).attr('y2', 25).attr("stroke-width", 2).attr("stroke", "black");
+	scale.append('line').attr('x1', dim.scaleLength).attr('y1', 20).attr('x2', dim.scaleLength).attr('y2', 25).attr("stroke-width", 2).attr("stroke", "black");
+	dim = scale_svg[0][0].getBBox();
+	scale_svg.attr("height", 30).attr('width', dim.width+10);
+	this.scale_div.height(40).width(dim.width+10);
+}
+
 
 D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	var self = this;
@@ -1548,12 +1593,24 @@ D3BaseTree.prototype.getSVG=function(){
 		$("#mst-svg").append(leg);
 		leg.attr("transform","translate("+ori_pos.left+","+ori_pos.top+")");
 	}
+	if (the_tree.scale_div.css("display") === 'block') {
+		var ori_pos = the_tree.scale_div.position();
+		var leg = $(".legend");
+		$("#mst-svg").append(leg);
+		leg.attr("transform","translate("+ori_pos.left+","+ori_pos.top+")");
+	}
+
 	var svgData = $("#mst-svg")[0].outerHTML;
 	var svgData = ['<svg xmlns="http://www.w3.org/2000/svg" ', svgData.substring(5,9999999)].join('');
 	if (the_tree.legend_div.css("display") === 'block') {
 		leg.attr("transform","translate(0,0)");
 		$("#legend-svg").append(leg);
 	}
+	if (the_tree.scale_div.css("display") === 'block') {
+		leg.attr("transform","translate(0,0)");
+		$("#scale-svg").append(leg);
+	}
+
 	return svgData;
 };
 
@@ -1595,7 +1652,6 @@ D3BaseTree.prototype.addNodesSelectedListener=function (callback){
 D3BaseTree.prototype.addDisplayChangedListener=function (callback){
 	this.displayChangedListeners.push(callback);
 }
-
 
 D3BaseTree.prototype.keyPressed= function(e){};
 D3BaseTree.prototype.brushStarted = function(){};

@@ -49,7 +49,6 @@ function  D3MSMetadataTable(tree,context_menu){
 		  self.grid.render();
 	});
 	$(this.grid.getHeaderRow()).delegate(":input", "change keyup", function (e, args) {
-		$("#metadata-filter").prop('checked', true);
 		var columnId = $(this).data("columnId");
 		if (columnId != null) {
 			self.columnFilters[columnId] = $.trim($(this).val());
@@ -155,24 +154,11 @@ function  D3MSMetadataTable(tree,context_menu){
 			return;
 		}
 		if (args[0].fromCell == args[0].toCell && self.grid.getColumns()[args[0].fromCell].field === '__selected') {
-			item = self.grid.getData().getFilteredItems().slice(args[0].fromRow, args[0].toRow+1);
-			var involvedNodes = {}
-			var toSelect = (item.filter(function(d) {
-				involvedNodes[d.__Node] = 1;
-				return d.__selected ? false : true;
-			}).length > 0);
-			self.tree.force_nodes.filter(function(n){if(involvedNodes[n.id]) {n.selected=toSelect}});
-			self.tree.clearSelection(true);
-			self.tree._addHalos(function(d){return d.selected},5,"red");
+			var item = self.grid.getData().getFilteredItems().slice(args[0].fromRow, args[0].toRow+1);
+			self.selectItems(item);
 		}
 		
 		self.grid.mouse_pos = [args[0].fromRow, args[0].fromCell, args[0].toRow, args[0].toCell];
-	});
-	tree.addDisplayChangedListener(function(type,data){
-		if (type==='show_hypothetical_nodes'){
-			$("#hypo-filter").prop("checked",data);
-		
-		}	
 	});
 	$(document).on('metadata:replace', function(e, ui) {
 		$("#replace-div").css({
@@ -184,16 +170,31 @@ function  D3MSMetadataTable(tree,context_menu){
 	});
 }
 
+D3MSMetadataTable.prototype.selectItems = function(item, selectMode='auto') {
+	var self = this;
+	var involvedNodes = {}
+	var toSelect = (item.filter(function(d) {
+					involvedNodes[d.__Node] = 1;
+					return d.__selected ? false : true;
+				}).length > 0);
+	if (selectMode === 'auto') {
+		selectMode = toSelect;
+	}
+	self.tree.force_nodes.filter(function(n){if(involvedNodes[n.id]) {n.selected=selectMode}});
+	self.tree.clearSelection(true);
+	self.tree._addHalos(function(d){return d.selected},5,"red");
+}
+
 D3MSMetadataTable.prototype._setupDiv= function(){
 	var self = this;
 	var grid_html = "<div id = 'metadata-div' style='width:700px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1;display:none'>\
-	<div id='handler' class='ui-draggable-handle'>\
+	<div id='handler' class='ui-draggable-handle' style='font-size:0.8em;'>\
 		<span title='Close The Window' id='metadata-close' class='glyphicon glyphicon-remove show-tooltip' style='top:-3px;float:right;margin-right:0px'></span>\
 		<span id ='meta_help' class='glyphicon glyphicon-question-sign' style='top:-3px;float:right;margin-right:5px'></span>\
 		<span title='Download This Table' id='metadata-download' class='glyphicon glyphicon-download show-tooltip'><span>Download</span></span>\
 		<span title='Add A New Category' id='metadata-add-icon' class='glyphicon glyphicon-plus show-tooltip'><span>Add Columns</span></span>\
-		<input type='checkBox' id='metadata-filter'><span title='Show Filtering Bar?' class='glyphicon glyphicon-filter show-tooltip'><span>Filter</span></span>\
-		<input type='checkBox' id='hypo-filter'><span title='Show hypothetical nodes?' class='glyphicon glyphicon-screenshot show-tooltip'><span>Hypo nodes?</span></span>\
+		<input type='checkBox' id='selected-only'><span title='Show only selected entries?' class='glyphicon glyphicon-screenshot show-tooltip'><span>Selected only?</span></span>\
+		<span title='Clean all filtering criteria?' id='metadata-filter' class='glyphicon glyphicon-filter show-tooltip'><span>Unfilter</span></span>\
 	</div>\
 	<div id='myGrid' style='width:100%;height:580px'></div>\
 	<div title='replace all the cells in the selection' id='replace-div' style='height:30px;width:50px;background-color:#ffffff;z-index:3;opacity:1.0'>\
@@ -270,15 +271,17 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 	$('#metadata-close').click(function(e){
 		$('#metadata-div').hide(300);
 	});
-	$("#metadata-filter").change(function(e) {
-		if (! this.checked) {
-			self.columnFilters = {};
-			self.dataView.refresh();
-			$(self.grid.getHeaderRow()).find(':input').val('');
-		}
+	$("#metadata-filter").click(function(e) {
+		self.columnFilters = {Selected:self.columnFilters.Selected};
+		self.dataView.refresh();
+		$(self.grid.getHeaderRow()).find(':input').val('');
+		var headerCell = $(self.grid.getHeaderRow()).find('.l'+self.grid.getColumnIndex('Selected')+' :input');
+		headerCell.val( $(this).prop('checked') ? 't' : '');
 	});
-	$("#hypo-filter").change(function(e) {
-		self.tree.toggleHypotheticalNodes();
+	$("#selected-only").change(function(e, ui) {
+		var headerCell = $(self.grid.getHeaderRow()).find('.l'+self.grid.getColumnIndex('Selected')+' :input');
+		headerCell.val( $(this).prop('checked') ? 't' : '');
+		headerCell.trigger('change');
 		self.updateMetadataTable();
 	});
 	$("#metadata-add-icon").click(function(e){
@@ -439,7 +442,8 @@ D3MSMetadataTable.prototype.toggleDisplay=function(){
 }
 
 
-D3MSMetadataTable.prototype.sendToMicroReact = function (callback) {
+D3MSMetadataTable.prototype.sendToMicroReact = function (callback, haveBackend) {
+	var url = haveBackend ? '/sendToMicroReact' : 'https://enterobase.warwick.ac.uk/sendToMicroReact';
 	var data = {};
 	data.tree = this.tree.newickTree;
 	data.metadata = this.meta2tsv(['Selected', 'index']);
@@ -453,11 +457,11 @@ D3MSMetadataTable.prototype.sendToMicroReact = function (callback) {
 	data.name = $("#headertag").html();
 	$.ajax({
 		type: 'POST',
-		url: '/sendToMicroReact', 
+		url: url, 
 		data: data, 
 		success: function(e, ui) {
 			callback();
-			var microDiag = $("<div id='micro-dialog' title='Sent to MicroReact'>A MicroReact Project has been created. <br>Wait the pop-up window to show. <br>Otherwise click the following link:<br><a id='micro-link' target='_blank'>MicroReact</a><br></div>");
+			var microDiag = $("<div id='micro-dialog' title='Sent to MicroReact'>A MicroReact Project has been created. <br><br>Click the following icon to show the page if it was not shown automatically:<br><a id='micro-link' target='_blank'><img src='https://microreact.org/images/logos/microreact.svg' alt='MicroReact' style='width:200px;height:40px'</a><br></div>");
 			microDiag.appendTo($('body'));
 			var microLink = microDiag.find('#micro-link');
 			microLink.attr("href", e);

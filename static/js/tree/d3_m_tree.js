@@ -1494,15 +1494,15 @@ D3MSTree.prototype._getLink=function(target_node){
 }
 
 D3MSTree.prototype._centerGraph = function(){
-        var maxX = minX = this.force_nodes[0].x;
-        var maxY = minY = this.force_nodes[0].y;
+        var maxX = this.force_nodes[0].x, minX = this.force_nodes[0].x;
+        var maxY = this.force_nodes[0].y, minY = this.force_nodes[0].y;
         var nodes = this.force_nodes;
         for (var n in nodes){
                 var node = nodes[n];
                 if (node.x>maxX){maxX=node.x;}
-                if (node.x<minX){minX=node.x;}
+                else if (node.x<minX){minX=node.x;}
                 if (node.y>maxY){maxY=node.y;}
-                if (node.y<minY){minY=node.y;}
+                else if (node.y<minY){minY=node.y;}
                                 
         }   
         var [wdiff, hdiff] = [Math.max(100, maxX-minX), Math.max(100, maxY-minY)];
@@ -1518,6 +1518,7 @@ D3MSTree.prototype._centerGraph = function(){
 
         this.setScale(scale);
         this.setTranslate([0,0]);
+        this.updateScaleDiv();
 }
  
 D3MSTree.prototype.centerGraph = function(){
@@ -2315,7 +2316,7 @@ D3MSTree.prototype.brushEnded=function(extent){
 }
 
 D3MSTree.prototype.selectAll=function(){
-	this.node_elements.forEach(function(n) {n.selected=true;});
+	this.force_nodes.forEach(function(n) {n.selected=true;});
 	this._updateSelectionStatus();
 }
 D3MSTree.prototype._updateSelectionStatus = function() {

@@ -293,7 +293,7 @@
 						.style("z-index", 9)
 
 	var legend_colour_chooser = $("<input>")
-									.on("change",function(e){
+									.on("change", function(e){
 											var cc  = $(this);
 											the_tree.setColour(cc.data("category"),cc.data("value"),cc.val());
 											the_tree.changeCategory(cc.data("category"));
@@ -409,9 +409,9 @@
 			legend_colour_chooser
 			.css({"left":0,"top":0})
 			.val(data.colour)
-			.data({"value":data.value.split("  [")[0],"category":data.category})
-			.trigger("click");
-				};
+			.data({"value":data.value.split("  [")[0],"category":data.category});
+			setTimeout(function(){legend_colour_chooser.trigger("click");}, 50);
+		};
 
 		$("#spinner-link-length").spinner({
 			min: 0,
@@ -539,7 +539,7 @@
 		the_tree.addLinkOutListener(function(d){
 				hideToolTip();
 		});
-		the_tree.resize();
+		//the_tree.resize();
 
 		if (the_tree.metadata_info){
 			addMetadataOptions(the_tree.metadata_info);
@@ -890,7 +890,7 @@ window.onload = function (){
 		showWaitingDialog("Sending tree and metadata to MicroReact");
 		metadata_grid.sendToMicroReact(function() {
 			$("#information-div").modal("hide");
-		});
+		}, ! cannot_connect);
 	});
 
 	$("#center-graph-button").click(function(e){
