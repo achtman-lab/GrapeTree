@@ -48,7 +48,7 @@ def sendToMicroReact(debug=None) :
         elif fld not in field :
             df = df.rename(index=str, columns={field[0]:fld} )
         return df
-    if True: #try:
+    try:
         if debug :
             import pickle
             tree, metaString, colors = pickle.load(open(debug, 'rb'))
@@ -126,8 +126,8 @@ def sendToMicroReact(debug=None) :
         q = requests.post('https://microreact.org/api/project/', json=dict(tree=tree, data=metaString, name=name))
         return make_response(json.loads(q.text)['url'], 200)
 
-    #except Exception as e:
-        #return make_response(str(e), 500)
+    except Exception as e:
+        return make_response(str(e), 500)
 
 if __name__ == '__main__' :
     sendToMicroReact('debug')
