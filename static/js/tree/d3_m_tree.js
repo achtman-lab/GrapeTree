@@ -477,7 +477,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 
 					//add dummy metadata
 					if (!this.metadata_map[node.id]) {
-						this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
+						this.metadata[node.id]= {"ID":node.id,"__Node":node.id};
 						this.metadata_map[node.id]=[node.id];
 					}
                 }
@@ -942,18 +942,17 @@ D3MSTree.prototype.changeCategory= function(category){
         
         
         var self = this;
-        var hypo_nodes = this.node_elements.filter(function(d){return d.hypothetical}).
-                selectAll("circle").data(function(parent){
-                        return [{cx:parent.x,cy:parent.y}];
-                });
+        /*var hypo_nodes = this.node_elements.filter(function(d){return d.hypothetical})
+        	.selectAll("circle").data(function(parent){
+        		return [{cx:parent.x,cy:parent.y}];
+            });
     
-        hypo_nodes.enter().append("circle").attr("r",1).style("fill","black");
+        hypo_nodes.enter().append("circle").attr("r",0).style("fill","black");*/
         
         var nodes_existing = this.node_elements//.filter(function(d){return !d.hypothetical})
-                                                .selectAll('.node-paths').data(function(it){
-                                                        return self._getPieData(it, category);
-                                                        
-                                                });
+								.selectAll('.node-paths').data(function(it){
+										return self._getPieData(it, category);
+								});
         nodes_existing.enter().append('path').classed("node-paths",true);
         nodes_existing.exit().remove();
         

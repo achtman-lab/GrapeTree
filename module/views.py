@@ -96,6 +96,8 @@ def sendToMicroReact(debug=None) :
         for node in tree.traverse(strategy="postorder") :
             if node.is_leaf() :
                 if node.name not in names :
+                    node.up.remove_child(node)
+                    node.up = None
                     node.delete()
             elif len(node.children) < 2 :
                 p, c = node.up, node.children[0]
@@ -103,6 +105,7 @@ def sendToMicroReact(debug=None) :
                 if p is not None :
                     p.remove_child(node)
                     p.add_child(c)
+                    node.up = None
                 else :
                     tree = c
                 node.delete()

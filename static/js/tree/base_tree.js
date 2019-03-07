@@ -1051,15 +1051,13 @@ D3BaseTree.prototype.addMetadata=function(metadata){
 			}
 			//the  node my change if collapsed
 			metadata[id]["__Node"]=node_id;
-			metadata[id]["__strain_id"]=id;
-			var list = this.metadata_map[node_id];
-			if (!list){
-				this.metadata_map[node_id] = list = [];
+			if (! this.metadata_map[node_id]) {
+				this.metadata_map[node_id] = [id];
+			} else {
+				this.metadata_map[node_id].push(id);
 			}
-			list.push(id);
 			this.metadata[id]=metadata[id];
-		}
-		else{
+		} else {
 			for (var key in metadata[id]){
 				metadata_map[id][key]=metadata[id][key];
 			}		
@@ -1094,14 +1092,14 @@ D3BaseTree.prototype.resize=function(){
 	this.width = this.container.width();
 	this.height = this.container.height();
 	this.svg.attr('width', this.width).attr('height', this.height);
-	var x_scale = d3.scale.linear().domain([0, this.width]).range([0, this.width]);
+	/*var x_scale = d3.scale.linear().domain([0, this.width]).range([0, this.width]);
 	var y_scale = d3.scale.linear().domain([0, this.height]).range([0, this.height]);
 	var temp_scale=this.zoom.scale();
 	var temp_trans=this.zoom.translate();
 	this.zoom.x(x_scale).y(y_scale);
 	this.zoom.scale(temp_scale);
 	this.zoom.translate(temp_trans);
-	this.background_rect.attr('height', this.height).attr('width', this.width);
+	this.background_rect.attr('height', this.height).attr('width', this.width);*/
 	//this.legend_div.css({"top":"0px","right":"0px"});
 	if (this.legend_div.position().top < 0) {
 		this.legend_div.css({"top":"0px"});
@@ -1116,12 +1114,6 @@ D3BaseTree.prototype.resize=function(){
 	if (this.scale_div.position().left > this.width-300) {
 		this.scale_div.css({"left":this.width-300});
 	}
-
-	/*var l_height = $("#legend-svg").height();
-	var height = l_height + 10;
-	this.legend_div.css({"top":"0px","right":"0px","max-height":height+"px"});
-	this.legend_div.height(height);
-	*/
 };
 
 /** Sets the scale (size of the tree)
@@ -1131,7 +1123,7 @@ D3BaseTree.prototype.resize=function(){
 */
 D3BaseTree.prototype.setScale=function(scale,relative){
 	if (relative){
-		scale = this.scale*scale;
+		scale *= this.scale;
 	}
 	this.zoom.scale(scale);
 	this.zoom.event(this.canvas);
@@ -1148,59 +1140,61 @@ D3BaseTree.prototype.setTranslate=function(x_y){
 
 
 D3BaseTree.prototype._changeCategory=function(category){
-	var coltype = 'character', grouptype = 'size', colorscheme = 'category', minnum = 0;
-	if (this.metadata_info && this.metadata_info[category]) {
-		coltype = this.metadata_info[category].coltype;
-		grouptype = this.metadata_info[category].grouptype;
-		colorscheme = this.metadata_info[category].colorscheme;
-		minnum = this.metadata_info[category].minnum;
-	}
+	var self = this;
+	if (! this.metadata_info) this.metadata_info = {};
+	if (!(category in this.metadata_info)) this.metadata_info[category] = {}
+	if (! this.metadata_info[category].coltype) this.metadata_info[category].coltype = 'character';
+	if (! this.metadata_info[category].grouptype) this.metadata_info[category].grouptype = 'size';
+	if (! this.metadata_info[category].colorscheme) this.metadata_info[category].colorscheme = 'category';
+	if (! this.metadata_info[category].minnum) this.metadata_info[category].minnum = 0;
+	if (! this.metadata_info[category].category_num) this.metadata_info[category].category_num = 30;
+
+	var coltype = this.metadata_info[category].coltype;
+	var grouptype = this.metadata_info[category].grouptype;
+	var colorscheme = this.metadata_info[category].colorscheme;
+	var minnum = this.metadata_info[category].minnum;
+	var category_num = this.metadata_info[category].category_num;
+
 	var cust_col = this.custom_colours[category];
 	this.display_category = category;
-	var cat_count={};
+	var cat_count = {};
 	if (category != 'nothing') {
-		for (var key in this.metadata){
-			if (this.node_map[ this.metadata[key].ID ]) {
-				var val = this.metadata[key][category];
-				if (val || val === 0){
-					cat_count[val] = cat_count[val] ? cat_count[val] + 1 : 1;
-				}
+		cat_count = Object.values(this.metadata)
+			.filter(function(d) {return (d.ID in self.node_map) })
+			.map(function(d) {return d[category]})
+			.filter(function(d) {return (d || d === 0)})
+			.reduce(function(c, d) {c[d] = d in c ? c[d]+1:1; return c}, {});
+	}
+
+	var cat_count_list = Object.entries(cat_count)
+		.filter(function(ent) {
+			return ent[1] >= minnum;
+		})
+		.map(function(ent) {
+			if (coltype != 'character' && isNumber(ent[0])) {
+				return [parseFloat(ent[0]), ent[1], '', 0];
+			} else {
+				return [ent[0], ent[1], '', 0];
 			}
-		}
-	}
-	for (var key in cat_count) {
-		if (cat_count[key] < minnum) {
-			delete cat_count[key];
-		}
-	}
+		})
+		.sort(function(a,b){
+			if (grouptype != 'size') {
+				return (a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3];
+			} else {
+				return (a[1] == b[1]) ? ((a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3]) : (a[1]<b[1]?1:-1);
+			}
+		});
 
-	this.category_colours={};
-	var cat_count_list=[];
-	for (var val in cat_count){
-		if (coltype != 'character' && isNumber(val)) {
-			val = parseFloat(val);
-			cat_count_list.push([val, cat_count[val], '', 0]);
-		} else {
-			cat_count_list.push([val, cat_count[val], '', 1]);
-		}
-		
-	}
-	cat_count_list.sort(function(a,b){
-		if (grouptype != 'size') {
-			return (a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3];
-		} else {
-			return (a[1] == b[1]) ? ((a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3]) : (a[1]<b[1]?1:-1);
-		}
-	});
-	
-	var color_num = cat_count_list.length > this.category_num ? this.category_num : cat_count_list.length;
 
-	var cust_col= this.custom_colours[category];
+	this.category_colours = {};
+	var color_num = cat_count_list.length > category_num ? category_num : cat_count_list.length;
+
 	try {
 		var auto_col = this.color_schemes[colorscheme](color_num);
 	} catch (e) {
 		var auto_col = this.color_schemes[colorscheme];
 	}
+
 	for (var colour_count in cat_count_list){
 		var val = cat_count_list[colour_count][0];
 
@@ -1345,27 +1339,25 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	if (title == 'nothing' || ! this.display_category) {
 		return;
 	}
-	var legend_data=[];
 	var others = 0;
-	for (var gid in ordered_groups) {
-		var group = ordered_groups[gid];
+	var legend_data = ordered_groups.filter(function(group) {
 		if (group[2] == '') {
 			others += group[1];
-			continue;
+			return false;
 		}
-		else {
-			legend_data.push({
-				group: group[0] + '  ['+group[1]+']',
-				group_colour: group[2], 
-				real_group : group[0], 
-			});
-		}
-	}
+		return true;
+	}).map(function(group) {
+		return { group: group[0] + '  ['+group[1]+']',
+				 group_colour: group[2], 
+				 real_group : group[0], 
+		};
+	});
+
 	if (others) {
 		legend_data.push({
-				 group:"Others [" + others + ']',
-				 group_colour:this.default_colour, 
-				 real_group : 'Others', 
+			 group:"Others  [" + others + ']',
+			 group_colour:this.default_colour, 
+			 real_group : 'Others', 
 		});
 	}
 	
@@ -1381,7 +1373,7 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	/*
 	Create rect elements with group colours
 	*/
-	legend_items.append('rect').attr('x', 0).attr('y',2).attr('width', 16).attr('height', 16).style('stroke-width', '0.5').style('stroke', 'black').style('fill', function(it){
+	legend_items.append('circle').attr('cx', 8).attr('cy',10).attr('r', 8).style('stroke-width', '0.5').style('stroke', 'black').style('fill', function(it){
 		return it.group_colour;
 	}).on("click",function(data){
 		var obj={
@@ -1397,20 +1389,20 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	*/
 	legend_items.append('text').attr('x', 20).attr('y', 9).attr('dy', ".35em").attr("font-family", "Arial").style('text-anchor', 'start').text(function(it){
 		var name = it.group;
-		if (name.length >25){
+		/*if (name.length >25){
 			name = name.substring(0,25)+"..."
-		}
+		}*/
 		return name;
 	});
 	/*
 	Update the legend title
 	*/
 	legend.selectAll('.legend-title').remove();
-	legend.append('text').attr('class', 'legend-title').attr('x', 22).attr('y', 20).attr('font-weight', 'bold').attr("font-family", "Arial")
+	legend.append('text').attr('class', 'legend-title').attr('x', 12).attr('y', 20).attr('font-weight', 'bold').attr("font-family", "Arial")
 	.text(this.metadata_info[title]['label']);
 	var legend_dim = legend_svg[0][0].getBBox();
-	legend_svg.attr('width', 220).attr('height', legend_dim.height + 10);
-	this.legend_div.width(220);
+	legend_svg.attr('width', 300).attr('height', legend_dim.height + 10);
+	this.legend_div.width(300);
 	var l_height = $("#legend-svg").height();
 	var height = l_height+10;
 	this.legend_div.css({"max-height":height+"px"});

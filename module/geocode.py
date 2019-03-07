@@ -19,7 +19,10 @@ def geoCoding_openstreet(location, country='') :
     openstreetApi = 'https://nominatim.openstreetmap.org/?format=json&addressdetails=1&limit=10&q={location}&country={country}&accept-language=en-GB'
     q = requests.get(openstreetApi.format(location=location, country=country))
     if q.status_code == 200 :
-        data = json.loads(unidecode.unidecode(q.text))
+        try:
+            data = json.loads(unidecode.unidecode(q.text))
+        except :
+            data = json.loads(q.text)
         if len(data) > 0 :
             data = [d for d in data if d['importance'] >= 0.7*data[0]['importance']]
             for d in data :
@@ -76,6 +79,7 @@ def geoCoding_openstreet(location, country='') :
 
 def geoCoding(location, country='') :
     return geoCoding_openstreet('+'.join([l for l in re.split(r'[_\-,\s]+', location.lower()) if l != '']), country=country)
+
 
 if __name__ == '__main__' :
     geoCoding(sys.argv[1:])
