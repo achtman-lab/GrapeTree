@@ -48,7 +48,7 @@ def sendToMicroReact(debug=None) :
         elif fld not in field :
             df = df.rename(index=str, columns={field[0]:fld} )
         return df
-    try:
+    if True: #try:
         if debug :
             import pickle
             tree, metaString, colors = pickle.load(open(debug, 'rb'))
@@ -56,7 +56,7 @@ def sendToMicroReact(debug=None) :
             params = dict(request.form)
             tree, metaString, colors, name = params['tree'][0], params['metadata'][0], json.loads(params['colors'][0]), params['name'][0]
 
-        metadata = pd.read_csv(StringIO(metaString), sep='\t', header=[0])
+        metadata = pd.read_csv(StringIO(metaString), sep='\t', header=[0], dtype=str, na_filter=False)
         for fld, categories in colors.items() :
             if not fld.endswith('__color') :
                 metadata[fld+'__color'] = metadata[fld].astype(str).map(lambda v: categories.get(v, '#FFFFFF'))
@@ -67,31 +67,44 @@ def sendToMicroReact(debug=None) :
 
         metadata = reviseField(metadata, r'latitude|^lat$', 'latitude', np.nan)
         metadata = reviseField(metadata, r'longitude|^lon$', 'longitude', np.nan)
-        metadata = reviseField(metadata, r'year', 'year', 1)
-        metadata = reviseField(metadata, r'month', 'month', 1)
-        metadata = reviseField(metadata, r'day', 'day', 1)
+        metadata = reviseField(metadata, r'year', 'year', '1')
+        metadata = reviseField(metadata, r'month', 'month', '1')
+        metadata = reviseField(metadata, r'day', 'day', '1')
 
         metadata[['latitude', 'longitude']] = metadata[['latitude', 'longitude']].astype(np.float64)
+        for c in ('year', 'month', 'day') :
+            d = metadata[c].values
+            d[metadata[c].str.extract(r'(-*\d+)').astype(float).values.flatten() < 0] = ''
+            metadata[c] = d
 
         columns = list(filter(lambda c: c.find('__') < 0, metadata.columns))
-        geo_columns = list(filter(lambda c: re.match(r'city|location|state|region|district|geograph', c.lower()), columns))
+        geo_columns = list(filter(lambda c: re.match(r'village|town|city|locat|state|region|district|^site$|geograph', c.lower()), columns))
         country_column = list(filter(lambda c: re.match(r'country', c.lower()), columns))
         if len(geo_columns) or len(country_column) :
+            toRun = []
             for index, strain in metadata.iterrows() :
                 if np.any(strain[['latitude', 'longitude']].isna()) :
-                    address = strain[geo_columns].values[~strain[geo_columns].isna()].astype(str)
-                    country = '' if np.any(strain[country_column].isna()) else strain[country_column]
+                    address = ' '.join(strain[geo_columns].values[strain[geo_columns] != ''])
+                    country = '' if len(country_column) <=0 else strain[country_column][0]
                     if len(address) or len(country) :
-                        geocode = geoCoding(' '.join(address), country[0])
-                        if geocode['Longitude'] :
-                            metadata.at[index, 'longitude'], metadata.at[index, 'latitude'] = geocode['Longitude'], geocode['Latitude']
+                        toRun.append([address, country, index])
+            results = geoCoding(toRun)
+            for (_, _, index), geocode in zip(toRun, results) :
+                if geocode['Longitude'] :
+                    metadata.at[index, 'longitude'], metadata.at[index, 'latitude'] = geocode['Longitude'], geocode['Latitude']
 
         column_ids = {c.lower():id for id, c in reversed(list(enumerate(metadata.columns)))}
         metadata = metadata[metadata.columns[sorted(column_ids.values())]]
         metaString = metadata.to_csv()
         with open('t', 'w') as fout :
             fout.write(tree)
-        tree = Tree(newick='t', format=0)
+        
+        try :
+            fmt = 0
+            tree = Tree(newick='t', format=0)
+        except :
+            fmt = 1
+            tree = Tree(newick='t', format=1)
         names = set(names)
         for node in tree.traverse(strategy="postorder") :
             if node.is_leaf() :
@@ -113,8 +126,8 @@ def sendToMicroReact(debug=None) :
         q = requests.post('https://microreact.org/api/project/', json=dict(tree=tree, data=metaString, name=name))
         return make_response(json.loads(q.text)['url'], 200)
 
-    except Exception as e:
-        return make_response(str(e), 500)
+    #except Exception as e:
+        #return make_response(str(e), 500)
 
 if __name__ == '__main__' :
     sendToMicroReact('debug')
