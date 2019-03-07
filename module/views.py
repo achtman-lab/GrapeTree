@@ -80,7 +80,7 @@ def sendToMicroReact(debug=None) :
             for index, strain in metadata.iterrows() :
                 if np.any(strain[['latitude', 'longitude']].isna()) :
                     address = strain[geo_columns].values[~strain[geo_columns].isna()].astype(str)
-                    country = strain[country_column]
+                    country = '' if np.any(strain[country_column].isna()) else strain[country_column]
                     if len(address) or len(country) :
                         geocode = geoCoding(' '.join(address), country[0])
                         if geocode['Longitude'] :
