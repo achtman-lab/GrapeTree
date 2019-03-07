@@ -1036,37 +1036,7 @@ D3BaseTree.prototype.readNexusFile = function (text){
 * }
 * </pre>
 */
-D3BaseTree.prototype.addMetadata=function(metadata){
-	var metadata_map = {};
-	Object.values(this.metadata).forEach(function(d) {
-		metadata_map[d.ID] = d;
-	});
-	for (var id in metadata){
-		var item = metadata_map[id];
-		var node_id = metadata[id]['ID'];
-		
-		if (!item){
-			if (! node_id){
-				metadata[id]['ID']=node_id=id;
-			}
-			//the  node my change if collapsed
-			metadata[id]["__Node"]=node_id;
-			if (! this.metadata_map[node_id]) {
-				this.metadata_map[node_id] = [id];
-			} else {
-				this.metadata_map[node_id].push(id);
-			}
-			this.metadata[id]=metadata[id];
-		} else {
-			for (var key in metadata[id]){
-				metadata_map[id][key]=metadata[id][key];
-			}		
-		}
-	}
-	for (var i in this.treeChangedListeners){
-		this.treeChangedListeners[i]("metadata_altered",this);	
-	}
-};
+
 /**
 * Deletes the specified category from all metadata
 * @param {string} The category to delete
@@ -1520,8 +1490,6 @@ D3BaseTree.prototype._keyDown= function(e){
 * <li> cateogory The name of the category to group this field default is none </li>
 * </ul>
 */
-
-
 D3BaseTree.prototype.addMetadataOptions=function(options){
 	for (var key in options){
 		var value = options[key];
@@ -1559,6 +1527,40 @@ D3BaseTree.prototype.addMetadataOptions=function(options){
 	}
 }
 
+
+
+D3BaseTree.prototype.addMetadata=function(metadata){
+	var metadata_map = {};
+	Object.values(this.metadata).forEach(function(d) {
+		metadata_map[d.ID] = d;
+	});
+	for (var id in metadata){
+		var m2 = metadata[id];
+		var item = metadata_map[id] ? metadata_map[id] : this.metadata[id];
+		var node_id = metadata[id]['ID'];
+		
+		if (!item){
+			if (! node_id){
+				m2['ID']=node_id=id;
+			}
+			//the  node my change if collapsed
+			m2["__Node"]=node_id;
+			if (! this.metadata_map[node_id]) {
+				this.metadata_map[node_id] = [id];
+			} else {
+				this.metadata_map[node_id].push(id);
+			}
+			this.metadata[id]=m2;
+		} else {
+			for (var key in m2){
+				item[key]=m2[key];
+			}		
+		}
+	}
+	for (var i in this.treeChangedListeners){
+		this.treeChangedListeners[i]("metadata_altered",this);	
+	}
+};
 
 /**
 * Returns all the metadata options as key:value(label) dictionary

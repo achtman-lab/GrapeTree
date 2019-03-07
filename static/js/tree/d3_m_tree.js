@@ -936,10 +936,7 @@ D3MSTree.prototype.changeCategory= function(category){
                 this.display_category=null;
                 this.category_colours['missing']=this.default_colour;
         }
-        else{
-                this._changeCategory(category);
-        }
-        
+        this._changeCategory(category);
         
         var self = this;
         /*var hypo_nodes = this.node_elements.filter(function(d){return d.hypothetical})
