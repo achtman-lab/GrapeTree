@@ -1,4 +1,4 @@
-import numpy as np, json, pandas as pd, re, requests
+import numpy as np, json, pandas as pd, re, requests, tempfile, os
 from ete3 import Tree
 from flask import render_template, request, make_response
 try:
@@ -65,16 +65,18 @@ def sendToMicroReact(debug=None) :
         names = metadata['id'].values.astype(str)
 
 
-        metadata = reviseField(metadata, r'latitude|^lat$', 'latitude', np.nan)
-        metadata = reviseField(metadata, r'longitude|^lon$', 'longitude', np.nan)
+        metadata = reviseField(metadata, r'latitude|^lat$', 'latitude', '')
+        metadata = reviseField(metadata, r'longitude|^lon$', 'longitude', '')
         metadata = reviseField(metadata, r'year', 'year', '1')
         metadata = reviseField(metadata, r'month', 'month', '1')
         metadata = reviseField(metadata, r'day', 'day', '1')
 
-        metadata[['latitude', 'longitude']] = metadata[['latitude', 'longitude']].astype(np.float64)
+        #metadata[['latitude', 'longitude']] = metadata[['latitude', 'longitude']].astype(np.float64)
         for c in ('year', 'month', 'day') :
             d = metadata[c].values
-            d[metadata[c].str.extract(r'(-*\d+)').astype(float).values.flatten() < 0] = ''
+            sites = metadata[c].str.extract(r'(-*\d+)').astype(float).values.flatten()
+            sites[np.isnan(sites)] = -1
+            d[sites < 0] = ''
             metadata[c] = d
 
         columns = list(filter(lambda c: c.find('__') < 0, metadata.columns))
@@ -83,7 +85,7 @@ def sendToMicroReact(debug=None) :
         if len(geo_columns) or len(country_column) :
             toRun = []
             for index, strain in metadata.iterrows() :
-                if np.any(strain[['latitude', 'longitude']].isna()) :
+                if np.any(strain[['latitude', 'longitude']] == '') :
                     address = ' '.join(strain[geo_columns].values[strain[geo_columns] != ''])
                     country = '' if len(country_column) <=0 else strain[country_column][0]
                     if len(address) or len(country) :
@@ -96,15 +98,18 @@ def sendToMicroReact(debug=None) :
         column_ids = {c.lower():id for id, c in reversed(list(enumerate(metadata.columns)))}
         metadata = metadata[metadata.columns[sorted(column_ids.values())]]
         metaString = metadata.to_csv()
-        with open('t', 'w') as fout :
+        
+        f = tempfile.NamedTemporaryFile(dir='.', prefix='geocoding', delete=False)
+        f.close()
+        with open(f.name, 'w') as fout :
             fout.write(tree)
         
         try :
-            fmt = 0
-            tree = Tree(newick='t', format=0)
+            tree = Tree(newick=f.name, format=0)
         except :
-            fmt = 1
-            tree = Tree(newick='t', format=1)
+            tree = Tree(newick=f.name, format=1)
+        finally:
+            os.unlink(f.name)
         names = set(names)
         for node in tree.traverse(strategy="postorder") :
             if node.is_leaf() :
