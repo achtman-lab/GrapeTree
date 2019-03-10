@@ -1069,7 +1069,7 @@ D3BaseTree.prototype.resize=function(){
 	this.zoom.x(x_scale).y(y_scale);
 	this.zoom.scale(temp_scale);
 	this.zoom.translate(temp_trans);*/
-	this.background_rect.attr('height', this.height).attr('width', this.width);*/
+	this.background_rect.attr('height', this.height).attr('width', this.width);
 	//this.legend_div.css({"top":"0px","right":"0px"});
 	if (this.legend_div.position().top < 0) {
 		this.legend_div.css({"top":"0px"});
