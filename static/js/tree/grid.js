@@ -316,7 +316,7 @@ D3MSMetadataTable.prototype._setupDiv= function(){
 			})
 	});
 	$("#metadata-download").click(function(e){
-		var output = this.meta2tsv();
+		var output = self.meta2tsv();
 		saveTextAsFile(output, "metadata.txt");
 	});
 };

@@ -1062,13 +1062,13 @@ D3BaseTree.prototype.resize=function(){
 	this.width = this.container.width();
 	this.height = this.container.height();
 	this.svg.attr('width', this.width).attr('height', this.height);
-	/*var x_scale = d3.scale.linear().domain([0, this.width]).range([0, this.width]);
+	var x_scale = d3.scale.linear().domain([0, this.width]).range([0, this.width]);
 	var y_scale = d3.scale.linear().domain([0, this.height]).range([0, this.height]);
 	var temp_scale=this.zoom.scale();
 	var temp_trans=this.zoom.translate();
 	this.zoom.x(x_scale).y(y_scale);
 	this.zoom.scale(temp_scale);
-	this.zoom.translate(temp_trans);*/
+	this.zoom.translate(temp_trans);
 	this.background_rect.attr('height', this.height).attr('width', this.width);
 	//this.legend_div.css({"top":"0px","right":"0px"});
 	if (this.legend_div.position().top < 0) {
