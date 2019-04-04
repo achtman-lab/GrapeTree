@@ -48,18 +48,32 @@ def add_args() :
     parser = argparse.ArgumentParser(description='For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/README.md".\nIn brief, GrapeTree generates a NEWICK tree to the default output (screen) \nor a redirect output, e.g., a file. ', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--profile', '-p', dest='fname', help='[REQUIRED] An input filename of a file containing MLST or SNP character data, OR a fasta file containing aligned sequences. \n', required=True)
     parser.add_argument('--method', '-m', dest='tree', help='"MSTreeV2" [DEFAULT]\n"MSTree"\n"NJ": FastME V2 NJ tree\n"RapidNJ": RapidNJ for very large datasets\n"distance": p-distance matrix in PHYLIP format.', default='MSTreeV2')
-    parser.add_argument('--matrix', '-x', dest='matrix_type', help='"symmetric": [DEFAULT: MSTree, NJ and RapidNJ] \n"asymmetric": [DEFAULT: MSTreeV2].\n', default='symmetric')
+    parser.add_argument('--matrix', '-x', dest='matrix_type', help='"symmetric": [DEFAULT: MSTree, NJ and RapidNJ] \n"asymmetric": [DEFAULT: MSTreeV2].\n"blockwise": (experimental for ordered loci) A different locus is given less penalty (defined by -b) if the previous locus is also different\n', default='symmetric')
     parser.add_argument('--recraft', '-r', dest='branch_recraft', help='Triggers local branch recrafting. [DEFAULT: MSTreeV2]. ', default=False, action="store_true")
     parser.add_argument('--missing', '-y', dest='handler', help='ONLY FOR symmetric DISTANCE MATRIX. \n0: [DEFAULT] ignore missing data in pairwise comparison. \n1: Remove column with missing data. \n2: treat data as an allele. \n3: Absolute number of allelic differences. ', default=0, type=int)
     parser.add_argument('--wgMLST', '-w', help='[EXPERIMENTAL] a better support of wgMLST schemes.', default=False, action="store_true")
     parser.add_argument('--heuristic', '-t', dest='heuristic', help='Tiebreak heuristic used only in MSTree and MSTreeV2\n"eBurst" [DEFAULT: MSTree]\n"harmonic" [DEFAULT: MSTreeV2]', default='eBurst')
     parser.add_argument('--n_proc', '-n',  dest='number_of_processes', help='Number of CPU processes in parallel use. [DEFAULT]: 5. ', type=int, default=5)
     parser.add_argument('--check', '-c', dest='checkEnv', help='Only calculate the expected time/memory requirements. ', default=False, action="store_true")
+    parser.add_argument('--block_penalty', '-b', dest='block_penalty', help='[DEFAULT: 0.01] The penalty that is given to a different locus if it is led by another difference. Only works for "-x blockwise"', default=0.01)
+    
     args = parser.parse_args()
     args.profile = args.fname
     args.method = args.tree
     args.n_proc = args.number_of_processes
     args.handle_missing = ['pair_delete', 'complete_delete', 'as_allele', 'absolute_distance'][args.handler]
+
+    if args.matrix_type == 'blockwise' :
+        if args.method == 'MSTreeV2' :
+            args.method = 'MSTree'
+        sys.stderr.write('You have chosen the "blockwise" matrix. The --recraft option will be disabled and all values in the profile will be treated as real alleles\n\n')
+        args.branch_recraft = False
+        args.handle_missing = args.block_penalty
+    if args.method == 'MSTreeV2' :
+        args.method = 'MSTree'
+        args.matrix_type = 'asymmetric'
+        args.heuristic = 'harmonic'
+        args.branch_recraft = True
     return args.__dict__
 
 def parallel_distance(callup) :
@@ -118,6 +132,22 @@ class distance_matrix(object) :
                 profile, presence = profiles[id], presences[id]
                 diffs = np.sum((profiles != profile) & presence, axis=1)
                 distances[:, i2] = diffs
+        return distances
+
+    @staticmethod
+    def blockwise(profiles, handle_missing = 0.01, index_range=None) :
+        if index_range is None :
+            index_range = [0, profiles.shape[0]]
+
+        presences = (profiles > 0)
+        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]])
+
+        for i2, id in enumerate(np.arange(*index_range)) :
+            profile = profiles[id]
+            diffs = np.hstack([np.zeros([profiles.shape[0], 1], dtype=int), profiles - profile, np.zeros([profiles.shape[0], 1], dtype=int)])
+            d1 = np.sum((diffs[:, 1:] != diffs[:, :-1]) & (diffs[:, 1:] != 0), 1)
+            d2 = np.sum(diffs != 0, 1) - d1
+            distances[:, i2] = d1 + d2 * handle_missing
         return distances
 
     @staticmethod
@@ -198,6 +228,10 @@ class distance_matrix(object) :
 
 
 class methods(object) :
+    @staticmethod
+    def _blockwise(dist, weight, **params) :
+        x = methods._symmetric(dist*10000., weight, **params)
+        return [[b[0], b[1], b[2]/10000.] for b in x]
     @staticmethod
     def _symmetric(dist, weight, **params) :
         def minimum_spanning_tree(dist) :
@@ -410,7 +444,8 @@ class methods(object) :
         if branch_recraft :
             tree = methods._branch_recraft(tree, np.load(params['dist_file']), weight, n_loci)
             del dist
-        tree = distance_matrix.symmetric_link(np.load(params['prof_file']), tree, handle_missing= handle_missing)
+        if matrix_type != 'blockwise' :
+            tree = distance_matrix.symmetric_link(np.load(params['prof_file']), tree, handle_missing= handle_missing)
         tree = methods._network2tree(tree, names)
         return tree
 
@@ -442,7 +477,7 @@ class methods(object) :
             indices.append(i)
         indices = np.array(indices)
         d = distance_matrix.get_distance(matrix_type, profiles, handle_missing)
-        if handle_missing != 'absolute_distance' :
+        if handle_missing != 'absolute_distance' and matrix_type != 'blockwise' :
             d /= profiles.shape[1]
 
         dist = np.zeros([len(names), len(names)])
@@ -623,13 +658,6 @@ def backend(**args) :
     '''
     global params
     params.update(args)
-    if params['method'] == 'MSTreeV2' :
-        params.update(dict(
-            method = 'MSTree',
-            matrix_type = 'asymmetric',
-            heuristic = 'harmonic',
-            branch_recraft = True,
-        ))
     if params['wgMLST'] and params['matrix_type'] == 'asymmetric' :
         matrix_type = 'asymmetric_wgMLST'
 
@@ -645,7 +673,7 @@ def backend(**args) :
         if line.startswith('#') :
             if not line.startswith('##') :
                 header = line.strip().split('\t')
-                allele_cols = np.array([ id for id, col in enumerate(header) if id > 0 and not col.startswith('#') and not col in {'ST_id', 'st_id', 'ST', 'st'} ])
+                allele_cols = np.array([ id for id, col in enumerate(header) if id > 0 and not col.startswith('#') and not col.lower() in {'st_id', 'st'} ])
             continue
         if line.startswith('>') :
             fmt = 'fasta'
@@ -653,7 +681,7 @@ def backend(**args) :
             fmt = 'profile'
             if allele_cols is None :
                 header = line.strip().split('\t')
-                allele_cols = np.array([ id for id, col in enumerate(header) if id > 0 and not col.startswith('#') and not col in {'ST_id', 'st_id', 'ST', 'st'} ])
+                allele_cols = np.array([ id for id, col in enumerate(header) if id > 0 and not col.startswith('#') and not col.lower() in {'st_id', 'st'} ])
                 line_id += 1
         break
 
