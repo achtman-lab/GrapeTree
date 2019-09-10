@@ -189,6 +189,7 @@ class distance_matrix(object) :
                 comparable = (presences[:id] * presence)
                 diffs = np.sum((profiles[:id] != profile) & comparable, axis=1) * float(presence.size) / np.sum(comparable, axis=1)
                 distances[:id, i2] = diffs
+                distances[id, :i2] = diffs[index_range[0]:index_range[0]+id]
         else :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
