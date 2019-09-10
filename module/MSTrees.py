@@ -26,6 +26,9 @@ params = dict(method='MSTreeV2', # MSTree , NJ
               RapidNJ_Linux = os.path.join(base_dir, 'binaries', 'rapidnj'),
               RapidNJ_Darwin = os.path.join(base_dir, 'binaries', 'rapidnj-osx'),
               RapidNJ_Windows = os.path.join(base_dir, 'binaries', 'rapidnj.exe'),
+              ninja_Linux = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
+              ninja_Darwin = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
+              ninja_Windows = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
              )
 
 @jit(nopython=True)
@@ -47,7 +50,7 @@ def contemporary(a,b,c, n_loci) :
 def add_args() :
     parser = argparse.ArgumentParser(description='For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/README.md".\nIn brief, GrapeTree generates a NEWICK tree to the default output (screen) \nor a redirect output, e.g., a file. ', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--profile', '-p', dest='fname', help='[REQUIRED] An input filename of a file containing MLST or SNP character data, OR a fasta file containing aligned sequences. \n', required=True)
-    parser.add_argument('--method', '-m', dest='tree', help='"MSTreeV2" [DEFAULT]\n"MSTree"\n"NJ": FastME V2 NJ tree\n"RapidNJ": RapidNJ for very large datasets\n"distance": p-distance matrix in PHYLIP format.', default='MSTreeV2')
+    parser.add_argument('--method', '-m', dest='tree', help='"MSTreeV2" [DEFAULT]\n"MSTree"\n"NJ": FastME V2 NJ tree\n"RapidNJ": RapidNJ for very large datasets\n"ninja": Alternative NJ algorithm for very large datasets\n"distance": allelic distance matrix in PHYLIP format.', default='MSTreeV2')
     parser.add_argument('--matrix', '-x', dest='matrix_type', help='"symmetric": [DEFAULT: MSTree, NJ and RapidNJ] \n"asymmetric": [DEFAULT: MSTreeV2].\n"blockwise": (experimental for ordered loci) A different locus is given less penalty (defined by -b) if the previous locus is also different\n', default='symmetric')
     parser.add_argument('--recraft', '-r', dest='branch_recraft', help='Triggers local branch recrafting. [DEFAULT: MSTreeV2]. ', default=False, action="store_true")
     parser.add_argument('--missing', '-y', dest='handler', help='ONLY FOR symmetric DISTANCE MATRIX. \n0: [DEFAULT] ignore missing data in pairwise comparison. \n1: Remove column with missing data. \n2: treat data as an allele. \n3: Absolute number of allelic differences. ', default=0, type=int)
@@ -584,13 +587,13 @@ class methods(object) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
         del dist, d
         free_memory = int(0.9*psutil.virtual_memory().total/(1024.**2))
-        ninja_out = Popen(['java', '-server', '-Xmx'+str(free_memory)+'M', '-jar', params['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
+        ninja_out = Popen(['java', '-server', '-Xmx'+str(free_memory)+'M', '-jar', params['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
         tree = Tree(ninja_out[0])
-
-        for node in tree.traverse() :
-            edge.dist *= profiles.shape[1]
         for fname in glob(dist_file + '*') :
             os.unlink(fname)
+
+        for node in tree.traverse() :
+            node.dist *= profiles.shape[1]
 
         try:
             tree.set_outgroup(tree.get_midpoint_outgroup())
