@@ -662,6 +662,12 @@ def backend(**args) :
     '''
     global params
     params.update(args)
+    if params['method'] == 'MSTreeV2' :
+        params['method'] = 'MSTree'
+        params['matrix_type'] = 'asymmetric'
+        params['heuristic'] = 'harmonic'
+        params['branch_recraft'] = True
+
     if params['wgMLST'] and params['matrix_type'] == 'asymmetric' :
         matrix_type = 'asymmetric_wgMLST'
 
