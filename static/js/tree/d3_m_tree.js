@@ -516,6 +516,14 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
                 }
 				this.hypo_record[l.target.id] = l.source.id;
         }
+        for (var t_id in this.hypo_record) {
+        	    var src_id = this.hypo_record[t_id];
+			    while (this.hypo_record[src_id] !== src_id) {
+                	src_id = this.hypo_record[src_id];
+                }
+				this.hypo_record[t_id] =src_id;
+        }
+
         for (var index=this.force_links.length-1; index >=0; index --) {
                 var l = this.force_links[index];
                         var id = l.target.id;

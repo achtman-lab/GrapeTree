@@ -26,15 +26,18 @@ program as you would in EnteroBase; through a web browser.
 """
 from __future__ import print_function, absolute_import
 
-from .module import app
+try:
+    from .module import app
+    from .module.MSTrees import backend, add_args
+except :
+    from module import app
+    from module.MSTrees import backend, add_args
+    
 import threading
 import webbrowser
 import traceback
-import time
 import argparse
 import os, sys, shutil
-from .module.MSTrees import backend, add_args
-import psutil
 import multiprocessing
 
 
