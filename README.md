@@ -4,7 +4,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Docs Status](https://readthedocs.org/projects/enterobase/badge/)](http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html)
 
-**[Click here for the live demo of GrapeTree!](https://achtman-lab.github.io/GrapeTree/MSTree_holder.html)**
+**[Launch a local version of GrapeTree!](https://achtman-lab.github.io/GrapeTree/MSTree_holder.html)**
 
 GrapeTree is an integral part of EnteroBase and we advise that you use GrapeTree
 through EnteroBase for the best results. However, many people have asked for a
