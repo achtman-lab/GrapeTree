@@ -1,9 +1,9 @@
 from flask import Flask
 import sys, os
 try :
-    from . import config
+	from . import config
 except :
-    import config
+	import config
 
 if getattr(sys, 'frozen', False):
     template_folder = sys._MEIPASS
@@ -15,6 +15,6 @@ else:
 app.config.from_object(config)
 
 try :
-    from . import views
+	from . import views
 except :
-    import views
+	import views

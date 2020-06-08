@@ -72,9 +72,8 @@ def main() :
             raise e
         except SystemExit as e:  # sys.exit()
             raise e
-        else:
+        else :
             sys.stdout.write( 'ERROR, UNEXPECTED EXCEPTION' )
-            sys.stdout.write( str(e) )
             traceback.print_exc()
             os._exit(1)
 

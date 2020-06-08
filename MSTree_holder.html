@@ -29,10 +29,11 @@
 <script src="static/js/SlickGrid/slick.dataview.js"></script>
 
 <script src= "static/js/tree/context.js?version={{config['JAVASCRIPT_VERSION']}}"></script>
-
 <script src="static/js/tree/grid.js?version={{config['JAVASCRIPT_VERSION']}}"></script>
-
 <script src="static/js/tree/help.js?version={{config['JAVASCRIPT_VERSION']}}"></script>
+
+<script src="static/js/spectrum/spectrum.min.js"></script>
+<link rel="stylesheet" href="static/js/spectrum/spectrum.css" type="text/css"/>
 
 
 <!--information divs-->
@@ -293,14 +294,19 @@
 						.style("opacity", 0)
 						.style("z-index", 9)
 
-	var legend_colour_chooser = $("<input>")
-									.on("change", function(e){
-											var cc  = $(this);
-											the_tree.setColour(cc.data("category"),cc.data("value"),cc.val());
-											the_tree.changeCategory(cc.data("category"));
-
-									})
-									.attr("type","color").hide();
+	var legend_colour_chooser = $("<input>").spectrum({
+											  //type: "flat",
+											  togglePaletteOnly: "true",
+											  showInput: "true",
+											  showInitial: "true",
+											  allowEmpty: "false",
+											  showAlpha: "false",
+											  change: function(e) {
+												var cc  = $(this);
+												the_tree.setColour(cc.data("category"),cc.data("value"),cc.val());
+												the_tree.changeCategory(cc.data("category"));
+											}})
+											.hide();
 
 	$("body").append(legend_colour_chooser);
 
@@ -407,11 +413,12 @@
 		});
 
 		tree.legendItemClicked = function(data){
-			legend_colour_chooser
-			.css({"left":0,"top":0})
-			.val(data.colour)
-			.data({"value":data.value.split("  [")[0],"category":data.category});
-			setTimeout(function(){legend_colour_chooser.trigger("click");}, 50);
+			legend_colour_chooser.spectrum("set", data.colour);
+			//.css({"left":0,"top":0})
+			//.val(data.colour)
+			legend_colour_chooser.data({"value":data.value.split("  [")[0],"category":data.category});
+			//legend_colour_chooser.spectrum("show");
+			setTimeout(function(){legend_colour_chooser.spectrum("show");}, 50);
 		};
 
 		$("#spinner-link-length").spinner({

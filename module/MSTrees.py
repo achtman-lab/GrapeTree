@@ -587,8 +587,12 @@ class methods(object) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
         del dist, d
         free_memory = int(0.9*psutil.virtual_memory().total/(1024.**2))
-        ninja_out = Popen(['java', '-server', '-Xmx'+str(free_memory)+'M', '-jar', params['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
-        tree = Tree(ninja_out[0])
+        ninja_out = Popen(['java', '-d64', '-Xmx'+str(free_memory)+'M', '-jar', params['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
+        if ninja_out[1].find('64-bit JVM') >= 0 :
+            ninja_out = Popen(['java', '-Xmx1200M', '-jar', params['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
+        with open(dist_file + '.nwk', 'wt') as fout :
+            fout.write(ninja_out[0])
+        tree = Tree(dist_file + '.nwk')
         for fname in glob(dist_file + '*') :
             os.unlink(fname)
 
@@ -760,7 +764,7 @@ def backend(**args) :
             return '\n'.join(tre)
 
 def estimate_Consumption(platform, method, matrix, n_proc, n_loci, n_profile) :
-    if method in ('MSTree', 'RapidNJ') :
+    if method in ('MSTree', 'RapidNJ', 'ninja') :
         if matrix == 'asymmetric' :
             if platform == 'Windows' :
                 time = 5.600754e-6 * n_profile * n_profile + 6.22306e-9 * n_loci * n_profile * n_profile/n_proc + 22.71
