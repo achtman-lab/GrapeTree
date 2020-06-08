@@ -760,7 +760,7 @@ def backend(**args) :
             return '\n'.join(tre)
 
 def estimate_Consumption(platform, method, matrix, n_proc, n_loci, n_profile) :
-    if method in ('MSTree', 'RapidNJ') :
+    if method in ('MSTree', 'RapidNJ', 'ninja') :
         if matrix == 'asymmetric' :
             if platform == 'Windows' :
                 time = 5.600754e-6 * n_profile * n_profile + 6.22306e-9 * n_loci * n_profile * n_profile/n_proc + 22.71

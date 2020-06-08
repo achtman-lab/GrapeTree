@@ -59,7 +59,7 @@ def open_browser(PORT):
 
 def main() :
     if len(sys.argv) > 1 :
-        print (backend(**add_args()))
+        sys.stdout.write(backend(**add_args()))
     else :
         try:
             desc = __doc__.split('\n\n')[1].strip()
@@ -73,8 +73,7 @@ def main() :
         except SystemExit as e:  # sys.exit()
             raise e
         else :
-            print ('ERROR, UNEXPECTED EXCEPTION')
-            print (str(e))
+            sys.stdout.write( 'ERROR, UNEXPECTED EXCEPTION' )
             traceback.print_exc()
             os._exit(1)
 
