@@ -84,7 +84,10 @@ function D3MSTree(element_id,data,callback,height,width){
         if (data['initial_category']){
                 this.display_category=data['initial_category'];
         }
-	
+		if (data['category_num']){
+			this.category_num=data['category_num'];
+        }
+
 		if (data['metadata_options']){
 			this.addMetadataOptions(data['metadata_options']);
 		}
@@ -474,7 +477,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 
 					//add dummy metadata
 					if (!this.metadata_map[node.id]) {
-						this.metadata[node.id]= {"ID":node.id,"__Node":node.id,"__strain_id":node.id};
+						this.metadata[node.id]= {"ID":node.id,"__Node":node.id};
 						this.metadata_map[node.id]=[node.id];
 					}
                 }
@@ -513,6 +516,14 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
                 }
 				this.hypo_record[l.target.id] = l.source.id;
         }
+        for (var t_id in this.hypo_record) {
+        	    var src_id = this.hypo_record[t_id];
+			    while (this.hypo_record[src_id] !== src_id) {
+                	src_id = this.hypo_record[src_id];
+                }
+				this.hypo_record[t_id] =src_id;
+        }
+
         for (var index=this.force_links.length-1; index >=0; index --) {
                 var l = this.force_links[index];
                         var id = l.target.id;
@@ -933,24 +944,20 @@ D3MSTree.prototype.changeCategory= function(category){
                 this.display_category=null;
                 this.category_colours['missing']=this.default_colour;
         }
-        else{
-                this._changeCategory(category);
-        }
-        
+        this._changeCategory(category);
         
         var self = this;
-        var hypo_nodes = this.node_elements.filter(function(d){return d.hypothetical}).
-                selectAll("circle").data(function(parent){
-                        return [{cx:parent.x,cy:parent.y}];
-                });
+        /*var hypo_nodes = this.node_elements.filter(function(d){return d.hypothetical})
+        	.selectAll("circle").data(function(parent){
+        		return [{cx:parent.x,cy:parent.y}];
+            });
     
-        hypo_nodes.enter().append("circle").attr("r",1).style("fill","black");
+        hypo_nodes.enter().append("circle").attr("r",0).style("fill","black");*/
         
         var nodes_existing = this.node_elements//.filter(function(d){return !d.hypothetical})
-                                                .selectAll('.node-paths').data(function(it){
-                                                        return self._getPieData(it, category);
-                                                        
-                                                });
+								.selectAll('.node-paths').data(function(it){
+										return self._getPieData(it, category);
+								});
         nodes_existing.enter().append('path').classed("node-paths",true);
         nodes_existing.exit().remove();
         
@@ -1010,6 +1017,7 @@ D3MSTree.prototype.getTreeAsObject=function(){
                 layout_data:this.getLayout(),
                 metadata:this.metadata,
                 initial_category:this.display_category,
+                category_num:this.category_num,
 		newickTree:this.newickTree,
 		metadata_options:this.metadata_info
         }
@@ -1494,15 +1502,15 @@ D3MSTree.prototype._getLink=function(target_node){
 }
 
 D3MSTree.prototype._centerGraph = function(){
-        var maxX = minX = this.force_nodes[0].x;
-        var maxY = minY = this.force_nodes[0].y;
+        var maxX = this.force_nodes[0].x, minX = this.force_nodes[0].x;
+        var maxY = this.force_nodes[0].y, minY = this.force_nodes[0].y;
         var nodes = this.force_nodes;
         for (var n in nodes){
                 var node = nodes[n];
                 if (node.x>maxX){maxX=node.x;}
-                if (node.x<minX){minX=node.x;}
+                else if (node.x<minX){minX=node.x;}
                 if (node.y>maxY){maxY=node.y;}
-                if (node.y<minY){minY=node.y;}
+                else if (node.y<minY){minY=node.y;}
                                 
         }   
         var [wdiff, hdiff] = [Math.max(100, maxX-minX), Math.max(100, maxY-minY)];
@@ -1518,6 +1526,7 @@ D3MSTree.prototype._centerGraph = function(){
 
         this.setScale(scale);
         this.setTranslate([0,0]);
+        this.updateScaleDiv();
 }
  
 D3MSTree.prototype.centerGraph = function(){
@@ -2315,7 +2324,7 @@ D3MSTree.prototype.brushEnded=function(extent){
 }
 
 D3MSTree.prototype.selectAll=function(){
-	this.node_elements.filter(function(n) {n.selected=true;});
+	this.force_nodes.forEach(function(n) {n.selected=true;});
 	this._updateSelectionStatus();
 }
 D3MSTree.prototype._updateSelectionStatus = function() {

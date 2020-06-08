@@ -159,6 +159,10 @@ position: fixed;
     color: #fff;
     font-weight: normal;
 }
+.slick-row.active .slick-cell {
+     background-color: #FFB;
+}
+
 .slick-row.odd {
 	background: #ffffcc;
 }

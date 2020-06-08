@@ -24,16 +24,21 @@ The stand-alone version emulates the EnteroBase version through a lightweight
 webserver running on your local computer.  You will be interacting with the
 program as you would in EnteroBase; through a web browser.
 """
-from module import app
+from __future__ import print_function, absolute_import
+
+try:
+    from .module import app
+    from .module.MSTrees import backend, add_args
+except :
+    from module import app
+    from module.MSTrees import backend, add_args
+    
 import threading
 import webbrowser
-import shutil
 import traceback
-import time
 import argparse
-import os, sys
-from module.MSTrees import backend, add_args
-import psutil
+import os, sys, shutil
+import multiprocessing
 
 
 __licence__ = 'GPLv3'
@@ -67,13 +72,14 @@ def main() :
             raise e
         except SystemExit as e:  # sys.exit()
             raise e
-        except Exception as e:
+        else:
             sys.stdout.write( 'ERROR, UNEXPECTED EXCEPTION' )
             sys.stdout.write( str(e) )
             traceback.print_exc()
             os._exit(1)
 
 if __name__ == "__main__":
-    import multiprocessing
+    #from module import views
+    #views.sendToMicroReact(debug='debug')
     multiprocessing.freeze_support()
     main()

@@ -1,9 +1,12 @@
 from flask import Flask
 import sys, os
-import config
+try :
+    from . import config
+except :
+    import config
 
 if getattr(sys, 'frozen', False):
-    template_folder = sys._MEIPASS #os.path.join(sys._MEIPASS, 'templates')
+    template_folder = sys._MEIPASS
     static_folder = os.path.join(sys._MEIPASS, 'static')
     app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
 else:
@@ -11,4 +14,7 @@ else:
 
 app.config.from_object(config)
 
-import views
+try :
+    from . import views
+except :
+    import views

@@ -6,7 +6,7 @@ help_text['load_files'] = "<p align='center'><h2>\
 To get started Drag and drop files into the browser window\
 <h4>Trees or Profile Data</h4>\
 <ul>\
-<li><b>Phlogenetic trees</b> These can be nexus or nwk format. \
+<li><b>Phylogenetic trees</b> These can be nexus or nwk format. \
 </li>\
 <li>\
 <b>Profile Files</b> These are tab delimited text with columns as alleles and strains as rows (see the examples). \

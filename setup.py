@@ -12,7 +12,7 @@ from os import path, walk
 __licence__ = 'GPLv3'
 __author__ = 'EnteroBase development team'
 __author_email__ = 'zhemin.zhou@warwick.ac.uk'
-__version__ = '1.4'
+__version__ = '2.2'
 
 def package_files(directory):
     paths = []
@@ -31,19 +31,22 @@ def recursive(folder) :
 
 
 setup(
-    name='grapetree',  
-    version= __version__,  
+    name='grapetree',
+    version= __version__,
     description='Web interface of GrapeTree, which is a program for phylogenetic analysis.',
-    long_description=long_description, 
-    long_description_content_type='text/markdown',  
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/achtman-lab/GrapeTree',
-    author= __author__,  
-    author_email= __author_email__, 
+    author= __author__,
+    author_email= __author_email__,
     classifiers=[  # Optional
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
+#        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
 	entry_points={
         'console_scripts': [
@@ -61,9 +64,9 @@ setup(
     ]+recursive('static')},
     packages = ['grapetree'],
     package_dir = {'grapetree':'.'},
-    install_requires=['DendroPy', 'numpy', 'Flask', 'networkx', 'psutil'],
+    install_requires=['ete3', 'numpy', 'Flask', 'networkx', 'psutil', 'numba', 'unidecode'],
     include_package_data=True,
-    project_urls={ 
+    project_urls={
         'Bug Reports': 'https://github.com/achtman-lab/GrapeTree/issues',
         'Source': 'https://github.com/achtman-lab/GrapeTree',
     },

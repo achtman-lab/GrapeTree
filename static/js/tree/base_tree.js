@@ -780,10 +780,12 @@ D3BaseTree.prototype.constructor=D3BaseTree;
 */
 function D3BaseTree(element_id,metadata,height,width){
 	var self=this;
-	this.legend_div=$("<div>").css({"position":"absolute","overflow-x":"hidden"}).draggable();
+	this.legend_div=$("<div>").css({"position":"absolute","overflow-x":"hidden"}).css({"top":"0px","right":"0px"}).draggable();
+	this.scale_div=$("<div>").css({"position":"absolute","overflow-x":"hidden", "overflow-y":"hidden"}).css({"bottom":"100px","left":"20px"}).draggable();
 	this.container = $("#"+element_id)
 				    .css("position","fixed")
-				    .append(this.legend_div);
+				    .append(this.legend_div)
+				    .append(this.scale_div);
 	
 	this.height=height;
 	this.width=width;
@@ -797,7 +799,6 @@ function D3BaseTree(element_id,metadata,height,width){
 	
 	this.metadata={};
 	this.metadata_info = {nothing:{label:"No Category"}};
-	this.original_grouped_nodes={};
 	this.grouped_nodes={};
 	this.metadata_map={};
 	if (metadata){
@@ -927,6 +928,7 @@ function D3BaseTree(element_id,metadata,height,width){
 			self.canvas.attr('transform', "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
 			self.scale=d3.event.scale;
 			self.translate=d3.event.translate;
+			self.updateScaleDiv();
 		}))
 		.on("dblclick.zoom", null);
 	
@@ -1034,40 +1036,7 @@ D3BaseTree.prototype.readNexusFile = function (text){
 * }
 * </pre>
 */
-D3BaseTree.prototype.addMetadata=function(metadata){
-	for (var id in metadata){
-		var item =this.metadata[id];
-		var node_id = metadata[id]['ID'];
-		
-		if (!item){
-			if (! node_id){
-				node_id=id;
 
-				metadata[id]['ID']=node_id;
-
-			}
-			//the  node my change if collapsed
-			metadata[id]["__Node"]=node_id;
-			metadata[id]["__strain_id"]=id;
-			var list = this.metadata_map[node_id];
-			if (!list){
-				list=[];
-				this.metadata_map[node_id]=list;
-			}
-			list.push(id);
-			this.metadata[id]=metadata[id];
-			
-		}
-		else{
-			for (var key in metadata[id]){
-				this.metadata[id][key]=metadata[id][key];
-			}		
-		}
-	}
-	for (var i in this.treeChangedListeners){
-		this.treeChangedListeners[i]("metadata_altered",this);	
-	}
-};
 /**
 * Deletes the specified category from all metadata
 * @param {string} The category to delete
@@ -1101,12 +1070,20 @@ D3BaseTree.prototype.resize=function(){
 	this.zoom.scale(temp_scale);
 	this.zoom.translate(temp_trans);
 	this.background_rect.attr('height', this.height).attr('width', this.width);
-	this.legend_div.css({"top":"0px","right":"0px"});
-	/*var l_height = $("#legend-svg").height();
-	var height = l_height + 10;
-	this.legend_div.css({"top":"0px","right":"0px","max-height":height+"px"});
-	this.legend_div.height(height);
-	*/
+	//this.legend_div.css({"top":"0px","right":"0px"});
+	if (this.legend_div.position().top < 0) {
+		this.legend_div.css({"top":"0px"});
+	}
+	if (this.legend_div.position().left > this.width-300) {
+		this.legend_div.css({"left":this.width-300});
+	}
+	//this.updateScaleDiv();
+	if (this.scale_div.position().top < 0) {
+		this.scale_div.css({"top":"0px"});
+	}
+	if (this.scale_div.position().left > this.width-300) {
+		this.scale_div.css({"left":this.width-300});
+	}
 };
 
 /** Sets the scale (size of the tree)
@@ -1116,7 +1093,7 @@ D3BaseTree.prototype.resize=function(){
 */
 D3BaseTree.prototype.setScale=function(scale,relative){
 	if (relative){
-		scale = this.scale*scale;
+		scale *= this.scale;
 	}
 	this.zoom.scale(scale);
 	this.zoom.event(this.canvas);
@@ -1133,59 +1110,61 @@ D3BaseTree.prototype.setTranslate=function(x_y){
 
 
 D3BaseTree.prototype._changeCategory=function(category){
-	var coltype = 'character', grouptype = 'size', colorscheme = 'category', minnum = 0;
-	if (this.metadata_info && this.metadata_info[category]) {
-		coltype = this.metadata_info[category].coltype;
-		grouptype = this.metadata_info[category].grouptype;
-		colorscheme = this.metadata_info[category].colorscheme;
-		minnum = this.metadata_info[category].minnum;
-	}
+	var self = this;
+	if (! this.metadata_info) this.metadata_info = {};
+	if (!(category in this.metadata_info)) this.metadata_info[category] = {}
+	if (! this.metadata_info[category].coltype) this.metadata_info[category].coltype = 'character';
+	if (! this.metadata_info[category].grouptype) this.metadata_info[category].grouptype = 'size';
+	if (! this.metadata_info[category].colorscheme) this.metadata_info[category].colorscheme = 'category';
+	if (! this.metadata_info[category].minnum) this.metadata_info[category].minnum = 0;
+	if (! this.metadata_info[category].category_num) this.metadata_info[category].category_num = 30;
+
+	var coltype = this.metadata_info[category].coltype;
+	var grouptype = this.metadata_info[category].grouptype;
+	var colorscheme = this.metadata_info[category].colorscheme;
+	var minnum = this.metadata_info[category].minnum;
+	var category_num = this.metadata_info[category].category_num;
+
 	var cust_col = this.custom_colours[category];
 	this.display_category = category;
-	var cat_count={};
+	var cat_count = {};
 	if (category != 'nothing') {
-		for (var key in this.metadata){
-			if (this.node_map[ this.metadata[key].ID ]) {
-				var val = this.metadata[key][category];
-				if (val || val === 0){
-					cat_count[val] = cat_count[val] ? cat_count[val] + 1 : 1;
-				}
+		cat_count = Object.values(this.metadata)
+			.filter(function(d) {return (d.ID in self.node_map) })
+			.map(function(d) {return d[category]})
+			.filter(function(d) {return (d || d === 0)})
+			.reduce(function(c, d) {c[d] = d in c ? c[d]+1:1; return c}, {});
+	}
+
+	var cat_count_list = Object.entries(cat_count)
+		.filter(function(ent) {
+			return ent[1] >= minnum;
+		})
+		.map(function(ent) {
+			if (coltype != 'character' && isNumber(ent[0])) {
+				return [parseFloat(ent[0]), ent[1], '', 0];
+			} else {
+				return [ent[0], ent[1], '', 0];
 			}
-		}
-	}
-	for (var key in cat_count) {
-		if (cat_count[key] < minnum) {
-			delete cat_count[key];
-		}
-	}
+		})
+		.sort(function(a,b){
+			if (grouptype != 'size') {
+				return (a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3];
+			} else {
+				return (a[1] == b[1]) ? ((a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3]) : (a[1]<b[1]?1:-1);
+			}
+		});
 
-	this.category_colours={};
-	var cat_count_list=[];
-	for (var val in cat_count){
-		if (coltype != 'character' && isNumber(val)) {
-			val = parseFloat(val);
-			cat_count_list.push([val, cat_count[val], '', 0]);
-		} else {
-			cat_count_list.push([val, cat_count[val], '', 1]);
-		}
-		
-	}
-	cat_count_list.sort(function(a,b){
-		if (grouptype != 'size') {
-			return (a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3];
-		} else {
-			return (a[1] == b[1]) ? ((a[3] == b[3]) ? (a[0]>=b[0]?1:-1) : a[3]-b[3]) : (a[1]<b[1]?1:-1);
-		}
-	});
-	
-	var color_num = cat_count_list.length > this.category_num ? this.category_num : cat_count_list.length;
 
-	var cust_col= this.custom_colours[category];
+	this.category_colours = {};
+	var color_num = cat_count_list.length > category_num ? category_num : cat_count_list.length;
+
 	try {
 		var auto_col = this.color_schemes[colorscheme](color_num);
 	} catch (e) {
 		var auto_col = this.color_schemes[colorscheme];
 	}
+
 	for (var colour_count in cat_count_list){
 		var val = cat_count_list[colour_count][0];
 
@@ -1193,7 +1172,7 @@ D3BaseTree.prototype._changeCategory=function(category){
 			this.category_colours[val]=cust_col[val];
 			cat_count_list[colour_count][2] = cust_col[val];
 			continue;	
-		} else if (! auto_col[colour_count]) {
+		} else if (! auto_col[colour_count] || colour_count >= color_num) {
 			cat_count_list[colour_count][2] = this.category_colours[val] = ''; //this.default_colour;
 		} else {
 			cat_count_list[colour_count][2] = this.category_colours[val] = auto_col[colour_count];
@@ -1295,33 +1274,60 @@ D3BaseTree.prototype.showLegend= function (show){
 
 };
 
+D3BaseTree.prototype._updateScaleDivSize = function(scaleLength) {
+	var d_scale = this.distance_scale ? this.distance_scale(1) : this.xScale(1);
+	var scaleValue = scaleLength/this.scale/d_scale;
+	var digit = -Math.floor(Math.log10(scaleValue));
+	var scaleValue = digit > 0 ? scaleValue.toFixed(digit) : Math.round(scaleValue/Math.pow(10, -digit))*Math.pow(10, -digit);
+	var scaleLength = scaleValue*d_scale*this.scale;
+	return {scaleValue:scaleValue, scaleLength:scaleLength};
+}
+
+
+
+D3BaseTree.prototype.updateScaleDiv = function() {
+	var self = this;
+	var dim = this._updateScaleDivSize(100);
+	d3.select(this.scale_div[0]).select("svg").remove();
+	var scale_svg = d3.select(this.scale_div[0]).append('svg').attr("id","scale-svg");
+	var scale = scale_svg.append("g").attr('class', 'scale-bar');
+	scale.selectAll('.scale-title').remove();
+	scale.append('text').attr('class', 'scale-title').attr('x', 30).attr('y', 20).attr('font-weight', 'bold').attr("font-family", "Arial")
+	.text(dim.scaleValue);
+	scale.append('line').attr('x1', 0).attr('y1', 25).attr('x2', dim.scaleLength).attr('y2', 25).attr("stroke-width", 2).attr("stroke", "black");
+	scale.append('line').attr('x1', 0).attr('y1', 20).attr('x2', 0).attr('y2', 25).attr("stroke-width", 2).attr("stroke", "black");
+	scale.append('line').attr('x1', dim.scaleLength).attr('y1', 20).attr('x2', dim.scaleLength).attr('y2', 25).attr("stroke-width", 2).attr("stroke", "black");
+	dim = scale_svg[0][0].getBBox();
+	scale_svg.attr("height", 30).attr('width', dim.width+10);
+	this.scale_div.height(40).width(dim.width+10);
+}
+
+
 D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	var self = this;
 	d3.select(this.legend_div[0]).select("svg").remove();
 	if (title == 'nothing' || ! this.display_category) {
 		return;
 	}
-	var legend_data=[];
 	var others = 0;
-	for (var gid in ordered_groups) {
-		var group = ordered_groups[gid];
+	var legend_data = ordered_groups.filter(function(group) {
 		if (group[2] == '') {
 			others += group[1];
-			continue;
+			return false;
 		}
-		else {
-			legend_data.push({
-				group: group[0] + '  ['+group[1]+']',
-				group_colour: group[2], 
-				real_group : group[0], 
-			});
-		}
-	}
+		return true;
+	}).map(function(group) {
+		return { group: group[0] + '  ['+group[1]+']',
+				 group_colour: group[2], 
+				 real_group : group[0], 
+		};
+	});
+
 	if (others) {
 		legend_data.push({
-				 group:"Others [" + others + ']',
-				 group_colour:this.default_colour, 
-				 real_group : 'Others', 
+			 group:"Others  [" + others + ']',
+			 group_colour:this.default_colour, 
+			 real_group : 'Others', 
 		});
 	}
 	
@@ -1337,7 +1343,7 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	/*
 	Create rect elements with group colours
 	*/
-	legend_items.append('rect').attr('x', 0).attr('y',2).attr('width', 16).attr('height', 16).style('stroke-width', '0.5').style('stroke', 'black').style('fill', function(it){
+	legend_items.append('circle').attr('cx', 8).attr('cy',10).attr('r', 8).style('stroke-width', '0.5').style('stroke', 'black').style('fill', function(it){
 		return it.group_colour;
 	}).on("click",function(data){
 		var obj={
@@ -1353,20 +1359,20 @@ D3BaseTree.prototype.updateLegend = function(title, ordered_groups){
 	*/
 	legend_items.append('text').attr('x', 20).attr('y', 9).attr('dy', ".35em").attr("font-family", "Arial").style('text-anchor', 'start').text(function(it){
 		var name = it.group;
-		if (name.length >25){
+		/*if (name.length >25){
 			name = name.substring(0,25)+"..."
-		}
+		}*/
 		return name;
 	});
 	/*
 	Update the legend title
 	*/
 	legend.selectAll('.legend-title').remove();
-	legend.append('text').attr('class', 'legend-title').attr('x', 22).attr('y', 20).attr('font-weight', 'bold').attr("font-family", "Arial")
+	legend.append('text').attr('class', 'legend-title').attr('x', 12).attr('y', 20).attr('font-weight', 'bold').attr("font-family", "Arial")
 	.text(this.metadata_info[title]['label']);
 	var legend_dim = legend_svg[0][0].getBBox();
-	legend_svg.attr('width', 220).attr('height', legend_dim.height + 10);
-	this.legend_div.width(220);
+	legend_svg.attr('width', 300).attr('height', legend_dim.height + 10);
+	this.legend_div.width(300);
 	var l_height = $("#legend-svg").height();
 	var height = l_height+10;
 	this.legend_div.css({"max-height":height+"px"});
@@ -1484,8 +1490,6 @@ D3BaseTree.prototype._keyDown= function(e){
 * <li> cateogory The name of the category to group this field default is none </li>
 * </ul>
 */
-
-
 D3BaseTree.prototype.addMetadataOptions=function(options){
 	for (var key in options){
 		var value = options[key];
@@ -1524,6 +1528,40 @@ D3BaseTree.prototype.addMetadataOptions=function(options){
 }
 
 
+
+D3BaseTree.prototype.addMetadata=function(metadata){
+	var metadata_map = {};
+	Object.values(this.metadata).forEach(function(d) {
+		metadata_map[d.ID] = d;
+	});
+	for (var id in metadata){
+		var m2 = metadata[id];
+		var item = metadata_map[id] ? metadata_map[id] : this.metadata[id];
+		var node_id = metadata[id]['ID'];
+		
+		if (!item){
+			if (! node_id){
+				m2['ID']=node_id=id;
+			}
+			//the  node my change if collapsed
+			m2["__Node"]=node_id;
+			if (! this.metadata_map[node_id]) {
+				this.metadata_map[node_id] = [id];
+			} else {
+				this.metadata_map[node_id].push(id);
+			}
+			this.metadata[id]=m2;
+		} else {
+			for (var key in m2){
+				item[key]=m2[key];
+			}		
+		}
+	}
+	for (var i in this.treeChangedListeners){
+		this.treeChangedListeners[i]("metadata_altered",this);	
+	}
+};
+
 /**
 * Returns all the metadata options as key:value(label) dictionary
 * @returns {object} a key to label of metadata categories
@@ -1549,12 +1587,24 @@ D3BaseTree.prototype.getSVG=function(){
 		$("#mst-svg").append(leg);
 		leg.attr("transform","translate("+ori_pos.left+","+ori_pos.top+")");
 	}
+	if (the_tree.scale_div.css("display") === 'block') {
+		var ori_pos = the_tree.scale_div.position();
+		var sb = $(".scale-bar");
+		$("#mst-svg").append(sb);
+		sb.attr("transform","translate("+ori_pos.left+","+ori_pos.top+")");
+	}
+
 	var svgData = $("#mst-svg")[0].outerHTML;
 	var svgData = ['<svg xmlns="http://www.w3.org/2000/svg" ', svgData.substring(5,9999999)].join('');
 	if (the_tree.legend_div.css("display") === 'block') {
 		leg.attr("transform","translate(0,0)");
 		$("#legend-svg").append(leg);
 	}
+	if (the_tree.scale_div.css("display") === 'block') {
+		sb.attr("transform","translate(0,0)");
+		$("#scale-svg").append(sb);
+	}
+
 	return svgData;
 };
 
@@ -1596,15 +1646,6 @@ D3BaseTree.prototype.addNodesSelectedListener=function (callback){
 D3BaseTree.prototype.addDisplayChangedListener=function (callback){
 	this.displayChangedListeners.push(callback);
 }
-
-
-
-
-
-
-
-
-
 
 D3BaseTree.prototype.keyPressed= function(e){};
 D3BaseTree.prototype.brushStarted = function(){};
