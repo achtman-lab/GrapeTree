@@ -282,9 +282,13 @@ class methods(object) :
 
     @staticmethod
     def _asymmetric(dist, weight, **params) :
-        def get_shortcut(dist, weight, cutoff=5) :
-            if dist.shape[0] < 1000 :
+        def get_shortcut(dist, weight, cutoff=20) :
+            if dist.shape[0] < 3000 :
                 cutoff = 1
+            elif dist.shape[0] < 10000 :
+                cutoff = 5
+            elif dist.shape[0] < 30000 :
+                cutoff = 10
             link = np.array(np.where(dist < (cutoff+1) ))
             link = link.T[weight[link[0]] < weight[link[1]]].T
             link = np.vstack([link, dist[tuple(link.tolist())] + weight[link[0]]])
@@ -299,8 +303,8 @@ class methods(object) :
             presence[shortcuts.T[1]] = -1
             dist = dist.T[presence >= 0].T[presence >= 0]
             presence = presence[presence >=0]
-            weight = weight[presence]
-            dist = np.round(dist, 0) + weight.reshape([weight.size, -1])
+            weight2 = weight[presence]
+            dist = np.round(dist, 0) + weight2.reshape([weight2.size, -1])
             np.fill_diagonal(dist, 0.0)
 
             dist_file = params['tempfix'] + '.dist.list'
