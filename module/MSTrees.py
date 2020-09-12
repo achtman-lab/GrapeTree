@@ -103,8 +103,8 @@ class distance_matrix(object) :
             pool.close()
             del pool
             
-            rtype = np.uint16 if n_allele < 6554 else np.uint32
-            res = np.zeros([n_profile, n_profile], dtype=rtype)
+            
+            res = np.zeros([n_profile, n_profile], dtype=np.float32)
 
             for id, sf in zip(indices, subfiles) :
                 res[:, id[0]:id[1]] = np.load(sf)
@@ -128,19 +128,19 @@ class distance_matrix(object) :
         presences = (profiles > 0)
         pp = np.sum(presences, 0).astype(float)
         pp = pp*(pp-1)/(presences.shape[0]*(presences.shape[0]-1))
-        rtype = np.uint16 if profiles.shape[1] < 6554 else np.uint32
-        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]], dtype=rtype)
+        
+        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]], dtype=np.float32)
 
         if handle_missing not in ('absolute_distance', ) :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
                 diffs = np.sum(((profiles != profile) & (presences * presence))+(presences < presence)*pp, axis=1) * float(presence.size)/np.sum(presence)
-                distances[:, i2] = diffs*10+0.5
+                distances[:, i2] = diffs
         else :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
                 diffs = np.sum((profiles != profile) & presence, axis=1)
-                distances[:, i2] = diffs*10+0.5
+                distances[:, i2] = diffs
         return distances
 
     @staticmethod
@@ -149,15 +149,14 @@ class distance_matrix(object) :
             index_range = [0, profiles.shape[0]]
 
         presences = (profiles > 0)
-        rtype = np.uint16 if profiles.shape[1] < 6554 else np.uint32
-        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]], dtype=rtype)      
+        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]], dtype=np.float32)     
 
         for i2, id in enumerate(np.arange(*index_range)) :
             profile = profiles[id]
             diffs = np.hstack([np.zeros([profiles.shape[0], 1], dtype=int), profiles - profile, np.zeros([profiles.shape[0], 1], dtype=int)])
             d1 = np.sum((diffs[:, 1:] != diffs[:, :-1]) & (diffs[:, 1:] != 0), 1)
             d2 = np.sum(diffs != 0, 1) - d1
-            distances[:, i2] = (d1 + d2 * handle_missing)*10 + 0.5
+            distances[:, i2] = (d1 + d2 * handle_missing)
 
         return distances
 
@@ -167,19 +166,18 @@ class distance_matrix(object) :
             index_range = [0, profiles.shape[0]]
 
         presences = (profiles > 0)
-        rtype = np.uint16 if profiles.shape[1] < 6554 else np.uint32
-        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]], dtype=rtype)
+        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]], dtype=np.float32)
         
         if handle_missing not in ('absolute_distance', ) :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
                 diffs = np.sum(((profiles != profile) & presence), axis=1) * float(presence.size)/np.sum(presence)
-                distances[:, i2] = diffs*10 + 0.5
+                distances[:, i2] = diffs
         else :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
                 diffs = np.sum((profiles != profile) & presence, axis=1)
-                distances[:, i2] = diffs*10+0.5
+                distances[:, i2] = diffs
         return distances
 
     @staticmethod
@@ -193,22 +191,21 @@ class distance_matrix(object) :
             presences = (profiles > 0)
         else :
             presences = np.repeat(np.sum(profiles >0, 0) >= profiles.shape[0], profiles.shape[0]).reshape([profiles.shape[1], profiles.shape[0]]).T
-        rtype = np.uint16 if profiles.shape[1] < 6554 else np.uint32
-        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]])
+        distances = np.zeros(shape=[profiles.shape[0], index_range[1] - index_range[0]], dtype=np.float32)
         
         if handle_missing in ('pair_delete',) :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
                 comparable = (presences[:id] * presence)
                 diffs = (np.sum((profiles[:id] != profile) & comparable, axis=1)+0.01) * float(presence.size) / (np.sum(comparable, axis=1)+0.01)
-                diffs = diffs * 10 + 0.5
+                
                 distances[:id, i2] = diffs
                 distances[id, :i2] = diffs[index_range[0]:index_range[0]+id]
         else :
             for i2, id in enumerate(np.arange(*index_range)) :
                 profile, presence = profiles[id], presences[id]
                 diffs = np.sum((profiles[:id] != profile) & (presences[:id] * presence), axis=1)
-                diffs = diffs *10 + 0.5
+                
                 distances[:id, i2] = diffs
                 distances[id, :i2] = diffs[index_range[0]:index_range[0]+id]
         return distances
@@ -309,7 +306,7 @@ class methods(object) :
             dist_file = params['tempfix'] + '.dist.list'
             with open(dist_file, 'w') as fout :
                 for d in dist :
-                    fout.write('{0}\n'.format('\t'.join(['{0:.6f}'.format(dd) for dd in (d+1.)])))
+                    fout.write('{0}\n'.format('\t'.join(['{0:.5f}'.format(dd) for dd in (d+(1.-0.000005)) ])))
             del dist, d
             mstree = Popen([params['edmonds_' + platform.system()], dist_file], stdout=PIPE).communicate()[0]
             os.unlink(dist_file)
@@ -325,7 +322,7 @@ class methods(object) :
                 os.unlink(dist_file)
             except :
                 pass
-            dist = (np.load(params['dist_file'])+5)/10
+            dist = np.load(params['dist_file'])
             dist = np.round(dist, 0) + weight.reshape([weight.size, -1])
             np.fill_diagonal(dist, 0.0)
 
@@ -451,7 +448,7 @@ class methods(object) :
     @staticmethod
     def MSTree(names, profiles, embeded, matrix_type='asymmetric', heuristic='harmonic', branch_recraft=True, handle_missing='pair_delete', **params) :
         n_loci = profiles.shape[1]
-        dist = (distance_matrix.get_distance(matrix_type, profiles, handle_missing)+5)/10
+        dist = distance_matrix.get_distance(matrix_type, profiles, handle_missing)
         weight = eval('distance_matrix.'+heuristic)(dist, [len(embeded[n]) for n in names])
 
         tree = eval('methods._'+matrix_type)(dist, weight, **params)
@@ -490,7 +487,7 @@ class methods(object) :
             names.append(n)
             indices.append(i)
         indices = np.array(indices)
-        d = distance_matrix.get_distance(matrix_type, profiles, handle_missing)/10.
+        d = distance_matrix.get_distance(matrix_type, profiles, handle_missing)
         if handle_missing != 'absolute_distance' and matrix_type != 'blockwise' :
             d /= profiles.shape[1]
 
@@ -504,7 +501,7 @@ class methods(object) :
 
     @staticmethod
     def fastme(names, profiles, embeded, handle_missing='pair_delete', **params) :
-        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)/10.
+        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
 
         dist_file = params['tempfix'] + 'dist.list'
         with open(dist_file, 'w') as fout :
@@ -534,7 +531,7 @@ class methods(object) :
         return tree
     @staticmethod
     def NJ(names, profiles, embeded, handle_missing='pair_delete', **params) :
-        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)/10.
+        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
 
         dist_file = params['tempfix'] + 'dist.list'
         with open(dist_file, 'w') as fout :
@@ -564,7 +561,7 @@ class methods(object) :
         return tree
     @staticmethod
     def RapidNJ(names, profiles, embeded, handle_missing='pair_delete', **params) :
-        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)/10.
+        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
 
         dist_file = params['tempfix'] + 'dist.list'
         with open(dist_file, 'w') as fout :
@@ -589,7 +586,7 @@ class methods(object) :
     @staticmethod
     def ninja(names, profiles, embeded, handle_missing='pair_delete', **params) :
         dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
-        dist = dist/(10.*profiles.shape[1])
+        dist = dist/profiles.shape[1]
         dist_file = params['tempfix'] + 'dist.list'
         with open(dist_file, 'w') as fout :
             fout.write('    {0}\n'.format(dist.shape[0]))
