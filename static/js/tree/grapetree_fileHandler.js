@@ -80,7 +80,7 @@ function loadNetFiles() {
 	if (tree) {
 		$.ajax({
 			type: "GET",
-			url: 'https://cors-anywhere.herokuapp.com/'+tree,
+			url: 'https://enterobase.warwick.ac.uk/grapetree_remote/'+tree,
 			headers: {'X-Requested-With': 'XMLHttpRequest'},
 			success: function(tree){
 				try {
@@ -101,7 +101,7 @@ function loadNetFiles() {
 				if (the_tree && metadata) {
 					$.ajax({
 						type: "GET",
-						url: 'https://cors-anywhere.herokuapp.com/'+metadata,
+						url: 'https://enterobase.warwick.ac.uk/grapetree_remote/'+metadata,
 						headers: {'X-Requested-With': 'XMLHttpRequest'},
 						success: function(data){
 							loadMetadataText(data);

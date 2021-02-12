@@ -284,7 +284,7 @@ class methods(object) :
     def _asymmetric(dist, weight, **params) :
         def get_shortcut(dist, weight, cutoff=20) :
             if dist.shape[0] < 3000 :
-                cutoff = 1
+                cutoff = 2
             elif dist.shape[0] < 10000 :
                 cutoff = 5
             elif dist.shape[0] < 30000 :
