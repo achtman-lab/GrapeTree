@@ -1595,7 +1595,7 @@ D3BaseTree.prototype.getSVG=function(){
 	}
 
 	var svgData = $("#mst-svg")[0].outerHTML;
-	var svgData = ['<svg xmlns="http://www.w3.org/2000/svg" ', svgData.substring(5,9999999)].join('');
+	var svgData = ['<svg xmlns="http://www.w3.org/2000/svg" ', svgData.substring(5,999999999)].join('');
 	if (the_tree.legend_div.css("display") === 'block') {
 		leg.attr("transform","translate(0,0)");
 		$("#legend-svg").append(leg);
