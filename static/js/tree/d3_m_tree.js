@@ -430,7 +430,7 @@ D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
 		for (var i in this.force_nodes){
 			var node=this.force_nodes[i];
 			 layout[node.id]  = [node.x,node.y];
-	       }
+	        }
 	}      
     layout = this._collapseNodes(max_distance, layout, ! keep_current_layout);
 	
@@ -444,7 +444,7 @@ D3MSTree.prototype.collapseNodes= function(max_distance,keep_current_layout){
 }
 
 D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
-		var self = this;
+		var self = this;                
 		if (this.original_links.length > 50000) {
 			this.original_links.sort(function(n1, n2) {return n2.distance-n1.distance});
 		}
@@ -487,7 +487,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
                 });
         }
         var to_collapse = JSON.parse(JSON.stringify(this.manual_collapsing));
-  		this.manual_collapsing_value = Object.keys(this.manual_collapsing).length;
+        this.manual_collapsing_value = Object.keys(this.manual_collapsing).length;	
         if (this.manual_collapsing_value > 0) {
 			var collapsed = 1;
 			while (collapsed) {
@@ -496,8 +496,8 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 						var s_c = to_collapse[link.source.id] ? to_collapse[link.source.id] : 0;
 						var t_c = to_collapse[link.target.id] ? to_collapse[link.target.id] : 0;
 						if (s_c > t_c) {
-								to_collapse[link.target.id] = s_c;
-								collapsed = 1;
+                                                        to_collapse[link.target.id] = s_c;
+                                                        collapsed = 1;
 						}
 				});
 			}
@@ -505,7 +505,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
 
 		var valid_label = {};
         for (var index=this.force_links.length-1; index >=0; index --) {
-        		var l = this.force_links[index];
+        	var l = this.force_links[index];                
                 if ( !l || (l.value > max_distance && to_collapse[l.source.id] !== 2) || (l.value && to_collapse[l.source.id] === 1) ) continue;
                 if (l.source.hypothetical && ! valid_label[l.source.id]) {
                 	if (! l.target.hypothetical) {
@@ -514,7 +514,7 @@ D3MSTree.prototype._collapseNodes=function(max_distance,layout, redraw){
                 		valid_label[l.source.id] = valid_label[l.target.id];
                 	}
                 }
-				this.hypo_record[l.target.id] = l.source.id;
+		this.hypo_record[l.target.id] = l.source.id;
         }
         for (var t_id in this.hypo_record) {
         	    var src_id = this.hypo_record[t_id];
@@ -906,8 +906,9 @@ D3MSTree.prototype.toggleHypotheticalNodes=function(){
 
 D3MSTree.prototype.collapseSpecificNodes=function(nodes,uncollapse){
 	var val = uncollapse?1:2
+        var self = this;
 	for (var i in nodes) {
-		var node=nodes[i];
+		var node=nodes[i];                
 		Object.keys(this.hypo_record).filter(function(k) {
 			return self.hypo_record[k] == node;
 		}).forEach(function(k) {
