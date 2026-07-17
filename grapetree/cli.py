@@ -25,7 +25,8 @@ webserver running on your local computer.  You will be interacting with the
 program as you would in EnteroBase; through a web browser.
 """
 from .module import app
-from .module.MSTrees import add_args, backend
+from .arguments import add_args
+from .module.MSTrees import backend
 from .export import (
     cluster_document,
     network_document,

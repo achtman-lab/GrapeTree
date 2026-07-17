@@ -256,18 +256,50 @@ Notes from representative checks:
   and the existing O(n-squared) algorithms remain constraints. WASM threads
   would additionally require COOP/COEP deployment headers.
 
+## Strict maintainability review
+
+The thermonuclear maintainability review was repeated after the functional,
+packaging, native, and browser work was complete.
+
+- `MSTrees.py` briefly crossed the review's 1,000-line hard limit. Its public
+  CLI parser now lives in `grapetree/arguments.py`; the compatibility import in
+  `MSTrees.py` is retained, and the algorithm module is back to 953 lines.
+- The standalone browser backend is 623 hand-written lines. It is deliberately
+  kept as one Worker implementation for this PR because parsing, distances,
+  tree construction, and Newick output are exercised together by parity tests;
+  generated Emscripten/RapidNJ files are third-party build products, not
+  hand-maintained application modules.
+- No new duplicate algorithm implementation was added to the Flask path. The
+  separate Worker backend exists for the explicitly separate browser-only
+  product and is guarded by shared native/browser golden fixtures.
+- Final local verification after the extraction: 84 Python tests and 22
+  Playwright tests pass. GitHub CI run 29605234829 also passes every job,
+  including Python 3.10-3.14, packaging, Conda, Docker, browser/WASM rebuild,
+  Windows, Intel macOS, and native application archives.
+
 ## Immediate next steps
 
-1. Keep running the complete installed-wheel and Playwright suites for each
-   implementation batch and inspect the resulting CI on PR #118.
-2. Extend the shared golden topology and distance fixtures with the issue #82
-   attachment before changing its scientific algorithm behaviour.
-3. Add Windows/macOS CI and assess the existing native build scripts and bundled
-   executable architecture/licensing.
-4. Work through the issue buckets, posting clear closure/update comments only
-   after fixes are pushed and verified.
-5. Add performance/size thresholds for the complete browser pipeline and
-   document static deployment headers and practical browser dataset limits.
+The implementation work for draft PR #118 is complete. The remaining actions
+are intentionally owner/release gates and must not be performed from this
+feature branch:
+
+1. Review and merge PR #118 through the protected-branch workflow; do not push
+   it directly to `master`.
+2. Configure the PyPI trusted publisher for repository
+   `achtman-lab/GrapeTree`, workflow `release.yml`, environment `pypi`, with a
+   required environment approval.
+3. Publish release 2.3.0 after merge. The release workflow builds and checks the
+   Python distributions and uploads Python, browser-only, Intel macOS, and
+   Windows archives with SHA-256 files.
+4. Replace the Conda recipe's branch source with the 2.3.0 release tarball and
+   checksum before submitting it to Bioconda.
+5. Keep issue #93 open until the new PyPI release is installed successfully on
+   supported Python versions. Merge-linked issue references close the other
+   implemented issue reports only after PR review and merge.
+6. Code signing/notarisation and native Apple-silicon algorithm binaries remain
+   follow-up release-infrastructure work because they require external signing
+   credentials or upstream native binaries. The CI-tested unsigned Intel macOS
+   and Windows archives remain usable deliverables.
 
 ## Useful verification commands
 
