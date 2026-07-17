@@ -79,3 +79,29 @@ def test_missing_data_modes_match_shared_distance_golden_fixture(
         EXPECTED['missing_data_distances'][missing_mode],
         abs=1e-6,
     )
+
+
+def test_issue_82_resequencing_fixture_locks_both_algorithm_behaviours():
+    profile = Path(__file__).parent / 'fixtures' / 'issues' / '82' / (
+        'ST5210_problem.chew'
+    )
+    mstree = backend(profile=str(profile), method='MSTree', n_proc=1)
+    mstree_v2 = backend(profile=str(profile), method='MSTreeV2', n_proc=1)
+
+    assert mstree == (
+        '(iso6:9,(iso5-run1:1,iso5-run2:0):4,'
+        '(iso1-run2:1,iso1-run1:0):3,iso2-run2:2,'
+        '(iso4-run1:1,iso4-run2:0):2,iso2-run1:2,'
+        'iso3-run1:1,iso3-run2:0);'
+    )
+    assert mstree_v2 == (
+        '(iso6:15,iso1-run2:9,iso1-run1:8,iso4-run1:6,'
+        'iso4-run2:6,iso2-run2:5,iso3-run1:5,iso2-run1:4,'
+        'iso3-run2:4,iso5-run1:1,iso5-run2:0);'
+    )
+    assert Tree(mstree, format=1).get_distance(
+        'iso1-run1', 'iso1-run2'
+    ) == 1
+    assert Tree(mstree_v2, format=1).get_distance(
+        'iso1-run1', 'iso1-run2'
+    ) == 17

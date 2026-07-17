@@ -222,6 +222,16 @@ For memory-limited data, also consider `--method MSTree`, filtering samples
 with excessive missingness, or calculating on a machine with more memory; the
 pairwise distance matrix itself remains quadratic in sample count.
 
+MSTreeV2's asymmetric missing-data model is directional: when technical
+replicates have different sets of uncalled loci, their directed distances can
+be much larger than the allele differences on their shared calls. That can
+separate otherwise close replicate runs, as in issue #82. This is expected for
+the published algorithm rather than a rendering error. Use `--method MSTree`
+when clustering should be based on pairwise-called overlap, and inspect/filter
+missingness before interpreting either tree. The public issue attachment is now
+an exact regression fixture for both behaviours, so this scientific choice
+cannot change accidentally.
+
 ### Ridom SeqSphere+
 
 Use SeqSphere+'s dedicated **Export profile and metadata files for GrapeTree

@@ -102,6 +102,11 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - Hardened HTTP boolean parsing after the Docker smoke test found that an empty
   `checkEnv` form field reached `int()`. Empty/false-like values now remain
   false and invalid strings receive a clear 400-level input error.
+- Added the complete public issue #82 attachment as a golden regression. The
+  reported star is caused by MSTreeV2's directed missing-data model when
+  technical runs have non-nested missing loci, not the renderer. Both the
+  established MSTree and MSTreeV2 outputs are locked; UI and README guidance
+  now tells replicate-focused users when pairwise-overlap MSTree is preferable.
 
 ## Current verification
 
@@ -151,12 +156,12 @@ Twenty-five issues were open at the 2026-07-17 audit.
   #103.
 - Fixed with regression tests and awaiting release/closure: #65, #96, #97,
   #99, #100, #102, #107, #109, #112, #115.
-- Reproduce and investigate with supplied or generated fixtures: #82, #104.
+- Reproduce and investigate with supplied or generated fixtures: none.
 - Features/API work: none from the current open-issue set.
 - Documentation/scientific guidance: none from the current open-issue set.
 - Browser-only architecture: #113 is the direct static-site `/maketree` gap.
-- Fixed feature awaiting release/closure: #81, #89, #94, #101, #110, #111,
-  #116.
+- Fixed feature/documentation awaiting release/closure: #81, #82, #89, #94,
+  #101, #104, #110, #111, #116, #117.
 
 Notes from representative checks:
 
