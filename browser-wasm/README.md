@@ -20,3 +20,10 @@ the existing subprocess-based backend unchanged.
 
 This folder currently records the product boundary only. Production code will
 be added after the compatibility fixtures and performance budgets are in place.
+
+The first shared fixtures now live in
+[`tests/fixtures/compatibility/`](../tests/fixtures/compatibility/). Expected
+tree results are expressed as pairwise path distances so equivalent Newick
+rooting and child order do not produce false failures. Browser and WASM tests
+must consume the same profiles and expected JSON rather than create a second
+set of baselines.
