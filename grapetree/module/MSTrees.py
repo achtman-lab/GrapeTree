@@ -117,6 +117,23 @@ def parallel_distance(callup) :
     return subfile
 
 
+def shortcut_links(dist, weight, cutoff):
+    """Select the best short incoming edge without a quadratic edge list."""
+    links = []
+    for target in range(dist.shape[1]):
+        sources = np.flatnonzero(
+            (dist[:, target] < (cutoff + 1))
+            & (weight < weight[target])
+        )
+        if sources.size == 0:
+            continue
+        scores = dist[sources, target] + weight[sources]
+        best = np.argmin(scores)
+        links.append([sources[best], target, scores[best]])
+    links = np.asarray(links, dtype=float).reshape((-1, 3))
+    return links.astype(int)
+
+
 class distance_matrix(object) :
     @staticmethod
     def get_distance(func, profiles, handle_missing, config) :
@@ -319,11 +336,7 @@ class methods(object) :
                 cutoff = 5
             elif dist.shape[0] < 30000 :
                 cutoff = 10
-            link = np.array(np.where(dist < (cutoff+1) ))
-            link = link.T[weight[link[0]] < weight[link[1]]].T
-            link = np.vstack([link, dist[tuple(link.tolist())] + weight[link[0]]])
-            link = link.T[np.lexsort(link)]
-            return link[np.unique(link.T[1], return_index=True)[1]].astype(int)
+            return shortcut_links(dist, weight, cutoff)
 
         def networkx_tree():
             fallback_dist = original_dist.copy()

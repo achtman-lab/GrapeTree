@@ -66,11 +66,15 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - Modernised the PyInstaller scripts and added Python 3.12 installed-package
   jobs for Windows and Intel macOS plus native application artefact jobs. Each
   packaged application must run MSTreeV2, NJ, and RapidNJ before upload.
+- Replaced MSTreeV2's quadratic shortcut-coordinate allocation from issue #107
+  with a column-wise selector. Randomised equivalence tests lock the legacy
+  edge/tie behaviour, while a dense test proves only one edge per target is
+  retained without calling `numpy.where` on the full matrix.
 
 ## Current verification
 
 - Clean wheel and source distribution build successfully with Hatchling.
-- 50 Python tests pass on Python 3.12.
+- 62 Python tests pass on Python 3.12.
 - 6 Playwright/Chromium tests pass against the Flask app, covering Newick
   rendering, profile calculation, selected-subtree collapse, MicroReact export
   without metadata, exact long-branch cutoff behaviour, and visible duplicate
@@ -109,9 +113,9 @@ Twenty-five issues were open at the 2026-07-17 audit.
 - Already answered/resolved; confirm and close with documentation links: #92,
   #103.
 - Fixed with regression tests and awaiting release/closure: #65, #96, #99,
-  #100, #102, #109, #115.
+  #100, #102, #107, #109, #115.
 - Reproduce and investigate with supplied or generated fixtures: #82, #97,
-  #104, #107, #112, #115, #116.
+  #104, #112, #116.
 - Features/API work: #81, #89, #94, #101, #111.
 - Documentation/scientific guidance: #110, #117.
 - Browser-only architecture: #113 is the direct static-site `/maketree` gap.
@@ -138,8 +142,11 @@ Notes from representative checks:
   rejected before calculation with an HTTP 400 response and visible UI error.
 - #112 is related to the hard-coded EnteroBase URL proxy in
   `grapetree_fileHandler.js` and needs a CORS-aware remote-loading redesign.
-- #107 is an O(n-squared) memory/performance problem in shortcut/distance work;
-  browser WASM alone will not make it disappear.
+- #107's reported failure was in a dense `numpy.where` coordinate list inside
+  shortcut selection. That allocation is now linear in sample count and output
+  is equivalent across random fixtures. The distance matrix itself remains
+  O(n-squared); larger architectural work is still needed for extreme inputs
+  and browser WASM will not make that constraint disappear by itself.
 
 ## Test expansion order
 
