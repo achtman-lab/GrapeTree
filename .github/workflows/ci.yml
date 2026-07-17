@@ -82,7 +82,7 @@ jobs:
       - name: Install conda-build
         run: conda install --yes conda-build
       - name: Build and test recipe
-        run: conda build conda --override-channels --channel conda-forge --channel bioconda
+        run: conda-build conda --override-channels --channel conda-forge --channel bioconda
       - name: Smoke-test the source distribution
         run: |
           python -m pip install --force-reinstall dist/*.tar.gz

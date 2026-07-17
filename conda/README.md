@@ -9,7 +9,7 @@ For the Bioconda submission after publishing v2.3.0:
 1. Replace `git_url` and `git_rev` with the v2.3.0 GitHub release source archive.
 2. Add the archive's SHA-256 from the release `SHA256SUMS` file.
 3. Reset `build:number` to `0` for the new version.
-4. Run `conda build conda --override-channels -c conda-forge -c bioconda`.
+4. Run `conda-build conda --override-channels -c conda-forge -c bioconda`.
 5. Copy the final recipe into a fork of `bioconda-recipes` and open its normal
    pull request; do not publish an ad-hoc package from this repository.
 
