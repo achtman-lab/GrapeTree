@@ -58,9 +58,9 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 
 - Clean wheel and source distribution build successfully with Hatchling.
 - 37 Python tests pass from the installed wheel on Python 3.12.
-- 2 Playwright/Chromium tests pass against the installed-wheel Flask app:
-  loading/rendering Newick and calculating/rendering a profile through
-  `/maketree`.
+- 5 Playwright/Chromium tests pass against the Flask app, covering Newick
+  rendering, profile calculation, selected-subtree collapse, MicroReact export
+  without metadata, and exact long-branch cutoff behaviour.
 - PR #118 CI is green at commit `78bde55`: Python 3.10-3.14, distribution build
   and wheel smoke test, and the new Chromium browser smoke tests all pass.
 - Current Python line coverage is about 61%; `grapetree.py` has no direct
@@ -88,7 +88,9 @@ Twenty-five issues were open at the 2026-07-17 audit.
 - Close after the modernization release verifies them: #93, #108.
 - Already answered/resolved; confirm and close with documentation links: #92,
   #103.
-- Regression-sized fixes needing tests first: #65, #96, #99, #100, #102, #109.
+- Fixed with regression tests and awaiting release/closure: #96, #99, #102,
+  #109, #115.
+- Remaining regression-sized fixes needing tests first: #65, #100.
 - Reproduce and investigate with supplied or generated fixtures: #82, #97,
   #104, #107, #112, #115, #116.
 - Features/API work: #81, #89, #94, #101, #111.
@@ -105,8 +107,12 @@ Notes from representative checks:
   current supported dependency set. Keep it open until CI and a targeted fixture
   establish whether it is obsolete.
 - Old PR #98 changes one collapse call from an implicit argument to `false`, but
-  contains distracting whitespace edits. Port the behaviour only with a browser
-  regression test.
+  contains distracting whitespace edits. Its functional fix has now been
+  independently reproduced, ported, and covered for #96.
+- #109 was an undefined metadata grid column when exporting a tree with no
+  selected category. Export now omits colours when no matching column exists.
+- #102 was an equality inconsistency: “longer than X” hiding used `>= X` while
+  shortening used `> X`. Both now honour the visible `> X` contract.
 - #112 is related to the hard-coded EnteroBase URL proxy in
   `grapetree_fileHandler.js` and needs a CORS-aware remote-loading redesign.
 - #107 is an O(n-squared) memory/performance problem in shortcut/distance work;

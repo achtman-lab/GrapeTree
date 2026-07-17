@@ -866,7 +866,7 @@ D3MSTree.prototype._drawLinks=function(){
         this.link_elements.selectAll("line")
         .style('stroke', 'black')
         .style('opacity', function(it){
-			return (it.value >= self.hide_link_length) ? '0.0' : '1.0';
+			return (it.value > self.hide_link_length) ? '0.0' : '1.0';
         })
         .attr('stroke-dasharray', function(it){
             return (self.max_link_length && it.value > self.max_link_length) ? "3,5" : "";
@@ -905,16 +905,17 @@ D3MSTree.prototype.toggleHypotheticalNodes=function(){
 */
 
 D3MSTree.prototype.collapseSpecificNodes=function(nodes,uncollapse){
-	var val = uncollapse?1:2
+	var self = this;
+	var val = uncollapse ? 1 : 2;
 	for (var i in nodes) {
 		var node=nodes[i];
 		Object.keys(this.hypo_record).filter(function(k) {
 			return self.hypo_record[k] == node;
 		}).forEach(function(k) {
 			self.manual_collapsing[k] = val;
-		})
+		});
 	}
-	this.collapseNodes(this.node_collapsed_value,! uncollapse)	
+	this.collapseNodes(this.node_collapsed_value, !uncollapse);	
 }
 
 

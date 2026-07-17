@@ -315,7 +315,7 @@ D3MSTreeContextMenu.prototype._init=function(){
 	});
 	
 	$("#collapse_node").click(function(e) {	
-		self.tree.collapseSpecificNodes(self.tree.getSelectedNodeIDs());
+		self.tree.collapseSpecificNodes(self.tree.getSelectedNodeIDs(), false);
 	});
 	$("#delete-node").click(function(e) {
 		self.tree.delNodes(self.tree.getSelectedNodeIDs());
@@ -529,7 +529,6 @@ D3MSTreeContextMenu.prototype._trigger_context=function(target, e) {
 		cntx.css("left", Math.max( $("body").offset().left, $("body").width()- cntx.width() ))
 	}
 };
-
 
 
 
