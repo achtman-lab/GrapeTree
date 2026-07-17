@@ -48,8 +48,6 @@ Source = "https://github.com/achtman-lab/GrapeTree"
 only-include = [
   "__init__.py",
   "grapetree.py",
-  "simulation_generate.py",
-  "simulation_getTrees.py",
   "MSTree_holder.html",
   "GT_icon.icns",
   "GT_icon.ico",
@@ -67,8 +65,6 @@ only-include = [
 include = [
   "/__init__.py",
   "/grapetree.py",
-  "/simulation_generate.py",
-  "/simulation_getTrees.py",
   "/MSTree_holder.html",
   "/GT_icon.icns",
   "/GT_icon.ico",

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright Zhemin Zhou, Martin Sergeant, Nabil-Fareed Alikhan & Mark Achtman (2017)
 # This program is free software: you can redistribute it and/or modify it under
@@ -24,8 +24,6 @@ The stand-alone version emulates the EnteroBase version through a lightweight
 webserver running on your local computer.  You will be interacting with the
 program as you would in EnteroBase; through a web browser.
 """
-from __future__ import print_function, absolute_import
-
 try:
     from .module import app
     from .module.MSTrees import backend, add_args

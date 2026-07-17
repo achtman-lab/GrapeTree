@@ -1,5 +1,5 @@
 import sys
-from ete2 import Tree
+from ete3 import Tree
 import collections
 
 trees_file = sys.argv[1]
@@ -41,7 +41,7 @@ def parse_weird_tree(tree_string):
                 n = elem.rstrip("}")
                 node.add_child(name=n)
     #strategy: remove [] first, remember all nodes that represent multiple taxa
-    #build ete2 tree
+    #build ETE tree
     #add additional taxa: if leaf, add sister leaf
     #if internal, add sister node as leaf (should be fine for def of splits)
     a = tree.write(format=1,format_root_node=True)

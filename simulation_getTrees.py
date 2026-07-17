@@ -49,4 +49,4 @@ if __name__ == '__main__' :
     tree = GrapeTree(profile=sim_data, method='NJ', missing_data='pair_delete')
     appendTo(tree, 'NJ', trees)
 
-    print trees.as_string('nexus')
+    print(trees.as_string('nexus'))

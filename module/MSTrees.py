@@ -1,4 +1,3 @@
-from __future__ import print_function
 import numpy as np, networkx as nx, argparse
 from numba import jit
 from glob import glob

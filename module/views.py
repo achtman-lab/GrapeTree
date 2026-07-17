@@ -1,10 +1,7 @@
 import numpy as np, json, pandas as pd, re, requests, tempfile, os
 from ete3 import Tree
 from flask import render_template, request, make_response
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
 from . import app
 from .MSTrees import methods, backend
