@@ -88,6 +88,7 @@ function installBrowserBackend() {
   const methodSelect = grapeTree.$('#method-select');
   methodSelect.find('option[value="ninja"]').remove();
   grapeTree.$('#check-memory').prop('checked', false).closest('label').hide();
+  grapeTree.$('#show-in-microreact').hide();
   methodSelect.after('<span id="browser-method-note"> Runs locally on this device</span>');
   setStatus('Browser-only · data stays on this device');
 }

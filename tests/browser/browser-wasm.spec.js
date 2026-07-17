@@ -119,6 +119,7 @@ test('calculates MSTreeV2 from a profile entirely in a Web Worker', async ({ pag
   await page.goto('http://127.0.0.1:8001/browser-wasm/');
   const visualiser = page.frameLocator('#visualiser');
   await expect(visualiser.getByRole('button', { name: 'Load Files' })).toBeVisible();
+  await expect(visualiser.locator('#show-in-microreact')).toBeHidden();
   await visualiser.getByRole('button', { name: 'Load Files' }).click();
 
   const fileChooserPromise = page.waitForEvent('filechooser');
