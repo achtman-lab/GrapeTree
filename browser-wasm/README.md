@@ -3,6 +3,11 @@
 This is a separate product track from the Flask application. It runs scientific
 calculation in a Web Worker so uploaded data stays in the browser.
 
+The browser-only entry point reuses the established GrapeTree visualiser and
+its normal **Load Files** workflow. Profile calculation is transparently
+redirected to a local Web Worker; the Flask application and its `/maketree`
+route remain the primary server-backed product and are not replaced.
+
 The browser app accepts GrapeTree profile files and calculates MSTree,
 MSTreeV2, standard NJ, RapidNJ, and all four established missing-data distance
 modes in a Web Worker. MSTreeV2 uses GrapeTree's in-repository Edmonds optimum-branching

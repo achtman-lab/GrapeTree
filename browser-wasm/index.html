@@ -3,33 +3,33 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GrapeTree browser backend</title>
+    <title>GrapeTree · browser-only</title>
     <style>
-      body { box-sizing: border-box; margin: 2rem auto; max-width: 60rem; padding: 0 1rem; font: 16px/1.5 system-ui, sans-serif; }
-      textarea, pre { box-sizing: border-box; min-height: 14rem; padding: 1rem; width: 100%; }
-      button { font: inherit; padding: .6rem 1rem; }
-      pre { background: #f5f5f5; overflow: auto; }
-      iframe { border: 1px solid #bbb; height: 50rem; width: 100%; }
+      html, body, iframe { height: 100%; width: 100%; }
+      html, body { margin: 0; overflow: hidden; }
+      iframe { border: 0; display: block; }
+      #browser-status {
+        background: rgba(255, 255, 255, .94);
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        bottom: 10px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .18);
+        color: #333;
+        font: 12px/1.4 system-ui, sans-serif;
+        padding: 5px 9px;
+        pointer-events: none;
+        position: fixed;
+        right: 10px;
+        z-index: 10;
+      }
+      #browser-status[data-state="working"] { color: #725600; }
+      #browser-status[data-state="error"] { color: #9b1c1c; }
     </style>
   </head>
   <body>
-    <h1>GrapeTree browser backend</h1>
-    <p>This separate prototype calculates a GrapeTree minimum spanning tree entirely in a Web Worker. No profile data leaves the browser.</p>
-    <p><label for="profile-file">Profile file</label> <input id="profile-file" type="file"></p>
-    <p><label for="method">Method</label>
-      <select id="method">
-        <option value="MSTreeV2">MSTreeV2</option>
-        <option value="MSTree">MSTree</option>
-        <option value="RapidNJ">RapidNJ</option>
-        <option value="NJ">Standard Neighbour Joining</option>
-      </select>
-    </p>
-    <label for="profile">Allelic profile (tab-separated)</label>
-    <textarea id="profile"></textarea>
-    <p><button id="calculate" type="button">Calculate tree</button></p>
-    <pre id="result" aria-live="polite">Ready.</pre>
-    <h2>Visualisation</h2>
-    <iframe id="visualiser" src="../MSTree_holder.html" title="GrapeTree visualisation" hidden></iframe>
+    <iframe id="visualiser" src="../MSTree_holder.html?browser_backend=wasm" title="GrapeTree browser-only visualiser"></iframe>
+    <div id="browser-status" role="status" aria-live="polite">Starting browser backend…</div>
+    <noscript>GrapeTree browser-only requires JavaScript.</noscript>
     <script src="./app.js"></script>
   </body>
 </html>

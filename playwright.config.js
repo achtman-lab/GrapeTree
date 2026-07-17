@@ -11,14 +11,14 @@ module.exports = defineConfig({
   webServer: [
     {
       command: process.env.GRAPETREE_SERVER_COMMAND ||
-        'python -m flask --app grapetree.module:app run --port 8000',
+        'python3 -m flask --app grapetree.module:app run --port 8000',
       cwd: process.env.GRAPETREE_SERVER_CWD || os.tmpdir(),
       url: 'http://127.0.0.1:8000',
       reuseExistingServer: !process.env.CI,
       timeout: 30_000,
     },
     {
-      command: 'python -m http.server 8001 --bind 127.0.0.1',
+      command: 'python3 -m http.server 8001 --bind 127.0.0.1',
       cwd: __dirname,
       url: 'http://127.0.0.1:8001/browser-wasm/',
       reuseExistingServer: !process.env.CI,

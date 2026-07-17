@@ -112,11 +112,28 @@ function newickPairwiseDistances(newick) {
 }
 
 test('calculates MSTreeV2 from a profile entirely in a Web Worker', async ({ page }) => {
+  const backendRequests = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/maketree')) backendRequests.push(request.url());
+  });
   await page.goto('http://127.0.0.1:8001/browser-wasm/');
-  await page.getByRole('button', { name: 'Calculate tree' }).click();
+  const visualiser = page.frameLocator('#visualiser');
+  await expect(visualiser.getByRole('button', { name: 'Load Files' })).toBeVisible();
+  await visualiser.getByRole('button', { name: 'Load Files' }).click();
 
-  const output = page.locator('#result');
-  await expect(output).toContainText(';', { timeout: 20_000 });
+  const fileChooserPromise = page.waitForEvent('filechooser');
+  await visualiser.locator('#button-load-nwk').click();
+  const fileChooser = await fileChooserPromise;
+  await fileChooser.setFiles({
+    name: 'example.profile',
+    mimeType: 'text/tab-separated-values',
+    buffer: Buffer.from('#Strain\tA\tB\tC\nalpha\t1\t1\t1\nbeta\t1\t1\t2\ngamma\t2\t2\t2\ndelta\t2\t3\t2\n'),
+  });
+  await expect(visualiser.locator('#modal-title')).toHaveText('Parameters For Tree Creation');
+  await visualiser.locator('#modal-ok-button').click();
+
+  await expect.poll(() => page.evaluate(() => window.lastGrapeTreeResult?.newick || ''))
+    .toContain(';');
   const result = await page.evaluate(() => window.lastGrapeTreeResult);
 
   expect(result.method).toBe('MSTreeV2');
@@ -135,6 +152,8 @@ test('calculates MSTreeV2 from a profile entirely in a Web Worker', async ({ pag
     document.querySelector('#visualiser').contentWindow.the_tree.force_nodes.map((node) => node.id)
   ));
   expect(visualisedIds).toEqual(expect.arrayContaining(['alpha', 'beta', 'gamma', 'delta']));
+  expect(backendRequests).toEqual([]);
+  await expect(page.locator('#browser-status')).toContainText('data stayed on this device');
 });
 
 test('low-level browser Edmonds output matches the native fixture', async ({ page }) => {
@@ -154,13 +173,44 @@ test('low-level browser Edmonds output matches the native fixture', async ({ pag
   expect(edges).toEqual(fixture.edges);
 });
 
+test('MSTreeV2 preserves native float32 and branch-recraft tie behaviour', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8001/browser-wasm/');
+  const observed = await page.evaluate(() => new Promise((resolve, reject) => {
+    const backendUrl = new URL('./browser-backend.js', location.href).href;
+    const source = `
+      importScripts(${JSON.stringify(backendUrl)});
+      const hooks = self.GrapeTreeBrowserBackend.testHooks;
+      postMessage({
+        serialised: hooks.nativeEdmondsValue(3, 0),
+        branches: hooks.branchRecraft(
+          [[2, 1, 1], [0, 2, 18]],
+          [[0, 17, 18], [17, 0, 1], [18, 1, 0]],
+          [0.5, 0.8, 0],
+          3002
+        )
+      });
+    `;
+    const workerUrl = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
+    const worker = new Worker(workerUrl);
+    worker.onmessage = (event) => {
+      worker.terminate();
+      URL.revokeObjectURL(workerUrl);
+      resolve(event.data);
+    };
+    worker.onerror = (event) => reject(new Error(event.message));
+  }));
+
+  expect(observed.serialised).toBe(3.99999);
+  expect(observed.branches).toEqual([[2, 1, 1], [0, 2, 18]]);
+});
+
 test('standard MSTree profile calculation matches the shared fixture', async ({ page }) => {
   await page.goto('http://127.0.0.1:8001/browser-wasm/');
-  await page.locator('#method').selectOption('MSTree');
-  await page.getByRole('button', { name: 'Calculate tree' }).click();
-  await expect(page.locator('#result')).toContainText(';');
-
-  const result = await page.evaluate(() => window.lastGrapeTreeResult);
+  const result = await workerCalculate(
+    page,
+    fixtureText('compatibility/basic.profile'),
+    { method: 'MSTree', handleMissing: 'pair_delete' },
+  );
   expect(pairwiseDistances(result)).toEqual({
     'alpha|beta': 1,
     'alpha|delta': 4,

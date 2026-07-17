@@ -1006,7 +1006,14 @@ window.onload = function (){
 			icon.attr("class","glyphicon glyphicon-menu-down");
 		}
 	});
-	try_backend();
+	// The browser-only flavour supplies profile calculation through a parent
+	// Web Worker. Keep the normal Flask availability check for every other
+	// entry point.
+	if (location.search.indexOf('browser_backend=wasm') >= 0) {
+		cannot_connect=false;
+	} else {
+		try_backend();
+	}
 	loadNetFiles();
 };
 

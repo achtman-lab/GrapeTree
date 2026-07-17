@@ -147,7 +147,7 @@
     return matrix;
   }
 
-  function harmonicWeights(matrix) {
+  function harmonicWeights(matrix, groupSizes) {
     const size = matrix.length;
     const raw = matrix.map((row) => {
       let sum = Math.fround(0);
@@ -157,9 +157,16 @@
       }
       return Math.fround(size / sum);
     });
-    const order = raw.map((_, index) => index).sort((left, right) => raw[left] - raw[right] || left - right);
+    const order = raw.map((_, index) => index).sort((left, right) => (
+      raw[left] - raw[right]
+      || groupSizes[right] - groupSizes[left]
+      || left - right
+    ));
     const weights = Array(size);
-    order.forEach((index, rank) => { weights[index] = rank / size; });
+    // NumPy keeps this array as float32 because it is assigned back into the
+    // float32 harmonic-score array. Reproduce that precision before Edmonds
+    // and branch recrafting so close ties follow the native path.
+    order.forEach((index, rank) => { weights[index] = Math.fround(rank / size); });
     return weights;
   }
 
@@ -306,10 +313,12 @@
             .map((node) => [weights[node], matrix[source][node], node]).sort(tupleCompare);
           for (const [, distance, node] of middle) {
             if (distance < matrix[source][target] && !contemporary(matrix[target][lastCandidate], matrix[lastCandidate][target], matrix[source][target], distance, loci)) {
-              tried[target] = node; target = node; break;
+              // The established Python routine uses the final candidate from
+              // the preceding loop here, rather than the current middle node.
+              tried[target] = lastCandidate; target = lastCandidate; break;
             }
             if (distance >= matrix[source][target] && weights[node] < weights[target] && contemporary(matrix[lastCandidate][target], matrix[target][lastCandidate], distance, matrix[source][target], loci)) {
-              tried[target] = node; target = node; break;
+              tried[target] = lastCandidate; target = lastCandidate; break;
             }
             tried[lastCandidate] = target;
           }
@@ -340,6 +349,13 @@
     return left.length - right.length;
   }
 
+  function nativeEdmondsValue(distance, weight, diagonal = false) {
+    const roundedDistance = diagonal
+      ? Math.fround(0)
+      : Math.fround(Math.fround(Math.round(distance)) + weight);
+    return Number(Math.fround(roundedDistance + Math.fround(0.999995)).toFixed(5));
+  }
+
   async function asymmetricTree(matrix, weights, runEdmonds) {
     const original = matrix.map((row) => [...row]);
     const working = matrix.map((row) => [...row]);
@@ -352,9 +368,11 @@
     }
     const presence = working.map((_, index) => index).filter((index) => !removed.has(index));
     if (presence.length <= 1) return { branches: shortcuts, original };
-    const reduced = presence.map((source, row) => presence.map((target, column) => (
-      row === column ? 0 : Math.round(working[source][target]) + weights[source] + 0.999995
-    )));
+    const reduced = presence.map((source, row) => presence.map((target, column) => {
+      // NumPy retains float32 precision here, then serialises five decimal
+      // places before invoking Edmonds. Both details affect exact ties.
+      return nativeEdmondsValue(working[source][target], weights[source], row === column);
+    }));
     const wasmEdges = await runEdmonds(reduced);
     const branches = wasmEdges.map((edge) => [
       presence[edge.source], presence[edge.target], Math.trunc(edge.weight) - 1,
@@ -604,7 +622,10 @@
       links = symmetricTree(matrix, weights);
     } else if (method === 'MSTreeV2') {
       matrix = asymmetricDistance(parsed.profiles, mode);
-      weights = harmonicWeights(matrix);
+      weights = harmonicWeights(
+        matrix,
+        parsed.names.map((name) => parsed.embedded[name].length),
+      );
       const result = await asymmetricTree(matrix, weights, runners.edmonds);
       links = branchRecraft(result.branches, result.original, weights, options.totalLoci || parsed.profiles[0].length);
     } else {
@@ -619,5 +640,9 @@
     };
   }
 
-  global.GrapeTreeBrowserBackend = { calculateProfile, parseProfile };
+  global.GrapeTreeBrowserBackend = {
+    calculateProfile,
+    parseProfile,
+    testHooks: Object.freeze({ branchRecraft, nativeEdmondsValue }),
+  };
 }(self));
