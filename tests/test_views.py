@@ -4,7 +4,7 @@ import json
 from ete3 import Tree
 import pandas as pd
 
-from module import app, views
+from grapetree.module import app, views
 
 
 class MicroReactResponse:

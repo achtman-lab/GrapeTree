@@ -2,7 +2,7 @@ import json
 
 import numpy as np
 
-from module import geocode
+from grapetree.module import geocode
 
 
 class Response:

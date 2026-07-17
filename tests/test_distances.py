@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from module.MSTrees import distance_matrix
+from grapetree.module.MSTrees import distance_matrix
 
 
 PROFILES_WITH_MISSING_DATA = np.array(

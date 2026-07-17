@@ -1,4 +1,4 @@
-from module import app
+from grapetree.module import app
 
 
 def test_server_home():

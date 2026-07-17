@@ -4,8 +4,8 @@ import json
 import pytest
 from ete3 import Tree
 
-from module import MSTrees
-from module.MSTrees import backend, estimate_Consumption
+from grapetree.module import MSTrees
+from grapetree.module.MSTrees import backend, estimate_Consumption
 
 
 PROFILE = """#Strain\tA\tB\tC

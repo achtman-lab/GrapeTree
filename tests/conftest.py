@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import pytest
 
-from module import MSTrees, app
+from grapetree.module import MSTrees, app
 
 
 @pytest.fixture(autouse=True)

@@ -1,5 +1,5 @@
-from module import app
-from module.MSTrees import backend
+from grapetree.module import app
+from grapetree.module.MSTrees import backend
 
 
 PROFILE = """#Strain\tA\tB

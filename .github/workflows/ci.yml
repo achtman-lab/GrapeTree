@@ -34,7 +34,10 @@ jobs:
           python -m pip install . pytest
           python -m pip check
       - name: Run tests
-        run: python -m pytest -q
+        run: |
+          cp -R tests "${RUNNER_TEMP}/tests"
+          cd "${RUNNER_TEMP}"
+          python -m pytest -q tests
 
   package:
     name: Build and inspect package
