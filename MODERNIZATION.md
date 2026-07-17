@@ -70,15 +70,20 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
   with a column-wise selector. Randomised equivalence tests lock the legacy
   edge/tie behaviour, while a dense test proves only one edge per target is
   retained without calling `numpy.where` on the full matrix.
+- Removed the retired EnteroBase proxy from linked tree/metadata loading (issue
+  #112), fetching CORS-enabled source URLs directly with visible failures.
+  Added valid `.tree` file loading and malformed-tree error tests so issue #97
+  can no longer leave the interface indefinitely on “Loading Data”.
 
 ## Current verification
 
 - Clean wheel and source distribution build successfully with Hatchling.
 - 62 Python tests pass on Python 3.12.
-- 6 Playwright/Chromium tests pass against the Flask app, covering Newick
+- 9 Playwright/Chromium tests pass against the Flask app, covering Newick
   rendering, profile calculation, selected-subtree collapse, MicroReact export
   without metadata, exact long-branch cutoff behaviour, and visible duplicate
-  taxon errors.
+  taxon errors, direct linked trees, `.tree` file dispatch, and malformed-tree
+  failures.
 - PR #118 CI is green through the conventional-package-layout batch: Python
   3.10-3.14, distribution build and wheel smoke test, and Chromium browser
   smoke tests all pass. Re-check the newest run after every pushed batch.
@@ -112,10 +117,10 @@ Twenty-five issues were open at the 2026-07-17 audit.
 - Close after the modernization release verifies them: #93, #108.
 - Already answered/resolved; confirm and close with documentation links: #92,
   #103.
-- Fixed with regression tests and awaiting release/closure: #65, #96, #99,
-  #100, #102, #107, #109, #115.
-- Reproduce and investigate with supplied or generated fixtures: #82, #97,
-  #104, #112, #116.
+- Fixed with regression tests and awaiting release/closure: #65, #96, #97,
+  #99, #100, #102, #107, #109, #112, #115.
+- Reproduce and investigate with supplied or generated fixtures: #82, #104,
+  #116.
 - Features/API work: #81, #89, #94, #101, #111.
 - Documentation/scientific guidance: #110, #117.
 - Browser-only architecture: #113 is the direct static-site `/maketree` gap.
@@ -140,8 +145,9 @@ Notes from representative checks:
 - #65 allowed duplicate identifiers, including collisions introduced by legacy
   name sanitisation, to reach deduplication/tree construction. These are now
   rejected before calculation with an HTTP 400 response and visible UI error.
-- #112 is related to the hard-coded EnteroBase URL proxy in
-  `grapetree_fileHandler.js` and needs a CORS-aware remote-loading redesign.
+- #112 was caused by the hard-coded EnteroBase URL proxy. GitHub, Dropbox, and
+  Google Drive links are now normalised and fetched directly by the browser;
+  CORS/network/parse failures are displayed instead of hanging silently.
 - #107's reported failure was in a dense `numpy.where` coordinate list inside
   shortcut selection. That allocation is now linear in sample count and output
   is equivalent across random fixtures. The distance matrix itself remains

@@ -132,3 +132,44 @@ test('shows a clear error for duplicate taxon names', async ({ page }) => {
     'Duplicate taxon names after sanitising: alpha'
   );
 });
+
+test('loads a linked GitHub tree directly without the retired proxy', async ({ page }) => {
+  await page.route(
+    'https://raw.githubusercontent.com/example/project/main/tree.nwk',
+    route => route.fulfill({
+      status: 200,
+      contentType: 'text/plain',
+      body: '(linked_alpha:1,linked_beta:2);',
+    })
+  );
+
+  const linkedTree = 'https://github.com/example/project/blob/main/tree.nwk';
+  await page.goto(`/?tree=${encodeURIComponent(linkedTree)}`);
+
+  await expect.poll(async () => page.evaluate(() => (
+    the_tree ? the_tree.force_nodes.map(node => node.id).sort() : []
+  ))).toEqual(['_hypo_0', 'linked_alpha', 'linked_beta']);
+});
+
+test('reports a malformed tree instead of hanging on Loading Data', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => {
+    window.loadMSTree = () => { throw new Error('invalid tree fixture'); };
+    loadTreeText('(broken;');
+  });
+
+  await expect(page.locator('#waiting-information')).toHaveText(
+    'Unable to load tree: invalid tree fixture'
+  );
+});
+
+test('loads a valid tree file through the file-distribution path', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => {
+    distributeFile('(file_alpha:1,file_beta:2);', 'example.tree');
+  });
+
+  await expect.poll(async () => page.evaluate(() => (
+    the_tree ? the_tree.force_nodes.map(node => node.id).sort() : []
+  ))).toEqual(['_hypo_0', 'file_alpha', 'file_beta']);
+});

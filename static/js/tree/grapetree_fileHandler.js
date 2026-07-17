@@ -36,6 +36,29 @@ $('#welcome-div').toggle();
 }
 
 function loadNetFiles() {
+	function normaliseRemoteUrl(url) {
+		return url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
+			.replace('drive.google.com/open?', 'drive.google.com/uc?')
+			.replace('/blob/', '/').replace('github.com', 'raw.githubusercontent.com');
+	}
+	function loadRemoteText(url, description, onSuccess) {
+		$.ajax({
+			type: "GET",
+			url: url,
+			dataType: "text"
+		}).done(function(data) {
+			try {
+				onSuccess(data);
+			} catch (error) {
+				loadFailed("Unable to load remote " + description + ": " + error.message);
+			}
+		}).fail(function(jqXHR, textStatus) {
+			loadFailed(
+				"Unable to load remote " + description + " from " + url
+				+ ": " + textStatus
+			);
+		});
+	}
 	function getJsonFromUrl(hashBased) {
 		var query;
 		if(hashBased) {
@@ -68,9 +91,7 @@ function loadNetFiles() {
 	var params = getJsonFromUrl();
 	var tree = null, metadata = null;
 	for (var key in params) {
-		params[key] = params[key].replace('www.dropbox.com', 'dl.dropboxusercontent.com')
-						.replace('drive.google.com/open?', 'drive.google.com/uc?')
-						.replace('/blob/', '/').replace('github.com', 'raw.githubusercontent.com')
+		params[key] = normaliseRemoteUrl(params[key]);
 		if (key === 'tree') {
 			tree = params[key];
 		} else if (key == 'metadata') {
@@ -78,11 +99,7 @@ function loadNetFiles() {
 		}
 	}
 	if (tree) {
-		$.ajax({
-			type: "GET",
-			url: 'https://enterobase.warwick.ac.uk/grapetree_remote/'+tree,
-			headers: {'X-Requested-With': 'XMLHttpRequest'},
-			success: function(tree){
+		loadRemoteText(tree, "tree", function(tree) {
 				try {
 					data = typeof(tree) == 'string'? JSON.parse(tree) : tree;
 				} catch(error) {
@@ -99,16 +116,10 @@ function loadNetFiles() {
 					loadMSTree(tree_raw);
 				}
 				if (the_tree && metadata) {
-					$.ajax({
-						type: "GET",
-						url: 'https://enterobase.warwick.ac.uk/grapetree_remote/'+metadata,
-						headers: {'X-Requested-With': 'XMLHttpRequest'},
-						success: function(data){
-							loadMetadataText(data);
-						}
+					loadRemoteText(metadata, "metadata", function(data) {
+						loadMetadataText(data);
 					});
 				}
-			}
 		});
 	}
 }
@@ -226,20 +237,24 @@ function loadTreeText(tree){
 	//give time to dialog to display
 	setTimeout(function(){
 		try {
-			data =JSON.parse(tree);
-		} catch (e) {
-			data = {};
-			if ( tree.toUpperCase().startsWith('#NEXUS') ) {
-				data['nexus'] = tree;
-				data['layout_algorithm']=$("#layout-select").val();
+			try {
+				data =JSON.parse(tree);
+			} catch (e) {
+				data = {};
+				if ( tree.toUpperCase().startsWith('#NEXUS') ) {
+					data['nexus'] = tree;
+					data['layout_algorithm']=$("#layout-select").val();
+				}
+				else{
+					data['nwk']=tree;
+					data['layout_algorithm']=$("#layout-select").val();
+				}
 			}
-			else{
-				data['nwk']=tree;
-				data['layout_algorithm']=$("#layout-select").val();
-			}
+			tree_raw = data;
+			loadMSTree(tree_raw);
+		} catch (error) {
+			loadFailed("Unable to load tree: " + error.message);
 		}
-		tree_raw = data;
-		loadMSTree(tree_raw);
 	},500);
 };
 
