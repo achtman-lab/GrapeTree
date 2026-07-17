@@ -26,6 +26,11 @@ program as you would in EnteroBase; through a web browser.
 """
 from .module import app
 from .module.MSTrees import add_args, backend
+from .export import (
+    network_document,
+    read_text,
+    visualisation_document,
+)
 
 import threading
 import webbrowser
@@ -33,6 +38,7 @@ import traceback
 import argparse
 import os, sys
 import multiprocessing
+import json
 
 
 __licence__ = 'GPLv3'
@@ -54,7 +60,28 @@ def open_browser(PORT):
 def main() :
     multiprocessing.freeze_support()
     if len(sys.argv) > 1 :
-        sys.stdout.write(backend(**add_args()))
+        arguments = add_args()
+        visualisation_json = arguments.pop('visualisation_json')
+        network_format = arguments.pop('network_format')
+        treefile = arguments.pop('treefile')
+        metadata_path = arguments.pop('metadata')
+        if treefile:
+            newick = read_text(treefile)
+        else:
+            newick = backend(**arguments)
+        if visualisation_json:
+            metadata = read_text(metadata_path) if metadata_path else None
+            sys.stdout.write(
+                json.dumps(
+                    visualisation_document(newick, metadata),
+                    indent=2,
+                    sort_keys=True,
+                ) + '\n'
+            )
+        elif network_format:
+            sys.stdout.write(network_document(newick, network_format))
+        else:
+            sys.stdout.write(newick)
     else :
         try:
             desc = __doc__.split('\n\n')[1].strip()

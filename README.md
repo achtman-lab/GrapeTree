@@ -149,6 +149,29 @@ accepted values. Invalid methods, matrices, missing-data modes, heuristics, and
 profile paths are rejected before calculation with a concise command-line
 error.
 
+Create a reloadable GrapeTree visualisation document from an existing Newick
+tree and optional tab- or comma-delimited metadata:
+
+```bash
+grapetree --json --treefile tree.nwk --meta metadata.tsv > ms_tree.json
+```
+
+The metadata identifier column should be named `ID`; when it is absent, the
+first column is used. Duplicate or blank identifiers are rejected. The JSON can
+be dropped onto either the standalone or server-backed GrapeTree interface.
+
+Export the same tree as an undirected network for igraph, NetworkX, or other
+analysis tools:
+
+```bash
+grapetree --treefile tree.nwk --network-format graphml > tree.graphml
+grapetree --treefile tree.nwk --network-format csv > edges.csv
+grapetree --treefile tree.nwk --network-format json > network.json
+```
+
+These export flags also accept `--profile` instead of `--treefile`, calculating
+the selected tree method before serialising it.
+
 Detailed descriptions are available for
 [`--matrix`](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf),
 [`--recraft`](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf),

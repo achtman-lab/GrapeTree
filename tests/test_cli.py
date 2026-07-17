@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import sys
 import sysconfig
+import json
 
 import pytest
 from ete3 import Tree
@@ -94,6 +95,52 @@ def test_cli_reads_a_profile_from_standard_input():
     assert sorted(Tree(completed.stdout, format=1).get_leaf_names()) == [
         'alpha', 'beta', 'delta', 'gamma'
     ]
+
+
+def test_cli_creates_reloadable_visualisation_json(tmp_path):
+    tree_path = tmp_path / 'tree.nwk'
+    metadata_path = tmp_path / 'metadata.tsv'
+    tree_path.write_text('(alpha:1,beta:2);')
+    metadata_path.write_text('ID\tCountry\nalpha\tUK\nbeta\tFrance\n')
+
+    completed = run_cli(
+        '--json',
+        '--treefile', str(tree_path),
+        '--meta', str(metadata_path),
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    document = json.loads(completed.stdout)
+    assert document['nwk'] == '(alpha:1,beta:2);'
+    assert document['metadata']['alpha']['Country'] == 'UK'
+    assert document['initial_category'] == 'Country'
+    assert document['metadata_options']['Country']['label'] == 'Country'
+
+
+@pytest.mark.parametrize('output_format', ['graphml', 'csv', 'json'])
+def test_cli_exports_analysis_ready_networks(tmp_path, output_format):
+    tree_path = tmp_path / 'tree.nwk'
+    tree_path.write_text('(alpha:1,beta:2);')
+
+    completed = run_cli(
+        '--treefile', str(tree_path),
+        '--network-format', output_format,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    if output_format == 'graphml':
+        graph = __import__('networkx').parse_graphml(completed.stdout)
+        assert set(graph) == {'_hypo_0', 'alpha', 'beta'}
+        assert graph['_hypo_0']['alpha']['distance'] == 1.0
+    elif output_format == 'csv':
+        assert completed.stdout.splitlines()[0] == 'source,target,distance'
+        assert '_hypo_0,alpha,1.0' in completed.stdout
+    else:
+        document = json.loads(completed.stdout)
+        assert {node['id'] for node in document['nodes']} == {
+            '_hypo_0', 'alpha', 'beta'
+        }
+        assert len(document['links']) == 2
 
 
 @pytest.mark.parametrize(
