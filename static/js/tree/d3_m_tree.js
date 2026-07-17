@@ -915,7 +915,7 @@ D3MSTree.prototype.collapseSpecificNodes=function(nodes,uncollapse){
 			self.manual_collapsing[k] = val;
 		});
 	}
-	this.collapseNodes(this.node_collapsed_value, !uncollapse);	
+	this.collapseNodes(this.node_collapsed_value, !uncollapse);
 }
 
 
