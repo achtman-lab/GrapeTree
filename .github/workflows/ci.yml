@@ -97,3 +97,92 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run browser smoke tests
         run: npm run test:browser
+
+  platform:
+    name: ${{ matrix.name }} compatibility
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS Intel
+            os: macos-15-intel
+          - name: Windows
+            os: windows-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install GrapeTree and test dependencies
+        run: python -m pip install . pytest
+      - name: Run installed-package tests
+        run: |
+          cp -R tests "${RUNNER_TEMP}/tests"
+          cd "${RUNNER_TEMP}"
+          python -m pytest -q tests
+        shell: bash
+
+  native-macos:
+    name: Build macOS Intel application
+    runs-on: macos-15-intel
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install application build dependencies
+        run: python -m pip install . pyinstaller
+      - name: Build application bundle
+        run: ./build_mac.sh
+      - name: Smoke-test packaged command
+        run: |
+          test "$(dist/GrapeTree.app/Contents/MacOS/GrapeTree --version)" = "GrapeTree 2.3.0"
+          dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method MSTreeV2 --n_proc 1 > mstree.nwk
+          dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method NJ --n_proc 1 > nj.nwk
+          dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method RapidNJ --n_proc 1 > rapidnj.nwk
+          test -s mstree.nwk
+          test -s nj.nwk
+          test -s rapidnj.nwk
+          test "$(file -b dist/GrapeTree.app/Contents/MacOS/GrapeTree)" != ""
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GrapeTree-macOS-Intel
+          path: dist/GrapeTree.app
+          if-no-files-found: error
+
+  native-windows:
+    name: Build Windows application
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install application build dependencies
+        run: python -m pip install . pyinstaller
+      - name: Build application bundle
+        run: .\build_win.bat
+        shell: cmd
+      - name: Smoke-test packaged command
+        shell: pwsh
+        run: |
+          $version = & ".\dist\GrapeTree\GrapeTree.exe" --version
+          if ($version -ne "GrapeTree 2.3.0") { throw "Unexpected version: $version" }
+          & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method MSTreeV2 --n_proc 1 | Out-File -Encoding ascii mstree.nwk
+          & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method NJ --n_proc 1 | Out-File -Encoding ascii nj.nwk
+          & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method RapidNJ --n_proc 1 | Out-File -Encoding ascii rapidnj.nwk
+          foreach ($tree in @("mstree.nwk", "nj.nwk", "rapidnj.nwk")) {
+            if (-not (Test-Path $tree) -or (Get-Item $tree).Length -eq 0) { throw "Empty tree: $tree" }
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GrapeTree-Windows
+          path: dist/GrapeTree
+          if-no-files-found: error

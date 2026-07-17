@@ -32,24 +32,25 @@ grapetree
 
 **We also have ready-made binaries for download here: [https://github.com/achtman-lab/GrapeTree/releases](https://github.com/achtman-lab/GrapeTree/releases)**
 
-**Running on Mac: Download GrapeTree_mac.zip**
+**Running on Mac: Download GrapeTree-macOS-Intel.zip**
 
-You will need to unzip GrapeTree_mac.zip (just double click). Inside there will
-be an app you can drag into your Applications folder. You may be warned about
-Security settings, if you right click on the GrapeTree app and then click "Open"
-it should be fine.
+Unzip the archive and drag `GrapeTree.app` into the Applications folder. This
+build currently targets Intel Macs. It can run on Apple silicon through Rosetta
+2, but a native Apple-silicon release requires native builds of all three
+bundled tree executables. Published applications are not yet code-signed or
+notarised, so macOS may require explicitly allowing the application in Privacy
+& Security.
 
-**Running on Windows: Download GrapeTree_win.zip**
+**Running on Windows: Download GrapeTree-Windows.zip**
 
-Once downloaded, you will need to untzip GrapeTree_win.zip and then open the
-extracted folder and  run GrapeTree_win.exe. When you run it the first time on
-windows you might get a prompt about security. On Windows 10, click the small
-text: "More info", and then the button "Run Anyway".
+Unzip the whole archive, keep its files together, and run `GrapeTree.exe` from
+the extracted folder. Unsigned development builds may trigger Windows
+SmartScreen; release signing remains a prerequisite for removing that warning.
 
 **Running from source code**
 
-GrapeTree supports Python 3.10 or newer. Install GrapeTree and its dependencies
-from the repository with pip:
+GrapeTree supports Python 3.10 through 3.14. Install GrapeTree and its
+dependencies from the repository with pip:
 
 ```
 python -m pip install .

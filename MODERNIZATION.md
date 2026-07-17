@@ -63,6 +63,9 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - Expanded the installed-command tests across MSTree, MSTreeV2, NJ, RapidNJ,
   distance output, standard-input profiles, and concise invalid-input errors.
   The CLI now validates enumerated options and supports `--profile -`.
+- Modernised the PyInstaller scripts and added Python 3.12 installed-package
+  jobs for Windows and Intel macOS plus native application artefact jobs. Each
+  packaged application must run MSTreeV2, NJ, and RapidNJ before upload.
 
 ## Current verification
 
@@ -75,6 +78,10 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - PR #118 CI is green through the conventional-package-layout batch: Python
   3.10-3.14, distribution build and wheel smoke test, and Chromium browser
   smoke tests all pass. Re-check the newest run after every pushed batch.
+- A local unsigned Apple-silicon PyInstaller application builds and runs all
+  three native backends. Its Python launcher is arm64 while the bundled macOS
+  executables remain x86_64 and therefore rely on Rosetta 2. CI deliberately
+  publishes an Intel macOS artefact until native backend builds exist.
 - Current Python line coverage is about 61%; `grapetree.py` has no direct
   coverage. Coverage alone understates the larger risk: the legacy JavaScript
   editor previously had no project-owned browser tests.
@@ -89,9 +96,10 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - Add trusted PyPI publishing and release automation. PyPI 2.2 has no useful
   `Requires-Python` metadata, so issue #93 is not fully resolved until a new
   release is published.
-- Add Windows and macOS CI before claiming platform support. Then restore or
-  replace the old PyInstaller build scripts and smoke-test `.app`/`.dmg` and
-  Windows installer/portable artifacts.
+- Windows and Intel macOS CI/application jobs are now defined and must be
+  validated on GitHub. The next packaging gaps are signed/notarised macOS
+  `.dmg`, signed Windows installer/portable release archives, and native
+  Apple-silicon builds of FastME, RapidNJ, and Edmonds.
 
 ## GitHub issue triage
 
