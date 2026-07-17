@@ -1,4 +1,7 @@
-VERSION = '1.3.5'
+from .._version import __version__
+
+
+VERSION = __version__
 JAVASCRIPT_VERSION = '0.1.8'
 DEBUG = False
 PORT = 8000

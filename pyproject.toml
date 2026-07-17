@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "grapetree"
-version = "2.2"
+dynamic = ["version"]
 description = "Web interface of GrapeTree, which is a program for phylogenetic analysis."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -37,33 +37,29 @@ dependencies = [
 ]
 
 [project.scripts]
-grapetree = "grapetree.grapetree:main"
+grapetree = "grapetree.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/achtman-lab/GrapeTree"
 "Bug Reports" = "https://github.com/achtman-lab/GrapeTree/issues"
 Source = "https://github.com/achtman-lab/GrapeTree"
 
-[tool.hatch.build.targets.wheel]
-only-include = [
-  "__init__.py",
-  "grapetree.py",
-  "MSTree_holder.html",
-  "GT_icon.icns",
-  "GT_icon.ico",
-  "LICENSE",
-  "README.md",
-  "module",
-  "static",
-  "binaries",
-]
+[tool.hatch.version]
+path = "grapetree/_version.py"
 
-[tool.hatch.build.targets.wheel.sources]
-"" = "grapetree"
+[tool.hatch.build.targets.wheel]
+packages = ["grapetree"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"MSTree_holder.html" = "grapetree/MSTree_holder.html"
+"GT_icon.icns" = "grapetree/GT_icon.icns"
+"GT_icon.ico" = "grapetree/GT_icon.ico"
+"static" = "grapetree/static"
+"binaries" = "grapetree/binaries"
 
 [tool.hatch.build.targets.sdist]
 include = [
-  "/__init__.py",
+  "/grapetree",
   "/grapetree.py",
   "/MSTree_holder.html",
   "/GT_icon.icns",
@@ -74,7 +70,6 @@ include = [
   "/requirements.txt",
   "/build_mac.sh",
   "/build_win.bat",
-  "/module",
   "/static",
   "/binaries",
   "/documentation",

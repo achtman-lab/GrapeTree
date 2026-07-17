@@ -6,7 +6,16 @@ from subprocess import Popen, PIPE
 from types import MappingProxyType
 import sys, os, tempfile, platform, re, tempfile, psutil, gzip, subprocess
 
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from .._version import __version__
+
+package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if getattr(sys, 'frozen', False):
+    base_dir = sys._MEIPASS
+elif os.path.isdir(os.path.join(package_root, 'binaries')):
+    base_dir = package_root
+else:
+    # In editable installs, bundled executables remain at the repository root.
+    base_dir = os.path.dirname(package_root)
 
 DEFAULT_PARAMS = MappingProxyType(dict(
     method='MSTreeV2',  # MSTree, NJ
@@ -56,6 +65,7 @@ def contemporary(a,b,c, n_loci) :
 
 def add_args() :
     parser = argparse.ArgumentParser(description='For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/README.md".\nIn brief, GrapeTree generates a NEWICK tree to the default output (screen) \nor a redirect output, e.g., a file. ', formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('--version', action='version', version='%(prog)s {0}'.format(__version__))
     parser.add_argument('--profile', '-p', dest='fname', help='[REQUIRED] An input filename of a file containing MLST or SNP character data, OR a fasta file containing aligned sequences. \n', required=True)
     parser.add_argument('--method', '-m', dest='tree', help='"MSTreeV2" [DEFAULT]\n"MSTree"\n"NJ": FastME V2 NJ tree\n"RapidNJ": RapidNJ for very large datasets\n"ninja": Alternative NJ algorithm for very large datasets\n"distance": allelic distance matrix in PHYLIP format.', default='MSTreeV2')
     parser.add_argument('--matrix', '-x', dest='matrix_type', help='"symmetric": [DEFAULT: MSTree, NJ and RapidNJ] \n"asymmetric": [DEFAULT: MSTreeV2].\n"blockwise": (experimental for ordered loci) A different locus is given less penalty (defined by -b) if the previous locus is also different\n', default='symmetric')

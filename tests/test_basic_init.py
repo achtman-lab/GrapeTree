@@ -1,4 +1,9 @@
+from grapetree import __version__
 from grapetree.module import app
+
+
+def test_package_version():
+    assert __version__ == '2.3.0'
 
 
 def test_server_home():

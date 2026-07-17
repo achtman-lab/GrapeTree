@@ -54,6 +54,12 @@ from the repository with pip:
 ```
 python -m pip install .
 ```
+
+For development, use an editable install with the test dependencies:
+
+```
+python -m pip install -e . pytest
+```
 On Linux or MacOSX you need to make sure the binaries in binaries/ can be
 executed. To run GrapeTree;
 
@@ -72,7 +78,7 @@ view a tree (newick or Nexus) or create a tree from an allele profile, just drag
 and drop the file into the browser window.
 
 ### Configuration
-Runtime behaviour can be configured in grapetree/config.py.
+Runtime behaviour can be configured in `grapetree/module/config.py`.
 
 Developers may wish to look at the [JavaScript documentation](https://achtman-lab.github.io/GrapeTree/documentation/developer/index.html) (JSDoc).
 

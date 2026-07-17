@@ -1,23 +1,23 @@
 {% set name = "grapetree" %}
-{% set version = "2.2" %}
-{% set source_commit = "c81883e513d68b270b8c5a8158fd9f509315ed3a" %}
+{% set version = "2.3.0" %}
 
 package:
   name: {{ name }}
   version: {{ version }}
 
 source:
-  # Pin the modernization branch until its changes are included in a release tag.
-  url: https://github.com/achtman-lab/GrapeTree/archive/{{ source_commit }}.tar.gz
-  sha256: 335d313b52fcf74829b9179135bbf92551718028b6871c782ef28ce9ed5ff52d
+  # Use the modernization branch until v2.3.0 is tagged. Replace this with the
+  # release tarball URL and SHA-256 before submitting the recipe to Bioconda.
+  git_url: https://github.com/achtman-lab/GrapeTree.git
+  git_rev: codex/modernize-packaging-ci
 
 build:
   number: 0
   # GrapeTree bundles x86-64 executables for its tree-building backends.
-  skip: true  # [not x86_64 or win or py<310 or py>314]
+  skip: true  # [not x86_64 or py<310 or py>314]
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation --no-cache-dir -vv
   entry_points:
-    - grapetree = grapetree.grapetree:main
+    - grapetree = grapetree.cli:main
   run_exports:
     - {{ pin_subpackage(name, max_pin="x") }}
 
@@ -42,10 +42,11 @@ requirements:
 test:
   imports:
     - grapetree
-    - grapetree.grapetree
+    - grapetree.cli
     - grapetree.module.MSTrees
   commands:
     - grapetree --help
+    - grapetree --version
     - python -c "from grapetree import app; assert app.test_client().get('/').status_code == 200"
     - test -x "$SP_DIR/grapetree/binaries/edmonds-linux"  # [linux]
     - test -x "$SP_DIR/grapetree/binaries/edmonds-osx"  # [osx]

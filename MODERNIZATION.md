@@ -42,6 +42,10 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - Removed user-controlled `eval`, isolated per-request backend configuration,
   fixed wgMLST selection and complete deletion, and narrowed Edmonds fallback.
 - Added an initial Playwright browser gate and CI job.
+- Moved the Python code into a conventional `grapetree/` package while keeping
+  the root static site intact, restoring editable installs.
+- Established `grapetree/_version.py` as the authoritative 2.3.0 version source
+  for package metadata, the UI, and CLI `--version` output.
 - Fixed the large-profile Flask 3.1 form-field regression corresponding to
   issue #115 by setting bounded 64 MiB request/form limits.
 - Fixed `checkEnv` for the `distance` method, part of issue #99.
@@ -52,8 +56,8 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 
 ## Current verification
 
-- Clean wheel built successfully with Hatchling.
-- 34 Python tests pass from the installed wheel on Python 3.12.
+- Clean wheel and source distribution build successfully with Hatchling.
+- 37 Python tests pass from the installed wheel on Python 3.12.
 - 2 Playwright/Chromium tests pass against the installed-wheel Flask app:
   loading/rendering Newick and calculating/rendering a profile through
   `/maketree`.
@@ -65,13 +69,11 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 
 ## Known packaging/release gaps
 
-- `pip install .` and wheel installation work, but `pip install -e .` currently
-  fails because the Hatchling root-to-`grapetree` source-prefix rewrite cannot
-  be represented by the editable-install mechanism. Resolve with a conventional
-  package layout rather than relying on a fragile checkout-directory trick.
-- Versions disagree: project/Conda currently say 2.2, the UI config says 1.3.5,
-  and the latest GitHub release is 1.5.0. The intended modernization release is
-  2.3.0, with one authoritative version source.
+- Standard, editable, wheel, and source-checkout installations now work. Keep
+  all package assets and backend binaries covered when changing the layout.
+- Code and Conda metadata now use 2.3.0 from one Python version source. The
+  latest public GitHub release remains 1.5.0 until the modernization release is
+  ready.
 - Add trusted PyPI publishing and release automation. PyPI 2.2 has no useful
   `Requires-Python` metadata, so issue #93 is not fully resolved until a new
   release is published.
@@ -143,14 +145,13 @@ Notes from representative checks:
 
 1. Keep running the complete installed-wheel and Playwright suites for each
    implementation batch and inspect the resulting CI on PR #118.
-2. Resolve editable installs and consolidate the version to 2.3.0.
-3. Expand browser tests around issue #96 before porting its collapse fix, then
+2. Expand browser tests around issue #96 before porting its collapse fix, then
    cover and fix #109 and #102.
-4. Add Windows/macOS CI and assess the existing native build scripts and bundled
+3. Add Windows/macOS CI and assess the existing native build scripts and bundled
    executable architecture/licensing.
-5. Work through the issue buckets, posting clear closure/update comments only
+4. Work through the issue buckets, posting clear closure/update comments only
    after fixes are pushed and verified.
-6. Start the Edmonds WASM parity proof under `browser-wasm/` only after shared
+5. Start the Edmonds WASM parity proof under `browser-wasm/` only after shared
    golden fixtures exist.
 
 ## Useful verification commands
