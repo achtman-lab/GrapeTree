@@ -27,6 +27,7 @@ def generate_tree():
         tree = backend(profile= params['profile'],
                         method=params['method'],
                         checkEnv = params['checkEnv'],
+                        n_proc=params.get('n_proc', 1),
                         )
         return make_response(tree, 200)
 

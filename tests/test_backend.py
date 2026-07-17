@@ -121,6 +121,14 @@ def test_environment_estimate_contract(monkeypatch):
     }
 
 
+def test_distance_environment_estimate_contract():
+    result = json.loads(run_backend(PROFILE, 'distance', checkEnv=True))
+
+    assert result['time'] >= 5
+    assert result['memory'] >= 50 * 1024 * 1024
+    assert isinstance(result['affordable'], bool)
+
+
 def test_backend_calls_do_not_inherit_previous_options():
     run_backend(
         PROFILE_WITH_MISSING_DATA,

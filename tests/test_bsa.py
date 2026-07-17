@@ -1,3 +1,6 @@
+import json
+from urllib.parse import urlencode
+
 from grapetree.module import app
 from grapetree.module.MSTrees import backend
 
@@ -44,6 +47,38 @@ def test_mstree_v2_characterisation():
     assert tree == '(alpha:1,gamma:1,beta:0);'
 
 
+def test_large_profile_form_field_reaches_backend():
+    loci = 1521
+    header = '#Strain\t' + '\t'.join(
+        'locus_{0}'.format(index) for index in range(loci)
+    )
+    rows = [
+        'sample_{0}\t{1}'.format(
+            sample,
+            '\t'.join(
+                str(((sample * 17 + locus * 7) % 31) + 1)
+                for locus in range(loci)
+            ),
+        )
+        for sample in range(80)
+    ]
+    profile = '\n'.join([header] + rows)
+
+    response = app.test_client().post(
+        '/maketree',
+        data=dict(profile=profile, method='MSTreeV2', checkEnv='1'),
+    )
+
+    encoded_form = urlencode(
+        dict(profile=profile, method='MSTreeV2', checkEnv='1')
+    ).encode()
+    assert len(encoded_form) > 500_000
+    assert response.status_code == 200
+    estimate = json.loads(response.get_data(as_text=True))
+    assert estimate['memory'] > 0
+    assert estimate['time'] > 0
+
+
 def test_405():
     # maketree must be POST - cause of data size otherwise return 405
     app_test = app.test_client()
@@ -55,3 +90,4 @@ def test_params():
     # BSA params cannot be null
     app_test = app.test_client()
     assert app.config.get('PARAMS') is not None
+    assert app.config['PARAMS']['n_proc'] == 1
