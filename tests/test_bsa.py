@@ -1,4 +1,4 @@
-from grapetree import app
+from module import app
 from module.MSTrees import backend
 
 
@@ -24,6 +24,18 @@ def test_distance_matrix_characterisation():
 
     assert response.status_code == 200
     assert response.get_data(as_text=True) == EXPECTED_DISTANCE_MATRIX
+
+
+def test_maketree_request_does_not_leak_into_the_next_request():
+    app_test = app.test_client()
+    generated = app_test.post(
+        '/maketree',
+        data=dict(profile=PROFILE, method='distance', checkEnv='0'),
+    )
+    empty = app_test.post('/maketree')
+
+    assert generated.status_code == 200
+    assert empty.status_code == 204
 
 
 def test_mstree_v2_characterisation():

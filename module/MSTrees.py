@@ -697,7 +697,10 @@ def backend(**args) :
         fin = params['profile'].split('\n')
 
     allele_cols = None
+    fmt = None
     for line_id, line in enumerate(fin) :
+        if not line.strip() :
+            continue
         if line.startswith('#') :
             if not line.startswith('##') :
                 header = line.strip().split('\t')
@@ -712,6 +715,9 @@ def backend(**args) :
                 allele_cols = np.array([ id for id, col in enumerate(header) if id > 0 and not col.startswith('#') and not col.lower() in {'st_id', 'st'} ])
                 line_id += 1
         break
+
+    if fmt is None:
+        raise ValueError('Profile input contains no sequence or profile records')
 
     if fmt == 'fasta' :
         for line in fin[line_id:] :
@@ -732,7 +738,7 @@ def backend(**args) :
                 profiles.append(np.array(part)[allele_cols])
             else :
                 profiles.append(part[1:])
-    del fin, line, line_id, part, header
+    del fin
     profiles = np.char.upper(np.array(profiles, dtype=str))
     names = [re.sub(r'[\(\)\ \,\"\';]', '_', n) for n in names]
     names, profiles, embeded = nonredundant(np.array(names), np.array(profiles))
@@ -807,4 +813,3 @@ def estimate_Consumption(platform, method, matrix, n_proc, n_loci, n_profile) :
 if __name__ == '__main__' :
     tre = backend(**add_args())
     sys.stdout.write(tre+'\n')
-

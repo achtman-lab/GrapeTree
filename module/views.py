@@ -20,8 +20,8 @@ def index():
 @app.route("/maketree", methods=['POST'])
 def generate_tree():
     try:
-        params = app.config.get('PARAMS')
-        params.update(dict(request.form))
+        params = dict(app.config.get('PARAMS', {}))
+        params.update(request.form.to_dict(flat=True))
         if 'profile' not in params :
             return make_response('', 204)
         for param in params:
@@ -53,8 +53,9 @@ def sendToMicroReact(debug=None) :
             import pickle
             tree, metaString, colors = pickle.load(open(debug, 'rb'))
         else :
-            params = dict(request.form)
-            tree, metaString, colors, name = params['tree'][0], params['metadata'][0], json.loads(params['colors'][0]), params['name'][0]
+            params = request.form.to_dict(flat=True)
+            tree, metaString = params['tree'], params['metadata']
+            colors, name = json.loads(params['colors']), params['name']
 
         metadata = pd.read_csv(StringIO(metaString), sep='\t', header=[0], dtype=str, na_filter=False)
         for fld, categories in colors.items() :
