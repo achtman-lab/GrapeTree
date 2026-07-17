@@ -9,15 +9,25 @@
       textarea, pre { box-sizing: border-box; min-height: 14rem; padding: 1rem; width: 100%; }
       button { font: inherit; padding: .6rem 1rem; }
       pre { background: #f5f5f5; overflow: auto; }
+      iframe { border: 1px solid #bbb; height: 50rem; width: 100%; }
     </style>
   </head>
   <body>
     <h1>GrapeTree browser backend</h1>
-    <p>This separate prototype calculates a directed minimum spanning branching entirely in a Web Worker. No profile data leaves the browser.</p>
-    <label for="matrix">Square distance matrix (JSON)</label>
-    <textarea id="matrix"></textarea>
-    <p><button id="calculate" type="button">Calculate branching</button></p>
+    <p>This separate prototype calculates a GrapeTree minimum spanning tree entirely in a Web Worker. No profile data leaves the browser.</p>
+    <p><label for="profile-file">Profile file</label> <input id="profile-file" type="file"></p>
+    <p><label for="method">Method</label>
+      <select id="method">
+        <option value="MSTreeV2">MSTreeV2</option>
+        <option value="MSTree">MSTree</option>
+      </select>
+    </p>
+    <label for="profile">Allelic profile (tab-separated)</label>
+    <textarea id="profile"></textarea>
+    <p><button id="calculate" type="button">Calculate tree</button></p>
     <pre id="result" aria-live="polite">Ready.</pre>
+    <h2>Visualisation</h2>
+    <iframe id="visualiser" src="../MSTree_holder.html" title="GrapeTree visualisation" hidden></iframe>
     <script src="./app.js"></script>
   </body>
 </html>

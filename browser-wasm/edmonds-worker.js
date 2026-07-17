@@ -2,6 +2,7 @@
 'use strict';
 
 importScripts('./vendor/edmonds/edmonds.js');
+importScripts('./browser-backend.js');
 
 function normaliseMatrix(matrix) {
   if (!Array.isArray(matrix) || matrix.length < 2) {
@@ -52,8 +53,17 @@ async function calculate(matrix) {
 self.addEventListener('message', async (event) => {
   const id = event.data && event.data.id;
   try {
-    const edges = await calculate(event.data.matrix);
-    self.postMessage({ id, edges });
+    if (event.data.profile !== undefined) {
+      const result = await self.GrapeTreeBrowserBackend.calculateProfile(
+        event.data.profile,
+        event.data.options || {},
+        calculate,
+      );
+      self.postMessage({ id, result });
+    } else {
+      const edges = await calculate(event.data.matrix);
+      self.postMessage({ id, edges });
+    }
   } catch (error) {
     self.postMessage({ id, error: error instanceof Error ? error.message : String(error) });
   }
