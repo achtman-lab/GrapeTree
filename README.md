@@ -1,6 +1,6 @@
 # GrapeTree
 
-[![Build Status](https://travis-ci.org/achtman-lab/GrapeTree.svg?branch=master)](https://travis-ci.org/achtman-lab/GrapeTree)
+[![CI](https://github.com/achtman-lab/GrapeTree/actions/workflows/ci.yml/badge.svg)](https://github.com/achtman-lab/GrapeTree/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Docs Status](https://readthedocs.org/projects/enterobase/badge/)](http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html)
 
@@ -46,15 +46,13 @@ extracted folder and  run GrapeTree_win.exe. When you run it the first time on
 windows you might get a prompt about security. On Windows 10, click the small
 text: "More info", and then the button "Run Anyway".
 
-**Running from Source code**
+**Running from source code**
 
-GrapeTree requires [Python 2.7](https://www.python.org/downloads/release/python-2712/) or [Python 3.6](https://www.python.org/downloads/release/python-360/)
-and some additional python modules (listed in requirements.txt). The easiest way
-to install these modules is with pip:
+GrapeTree supports Python 3.10 or newer. Install GrapeTree and its dependencies
+from the repository with pip:
 
 ```
-pip install -r requirements.txt
-chmod +x binaries/
+python -m pip install .
 ```
 On Linux or MacOSX you need to make sure the binaries in binaries/ can be
 executed. To run GrapeTree;
@@ -79,10 +77,13 @@ Runtime behaviour can be configured in grapetree/config.py.
 Developers may wish to look at the [JavaScript documentation](https://achtman-lab.github.io/GrapeTree/documentation/developer/index.html) (JSDoc).
 
 ### Tests
-To run tests, run pytests in the top level directory.
-```
-pytest
 
+Install the package and pytest, then run the test suite from the top-level
+directory:
+
+```
+python -m pip install . pytest
+python -m pytest
 ```
 
 ## Usage - Command line module for generating Trees
@@ -211,4 +212,3 @@ Z Zhou, NF Alikhan, MJ Sergeant, N Luhmann, C Vaz, AP Francisco, JA Carrico,
 M Achtman (2018) "GrapeTree: Visualization of core genomic relationships among 
 100,000 bacterial pathogens", Genome Res; doi:
 [https://doi.org/10.1101/gr.232397.117](https://doi.org/10.1101/gr.232397.117)
-

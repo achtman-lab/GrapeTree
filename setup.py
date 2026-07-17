@@ -5,7 +5,7 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 
-from setuptools import setup, find_packages
+from setuptools import setup
 from codecs import open
 from os import path, walk
 
@@ -39,14 +39,15 @@ setup(
     url='https://github.com/achtman-lab/GrapeTree',
     author= __author__,
     author_email= __author_email__,
+    license='GPL-3.0-or-later',
     classifiers=[  # Optional
         'Development Status :: 5 - Production/Stable',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-#        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
     ],
 	entry_points={
         'console_scripts': [
@@ -62,9 +63,21 @@ setup(
         'module/*',
         'binaries/*',
     ]+recursive('static')},
-    packages = ['grapetree'],
+    packages = ['grapetree', 'grapetree.module'],
     package_dir = {'grapetree':'.'},
-    install_requires=['ete3', 'numpy', 'Flask', 'networkx', 'psutil', 'numba', 'unidecode'],
+    python_requires='>=3.10',
+    install_requires=[
+        'ete3',
+        'Flask',
+        'networkx',
+        'numba',
+        'numpy',
+        'pandas',
+        'psutil',
+        'requests',
+        'standard-cgi; python_version >= "3.13"',
+        'unidecode',
+    ],
     include_package_data=True,
     project_urls={
         'Bug Reports': 'https://github.com/achtman-lab/GrapeTree/issues',

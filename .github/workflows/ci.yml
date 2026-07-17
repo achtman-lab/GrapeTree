@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install GrapeTree and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install . pytest
+          python -m pip check
+      - name: Run tests
+        run: python -m pytest -q
+
+  package:
+    name: Build and inspect package
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Build distributions
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build twine
+          python -m build
+          python -m twine check dist/*
+      - name: Smoke-test the wheel
+        run: |
+          python -m pip install --force-reinstall dist/*.whl
+          cd "${RUNNER_TEMP}"
+          python -c "from grapetree import app; assert app.test_client().get('/').status_code == 200"
+          grapetree --help
