@@ -99,6 +99,38 @@ def test_empty_profile_has_a_clear_error():
         run_backend('## comment only\n', 'distance')
 
 
+@pytest.mark.parametrize(
+    ('profile', 'duplicate_name'),
+    [
+        (
+            """#Strain\tA\tB
+alpha\t1\t1
+alpha\t1\t2
+""",
+            'alpha',
+        ),
+        (
+            """#Strain\tA\tB
+alpha one\t1\t1
+alpha_one\t1\t2
+""",
+            'alpha_one',
+        ),
+    ],
+)
+def test_duplicate_or_colliding_taxon_names_are_rejected(
+    profile, duplicate_name
+):
+    with pytest.raises(
+        ValueError,
+        match=(
+            '^Duplicate taxon names after sanitising: '
+            f'{duplicate_name}$'
+        ),
+    ):
+        run_backend(profile, 'distance')
+
+
 def test_environment_estimate_contract(monkeypatch):
     monkeypatch.setattr(MSTrees.platform, 'system', lambda: 'Linux')
     monkeypatch.setattr(

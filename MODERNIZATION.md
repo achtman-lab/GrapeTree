@@ -53,16 +53,22 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
   CLI parallel-worker selection remains available.
 - Changed the UI's out-of-box calculation default from Java-dependent NINJA to
   MSTreeV2. NINJA remains selectable and is labelled as requiring Java.
+- Fixed duplicate and sanitisation-colliding taxon names being silently merged
+  (issue #65). The backend now reports a deterministic input error, the Flask
+  route preserves 400 and 413 status codes, and the browser displays the
+  backend's duplicate-name explanation.
 
 ## Current verification
 
 - Clean wheel and source distribution build successfully with Hatchling.
-- 37 Python tests pass from the installed wheel on Python 3.12.
-- 5 Playwright/Chromium tests pass against the Flask app, covering Newick
+- 41 Python tests pass on Python 3.12.
+- 6 Playwright/Chromium tests pass against the Flask app, covering Newick
   rendering, profile calculation, selected-subtree collapse, MicroReact export
-  without metadata, and exact long-branch cutoff behaviour.
-- PR #118 CI is green at commit `78bde55`: Python 3.10-3.14, distribution build
-  and wheel smoke test, and the new Chromium browser smoke tests all pass.
+  without metadata, exact long-branch cutoff behaviour, and visible duplicate
+  taxon errors.
+- PR #118 CI is green through the conventional-package-layout batch: Python
+  3.10-3.14, distribution build and wheel smoke test, and Chromium browser
+  smoke tests all pass. Re-check the newest run after every pushed batch.
 - Current Python line coverage is about 61%; `grapetree.py` has no direct
   coverage. Coverage alone understates the larger risk: the legacy JavaScript
   editor previously had no project-owned browser tests.
@@ -88,9 +94,9 @@ Twenty-five issues were open at the 2026-07-17 audit.
 - Close after the modernization release verifies them: #93, #108.
 - Already answered/resolved; confirm and close with documentation links: #92,
   #103.
-- Fixed with regression tests and awaiting release/closure: #96, #99, #102,
-  #109, #115.
-- Remaining regression-sized fixes needing tests first: #65, #100.
+- Fixed with regression tests and awaiting release/closure: #65, #96, #99,
+  #102, #109, #115.
+- Remaining regression-sized fix needing tests first: #100.
 - Reproduce and investigate with supplied or generated fixtures: #82, #97,
   #104, #107, #112, #115, #116.
 - Features/API work: #81, #89, #94, #101, #111.
@@ -113,6 +119,9 @@ Notes from representative checks:
   selected category. Export now omits colours when no matching column exists.
 - #102 was an equality inconsistency: “longer than X” hiding used `>= X` while
   shortening used `> X`. Both now honour the visible `> X` contract.
+- #65 allowed duplicate identifiers, including collisions introduced by legacy
+  name sanitisation, to reach deduplication/tree construction. These are now
+  rejected before calculation with an HTTP 400 response and visible UI error.
 - #112 is related to the hard-coded EnteroBase URL proxy in
   `grapetree_fileHandler.js` and needs a CORS-aware remote-loading redesign.
 - #107 is an O(n-squared) memory/performance problem in shortcut/distance work;
@@ -151,8 +160,8 @@ Notes from representative checks:
 
 1. Keep running the complete installed-wheel and Playwright suites for each
    implementation batch and inspect the resulting CI on PR #118.
-2. Expand browser tests around issue #96 before porting its collapse fix, then
-   cover and fix #109 and #102.
+2. Add shared golden topology and distance fixtures before changing further
+   scientific algorithms, starting with issues #82, #100, and #107.
 3. Add Windows/macOS CI and assess the existing native build scripts and bundled
    executable architecture/licensing.
 4. Work through the issue buckets, posting clear closure/update comments only
@@ -162,11 +171,12 @@ Notes from representative checks:
 
 ## Useful verification commands
 
-Build and test the installed wheel from outside the checkout. Avoid editable
-installation until the known Hatchling layout issue is fixed.
+Build and test both the editable checkout and installed wheel. The Hatchling
+editable-layout problem was fixed by moving the package under `grapetree/`.
 
 ```bash
 python -m build
+python -m pip install -e .
 python -m pip install --force-reinstall dist/*.whl pytest
 python -m pytest -q
 npm ci

@@ -339,10 +339,12 @@ function profile2check(profile) {
 						}
 					}
 				});
-	   }).fail(function( jqXHR, textStatus){
-				if (jqXHR.status == 405 || jqXHR.status == 404) {
-					loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/achtman-lab/GrapeTree/");
-				} else {
+				}).fail(function( jqXHR, textStatus){
+						if (jqXHR.status == 405 || jqXHR.status == 404) {
+							loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/achtman-lab/GrapeTree/");
+						} else if (jqXHR.status == 400 && jqXHR.responseText) {
+							loadFailed(jqXHR.responseText);
+						} else {
 					console.log(textStatus);
 					loadFailed("There server returned an error. Is the profile file in the right format?");
 				}
@@ -368,9 +370,11 @@ function profile2check(profile) {
 						tree_raw = {"nwk":result,"layout_algorithm":$("#layout-select").val()};
 						$("#headertag").text( $("#headertag").text() + ' (' + $("#method-select").val() + ')' );
 						loadMSTree(tree_raw);
-               }).fail(function( jqXHR, textStatus){
+				}).fail(function( jqXHR, textStatus){
 						if (jqXHR.status == 405 || jqXHR.status == 404) {
 							loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/achtman-lab/GrapeTree/");
+						} else if (jqXHR.status == 400 && jqXHR.responseText) {
+							loadFailed(jqXHR.responseText);
 						} else {
 							console.log(textStatus);
 							loadFailed("There server returned an error. Is the profile file in the right format?");

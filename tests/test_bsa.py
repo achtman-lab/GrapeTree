@@ -41,6 +41,27 @@ def test_maketree_request_does_not_leak_into_the_next_request():
     assert empty.status_code == 204
 
 
+def test_duplicate_taxa_return_a_user_input_error():
+    duplicate_profile = """#Strain\tA\tB
+alpha\t1\t1
+alpha\t1\t2
+"""
+
+    response = app.test_client().post(
+        '/maketree',
+        data=dict(
+            profile=duplicate_profile,
+            method='MSTreeV2',
+            checkEnv='0',
+        ),
+    )
+
+    assert response.status_code == 400
+    assert response.get_data(as_text=True) == (
+        'Duplicate taxon names after sanitising: alpha'
+    )
+
+
 def test_mstree_v2_characterisation():
     tree = backend(profile=PROFILE, method='MSTreeV2', n_proc=1)
 
@@ -77,6 +98,22 @@ def test_large_profile_form_field_reaches_backend():
     estimate = json.loads(response.get_data(as_text=True))
     assert estimate['memory'] > 0
     assert estimate['time'] > 0
+
+
+def test_oversized_profile_preserves_the_http_413_status(monkeypatch):
+    monkeypatch.setitem(app.config, 'MAX_CONTENT_LENGTH', 100)
+    monkeypatch.setitem(app.config, 'MAX_FORM_MEMORY_SIZE', 100)
+
+    response = app.test_client().post(
+        '/maketree',
+        data=dict(
+            profile='#Strain\tA\n' + ('sample\t1\n' * 100),
+            method='MSTreeV2',
+            checkEnv='0',
+        ),
+    )
+
+    assert response.status_code == 413
 
 
 def test_405():

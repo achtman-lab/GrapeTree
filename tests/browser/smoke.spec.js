@@ -120,3 +120,15 @@ test('applies long-branch actions only above the selected threshold', async ({ p
   expect(styles['10'].opacity).toBe(0);
   expect(styles['10'].dash).toBe('3,5');
 });
+
+test('shows a clear error for duplicate taxon names', async ({ page }) => {
+  await page.goto('/');
+
+  await page.evaluate(() => {
+    profile2tree(`#Strain\tA\tB\nalpha\t1\t1\nalpha\t1\t2\n`);
+  });
+
+  await expect(page.locator('#waiting-information')).toHaveText(
+    'Duplicate taxon names after sanitising: alpha'
+  );
+});

@@ -1,4 +1,5 @@
 import numpy as np, networkx as nx, argparse
+from collections import Counter
 from numba import jit
 from glob import glob
 from ete3 import Tree
@@ -860,6 +861,15 @@ def backend(**args) :
     del fin
     profiles = np.char.upper(np.array(profiles, dtype=str))
     names = [re.sub(r'[\(\)\ \,\"\';]', '_', n) for n in names]
+    duplicate_names = sorted(
+        name for name, count in Counter(names).items() if count > 1
+    )
+    if duplicate_names:
+        raise ValueError(
+            'Duplicate taxon names after sanitising: {0}'.format(
+                ', '.join(duplicate_names)
+            )
+        )
     names, profiles, embeded = nonredundant(
         np.array(names), np.array(profiles), config['handle_missing']
     )

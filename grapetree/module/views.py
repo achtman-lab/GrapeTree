@@ -2,6 +2,7 @@ import numpy as np, json, pandas as pd, re, requests, tempfile, os
 from ete3 import Tree
 from flask import render_template, request, make_response
 from io import StringIO
+from werkzeug.exceptions import HTTPException
 
 from . import app
 from .MSTrees import methods, backend
@@ -31,6 +32,10 @@ def generate_tree():
                         )
         return make_response(tree, 200)
 
+    except ValueError as e:
+        return make_response(str(e), 400)
+    except HTTPException:
+        raise
     except Exception as e:
         return make_response(str(e), 500)
 
