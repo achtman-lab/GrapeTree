@@ -48,6 +48,20 @@ def _resolve_dispatch(dispatch, name, label):
     except KeyError:
         raise ValueError('Unknown {0}: {1}'.format(label, name)) from None
 
+
+def _boolean(value, label):
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, np.integer)):
+        return bool(value)
+    if isinstance(value, str):
+        normalised = value.strip().lower()
+        if normalised in ('', '0', 'false', 'no', 'off'):
+            return False
+        if normalised in ('1', 'true', 'yes', 'on'):
+            return True
+    raise ValueError('Invalid boolean for {0}: {1}'.format(label, value))
+
 def contemporary(a0, a1, b, c, n_loci) :
     a0 = max(min(a0, n_loci-0.5), 0.5)
     a1 = max(min(a1, n_loci-0.5), 0.5)
@@ -789,6 +803,8 @@ def build_backend_config(args):
     """Return a validated, immutable configuration for one backend call."""
     config = dict(DEFAULT_PARAMS)
     config.update(args)
+    for option in ('branch_recraft', 'checkEnv', 'wgMLST'):
+        config[option] = _boolean(config[option], option)
     if config['method'] == 'MSTreeV2':
         config.update(
             method='MSTree',
@@ -928,7 +944,7 @@ def backend(**args) :
     names, profiles, embeded = nonredundant(
         np.array(names), np.array(profiles), config['handle_missing']
     )
-    if int(config.get('checkEnv', False)) :
+    if config.get('checkEnv', False) :
         estimate_matrix = (
             'asymmetric'
             if config['matrix_type'] == 'asymmetric_wgMLST'

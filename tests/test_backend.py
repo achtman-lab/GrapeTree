@@ -195,6 +195,28 @@ def test_distance_environment_estimate_contract():
     assert isinstance(result['affordable'], bool)
 
 
+@pytest.mark.parametrize('false_value', ['', '0', 'false', 'off'])
+def test_false_like_http_boolean_values_do_not_trigger_an_estimate(false_value):
+    result = backend(
+        profile=PROFILE,
+        method='MSTreeV2',
+        checkEnv=false_value,
+        n_proc=1,
+    )
+
+    assert result.endswith(';')
+
+
+def test_invalid_http_boolean_value_is_rejected_clearly():
+    with pytest.raises(ValueError, match='Invalid boolean for checkEnv'):
+        backend(
+            profile=PROFILE,
+            method='MSTreeV2',
+            checkEnv='perhaps',
+            n_proc=1,
+        )
+
+
 def test_backend_calls_do_not_inherit_previous_options():
     run_backend(
         PROFILE_WITH_MISSING_DATA,

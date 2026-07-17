@@ -114,7 +114,7 @@ jobs:
           curl --fail \
             --data-urlencode "profile@examples/simulated_data.profile" \
             --data "method=MSTreeV2" \
-            --data "checkEnv=" \
+            --data "checkEnv=0" \
             http://127.0.0.1:8000/maketree > docker-tree.nwk
           grep --quiet ';' docker-tree.nwk
 

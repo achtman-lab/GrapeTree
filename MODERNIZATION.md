@@ -99,6 +99,9 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
   an explicit visualiser-only explanation and standalone install path, covered
   in Chromium. Documented how to reopen `ms_tree.json` (#117). Browser-side
   calculation remains tracked separately and is not falsely presented as done.
+- Hardened HTTP boolean parsing after the Docker smoke test found that an empty
+  `checkEnv` form field reached `int()`. Empty/false-like values now remain
+  false and invalid strings receive a clear 400-level input error.
 
 ## Current verification
 
