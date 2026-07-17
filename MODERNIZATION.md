@@ -60,11 +60,14 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - Removed the Numba reflected-list call in MSTreeV2 branch recrafting (issue
   #100). `contemporary` now accepts scalar distances and has a regression test
   that rejects both the warning and any reflected-list compilation signature.
+- Expanded the installed-command tests across MSTree, MSTreeV2, NJ, RapidNJ,
+  distance output, standard-input profiles, and concise invalid-input errors.
+  The CLI now validates enumerated options and supports `--profile -`.
 
 ## Current verification
 
 - Clean wheel and source distribution build successfully with Hatchling.
-- 42 Python tests pass on Python 3.12.
+- 50 Python tests pass on Python 3.12.
 - 6 Playwright/Chromium tests pass against the Flask app, covering Newick
   rendering, profile calculation, selected-subtree collapse, MicroReact export
   without metadata, exact long-branch cutoff behaviour, and visible duplicate

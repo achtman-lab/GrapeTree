@@ -112,48 +112,30 @@ conda build conda -c conda-forge -c bioconda
 ```
 
 ## Usage - Command line module for generating Trees
-```
->grapetree -h
-usage: MSTrees.py [-h] --profile FNAME [--method TREE] [--matrix MATRIX_TYPE]
-                  [--recraft] [--missing HANDLER] [--wgMLST]
-                  [--heuristic HEURISTIC] [--n_proc NUMBER_OF_PROCESSES]
-                  [--check]
 
-For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/README.md".
-In brief, GrapeTree generates a NEWICK tree to the default output (screen)
-or a redirect output, e.g., a file.
+Generate an MSTreeV2 Newick tree from a profile file:
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --profile FNAME, -p FNAME
-                        [REQUIRED] An input filename of a file containing MLST or SNP character data, 
-                        OR a fasta file containing aligned sequences.
-  --method TREE, -m TREE
-                        "MSTreeV2" [DEFAULT]
-                        "MSTree"
-                        "NJ": FastME V2 NJ tree
-                        "RapidNJ": RapidNJ for very large datasets
-                        "distance": p-distance matrix in PHYLIP format.
-  --matrix MATRIX_TYPE, -x MATRIX_TYPE
-                        "symmetric": [DEFAULT: MSTree and NJ]
-                        "asymmetric": [DEFAULT: MSTreeV2].
-  --recraft, -r         Triggers local branch recrafting. [DEFAULT: MSTreeV2].
-  --missing HANDLER, -y HANDLER
-                        ONLY FOR symmetric DISTANCE MATRIX.
-                        0: [DEFAULT] ignore missing data in pairwise comparison.
-                        1: Remove column with missing data.
-                        2: treat data as an allele.
-                        3: Absolute number of allelic differences.
-  --heuristic HEURISTIC, -t HEURISTIC
-                        Tiebreak heuristic used only in MSTree and MSTreeV2
-                        "eBurst" [DEFAULT: MSTree]
-                        "harmonic" [DEFAULT: MSTreeV2]
-  --n_proc NUMBER_OF_PROCESSES, -n NUMBER_OF_PROCESSES
-                        Number of CPU processes in parallel use. [DEFAULT]: 5.
-  --check, -c           Only calculate the expected time/memory requirements.
 ```
-NOTE:
-* Detailed descriptions for [--matrix](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf), [--recraft](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf) and [--heuristic](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf)
+grapetree --profile examples/simulated_data.profile > tree.nwk
+```
+
+Profiles can also be streamed on standard input by using `-` as the profile:
+
+```
+cat examples/simulated_data.profile | grapetree --profile - > tree.nwk
+```
+
+The supported methods are `MSTreeV2` (default), `MSTree`, `NJ`, `RapidNJ`,
+`ninja`, and `distance`. Run `grapetree --help` for all current options and
+accepted values. Invalid methods, matrices, missing-data modes, heuristics, and
+profile paths are rejected before calculation with a concise command-line
+error.
+
+Detailed descriptions are available for
+[`--matrix`](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf),
+[`--recraft`](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf),
+and
+[`--heuristic`](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf).
 
 ## Inputs
 #### profile
