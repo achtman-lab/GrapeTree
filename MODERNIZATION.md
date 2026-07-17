@@ -58,8 +58,9 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
   route preserves 400 and 413 status codes, and the browser displays the
   backend's duplicate-name explanation.
 - Removed the Numba reflected-list call in MSTreeV2 branch recrafting (issue
-  #100). `contemporary` now accepts scalar distances and has a regression test
-  that rejects both the warning and any reflected-list compilation signature.
+  #100). `contemporary` now accepts scalar distances. The small scalar helper
+  no longer uses Numba at all, removing an unnecessary LLVM runtime dependency
+  and restoring installation on Intel macOS with supported Python versions.
 - Expanded the installed-command tests across MSTree, MSTreeV2, NJ, RapidNJ,
   distance output, standard-input profiles, and concise invalid-input errors.
   The CLI now validates enumerated options and supports `--profile -`.
@@ -74,19 +75,24 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
   #112), fetching CORS-enabled source URLs directly with visible failures.
   Added valid `.tree` file loading and malformed-tree error tests so issue #97
   can no longer leave the interface indefinitely on “Loading Data”.
+- Added a persisted “Show all IDs in grouped nodes” label option for issue #81,
+  using the existing grouped-isolate data rather than discarding all but the
+  representative ID.
 
 ## Current verification
 
 - Clean wheel and source distribution build successfully with Hatchling.
 - 62 Python tests pass on Python 3.12.
-- 9 Playwright/Chromium tests pass against the Flask app, covering Newick
+- 10 Playwright/Chromium tests pass against the Flask app, covering Newick
   rendering, profile calculation, selected-subtree collapse, MicroReact export
   without metadata, exact long-branch cutoff behaviour, and visible duplicate
   taxon errors, direct linked trees, `.tree` file dispatch, and malformed-tree
   failures.
 - PR #118 CI is green through the conventional-package-layout batch: Python
   3.10-3.14, distribution build and wheel smoke test, and Chromium browser
-  smoke tests all pass. Re-check the newest run after every pushed batch.
+  smoke tests all pass. The first native-platform run exposed Numba's missing
+  Intel macOS wheels, Windows console-script discovery, and the `.exe` suffix
+  in frozen CLI version output; fixes are implemented and await the next run.
 - A local unsigned Apple-silicon PyInstaller application builds and runs all
   three native backends. Its Python launcher is arm64 while the bundled macOS
   executables remain x86_64 and therefore rely on Rosetta 2. CI deliberately
@@ -121,9 +127,10 @@ Twenty-five issues were open at the 2026-07-17 audit.
   #99, #100, #102, #107, #109, #112, #115.
 - Reproduce and investigate with supplied or generated fixtures: #82, #104,
   #116.
-- Features/API work: #81, #89, #94, #101, #111.
+- Features/API work: #89, #94, #101, #111.
 - Documentation/scientific guidance: #110, #117.
 - Browser-only architecture: #113 is the direct static-site `/maketree` gap.
+- Fixed feature awaiting release/closure: #81.
 
 Notes from representative checks:
 
@@ -133,8 +140,9 @@ Notes from representative checks:
   present.
 - #100 reproduced on the current supported dependency set by calling the exact
   `contemporary` signature: Numba compiled `List(float64, True)` and emitted
-  `NumbaPendingDeprecationWarning`. Passing its two values as scalars removes
-  the warning and reflected-list signature without changing the calculation.
+  `NumbaPendingDeprecationWarning`. Passing its two values as scalars preserves
+  the calculation. Since this was the only JIT-compiled helper, Numba was then
+  removed rather than retaining its LLVM dependency and platform wheel gaps.
 - Old PR #98 changes one collapse call from an implicit argument to `false`, but
   contains distracting whitespace edits. Its functional fix has now been
   independently reproduced, ported, and covered for #96.
@@ -177,8 +185,8 @@ Notes from representative checks:
   verifying licences. Do not attempt to carry the bundled x86 binaries into the
   browser.
 - Pyodide supplies NumPy, pandas, and NetworkX, but not the existing subprocess
-  model and apparently not Numba. It is useful for prototyping, not a complete
-  drop-in backend.
+  model. Numba is no longer a dependency. Pyodide is useful for prototyping,
+  not a complete drop-in backend.
 - Use triangular/chunked distance storage and a Worker. Browser `wasm32` memory
   and the existing O(n-squared) algorithms remain constraints. WASM threads
   would additionally require COOP/COEP deployment headers.

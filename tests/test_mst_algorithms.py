@@ -1,9 +1,6 @@
 import subprocess
-import warnings
-
 import numpy as np
 import pytest
-from numba.core.errors import NumbaPendingDeprecationWarning
 
 from grapetree.module import MSTrees
 from grapetree.module.MSTrees import contemporary, methods, shortcut_links
@@ -26,20 +23,10 @@ def asymmetric_config(tmp_path, edmonds_path):
     }
 
 
-def test_contemporary_uses_scalars_without_numba_reflected_lists():
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter('always')
-        result = contemporary(1.0, 2.0, 3.0, 1.0, 100)
-
-    assert result is False
-    assert not any(
-        isinstance(item.message, NumbaPendingDeprecationWarning)
-        for item in caught
-    )
-    assert all(
-        'reflected list' not in str(signature).lower()
-        for signature in contemporary.signatures
-    )
+def test_contemporary_accepts_scalar_distances_without_a_jit_runtime():
+    assert contemporary(1.0, 2.0, 3.0, 1.0, 100) is False
+    assert contemporary(1.0, 2.0, 1.0, 1.0, 100) is True
+    assert not hasattr(contemporary, 'signatures')
 
 
 def legacy_shortcut_links(dist, weight, cutoff):

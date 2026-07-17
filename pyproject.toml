@@ -27,7 +27,6 @@ dependencies = [
   "ete3",
   "Flask",
   "networkx",
-  "numba",
   "numpy",
   "pandas",
   "psutil",

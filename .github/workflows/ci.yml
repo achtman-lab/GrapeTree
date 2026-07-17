@@ -174,7 +174,7 @@ jobs:
         shell: pwsh
         run: |
           $version = & ".\dist\GrapeTree\GrapeTree.exe" --version
-          if ($version -ne "GrapeTree 2.3.0") { throw "Unexpected version: $version" }
+          if ($version -notmatch '^GrapeTree(?:\.exe)? 2\.3\.0$') { throw "Unexpected version: $version" }
           & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method MSTreeV2 --n_proc 1 | Out-File -Encoding ascii mstree.nwk
           & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method NJ --n_proc 1 | Out-File -Encoding ascii nj.nwk
           & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method RapidNJ --n_proc 1 | Out-File -Encoding ascii rapidnj.nwk

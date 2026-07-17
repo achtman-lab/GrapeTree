@@ -32,7 +32,6 @@ requirements:
     - flask
     - legacy-cgi >=2.6.4
     - networkx
-    - numba
     - numpy
     - pandas
     - psutil

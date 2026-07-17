@@ -1,6 +1,5 @@
 import numpy as np, networkx as nx, argparse
 from collections import Counter
-from numba import jit
 from glob import glob
 from ete3 import Tree
 from subprocess import Popen, PIPE
@@ -48,7 +47,6 @@ def _resolve_dispatch(dispatch, name, label):
     except KeyError:
         raise ValueError('Unknown {0}: {1}'.format(label, name)) from None
 
-@jit(nopython=True)
 def contemporary(a0, a1, b, c, n_loci) :
     a0 = max(min(a0, n_loci-0.5), 0.5)
     a1 = max(min(a1, n_loci-0.5), 0.5)

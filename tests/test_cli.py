@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import sys
+import sysconfig
 
 import pytest
 from ete3 import Tree
@@ -20,7 +21,7 @@ def run_cli(*arguments, input_text=None):
     environment['PYTHONPATH'] = ''
     executable = shutil.which(
         'grapetree',
-        path=os.path.dirname(sys.executable),
+        path=sysconfig.get_path('scripts'),
     )
     assert executable is not None
     return subprocess.run(
