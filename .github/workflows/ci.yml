@@ -62,6 +62,27 @@ jobs:
           python -m pip install --editable .
           python -c "import grapetree; assert grapetree.__version__ == '2.3.0'"
           grapetree --version
+
+  conda-package:
+    name: Build Conda recipe
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: conda-incubator/setup-miniconda@v4
+        with:
+          miniforge-version: latest
+          activate-environment: conda-build
+          python-version: "3.12"
+          channels: conda-forge,bioconda
+          conda-remove-defaults: true
+      - name: Install conda-build
+        run: conda install --yes conda-build
+      - name: Build and test recipe
+        run: conda build conda --override-channels --channel conda-forge --channel bioconda
       - name: Smoke-test the source distribution
         run: |
           python -m pip install --force-reinstall dist/*.tar.gz

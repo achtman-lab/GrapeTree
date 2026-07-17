@@ -122,6 +122,17 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
   and distributed beside the generated module and licence. Both methods match
   the established backend's shared pairwise-distance fixtures, including the
   legacy ETE midpoint/unroot branch transformation.
+- Added release automation triggered only by a published GitHub release. It
+  verifies the `vX.Y.Z` tag against the package version, builds and checks wheel
+  and sdist, publishes to PyPI through short-lived OIDC trusted publishing,
+  packages smoke-tested Intel macOS and Windows applications, packages the
+  complete static browser application, and attaches all artefacts plus SHA-256
+  checksums to the existing GitHub release.
+- Added an x86-64 Linux CI build of the Conda recipe and a Bioconda submission
+  checklist. The recipe intentionally is not `noarch`: the established NJ,
+  RapidNJ, and Edmonds executables are platform binaries. Its source switches
+  from the modernisation branch to the release tarball and checksum only after
+  v2.3.0 exists.
 
 ## Current verification
 
@@ -154,9 +165,11 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - Code and Conda metadata now use 2.3.0 from one Python version source. The
   latest public GitHub release remains 1.5.0 until the modernization release is
   ready.
-- Add trusted PyPI publishing and release automation. PyPI 2.2 has no useful
-  `Requires-Python` metadata, so issue #93 is not fully resolved until a new
-  release is published.
+- Trusted PyPI and GitHub release automation is defined. A project owner must
+  configure the PyPI trusted publisher for `achtman-lab/GrapeTree`, workflow
+  `release.yml`, environment `pypi`, and require environment approval before
+  publishing 2.3.0. PyPI 2.2 has no useful `Requires-Python` metadata, so issue
+  #93 is not fully resolved until that release is actually published.
 - Windows and Intel macOS CI/application jobs are now defined and must be
   validated on GitHub. The next packaging gaps are signed/notarised macOS
   `.dmg`, signed Windows installer/portable release archives, and native
