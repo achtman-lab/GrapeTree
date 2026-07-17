@@ -57,8 +57,8 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - 2 Playwright/Chromium tests pass against the installed-wheel Flask app:
   loading/rendering Newick and calculating/rendering a profile through
   `/maketree`.
-- Previous CI on PR #118 was green across Python 3.10-3.14 before the latest
-  local additions. Push and re-check CI after the current changes are committed.
+- PR #118 CI is green at commit `78bde55`: Python 3.10-3.14, distribution build
+  and wheel smoke test, and the new Chromium browser smoke tests all pass.
 - Current Python line coverage is about 61%; `grapetree.py` has no direct
   coverage. Coverage alone understates the larger risk: the legacy JavaScript
   editor previously had no project-owned browser tests.
@@ -141,8 +141,8 @@ Notes from representative checks:
 
 ## Immediate next steps
 
-1. Run the complete installed-wheel and Playwright suites after every current
-   diff is finalized; inspect the resulting CI on PR #118.
+1. Keep running the complete installed-wheel and Playwright suites for each
+   implementation batch and inspect the resulting CI on PR #118.
 2. Resolve editable installs and consolidate the version to 2.3.0.
 3. Expand browser tests around issue #96 before porting its collapse fix, then
    cover and fix #109 and #102.
