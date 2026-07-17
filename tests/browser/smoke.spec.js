@@ -137,6 +137,23 @@ test('shows a clear error for duplicate taxon names', async ({ page }) => {
   );
 });
 
+test('explains the static page backend boundary and standalone route', async ({ page }) => {
+  await page.route('**/maketree', route => route.fulfill({ status: 404 }));
+  await page.goto('/');
+  await expect.poll(() => page.evaluate(() => cannot_connect)).toBe(true);
+
+  await page.evaluate(() => {
+    distributeFile('#Strain\tA\nalpha\t1\n', 'profile.tsv');
+  });
+
+  await expect(page.locator('#waiting-information')).toContainText(
+    'Tree calculation is unavailable on this static page'
+  );
+  await expect(page.locator('#waiting-information')).toContainText(
+    'pip install grapetree'
+  );
+});
+
 test('loads a linked GitHub tree directly without the retired proxy', async ({ page }) => {
   await page.route(
     'https://raw.githubusercontent.com/example/project/main/tree.nwk',

@@ -159,6 +159,17 @@ grapetree --json --treefile tree.nwk --meta metadata.tsv > ms_tree.json
 The metadata identifier column should be named `ID`; when it is absent, the
 first column is used. Duplicate or blank identifiers are rejected. The JSON can
 be dropped onto either the standalone or server-backed GrapeTree interface.
+An existing `ms_tree.json` saved from the interface is opened the same way:
+press **Load Files** and choose it, paste its contents into the load dialog, or
+drag it onto the graph. It already contains the tree, metadata, colours, and
+saved layout, so it must be loaded as a tree document rather than as metadata.
+
+The GitHub Pages site is a static visualiser. It can load Newick, Nexus, and
+GrapeTree JSON documents, but it cannot calculate a tree from an allele/SNP
+profile because there is no Python/native backend behind `/maketree`. Use the
+standalone server, Docker image, or a precomputed tree. The separate
+`browser-wasm/` track is intended to remove that limitation without changing
+the established Flask application.
 
 Export the same tree as an undirected network for igraph, NetworkX, or other
 analysis tools:

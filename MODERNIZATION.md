@@ -95,12 +95,16 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
   workflow (#116), linking the current vendor instructions. Added
   `--total-loci` so SNP-only alignments can retain MSTreeV2's original
   branch-recrafting model, with full-vs-variable-site parity tests (#110).
+- Replaced the static site's opaque “Cannot Connect” failure (#104/#113) with
+  an explicit visualiser-only explanation and standalone install path, covered
+  in Chromium. Documented how to reopen `ms_tree.json` (#117). Browser-side
+  calculation remains tracked separately and is not falsely presented as done.
 
 ## Current verification
 
 - Clean wheel and source distribution build successfully with Hatchling.
 - 62 Python tests pass on Python 3.12.
-- 11 Playwright/Chromium tests pass against the Flask app, covering Newick
+- 12 Playwright/Chromium tests pass against the Flask app, covering Newick
   rendering, profile calculation, selected-subtree collapse, MicroReact export
   without metadata, exact long-branch cutoff behaviour, and visible duplicate
   taxon errors, direct linked trees, `.tree` file dispatch, and malformed-tree
@@ -146,7 +150,7 @@ Twenty-five issues were open at the 2026-07-17 audit.
   #99, #100, #102, #107, #109, #112, #115.
 - Reproduce and investigate with supplied or generated fixtures: #82, #104.
 - Features/API work: none from the current open-issue set.
-- Documentation/scientific guidance: #117.
+- Documentation/scientific guidance: none from the current open-issue set.
 - Browser-only architecture: #113 is the direct static-site `/maketree` gap.
 - Fixed feature awaiting release/closure: #81, #89, #94, #101, #110, #111,
   #116.
