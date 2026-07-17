@@ -82,6 +82,9 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
   MSTreeV2, NJ, RapidNJ, and all four missing-data modes. Tree expectations use
   pairwise path distances so harmless Newick rooting/order changes do not mask
   or manufacture scientific differences; browser-WASM must use the same JSON.
+- Added a supported, unprivileged Python 3.12/Gunicorn container and a CI smoke
+  test that starts the server and calculates an MSTreeV2 tree, resolving the
+  deployment gap in issue #111 without embedding SSH or a development server.
 
 ## Current verification
 
@@ -133,10 +136,10 @@ Twenty-five issues were open at the 2026-07-17 audit.
   #99, #100, #102, #107, #109, #112, #115.
 - Reproduce and investigate with supplied or generated fixtures: #82, #104,
   #116.
-- Features/API work: #89, #94, #101, #111.
+- Features/API work: #89, #94, #101.
 - Documentation/scientific guidance: #110, #117.
 - Browser-only architecture: #113 is the direct static-site `/maketree` gap.
-- Fixed feature awaiting release/closure: #81.
+- Fixed feature awaiting release/closure: #81, #111.
 
 Notes from representative checks:
 

@@ -98,6 +98,26 @@ jobs:
       - name: Run browser smoke tests
         run: npm run test:browser
 
+  docker:
+    name: Docker application
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build container image
+        run: docker build --tag grapetree:test .
+      - name: Run server and calculate a tree
+        run: |
+          docker run --detach --name grapetree-test --publish 8000:8000 grapetree:test
+          trap 'docker logs grapetree-test' EXIT
+          curl --fail --retry 20 --retry-delay 1 --retry-all-errors http://127.0.0.1:8000/ > /dev/null
+          curl --fail \
+            --data-urlencode "profile@examples/simulated_data.profile" \
+            --data "method=MSTreeV2" \
+            --data "checkEnv=" \
+            http://127.0.0.1:8000/maketree > docker-tree.nwk
+          grep --quiet ';' docker-tree.nwk
+
   platform:
     name: ${{ matrix.name }} compatibility
     runs-on: ${{ matrix.os }}

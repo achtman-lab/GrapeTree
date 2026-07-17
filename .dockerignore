@@ -1,0 +1,12 @@
+.git
+.github
+.pytest_cache
+__pycache__
+*.pyc
+build
+dist
+node_modules
+playwright-report
+test-results
+.coverage
+.venv

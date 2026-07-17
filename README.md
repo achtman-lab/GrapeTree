@@ -112,6 +112,23 @@ conda render conda -c conda-forge -c bioconda
 conda build conda -c conda-forge -c bioconda
 ```
 
+### Docker
+
+Build and run the supported container from the repository root:
+
+```bash
+docker build -t grapetree .
+docker run --rm -p 8000:8000 grapetree
+```
+
+Then open <http://localhost:8000>. The image runs the same Flask-backed
+application under Gunicorn and includes the Linux MSTreeV2, NJ, and RapidNJ
+backends. It runs as an unprivileged user and does not include SSH or require
+mounting the source tree. To keep generated files outside the container, use
+the command-line wheel on the host or add an explicit bind mount for your own
+workflow; uploaded browser data is processed in the request and is not kept as
+a container volume.
+
 ## Usage - Command line module for generating Trees
 
 Generate an MSTreeV2 Newick tree from a profile file:
