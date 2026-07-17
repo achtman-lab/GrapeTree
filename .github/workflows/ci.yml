@@ -107,7 +107,7 @@ jobs:
       - name: Compile Edmonds WebAssembly reproducibly
         run: ./browser-wasm/compile-docker.sh
       - name: Verify committed browser artefacts are current
-        run: git diff --exit-code -- browser-wasm/vendor/edmonds
+        run: git diff --exit-code -- browser-wasm/vendor
 
   docker:
     name: Docker application

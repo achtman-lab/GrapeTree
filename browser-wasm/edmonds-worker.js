@@ -2,6 +2,7 @@
 'use strict';
 
 importScripts('./vendor/edmonds/edmonds.js');
+importScripts('./vendor/rapidnj/rapidnj.js');
 importScripts('./browser-backend.js');
 
 function normaliseMatrix(matrix) {
@@ -50,6 +51,27 @@ async function calculate(matrix) {
   return edges;
 }
 
+async function calculateRapidNJ(matrix) {
+  const stderr = [];
+  const module = await createRapidNJ({
+    noInitialRun: true,
+    locateFile: (path) => new URL(`./vendor/rapidnj/${path}`, self.location.href).href,
+    print: () => {},
+    printErr: (line) => stderr.push(String(line)),
+  });
+  const input = '/distances.phy';
+  const output = '/rapidnj.nwk';
+  module.FS.writeFile(input, `${matrix.length}\n${matrix.map((row, index) => (
+    `${index} ${row.map((value) => Number(value).toFixed(6)).join(' ')}`
+  )).join('\n')}\n`);
+  module.callMain(['-n', '-x', output, '-i', 'pd', input]);
+  try {
+    return module.FS.readFile(output, { encoding: 'utf8' }).trim();
+  } catch (error) {
+    throw new Error(stderr.join('\n') || `RapidNJ did not create a tree: ${error.message}`);
+  }
+}
+
 self.addEventListener('message', async (event) => {
   const id = event.data && event.data.id;
   try {
@@ -57,7 +79,7 @@ self.addEventListener('message', async (event) => {
       const result = await self.GrapeTreeBrowserBackend.calculateProfile(
         event.data.profile,
         event.data.options || {},
-        calculate,
+        { edmonds: calculate, rapidNJ: calculateRapidNJ },
       );
       self.postMessage({ id, result });
     } else {

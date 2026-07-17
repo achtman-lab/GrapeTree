@@ -52,6 +52,65 @@ function pairwiseDistances(result) {
   return distances;
 }
 
+function newickPairwiseDistances(newick) {
+  const tokens = newick.match(/[^\s(),:;]+|[(),:;]/g);
+  let position = 0;
+  function parseNode() {
+    const node = { children: [], name: null, length: 0 };
+    if (tokens[position] === '(') {
+      position += 1;
+      do {
+        node.children.push(parseNode());
+        if (tokens[position] === ',') position += 1;
+        else break;
+      } while (position < tokens.length);
+      if (tokens[position] !== ')') throw new Error('Invalid Newick fixture output');
+      position += 1;
+    } else {
+      node.name = tokens[position];
+      position += 1;
+    }
+    if (tokens[position] === ':') {
+      position += 1;
+      node.length = Number(tokens[position]);
+      position += 1;
+    }
+    return node;
+  }
+  const root = parseNode();
+  const adjacency = {};
+  const leaves = [];
+  let nextInternal = 0;
+  function connect(node, parent = null) {
+    const id = node.name || `__internal_${nextInternal++}`;
+    adjacency[id] ||= [];
+    if (node.name) leaves.push(id);
+    if (parent) {
+      adjacency[id].push([parent, node.length]);
+      adjacency[parent].push([id, node.length]);
+    }
+    node.children.forEach((child) => connect(child, id));
+  }
+  connect(root);
+  const result = {};
+  for (let left = 0; left < leaves.length; left += 1) {
+    for (let right = left + 1; right < leaves.length; right += 1) {
+      const pending = [[leaves[left], 0, null]];
+      while (pending.length) {
+        const [node, distance, parent] = pending.pop();
+        if (node === leaves[right]) {
+          result[[leaves[left], leaves[right]].sort().join('|')] = distance;
+          break;
+        }
+        adjacency[node].forEach(([next, weight]) => {
+          if (next !== parent) pending.push([next, distance + weight, node]);
+        });
+      }
+    }
+  }
+  return result;
+}
+
 test('calculates MSTreeV2 from a profile entirely in a Web Worker', async ({ page }) => {
   await page.goto('http://127.0.0.1:8001/browser-wasm/');
   await page.getByRole('button', { name: 'Calculate tree' }).click();
@@ -141,4 +200,30 @@ test('issue 82 technical-replicate behaviour matches both established methods', 
 
   expect(pairwiseDistances(mstree)['iso1-run1|iso1-run2']).toBe(1);
   expect(pairwiseDistances(mstreeV2)['iso1-run1|iso1-run2']).toBe(17);
+});
+
+test('RapidNJ WASM matches the established backend fixture', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8001/browser-wasm/');
+  const result = await workerCalculate(
+    page,
+    fixtureText('compatibility/basic.profile'),
+    { method: 'RapidNJ', handleMissing: 'pair_delete' },
+  );
+  const observed = newickPairwiseDistances(result.newick);
+  for (const [pair, value] of Object.entries(expected.tree_pairwise_distances.RapidNJ)) {
+    expect(observed[pair]).toBeCloseTo(value, 4);
+  }
+});
+
+test('browser standard NJ matches the FastME backend fixture', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8001/browser-wasm/');
+  const result = await workerCalculate(
+    page,
+    fixtureText('compatibility/basic.profile'),
+    { method: 'NJ', handleMissing: 'pair_delete' },
+  );
+  const observed = newickPairwiseDistances(result.newick);
+  for (const [pair, value] of Object.entries(expected.tree_pairwise_distances.NJ)) {
+    expect(observed[pair]).toBeCloseTo(value, 4);
+  }
 });

@@ -419,7 +419,147 @@
     return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(6)));
   }
 
-  async function calculateProfile(text, options, runEdmonds) {
+  function expandNumericNewick(newick, names, embedded) {
+    return newick.replace(/(^|[(,])'?(\d+)'?(?=:)/g, (match, prefix, rawIndex) => {
+      const name = names[Number(rawIndex)];
+      if (name === undefined) throw new Error(`RapidNJ returned unknown taxon index: ${rawIndex}`);
+      const group = embedded[name];
+      const label = group.length > 1
+        ? `(${group.map((member) => `${member}:0`).join(',')})`
+        : name;
+      return `${prefix}${label}`;
+    });
+  }
+
+  function eteLegacyMidpointUnroot(newick) {
+    const tokens = newick.match(/[^\s(),:;]+|[(),:;]/g);
+    let position = 0;
+    function parse(parent = null) {
+      const node = { children: [], label: '', length: 0, parent };
+      if (tokens[position] === '(') {
+        position += 1;
+        do {
+          node.children.push(parse(node));
+          if (tokens[position] === ',') position += 1;
+          else break;
+        } while (position < tokens.length);
+        if (tokens[position] !== ')') throw new Error('RapidNJ returned invalid Newick.');
+        position += 1;
+        if (![':', ',', ')', ';'].includes(tokens[position])) {
+          node.label = tokens[position++];
+        }
+      } else {
+        node.label = tokens[position++];
+      }
+      if (tokens[position] === ':') {
+        position += 1;
+        node.length = Number(tokens[position++]);
+      }
+      return node;
+    }
+    const root = parse();
+    const leaves = [];
+    (function collect(node) {
+      if (!node.children.length) leaves.push(node);
+      node.children.forEach(collect);
+    }(root));
+    function pathToRoot(node) {
+      const path = [];
+      let distance = 0;
+      while (node) {
+        path.push([node, distance]);
+        distance += node.length;
+        node = node.parent;
+      }
+      return path;
+    }
+    function distance(left, right) {
+      const leftPath = new Map(pathToRoot(left));
+      for (const [node, rightDistance] of pathToRoot(right)) {
+        if (leftPath.has(node)) return leftPath.get(node) + rightDistance;
+      }
+      return 0;
+    }
+    let first = leaves[0];
+    let rootDistance = -Infinity;
+    for (const leaf of leaves) {
+      const value = distance(root, leaf);
+      if (value > rootDistance) { first = leaf; rootDistance = value; }
+    }
+    let diameter = -Infinity;
+    for (const leaf of leaves) {
+      const value = distance(first, leaf);
+      if (value > diameter) diameter = value;
+    }
+    let current = first;
+    let climbed = 0;
+    while (current) {
+      climbed += current.length;
+      if (climbed > diameter / 2) break;
+      current = current.parent;
+    }
+    if (!current || current === root) current = root.children[0];
+    current.length /= 2;
+
+    function serialise(node) {
+      const body = node.children.length
+        ? `(${node.children.map(serialise).join(',')})${node.label}`
+        : node.label;
+      return node.parent ? `${body}:${formatDistance(node.length)}` : body;
+    }
+    return `${serialise(root)};`;
+  }
+
+  function neighbourJoiningNewick(inputMatrix) {
+    let matrix = inputMatrix.map((row) => row.map((value) => Number(value.toFixed(6))));
+    let nodes = matrix.map((_, index) => String(index));
+    while (nodes.length > 3) {
+      const size = nodes.length;
+      const totals = matrix.map((row) => row.reduce((sum, value) => sum + value, 0));
+      let bestLeft = 0;
+      let bestRight = 1;
+      let bestScore = Infinity;
+      for (let left = 0; left < size; left += 1) {
+        for (let right = left + 1; right < size; right += 1) {
+          const score = (size - 2) * matrix[left][right] - totals[left] - totals[right];
+          if (score < bestScore) {
+            bestScore = score; bestLeft = left; bestRight = right;
+          }
+        }
+      }
+      const pairDistance = matrix[bestLeft][bestRight];
+      const leftLength = pairDistance / 2 + (totals[bestLeft] - totals[bestRight]) / (2 * (size - 2));
+      const rightLength = pairDistance - leftLength;
+      const joined = `(${nodes[bestLeft]}:${formatDistance(leftLength)},${nodes[bestRight]}:${formatDistance(rightLength)})`;
+      const retained = nodes.map((_, index) => index).filter((index) => index !== bestLeft && index !== bestRight);
+      const nextNodes = retained.map((index) => nodes[index]).concat(joined);
+      const nextMatrix = Array.from({ length: size - 1 }, () => Array(size - 1).fill(0));
+      for (let row = 0; row < retained.length; row += 1) {
+        for (let column = 0; column < retained.length; column += 1) {
+          nextMatrix[row][column] = matrix[retained[row]][retained[column]];
+        }
+        const joinedDistance = (
+          matrix[retained[row]][bestLeft]
+          + matrix[retained[row]][bestRight]
+          - pairDistance
+        ) / 2;
+        nextMatrix[row][retained.length] = joinedDistance;
+        nextMatrix[retained.length][row] = joinedDistance;
+      }
+      nodes = nextNodes;
+      matrix = nextMatrix;
+    }
+    const [a, b, c] = nodes;
+    const ab = matrix[0][1];
+    const ac = matrix[0][2];
+    const bc = matrix[1][2];
+    const aLength = (ab + ac - bc) / 2;
+    const bLength = (ab + bc - ac) / 2;
+    const cLength = (ac + bc - ab) / 2;
+    return `(${a}:${formatDistance(aLength)},${b}:${formatDistance(bLength)},${c}:${formatDistance(cLength)});`;
+  }
+
+  async function calculateProfile(text, options, runners) {
     const method = options.method || 'MSTreeV2';
     const mode = options.handleMissing || 'pair_delete';
     const parsed = parseProfile(text, mode);
@@ -440,6 +580,24 @@
         matrix: expanded.map(({ index: row }) => expanded.map(({ index: column }) => matrix[row][column])),
       };
     }
+    if (method === 'RapidNJ') {
+      matrix = symmetricDistance(parsed.profiles, mode);
+      const newick = eteLegacyMidpointUnroot(await runners.rapidNJ(matrix));
+      return {
+        method,
+        names: parsed.names,
+        newick: expandNumericNewick(newick, parsed.names, parsed.embedded),
+      };
+    }
+    if (method === 'NJ') {
+      matrix = symmetricDistance(parsed.profiles, mode);
+      const newick = eteLegacyMidpointUnroot(neighbourJoiningNewick(matrix));
+      return {
+        method,
+        names: parsed.names,
+        newick: expandNumericNewick(newick, parsed.names, parsed.embedded),
+      };
+    }
     if (method === 'MSTree') {
       matrix = symmetricDistance(parsed.profiles, mode);
       weights = eburstWeights(matrix, parsed.names.map((name) => parsed.embedded[name].length));
@@ -447,7 +605,7 @@
     } else if (method === 'MSTreeV2') {
       matrix = asymmetricDistance(parsed.profiles, mode);
       weights = harmonicWeights(matrix);
-      const result = await asymmetricTree(matrix, weights, runEdmonds);
+      const result = await asymmetricTree(matrix, weights, runners.edmonds);
       links = branchRecraft(result.branches, result.original, weights, options.totalLoci || parsed.profiles[0].length);
     } else {
       throw new Error(`Browser backend does not yet support method: ${method}`);
