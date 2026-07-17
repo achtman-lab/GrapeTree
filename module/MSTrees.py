@@ -3,32 +3,40 @@ from numba import jit
 from glob import glob
 from ete3 import Tree
 from subprocess import Popen, PIPE
-import sys, os, tempfile, platform, re, tempfile, psutil, gzip
+from types import MappingProxyType
+import sys, os, tempfile, platform, re, tempfile, psutil, gzip, subprocess
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-params = dict(method='MSTreeV2', # MSTree , NJ
-              matrix_type='symmetric',
-              heuristic = 'eBurst',
-              handle_missing = 'pair_delete', # complete_delete , absolute_distance , as_allele
-              branch_recraft=False,
-              wgMLST = False,
-              n_proc = 5,
-              checkEnv = False,
-              NJ_Windows = os.path.join(base_dir, 'binaries', 'fastme.exe'),
-              NJ_Darwin = os.path.join(base_dir, 'binaries', 'fastme-2.1.5-osx'),
-              NJ_Linux = os.path.join(base_dir, 'binaries', 'fastme-2.1.5-linux64'),
-              NJ_Linux32 = os.path.join(base_dir, 'binaries', 'fastme-2.1.5-linux32'),
-              edmonds_Windows = os.path.join(base_dir, 'binaries', 'edmonds.exe'),
-              edmonds_Darwin = os.path.join(base_dir, 'binaries', 'edmonds-osx'),
-              edmonds_Linux = os.path.join(base_dir, 'binaries', 'edmonds-linux'),
-              RapidNJ_Linux = os.path.join(base_dir, 'binaries', 'rapidnj'),
-              RapidNJ_Darwin = os.path.join(base_dir, 'binaries', 'rapidnj-osx'),
-              RapidNJ_Windows = os.path.join(base_dir, 'binaries', 'rapidnj.exe'),
-              ninja_Linux = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
-              ninja_Darwin = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
-              ninja_Windows = os.path.join(base_dir, 'binaries', 'Ninja.jar'),
-             )
+DEFAULT_PARAMS = MappingProxyType(dict(
+    method='MSTreeV2',  # MSTree, NJ
+    matrix_type='symmetric',
+    heuristic='eBurst',
+    handle_missing='pair_delete',  # complete_delete, absolute_distance, as_allele
+    branch_recraft=False,
+    wgMLST=False,
+    n_proc=5,
+    checkEnv=False,
+    NJ_Windows=os.path.join(base_dir, 'binaries', 'fastme.exe'),
+    NJ_Darwin=os.path.join(base_dir, 'binaries', 'fastme-2.1.5-osx'),
+    NJ_Linux=os.path.join(base_dir, 'binaries', 'fastme-2.1.5-linux64'),
+    NJ_Linux32=os.path.join(base_dir, 'binaries', 'fastme-2.1.5-linux32'),
+    edmonds_Windows=os.path.join(base_dir, 'binaries', 'edmonds.exe'),
+    edmonds_Darwin=os.path.join(base_dir, 'binaries', 'edmonds-osx'),
+    edmonds_Linux=os.path.join(base_dir, 'binaries', 'edmonds-linux'),
+    RapidNJ_Linux=os.path.join(base_dir, 'binaries', 'rapidnj'),
+    RapidNJ_Darwin=os.path.join(base_dir, 'binaries', 'rapidnj-osx'),
+    RapidNJ_Windows=os.path.join(base_dir, 'binaries', 'rapidnj.exe'),
+    ninja_Linux=os.path.join(base_dir, 'binaries', 'Ninja.jar'),
+    ninja_Darwin=os.path.join(base_dir, 'binaries', 'Ninja.jar'),
+    ninja_Windows=os.path.join(base_dir, 'binaries', 'Ninja.jar'),
+))
+
+def _resolve_dispatch(dispatch, name, label):
+    try:
+        return dispatch[name]
+    except KeyError:
+        raise ValueError('Unknown {0}: {1}'.format(label, name)) from None
 
 @jit(nopython=True)
 def contemporary(a,b,c, n_loci) :
@@ -81,7 +89,10 @@ def add_args() :
 def parallel_distance(callup) :
     func, prof_file, sub_prefix, handle_missing, index_range = callup
     profiles = np.load(prof_file)
-    res = eval('distance_matrix.'+func)(profiles, handle_missing, index_range)
+    distance_function = _resolve_dispatch(
+        DISTANCE_DISPATCH, func, 'matrix type'
+    )
+    res = distance_function(profiles, handle_missing, index_range)
     subfile = sub_prefix.format(index_range[0])
     np.save(subfile, res)
     return subfile
@@ -89,16 +100,17 @@ def parallel_distance(callup) :
 
 class distance_matrix(object) :
     @staticmethod
-    def get_distance(func, profiles, handle_missing) :
+    def get_distance(func, profiles, handle_missing, config) :
         from multiprocessing import Pool
+        _resolve_dispatch(DISTANCE_DISPATCH, func, 'matrix type')
         n_profile, n_allele = profiles.shape
-        n_proc = min(int(params['n_proc']), profiles.shape[0])
-        np.save(params['prof_file'], profiles)
+        n_proc = min(int(config['n_proc']), profiles.shape[0])
+        np.save(config['prof_file'], profiles)
         if n_proc > 1 :
             pool = Pool(n_proc)
             indices = np.array([[n_profile*v/n_proc+0.5, n_profile*(v+1)/n_proc+0.5] for v in np.arange(n_proc, dtype=float)], dtype=int)
             del profiles
-            subfiles = pool.map(parallel_distance, [[func, params['prof_file'], params['dist_subfile'], handle_missing, idx] for idx in indices])
+            subfiles = pool.map(parallel_distance, [[func, config['prof_file'], config['dist_subfile'], handle_missing, idx] for idx in indices])
             pool.close()
             del pool
             
@@ -108,14 +120,14 @@ class distance_matrix(object) :
             for id, sf in zip(indices, subfiles) :
                 res[:, id[0]:id[1]] = np.load(sf)
         else :
-            subfiles = [parallel_distance([func, params['prof_file'], params['dist_subfile'], handle_missing, [0, n_profile]])]
+            subfiles = [parallel_distance([func, config['prof_file'], config['dist_subfile'], handle_missing, [0, n_profile]])]
             res = np.load(subfiles[0])
         for subfile in subfiles :
             try :
                 os.unlink(subfile)
             except :
                 pass
-        np.save(params['dist_file'], res)
+        np.save(config['dist_file'], res)
         if func == 'symmetric' :
             res[res.T > res] = res.T[res.T > res]
         return res
@@ -241,11 +253,11 @@ class distance_matrix(object) :
 
 class methods(object) :
     @staticmethod
-    def _blockwise(dist, weight, **params) :
-        x = methods._symmetric(dist*10000., weight, **params)
+    def _blockwise(dist, weight, config) :
+        x = methods._symmetric(dist*10000., weight, config)
         return [[b[0], b[1], b[2]/10000.] for b in x]
     @staticmethod
-    def _symmetric(dist, weight, **params) :
+    def _symmetric(dist, weight, config) :
         def minimum_spanning_tree(dist) :
             n_node = dist.shape[0]
             nodes = np.arange(n_node)
@@ -280,7 +292,7 @@ class methods(object) :
             return res
 
     @staticmethod
-    def _asymmetric(dist, weight, **params) :
+    def _asymmetric(dist, weight, config) :
         def get_shortcut(dist, weight, cutoff=20) :
             if dist.shape[0] < 3000 :
                 cutoff = 2
@@ -294,52 +306,85 @@ class methods(object) :
             link = link.T[np.lexsort(link)]
             return link[np.unique(link.T[1], return_index=True)[1]].astype(int)
 
+        def networkx_tree():
+            fallback_dist = original_dist.copy()
+            fallback_dist = np.round(fallback_dist, 0) + weight.reshape([weight.size, -1])
+            np.fill_diagonal(fallback_dist, 0.0)
+
+            fallback_presence = np.arange(weight.shape[0])
+            fallback_shortcuts = get_shortcut(fallback_dist, weight)
+            for (source, target, distance) in fallback_shortcuts:
+                fallback_dist[source, fallback_dist[source] > fallback_dist[target]] = fallback_dist[target, fallback_dist[source] > fallback_dist[target]]
+                fallback_presence[target] = -1
+            retained = fallback_presence >= 0
+            fallback_dist = fallback_dist.T[retained].T[retained]
+            fallback_presence = fallback_presence[retained]
+
+            graph = nx.DiGraph(fallback_dist)
+            spanning_tree = nx.minimum_spanning_arborescence(graph)
+            return [
+                [fallback_presence[edge[0]], fallback_presence[edge[1]], int(edge[2]['weight'])]
+                for edge in spanning_tree.edges(data=True)
+            ] + fallback_shortcuts.tolist()
+
+        original_dist = dist.copy()
+        edmonds_path = config.get('edmonds_' + platform.system())
+        if not edmonds_path or not (
+            os.path.isfile(edmonds_path) and os.access(edmonds_path, os.X_OK)
+        ):
+            return networkx_tree()
+
+        presence = np.arange(weight.shape[0])
+        shortcuts = get_shortcut(dist, weight)
+        for (s, t, d) in shortcuts :
+            dist[s, dist[s] > dist[t]] = dist[t, dist[s] > dist[t]]
+        presence[shortcuts.T[1]] = -1
+        retained = presence >= 0
+        dist = dist.T[retained].T[retained]
+        presence = presence[retained]
+        if presence.size <= 1:
+            return shortcuts.tolist()
+        weight2 = weight[presence]
+        dist = np.round(dist, 0) + weight2.reshape([weight2.size, -1])
+        np.fill_diagonal(dist, 0.0)
+
+        dist_file = config['tempfix'] + '.dist.list'
+        with open(dist_file, 'w') as fout :
+            for d in dist :
+                fout.write('{0}\n'.format('\t'.join(['{0:.5f}'.format(dd) for dd in (d+(1.-0.000005)) ])))
         try:
-            presence = np.arange(weight.shape[0])
-            shortcuts = get_shortcut(dist, weight)
-            for (s, t, d) in shortcuts :
-                dist[s, dist[s] > dist[t]] = dist[t, dist[s] > dist[t]]
-            presence[shortcuts.T[1]] = -1
-            dist = dist.T[presence >= 0].T[presence >= 0]
-            presence = presence[presence >=0]
-            weight2 = weight[presence]
-            dist = np.round(dist, 0) + weight2.reshape([weight2.size, -1])
-            np.fill_diagonal(dist, 0.0)
-
-            dist_file = params['tempfix'] + '.dist.list'
-            with open(dist_file, 'w') as fout :
-                for d in dist :
-                    fout.write('{0}\n'.format('\t'.join(['{0:.5f}'.format(dd) for dd in (d+(1.-0.000005)) ])))
-            del dist, d
-            mstree = Popen([params['edmonds_' + platform.system()], dist_file], stdout=PIPE).communicate()[0]
-            os.unlink(dist_file)
-            if isinstance(mstree, bytes) :
-                mstree = mstree.decode('utf8')
-            mstree = np.array([ br.strip().split() for br in mstree.strip().split('\n')], dtype=float).astype(int)
-            assert mstree.size > 0
-            mstree.T[2] -= 1
-            mstree.T[:2] = presence[mstree.T[:2]]
-            return mstree.tolist() + shortcuts.tolist()
-        except :
-            try :
+            completed = subprocess.run(
+                [edmonds_path, dist_file],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+        except (OSError, subprocess.CalledProcessError):
+            return networkx_tree()
+        finally:
+            try:
                 os.unlink(dist_file)
-            except :
+            except FileNotFoundError:
                 pass
-            dist = np.load(params['dist_file'])
-            dist = np.round(dist, 0) + weight.reshape([weight.size, -1])
-            np.fill_diagonal(dist, 0.0)
 
-            presence = np.arange(weight.shape[0])
-            shortcuts = get_shortcut(dist, weight)
-            for (s, t, d) in shortcuts :
-                dist[s, dist[s] > dist[t]] = dist[t, dist[s] > dist[t]]
-                presence[t] = -1
-            dist = dist.T[presence >= 0].T[presence >= 0]
-            presence = presence[presence >=0]
-
-            g = nx.DiGraph(dist)
-            ms = nx.minimum_spanning_arborescence(g)
-            return [[presence[d[0]], presence[d[1]], int(d[2]['weight'])] for d in ms.edges(data=True)] + shortcuts.tolist()
+        output = completed.stdout.decode('utf8') if isinstance(completed.stdout, bytes) else completed.stdout
+        try:
+            mstree = np.array(
+                [branch.strip().split() for branch in output.strip().splitlines()],
+                dtype=float,
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError('Invalid Edmonds output: expected numeric edge rows') from exc
+        if mstree.ndim != 2 or mstree.shape[0] == 0 or mstree.shape[1] != 3:
+            raise ValueError('Invalid Edmonds output: expected three columns per edge')
+        if not np.all(np.isfinite(mstree)):
+            raise ValueError('Invalid Edmonds output: non-finite edge value')
+        mstree = mstree.astype(int)
+        if np.any(mstree[:, :2] < 0) or np.any(mstree[:, :2] >= presence.size):
+            raise ValueError('Invalid Edmonds output: node index out of range')
+        mstree.T[2] -= 1
+        mstree.T[:2] = presence[mstree.T[:2]]
+        return mstree.tolist() + shortcuts.tolist()
 
     @staticmethod
     def _branch_recraft(branches, dist, weights, n_loci) :
@@ -449,23 +494,35 @@ class methods(object) :
 
 
     @staticmethod
-    def MSTree(names, profiles, embeded, matrix_type='asymmetric', heuristic='harmonic', branch_recraft=True, handle_missing='pair_delete', **params) :
+    def MSTree(names, profiles, embeded, config) :
+        matrix_type = config['matrix_type']
+        heuristic = config['heuristic']
+        handle_missing = config['handle_missing']
         n_loci = profiles.shape[1]
-        dist = distance_matrix.get_distance(matrix_type, profiles, handle_missing)
-        weight = eval('distance_matrix.'+heuristic)(dist, [len(embeded[n]) for n in names])
+        dist = distance_matrix.get_distance(
+            matrix_type, profiles, handle_missing, config
+        )
+        heuristic_function = _resolve_dispatch(
+            HEURISTIC_DISPATCH, heuristic, 'heuristic'
+        )
+        weight = heuristic_function(dist, [len(embeded[n]) for n in names])
 
-        tree = eval('methods._'+matrix_type)(dist, weight, **params)
+        tree_function = _resolve_dispatch(
+            MST_DISPATCH, matrix_type, 'matrix type'
+        )
+        tree = tree_function(dist, weight, config)
         del dist
-        if branch_recraft :
-            tree = methods._branch_recraft(tree, np.load(params['dist_file']), weight, n_loci)
+        if config['branch_recraft'] :
+            tree = methods._branch_recraft(tree, np.load(config['dist_file']), weight, n_loci)
         if matrix_type != 'blockwise' :
-            tree = distance_matrix.symmetric_link(np.load(params['prof_file']), tree, handle_missing= handle_missing)
+            tree = distance_matrix.symmetric_link(np.load(config['prof_file']), tree, handle_missing= handle_missing)
         tree = methods._network2tree(tree, names)
         return tree
 
     @staticmethod
-    def goeBurst(names, profiles, embeded, handle_missing='pair_delete', **params) :
-        goeburst = Popen([params['goeburst_Linux']] + ['-t'], stdin=PIPE, stdout=PIPE)
+    def goeBurst(names, profiles, embeded, config) :
+        handle_missing = config['handle_missing']
+        goeburst = Popen([config['goeburst_Linux']] + ['-t'], stdin=PIPE, stdout=PIPE)
         if handle_missing == 'pair_delete' :
             for n, p in enumerate(profiles) :
                 goeburst.stdin.write('{0}\t{1}\n'.format(n, '\t'.join([str(pp) if pp > 0 else '-' for pp in p])))
@@ -482,7 +539,9 @@ class methods(object) :
         return tree
 
     @staticmethod
-    def distance(names, profiles, embeded, matrix_type='symmetric', handle_missing='pair_delete', **params) :
+    def distance(names, profiles, embeded, config) :
+        matrix_type = config['matrix_type']
+        handle_missing = config['handle_missing']
         ids = {n:id for id, n in enumerate(names)}
         ids = { gg:ids[k] for k,g in embeded.items() for gg in g }
         names, indices = [], []
@@ -490,7 +549,9 @@ class methods(object) :
             names.append(n)
             indices.append(i)
         indices = np.array(indices)
-        d = distance_matrix.get_distance(matrix_type, profiles, handle_missing)
+        d = distance_matrix.get_distance(
+            matrix_type, profiles, handle_missing, config
+        )
         if handle_missing != 'absolute_distance' and matrix_type != 'blockwise' :
             d /= profiles.shape[1]
 
@@ -503,20 +564,23 @@ class methods(object) :
         return dist_txt
 
     @staticmethod
-    def fastme(names, profiles, embeded, handle_missing='pair_delete', **params) :
-        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
+    def fastme(names, profiles, embeded, config) :
+        handle_missing = config['handle_missing']
+        dist = distance_matrix.get_distance(
+            'symmetric', profiles, handle_missing, config
+        )
 
-        dist_file = params['tempfix'] + 'dist.list'
+        dist_file = config['tempfix'] + 'dist.list'
         with open(dist_file, 'w') as fout :
             fout.write('    {0}\n'.format(dist.shape[0]))
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
         del dist, d
         try :
-            Popen([params['NJ_{0}'.format(platform.system())], '-i', dist_file, '-m', 'B', '-n', 'B'], stdout=PIPE).communicate()
+            Popen([config['NJ_{0}'.format(platform.system())], '-i', dist_file, '-m', 'B', '-n', 'B'], stdout=PIPE).communicate()
         except Exception as e :
             if platform.system() == 'Linux' :
-                Popen([params['NJ_Linux32'], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
+                Popen([config['NJ_Linux32'], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
             else :
                 raise e
         tree = Tree(dist_file + '_fastme_tree.nwk')
@@ -533,20 +597,23 @@ class methods(object) :
             leaf.name = names[int(leaf.name.strip("'"))]
         return tree
     @staticmethod
-    def NJ(names, profiles, embeded, handle_missing='pair_delete', **params) :
-        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
+    def NJ(names, profiles, embeded, config) :
+        handle_missing = config['handle_missing']
+        dist = distance_matrix.get_distance(
+            'symmetric', profiles, handle_missing, config
+        )
 
-        dist_file = params['tempfix'] + 'dist.list'
+        dist_file = config['tempfix'] + 'dist.list'
         with open(dist_file, 'w') as fout :
             fout.write('    {0}\n'.format(dist.shape[0]))
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
         del dist, d
         try :
-            Popen([params['NJ_{0}'.format(platform.system())], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
+            Popen([config['NJ_{0}'.format(platform.system())], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
         except Exception as e :
             if platform.system() == 'Linux' :
-                Popen([params['NJ_Linux32'], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
+                Popen([config['NJ_Linux32'], '-i', dist_file, '-m', 'N'], stdout=PIPE).communicate()
             else :
                 raise e
         tree = Tree(dist_file + '_fastme_tree.nwk')
@@ -563,16 +630,19 @@ class methods(object) :
             leaf.name = names[int(leaf.name.strip("'"))]
         return tree
     @staticmethod
-    def RapidNJ(names, profiles, embeded, handle_missing='pair_delete', **params) :
-        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
+    def RapidNJ(names, profiles, embeded, config) :
+        handle_missing = config['handle_missing']
+        dist = distance_matrix.get_distance(
+            'symmetric', profiles, handle_missing, config
+        )
 
-        dist_file = params['tempfix'] + 'dist.list'
+        dist_file = config['tempfix'] + 'dist.list'
         with open(dist_file, 'w') as fout :
             fout.write('    {0}\n'.format(dist.shape[0]))
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
         del dist, d
-        Popen([params['RapidNJ_{0}'.format(platform.system())], '-n', '-x', dist_file+'_rapidnj.nwk', '-i', 'pd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([config['RapidNJ_{0}'.format(platform.system())], '-n', '-x', dist_file+'_rapidnj.nwk', '-i', 'pd', dist_file], stdout=PIPE, stderr=PIPE).communicate()
         tree = Tree(dist_file + '_rapidnj.nwk')
         for fname in glob(dist_file + '*') :
             os.unlink(fname)
@@ -587,19 +657,22 @@ class methods(object) :
             leaf.name = names[int(leaf.name.strip("'"))]
         return tree
     @staticmethod
-    def ninja(names, profiles, embeded, handle_missing='pair_delete', **params) :
-        dist = distance_matrix.get_distance('symmetric', profiles, handle_missing)
+    def ninja(names, profiles, embeded, config) :
+        handle_missing = config['handle_missing']
+        dist = distance_matrix.get_distance(
+            'symmetric', profiles, handle_missing, config
+        )
         dist = dist/profiles.shape[1]
-        dist_file = params['tempfix'] + 'dist.list'
+        dist_file = config['tempfix'] + 'dist.list'
         with open(dist_file, 'w') as fout :
             fout.write('    {0}\n'.format(dist.shape[0]))
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
         del dist, d
         free_memory = int(0.9*psutil.virtual_memory().total/(1024.**2))
-        ninja_out = Popen(['java', '-d64', '-Xmx'+str(free_memory)+'M', '-jar', params['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
+        ninja_out = Popen(['java', '-d64', '-Xmx'+str(free_memory)+'M', '-jar', config['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
         if ninja_out[1].find('64-bit JVM') >= 0 :
-            ninja_out = Popen(['java', '-Xmx1200M', '-jar', params['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
+            ninja_out = Popen(['java', '-Xmx1200M', '-jar', config['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
         with open(dist_file + '.nwk', 'wt') as fout :
             fout.write(ninja_out[0])
         tree = Tree(dist_file + '.nwk')
@@ -619,11 +692,58 @@ class methods(object) :
             leaf.name = names[int(leaf.name.strip("'"))]
         return tree
 
-def nonredundant(names, profiles) :
+DISTANCE_DISPATCH = MappingProxyType({
+    'symmetric': distance_matrix.symmetric,
+    'asymmetric': distance_matrix.asymmetric,
+    'asymmetric_wgMLST': distance_matrix.asymmetric_wgMLST,
+    'blockwise': distance_matrix.blockwise,
+})
+HEURISTIC_DISPATCH = MappingProxyType({
+    'eBurst': distance_matrix.eBurst,
+    'harmonic': distance_matrix.harmonic,
+})
+MST_DISPATCH = MappingProxyType({
+    'symmetric': methods._symmetric,
+    'asymmetric': methods._asymmetric,
+    'asymmetric_wgMLST': methods._asymmetric,
+    'blockwise': methods._blockwise,
+})
+METHOD_DISPATCH = MappingProxyType({
+    'MSTree': methods.MSTree,
+    'goeBurst': methods.goeBurst,
+    'distance': methods.distance,
+    'fastme': methods.fastme,
+    'NJ': methods.NJ,
+    'RapidNJ': methods.RapidNJ,
+    'ninja': methods.ninja,
+})
+
+
+def build_backend_config(args):
+    """Return a validated, immutable configuration for one backend call."""
+    config = dict(DEFAULT_PARAMS)
+    config.update(args)
+    if config['method'] == 'MSTreeV2':
+        config.update(
+            method='MSTree',
+            matrix_type='asymmetric',
+            heuristic='harmonic',
+            branch_recraft=True,
+        )
+    if config['wgMLST'] and config['matrix_type'] == 'asymmetric':
+        config['matrix_type'] = 'asymmetric_wgMLST'
+
+    _resolve_dispatch(METHOD_DISPATCH, config['method'], 'method')
+    _resolve_dispatch(DISTANCE_DISPATCH, config['matrix_type'], 'matrix type')
+    _resolve_dispatch(HEURISTIC_DISPATCH, config['heuristic'], 'heuristic')
+    return MappingProxyType(config)
+
+
+def nonredundant(names, profiles, handle_missing='pair_delete') :
     encoded_profile = np.array([np.unique(p, return_inverse=True)[1]+1 for p in profiles.T]).T
     encoded_profile[ (profiles == '0') | (profiles == 'N') | (profiles == '-')] = 0
-    if params['handle_missing'] == 'complete_delete' :
-        encoded_profile = encoded_profile[:, np.sum(encoded_profile == 0, 0) > 0]
+    if handle_missing == 'complete_delete' :
+        encoded_profile = encoded_profile[:, np.sum(encoded_profile == 0, 0) == 0]
     names = names[np.lexsort(encoded_profile.T)]
     profiles = encoded_profile[np.lexsort(encoded_profile.T)]
     presence = (np.sum(profiles > 0, 1) > 0)
@@ -674,26 +794,16 @@ def backend(**args) :
         To obtain a standard distance matrix :
         backend(profile=<filename>, method='distance')
     '''
-    global params
-    params.update(args)
-    if params['method'] == 'MSTreeV2' :
-        params['method'] = 'MSTree'
-        params['matrix_type'] = 'asymmetric'
-        params['heuristic'] = 'harmonic'
-        params['branch_recraft'] = True
-
-    if params['wgMLST'] and params['matrix_type'] == 'asymmetric' :
-        matrix_type = 'asymmetric_wgMLST'
-
+    config = build_backend_config(args)
 
     names, profiles = [], []
     try :
-        if params['profile'][-3:].lower().endswith('.gz') :
-            fin = gzip.open(params['profile'], 'rt').readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
+        if config['profile'][-3:].lower().endswith('.gz') :
+            fin = gzip.open(config['profile'], 'rt').readlines() if os.path.isfile(config['profile']) else config['profile'].split('\n')
         else :
-            fin = open(params['profile']).readlines() if os.path.isfile(params['profile']) else params['profile'].split('\n')
+            fin = open(config['profile']).readlines() if os.path.isfile(config['profile']) else config['profile'].split('\n')
     except :
-        fin = params['profile'].split('\n')
+        fin = config['profile'].split('\n')
 
     allele_cols = None
     fmt = None
@@ -740,19 +850,35 @@ def backend(**args) :
     del fin
     profiles = np.char.upper(np.array(profiles, dtype=str))
     names = [re.sub(r'[\(\)\ \,\"\';]', '_', n) for n in names]
-    names, profiles, embeded = nonredundant(np.array(names), np.array(profiles))
-    if int(params.get('checkEnv', False)) :
-        time, memory = estimate_Consumption(platform.system(), params['method'], params['matrix_type'], int(params['n_proc']), profiles.shape[1], profiles.shape[0])
+    names, profiles, embeded = nonredundant(
+        np.array(names), np.array(profiles), config['handle_missing']
+    )
+    if int(config.get('checkEnv', False)) :
+        estimate_matrix = (
+            'asymmetric'
+            if config['matrix_type'] == 'asymmetric_wgMLST'
+            else config['matrix_type']
+        )
+        time, memory = estimate_Consumption(platform.system(), config['method'], estimate_matrix, int(config['n_proc']), profiles.shape[1], profiles.shape[0])
         free_memory = psutil.virtual_memory().available
         import json
         return json.dumps(dict(time=time, memory=memory, affordable=free_memory >= memory))
     with tempfile.NamedTemporaryFile(delete=True, dir='.') as f :
-        params['tempfix'] = f.name
-        params['prof_file'] = params['tempfix']+'.prof.npy'
-        params['dist_file'] = params['tempfix']+'.dist.npy'
-        params['dist_subfile'] = params['tempfix']+'.dist.{0}.npy'
-        tre = eval('methods.' + params['method'])(names, profiles, embeded, **params)
-        if params['method'] != 'distance' :
+        runtime_config = MappingProxyType({
+            **config,
+            'tempfix': f.name,
+            'prof_file': f.name + '.prof.npy',
+            'dist_file': f.name + '.dist.npy',
+            'dist_subfile': f.name + '.dist.{0}.npy',
+        })
+        method = _resolve_dispatch(
+            METHOD_DISPATCH, runtime_config['method'], 'method'
+        )
+        try:
+            tre = method(names, profiles, embeded, runtime_config)
+            if runtime_config['method'] == 'distance' :
+                return '\n'.join(tre)
+
             maxDist = 0.
             for node in tre.iter_descendants() :
                 if node.dist > maxDist: maxDist = node.dist
@@ -768,20 +894,13 @@ def backend(**args) :
                     leaf.name = ''
                     for n in embeded_group :
                         leaf.add_child(name=n, dist=0.)
-
-            for fname in (params['prof_file'], params['dist_file']) :
-                try:
-                    os.unlink(fname)
-                except :
-                    pass
             return tre.write(format=1).replace("'", "")
-        else :
-            for fname in (params['prof_file'], params['dist_file']) :
+        finally:
+            for fname in (runtime_config['prof_file'], runtime_config['dist_file']) :
                 try:
                     os.unlink(fname)
-                except :
+                except FileNotFoundError:
                     pass
-            return '\n'.join(tre)
 
 def estimate_Consumption(platform, method, matrix, n_proc, n_loci, n_profile) :
     if method in ('MSTree', 'RapidNJ', 'ninja') :

@@ -1,5 +1,6 @@
 import gzip
 import json
+from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 from ete3 import Tree
@@ -19,6 +20,13 @@ PROFILE_WITH_METADATA = """#Strain\tST\tA\tB\t#note
 alpha one\t10\t1\t1\tx
 beta\t11\t1\t1\ty
 gamma,three\t12\t2\t2\tz
+"""
+
+PROFILE_WITH_MISSING_DATA = """#Strain\tA\tB\tC
+alpha\t1\t0\t1
+beta\t1\t2\t2
+gamma\t2\t2\t2
+delta\t2\t3\t0
 """
 
 FASTA = """>alpha description
@@ -111,6 +119,85 @@ def test_environment_estimate_contract(monkeypatch):
         'memory': expected_memory,
         'affordable': True,
     }
+
+
+def test_backend_calls_do_not_inherit_previous_options():
+    run_backend(
+        PROFILE_WITH_MISSING_DATA,
+        'distance',
+        matrix_type='asymmetric',
+        handle_missing='absolute_distance',
+    )
+
+    observed = backend(
+        profile=PROFILE_WITH_MISSING_DATA,
+        method='distance',
+        n_proc=1,
+    )
+    expected = run_backend(PROFILE_WITH_MISSING_DATA, 'distance')
+
+    assert observed == expected
+
+
+def test_concurrent_backend_calls_keep_independent_options():
+    expected_symmetric = run_backend(PROFILE_WITH_MISSING_DATA, 'distance')
+    expected_asymmetric = run_backend(
+        PROFILE_WITH_MISSING_DATA,
+        'distance',
+        matrix_type='asymmetric',
+        handle_missing='absolute_distance',
+    )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        symmetric = executor.submit(
+            backend,
+            profile=PROFILE_WITH_MISSING_DATA,
+            method='distance',
+            n_proc=1,
+        )
+        asymmetric = executor.submit(
+            run_backend,
+            PROFILE_WITH_MISSING_DATA,
+            'distance',
+            matrix_type='asymmetric',
+            handle_missing='absolute_distance',
+        )
+
+    assert symmetric.result() == expected_symmetric
+    assert asymmetric.result() == expected_asymmetric
+
+
+def test_wgmlst_selects_its_asymmetric_distance_implementation():
+    standard = run_backend(
+        PROFILE_WITH_MISSING_DATA,
+        'distance',
+        matrix_type='asymmetric',
+    )
+    wgmlst = run_backend(
+        PROFILE_WITH_MISSING_DATA,
+        'distance',
+        matrix_type='asymmetric',
+        wgMLST=True,
+    )
+
+    assert wgmlst != standard
+    assert 'delta      0.000000 0.750000 0.833333 0.500000' in wgmlst
+
+
+@pytest.mark.parametrize(
+    ('override', 'message'),
+    [
+        ({'method': "__import__('os').system('id')"}, 'Unknown method'),
+        ({'method': 'MSTree', 'matrix_type': '__class__'}, 'Unknown matrix type'),
+        ({'method': 'MSTree', 'heuristic': '__class__'}, 'Unknown heuristic'),
+    ],
+)
+def test_algorithm_dispatch_rejects_unknown_names(override, message):
+    arguments = dict(BACKEND_DEFAULTS)
+    arguments.update(override)
+
+    with pytest.raises(ValueError, match=message):
+        backend(profile=PROFILE, **arguments)
 
 
 @pytest.mark.parametrize('method', ['NJ', 'RapidNJ'])

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from grapetree.module.MSTrees import distance_matrix
+from grapetree.module.MSTrees import distance_matrix, nonredundant
 
 
 PROFILES_WITH_MISSING_DATA = np.array(
@@ -57,3 +57,25 @@ def test_blockwise_distance_behaviour():
         observed,
         [[0, 2, 2.01], [2, 0, 1], [2.01, 1, 0]],
     )
+
+
+def test_complete_delete_retains_only_loci_without_missing_values():
+    names, profiles, embedded = nonredundant(
+        np.array(['alpha', 'beta', 'gamma']),
+        np.array(
+            [
+                ['1', '1', '0'],
+                ['1', '2', '3'],
+                ['2', '2', '3'],
+            ]
+        ),
+        handle_missing='complete_delete',
+    )
+
+    assert names.tolist() == ['alpha', 'beta', 'gamma']
+    assert profiles.tolist() == [[1, 1], [1, 2], [2, 2]]
+    assert embedded == {
+        'alpha': ['alpha'],
+        'beta': ['beta'],
+        'gamma': ['gamma'],
+    }
