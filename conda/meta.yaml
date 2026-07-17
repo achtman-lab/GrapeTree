@@ -1,6 +1,6 @@
 {% set name = "grapetree" %}
 {% set version = "2.2" %}
-{% set source_commit = "7ec9ea47721cb51aca8aeae39b23186f8939b4d5" %}
+{% set source_commit = "473667a991a25e4de89f690544ad06f76e52265d" %}
 
 package:
   name: {{ name }}
@@ -9,7 +9,7 @@ package:
 source:
   # Pin the modernization branch until its changes are included in a release tag.
   url: https://github.com/achtman-lab/GrapeTree/archive/{{ source_commit }}.tar.gz
-  sha256: 9440a19ac629bae2e151d743c15c5beccc46d1caece0b785650be03b1f2d11e8
+  sha256: e7e102c247e494b9d3c0ac3886b6b30c9aaeacd42b3c34abcd5d626bdd2c2ba4
 
 build:
   number: 0
