@@ -1,29 +1,22 @@
-# GrapeTree browser-only application
+# Browser-only GrapeTree
 
-This directory is reserved for a browser-only evolution of GrapeTree. It is a
-separate product from the established Flask application and must not replace or
-silently change that application's behaviour.
+This is a separate product track from the Flask application. It runs scientific
+calculation in a Web Worker so uploaded data stays in the browser.
 
-The target architecture is:
+The first compatibility slice compiles GrapeTree's in-repository Edmonds
+optimum-branching implementation to WebAssembly. The generated JavaScript and
+WASM are built reproducibly with Emscripten 3.1.50. The upstream biowasm
+repository still declares its older 2.0.25 image; GrapeTree uses the newer
+version in the maintained compilation guidance while retaining an exact pin.
 
-1. a Web Worker that owns computation and keeps the interface responsive;
-2. WebAssembly modules for native tree-building algorithms;
-3. browser-native parsing, orchestration, and persistence;
-4. an explicit request/result contract shared with the existing backend; and
-5. compatibility fixtures that run against both implementations.
+```bash
+./browser-wasm/compile-docker.sh
+python -m http.server 8001
+```
 
-The first proof of concept will compile the in-repository Edmonds C++ source
-with Emscripten and compare its results with the native backend. FastME and
-RapidNJ can follow after their source and licences are verified. Pyodide is a
-possible prototyping layer for Python-only calculations, but it cannot provide
-the existing subprocess-based backend unchanged.
+Open <http://127.0.0.1:8001/browser-wasm/>. The Playwright suite checks the
+worker's output against the same expected branching as the native source.
 
-This folder currently records the product boundary only. Production code will
-be added after the compatibility fixtures and performance budgets are in place.
-
-The first shared fixtures now live in
-[`tests/fixtures/compatibility/`](../tests/fixtures/compatibility/). Expected
-tree results are expressed as pairwise path distances so equivalent Newick
-rooting and child order do not produce false failures. Browser and WASM tests
-must consume the same profiles and expected JSON rather than create a second
-set of baselines.
+This is not yet the full browser product. Profile parsing, distance matrices,
+MSTree/MSTreeV2 assembly, and the existing visualiser still need to be joined
+behind the worker API before issue #113 can close.

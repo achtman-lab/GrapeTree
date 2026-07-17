@@ -98,6 +98,17 @@ jobs:
       - name: Run browser smoke tests
         run: npm run test:browser
 
+  browser-wasm-build:
+    name: Rebuild browser WASM
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Compile Edmonds WebAssembly reproducibly
+        run: ./browser-wasm/compile-docker.sh
+      - name: Verify committed browser artefacts are current
+        run: git diff --exit-code -- browser-wasm/vendor/edmonds
+
   docker:
     name: Docker application
     runs-on: ubuntu-latest

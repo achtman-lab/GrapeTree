@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GrapeTree browser backend</title>
+    <style>
+      body { box-sizing: border-box; margin: 2rem auto; max-width: 60rem; padding: 0 1rem; font: 16px/1.5 system-ui, sans-serif; }
+      textarea, pre { box-sizing: border-box; min-height: 14rem; padding: 1rem; width: 100%; }
+      button { font: inherit; padding: .6rem 1rem; }
+      pre { background: #f5f5f5; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>GrapeTree browser backend</h1>
+    <p>This separate prototype calculates a directed minimum spanning branching entirely in a Web Worker. No profile data leaves the browser.</p>
+    <label for="matrix">Square distance matrix (JSON)</label>
+    <textarea id="matrix"></textarea>
+    <p><button id="calculate" type="button">Calculate branching</button></p>
+    <pre id="result" aria-live="polite">Ready.</pre>
+    <script src="./app.js"></script>
+  </body>
+</html>

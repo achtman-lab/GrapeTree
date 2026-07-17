@@ -1,15 +1,18 @@
 import json
 from itertools import combinations
 from pathlib import Path
+import platform
+import subprocess
 
 import pytest
 from ete3 import Tree
 
-from grapetree.module.MSTrees import backend
+from grapetree.module.MSTrees import DEFAULT_PARAMS, backend
 
 
 FIXTURE_DIR = Path(__file__).parent / 'fixtures' / 'compatibility'
 EXPECTED = json.loads((FIXTURE_DIR / 'expected.json').read_text())
+EDMONDS = json.loads((FIXTURE_DIR / 'edmonds.json').read_text())
 BACKEND_OPTIONS = {
     'matrix_type': 'symmetric',
     'handle_missing': 'pair_delete',
@@ -105,3 +108,26 @@ def test_issue_82_resequencing_fixture_locks_both_algorithm_behaviours():
     assert Tree(mstree_v2, format=1).get_distance(
         'iso1-run1', 'iso1-run2'
     ) == 17
+
+
+def test_bundled_edmonds_matches_browser_wasm_compatibility_fixture(tmp_path):
+    executable = Path(DEFAULT_PARAMS[f'edmonds_{platform.system()}'])
+    if not executable.is_file():
+        pytest.skip(f'No bundled Edmonds executable for {platform.system()}')
+    matrix_file = tmp_path / 'matrix.tsv'
+    matrix_file.write_text(
+        '\n'.join('\t'.join(map(str, row)) for row in EDMONDS['matrix']) + '\n'
+    )
+
+    completed = subprocess.run(
+        [executable, matrix_file],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    edges = [
+        {'source': int(source), 'target': int(target), 'weight': float(weight)}
+        for source, target, weight in map(str.split, completed.stdout.splitlines())
+    ]
+
+    assert edges == EDMONDS['edges']
