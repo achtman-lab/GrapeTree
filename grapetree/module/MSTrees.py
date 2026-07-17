@@ -23,6 +23,7 @@ DEFAULT_PARAMS = MappingProxyType(dict(
     heuristic='eBurst',
     handle_missing='pair_delete',  # complete_delete, absolute_distance, as_allele
     branch_recraft=False,
+    total_loci=None,
     wgMLST=False,
     n_proc=5,
     checkEnv=False,
@@ -86,6 +87,7 @@ def add_args() :
     parser.add_argument('--n_proc', '-n',  dest='number_of_processes', help='Number of CPU processes in parallel use. [DEFAULT]: 5. ', type=int, default=5)
     parser.add_argument('--check', '-c', dest='checkEnv', help='Only calculate the expected time/memory requirements. ', default=False, action="store_true")
     parser.add_argument('--block_penalty', '-b', dest='block_penalty', help='[DEFAULT: 0.01] The penalty that is given to a different locus if it is led by another difference. Only works for "-x blockwise"', default=0.01)
+    parser.add_argument('--total-loci', type=int, help='Original alignment length when a SNP-only alignment is supplied; used by MSTreeV2 branch recrafting.')
     
     args = parser.parse_args()
     export_modes = sum(bool(mode) for mode in (
@@ -558,7 +560,11 @@ class methods(object) :
         matrix_type = config['matrix_type']
         heuristic = config['heuristic']
         handle_missing = config['handle_missing']
-        n_loci = profiles.shape[1]
+        n_loci = config.get('total_loci') or profiles.shape[1]
+        if n_loci < profiles.shape[1]:
+            raise ValueError(
+                'total_loci cannot be smaller than the input column count'
+            )
         dist = distance_matrix.get_distance(
             matrix_type, profiles, handle_missing, config
         )

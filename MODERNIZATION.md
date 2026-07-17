@@ -91,6 +91,10 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - Added multi-threshold cluster assignment output (#89) using the interface's
   exact inclusive collapse rule (links at or below the cutoff), with stable
   component labels and regression coverage.
+- Documented SeqSphere+'s dedicated two-file GrapeTree export and large-table
+  workflow (#116), linking the current vendor instructions. Added
+  `--total-loci` so SNP-only alignments can retain MSTreeV2's original
+  branch-recrafting model, with full-vs-variable-site parity tests (#110).
 
 ## Current verification
 
@@ -140,12 +144,12 @@ Twenty-five issues were open at the 2026-07-17 audit.
   #103.
 - Fixed with regression tests and awaiting release/closure: #65, #96, #97,
   #99, #100, #102, #107, #109, #112, #115.
-- Reproduce and investigate with supplied or generated fixtures: #82, #104,
-  #116.
+- Reproduce and investigate with supplied or generated fixtures: #82, #104.
 - Features/API work: none from the current open-issue set.
-- Documentation/scientific guidance: #110, #117.
+- Documentation/scientific guidance: #117.
 - Browser-only architecture: #113 is the direct static-site `/maketree` gap.
-- Fixed feature awaiting release/closure: #81, #89, #94, #101, #111.
+- Fixed feature awaiting release/closure: #81, #89, #94, #101, #110, #111,
+  #116.
 
 Notes from representative checks:
 

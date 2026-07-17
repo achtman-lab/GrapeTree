@@ -191,6 +191,33 @@ Detailed descriptions are available for
 and
 [`--heuristic`](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf).
 
+### SNP-only alignments
+
+A SNP-only alignment can reduce input size without changing ordinary Hamming
+distances when every omitted site is genuinely invariant and samples have no
+missing/ambiguous calls there. MSTreeV2's branch-recrafting model also uses the
+number of loci, however, so silently treating the SNP count as the original
+alignment length can change the topology. Supply the original alignment length
+to preserve that model:
+
+```bash
+grapetree --profile variable-sites.fasta --method MSTreeV2 \
+  --total-loci 2849012 > tree.nwk
+```
+
+Do not remove constant sites if they contain missing calls, and do not treat a
+SNP-only tree as directly comparable when ascertainment/filtering differs.
+For memory-limited data, also consider `--method MSTree`, filtering samples
+with excessive missingness, or calculating on a machine with more memory; the
+pairwise distance matrix itself remains quadratic in sample count.
+
+### Ridom SeqSphere+
+
+Use SeqSphere+'s dedicated **Export profile and metadata files for GrapeTree
+(TSV)** action, not a generic comparison-table export. A complete two-file
+workflow, large-dataset checks, and the matching CLI commands are documented in
+[`documentation/ridom-seqsphere.md`](documentation/ridom-seqsphere.md).
+
 ## Inputs
 #### profile
 The profile file is a tab-delimited text file.

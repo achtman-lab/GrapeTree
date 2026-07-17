@@ -78,6 +78,40 @@ beta       1.000000 0.000000 2.000000
 gamma      3.000000 2.000000 0.000000"""
 
 
+def test_snp_only_profile_can_preserve_original_alignment_length():
+    variable_rows = {
+        'alpha': ['1', '1', '1'],
+        'beta': ['1', '1', '2'],
+        'gamma': ['2', '2', '2'],
+        'delta': ['2', '3', '2'],
+    }
+    invariant_count = 20
+    full_profile = '#Strain\t' + '\t'.join(
+        ['V1', 'V2', 'V3']
+        + ['I{0}'.format(index) for index in range(invariant_count)]
+    ) + '\n'
+    snp_profile = '#Strain\tV1\tV2\tV3\n'
+    for name, alleles in variable_rows.items():
+        full_profile += '\t'.join(
+            [name] + alleles + ['1'] * invariant_count
+        ) + '\n'
+        snp_profile += '\t'.join([name] + alleles) + '\n'
+
+    expected = run_backend(full_profile, 'MSTreeV2')
+    observed = run_backend(
+        snp_profile,
+        'MSTreeV2',
+        total_loci=3 + invariant_count,
+    )
+
+    assert observed == expected
+
+
+def test_total_loci_cannot_be_shorter_than_the_supplied_alignment():
+    with pytest.raises(ValueError, match='total_loci cannot be smaller'):
+        run_backend(PROFILE, 'MSTreeV2', total_loci=2)
+
+
 def test_plain_and_gzipped_profile_files_match_inline_input(tmp_path):
     plain_path = tmp_path / 'profiles.tsv'
     gzip_path = tmp_path / 'profiles.tsv.gz'
