@@ -181,7 +181,7 @@ Twenty-five issues were open at the 2026-07-17 audit.
 
 - Close after the modernization release verifies them: #93, #108.
 - Already answered/resolved; confirm and close with documentation links: #92,
-  #103.
+  #103. Both were confirmed and closed on 2026-07-17.
 - Fixed with regression tests and awaiting release/closure: #65, #96, #97,
   #99, #100, #102, #107, #109, #112, #115.
 - Reproduce and investigate with supplied or generated fixtures: none.
@@ -190,6 +190,11 @@ Twenty-five issues were open at the 2026-07-17 audit.
 - Browser-only architecture: #113 is the direct static-site `/maketree` gap.
 - Fixed feature/documentation awaiting release/closure: #81, #82, #89, #94,
   #101, #104, #110, #111, #116, #117.
+
+Status comments linking the implemented evidence in draft PR #118 were posted
+to every remaining open issue on 2026-07-17. Merge-linked fixes use `Closes`
+references in the PR body so GitHub will close them only after review and merge;
+#93 intentionally remains open through merge until 2.3.0 is published.
 
 Notes from representative checks:
 
