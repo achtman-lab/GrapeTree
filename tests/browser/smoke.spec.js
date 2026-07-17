@@ -173,3 +173,31 @@ test('loads a valid tree file through the file-distribution path', async ({ page
     the_tree ? the_tree.force_nodes.map(node => node.id).sort() : []
   ))).toEqual(['_hypo_0', 'file_alpha', 'file_beta']);
 });
+
+test('can label every isolate represented by a grouped node', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => {
+    loadTreeText('(alpha:0,beta:0,gamma:2);');
+  });
+  await expect.poll(async () => page.evaluate(() => Boolean(the_tree))).toBe(true);
+
+  const groupedIDs = await page.evaluate(() => {
+    const group = Object.values(the_tree.grouped_nodes)
+      .find(ids => ids.includes('alpha') && ids.includes('beta'));
+    return group || [];
+  });
+  expect(groupedIDs.sort()).toEqual(['alpha', 'beta']);
+
+  await page.evaluate(() => {
+    the_tree.showNodeLabels(true);
+    document.querySelector('#show-all-node-labels').click();
+  });
+  const labels = await page.locator('.node-group-number').allTextContents();
+  const groupedLabel = labels.find(label => (
+    label.includes('alpha') && label.includes('beta')
+  ));
+  expect(groupedLabel.split(', ').sort()).toEqual(['alpha', 'beta']);
+  expect(await page.evaluate(() => (
+    the_tree.getLayout().nodes_links.show_all_node_labels
+  ))).toBe(true);
+});

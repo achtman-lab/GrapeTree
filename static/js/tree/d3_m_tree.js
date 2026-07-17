@@ -45,6 +45,7 @@ function D3MSTree(element_id,data,callback,height,width){
         //label parameters
         this.base_font_size=10;
         this.show_node_labels=false;
+        this.show_all_node_labels=false;
         this.node_font_size=14;
         this.link_font_size=10;
         this.log_link_scale=false;
@@ -793,6 +794,7 @@ D3MSTree.prototype.setLayout = function(layout_data){
                 this.node_font_size = data['node_font_size']?data['node_font_size']:this.node_font_size
                 this.show_individual_segments=data['show_individual_segments'];
                 this.show_node_labels= data['show_node_labels'] ? data['show_node_labels'] : false;
+                this.show_all_node_labels = data['show_all_node_labels'] ? true : false;
                 this.hide_link_length= data["hide_link_length"]?data["hide_link_length"]:this.hide_link_length
                 this.custom_colours = data['custom_colours']?data['custom_colours']:this.custom_colours;
                 this.color_schemes.custom = data.custom_color_scheme ? data.custom_color_scheme : this.color_schemes.custom;
@@ -839,6 +841,7 @@ D3MSTree.prototype.getLayout=function(){
 			link_font_size:this.link_font_size,
 			show_link_labels:this.show_link_labels,
 			show_node_labels:this.show_node_labels,
+			show_all_node_labels:this.show_all_node_labels,
 			node_font_size:this.node_font_size,
 			custom_colours:this.custom_colours,
 			hide_link_length:this.hide_link_length,
@@ -1055,6 +1058,9 @@ D3MSTree.prototype._setNodeText = function(){
                         else{
                                 return "ND";
                         }                    
+                }
+                if (self.show_all_node_labels && self.grouped_nodes[it.id]) {
+                        return self.grouped_nodes[it.id].join(', ');
                 }
                 return  it.id
         });
@@ -1781,6 +1787,12 @@ D3MSTree.prototype.setNodeText = function(value){
 */
 D3MSTree.prototype.showNodeLabels = function(show){
         this.show_node_labels= show;
+        this._setNodeText();
+};
+
+/** Show every isolate ID represented by a grouped zero-distance node. */
+D3MSTree.prototype.showAllNodeLabels = function(show){
+        this.show_all_node_labels = show;
         this._setNodeText();
 };
 

@@ -152,6 +152,8 @@
 					<hr>
 					<label><input id ='show-node-labels'type="checkbox" checked /> Show Labels</label>
 					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('show_labels');"></span>
+					<br>
+					<label><input id ='show-all-node-labels' type="checkbox" /> Show all IDs in grouped nodes</label>
 					<select style='width:160px' id = 'node-label-text'></select>
 					<br>
 					<label>Font Size:</label>
@@ -487,6 +489,7 @@
 
 		$("#show-link-labels").prop("checked",sll);
 		$("#show-node-labels").prop("checked",data['show_node_labels']);
+		$("#show-all-node-labels").prop("checked",data['show_all_node_labels']);
 		if (data['node_font_size']){
 			$("#slider-node-fontsize").slider("value",data['node_font_size']);
 			$("#spinner-node-fontsize").spinner("value",data['node_font_size']);
@@ -839,6 +842,9 @@ window.onload = function (){
 	});
 	$("#show-node-labels").click(function(e){
 			the_tree.showNodeLabels($(this).is(":checked"));
+	});
+	$("#show-all-node-labels").click(function(e){
+			the_tree.showAllNodeLabels($(this).is(":checked"));
 	});
 	$("#show-individual-segments").click(function(e){
 			the_tree.showIndividualSegments($(this).is(":checked"));
