@@ -1,9 +1,31 @@
-/* global createEdmonds, importScripts */
+/* global createEdmonds, createRapidNJ, importScripts */
 'use strict';
 
-importScripts('./vendor/edmonds/edmonds.js');
-importScripts('./vendor/rapidnj/rapidnj.js');
-importScripts('./browser-backend.js');
+const assetVersion = new URL(self.location.href).searchParams.get('v') || 'development';
+
+function versionedAsset(relativePath) {
+  const url = new URL(relativePath, self.location.href);
+  url.searchParams.set('v', assetVersion);
+  return url.href;
+}
+
+function importWorkerAsset(relativePath) {
+  const url = versionedAsset(relativePath);
+  try {
+    importScripts(url);
+  } catch (error) {
+    // A newly promoted static deployment can briefly meet a stale edge/browser
+    // cache entry. Retry only network-load failures; script errors must surface.
+    if (!(error instanceof DOMException) || error.name !== 'NetworkError') throw error;
+    const retryUrl = new URL(url);
+    retryUrl.searchParams.set('retry', Date.now().toString());
+    importScripts(retryUrl.href);
+  }
+}
+
+importWorkerAsset('./vendor/edmonds/edmonds.js');
+importWorkerAsset('./vendor/rapidnj/rapidnj.js');
+importWorkerAsset('./browser-backend.js');
 
 function normaliseMatrix(matrix) {
   if (!Array.isArray(matrix) || matrix.length < 2) {

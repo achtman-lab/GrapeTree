@@ -2,6 +2,7 @@
 
 const visualiser = document.querySelector('#visualiser');
 const status = document.querySelector('#browser-status');
+const WORKER_ASSET_VERSION = '20260717.1';
 let activeWorker = null;
 
 function setStatus(message, state = 'ready') {
@@ -12,7 +13,9 @@ function setStatus(message, state = 'ready') {
 function calculateProfile(profile, options) {
   if (activeWorker) activeWorker.terminate();
 
-  const worker = new Worker('./edmonds-worker.js');
+  const workerUrl = new URL('./edmonds-worker.js', window.location.href);
+  workerUrl.searchParams.set('v', WORKER_ASSET_VERSION);
+  const worker = new Worker(workerUrl);
   const id = crypto.randomUUID();
   activeWorker = worker;
   setStatus('Calculating locally…', 'working');

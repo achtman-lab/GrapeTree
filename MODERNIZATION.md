@@ -260,6 +260,10 @@ Notes from representative checks:
   the Vercel CLI from a temporary static staging directory. Do not add a Vercel
   Git integration or deployment workflow to this PR; the existing GitHub Pages
   configuration and repository CI must remain untouched.
+- Browser-only worker entry points and their imported JavaScript assets use a
+  shared revision query. True `importScripts` network failures receive one
+  cache-bypassing retry, preventing a stale browser or edge-cache response from
+  breaking a newly promoted manual preview deployment.
 - First proof complete: the in-repository Edmonds C++ source is compiled with
   Emscripten and compared with native outputs in a Web Worker harness.
 - RapidNJ is now built from canonical GPL-2 source. Standard NJ is implemented

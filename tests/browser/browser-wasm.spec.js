@@ -19,6 +19,10 @@ async function workerCalculate(page, profile, options) {
       if (event.data.error) reject(new Error(event.data.error));
       else resolve(event.data.result);
     };
+    worker.onerror = (event) => {
+      worker.terminate();
+      reject(new Error(event.message || 'The browser worker failed to load'));
+    };
     worker.postMessage({ id, profile: profileText, options: calculationOptions });
   }), { profileText: profile, calculationOptions: options });
 }
@@ -110,6 +114,25 @@ function newickPairwiseDistances(newick) {
   }
   return result;
 }
+
+test('retries a transient imported worker asset failure without changing the result', async ({ page }) => {
+  let edmondsRequests = 0;
+  await page.route('**/vendor/edmonds/edmonds.js*', async (route) => {
+    edmondsRequests += 1;
+    if (edmondsRequests === 1) await route.abort('failed');
+    else await route.continue();
+  });
+  await page.goto('http://127.0.0.1:8001/browser-wasm/');
+
+  const result = await workerCalculate(
+    page,
+    fixtureText('compatibility/basic.profile'),
+    { method: 'MSTreeV2', handleMissing: 'pair_delete' },
+  );
+
+  expect(result.newick).toContain(';');
+  expect(edmondsRequests).toBe(2);
+});
 
 test('calculates MSTreeV2 from a profile entirely in a Web Worker', async ({ page }) => {
   const backendRequests = [];
