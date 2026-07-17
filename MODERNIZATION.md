@@ -78,6 +78,10 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - Added a persisted “Show all IDs in grouped nodes” label option for issue #81,
   using the existing grouped-isolate data rather than discarding all but the
   representative ID.
+- Added shared, implementation-neutral compatibility fixtures for MSTree,
+  MSTreeV2, NJ, RapidNJ, and all four missing-data modes. Tree expectations use
+  pairwise path distances so harmless Newick rooting/order changes do not mask
+  or manufacture scientific differences; browser-WASM must use the same JSON.
 
 ## Current verification
 
@@ -92,7 +96,9 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
   3.10-3.14, distribution build and wheel smoke test, and Chromium browser
   smoke tests all pass. The first native-platform run exposed Numba's missing
   Intel macOS wheels, Windows console-script discovery, and the `.exe` suffix
-  in frozen CLI version output; fixes are implemented and await the next run.
+  in CLI version output. The next run passed every job except the installed
+  Windows version assertion; CLI output now strips executable suffixes and
+  awaits one final platform rerun.
 - A local unsigned Apple-silicon PyInstaller application builds and runs all
   three native backends. Its Python launcher is arm64 while the bundled macOS
   executables remain x86_64 and therefore rely on Rosetta 2. CI deliberately
@@ -195,8 +201,8 @@ Notes from representative checks:
 
 1. Keep running the complete installed-wheel and Playwright suites for each
    implementation batch and inspect the resulting CI on PR #118.
-2. Add shared golden topology and distance fixtures before changing further
-   scientific algorithms, starting with issues #82, #100, and #107.
+2. Extend the shared golden topology and distance fixtures with the issue #82
+   attachment before changing its scientific algorithm behaviour.
 3. Add Windows/macOS CI and assess the existing native build scripts and bundled
    executable architecture/licensing.
 4. Work through the issue buckets, posting clear closure/update comments only

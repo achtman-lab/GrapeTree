@@ -65,7 +65,12 @@ def contemporary(a0, a1, b, c, n_loci) :
 
 def add_args() :
     parser = argparse.ArgumentParser(description='For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/README.md".\nIn brief, GrapeTree generates a NEWICK tree to the default output (screen) \nor a redirect output, e.g., a file. ', formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--version', action='version', version='%(prog)s {0}'.format(__version__))
+    program_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+    parser.add_argument(
+        '--version',
+        action='version',
+        version='{0} {1}'.format(program_name, __version__),
+    )
     parser.add_argument('--profile', '-p', dest='fname', help='[REQUIRED] An input filename of a file containing MLST or SNP character data, a fasta file containing aligned sequences, or - to read from standard input. \n', required=True)
     parser.add_argument('--method', '-m', dest='tree', help='"MSTreeV2" [DEFAULT]\n"MSTree"\n"NJ": FastME V2 NJ tree\n"RapidNJ": RapidNJ for very large datasets\n"ninja": Alternative NJ algorithm for very large datasets\n"distance": allelic distance matrix in PHYLIP format.', choices=['MSTreeV2', 'MSTree', 'NJ', 'RapidNJ', 'ninja', 'distance'], default='MSTreeV2')
     parser.add_argument('--matrix', '-x', dest='matrix_type', help='"symmetric": [DEFAULT: MSTree, NJ and RapidNJ] \n"asymmetric": [DEFAULT: MSTreeV2].\n"blockwise": (experimental for ordered loci) A different locus is given less penalty (defined by -b) if the previous locus is also different\n', choices=['symmetric', 'asymmetric', 'blockwise'], default='symmetric')
