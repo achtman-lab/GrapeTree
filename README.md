@@ -96,6 +96,15 @@ python -m pip install build
 python -m build
 ```
 
+A Bioconda-style recipe is available in `conda/meta.yaml`. It targets Linux
+and macOS on x86-64 because GrapeTree includes platform-specific tree-building
+binaries. With `conda-build` installed, render or build it using:
+
+```
+conda render conda -c conda-forge -c bioconda
+conda build conda -c conda-forge -c bioconda
+```
+
 ## Usage - Command line module for generating Trees
 ```
 >grapetree -h
