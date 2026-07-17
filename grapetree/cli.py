@@ -27,6 +27,7 @@ program as you would in EnteroBase; through a web browser.
 from .module import app
 from .module.MSTrees import add_args, backend
 from .export import (
+    cluster_document,
     network_document,
     read_text,
     visualisation_document,
@@ -63,6 +64,7 @@ def main() :
         arguments = add_args()
         visualisation_json = arguments.pop('visualisation_json')
         network_format = arguments.pop('network_format')
+        clusters = arguments.pop('clusters')
         treefile = arguments.pop('treefile')
         metadata_path = arguments.pop('metadata')
         if treefile:
@@ -80,6 +82,8 @@ def main() :
             )
         elif network_format:
             sys.stdout.write(network_document(newick, network_format))
+        elif clusters:
+            sys.stdout.write(cluster_document(newick, clusters))
         else:
             sys.stdout.write(newick)
     else :

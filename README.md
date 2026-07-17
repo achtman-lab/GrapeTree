@@ -172,6 +172,19 @@ grapetree --treefile tree.nwk --network-format json > network.json
 These export flags also accept `--profile` instead of `--treefile`, calculating
 the selected tree method before serialising it.
 
+To reproduce the interface's “collapse nodes” cluster memberships at several
+cutoffs, request all thresholds in one command:
+
+```bash
+grapetree --treefile tree.nwk --clusters 0 1 2 5 10 > clusters.tsv
+```
+
+For each cutoff, links with distance less than or equal to the value are joined
+into a component, exactly matching the UI rule. Cluster labels are stable and
+deterministic (`C1`, `C2`, …); the memberships, rather than the arbitrary label
+text, are the scientifically meaningful result. `--profile` can again replace
+`--treefile` to calculate and cluster in one call.
+
 Detailed descriptions are available for
 [`--matrix`](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf),
 [`--recraft`](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf),

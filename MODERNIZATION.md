@@ -88,6 +88,9 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
 - Added programmatic reloadable visualisation JSON output (#94) and portable
   GraphML, edge-list CSV, and JSON network exports (#101). Both accept an
   existing Newick tree or a profile calculated by the normal CLI.
+- Added multi-threshold cluster assignment output (#89) using the interface's
+  exact inclusive collapse rule (links at or below the cutoff), with stable
+  component labels and regression coverage.
 
 ## Current verification
 
@@ -139,10 +142,10 @@ Twenty-five issues were open at the 2026-07-17 audit.
   #99, #100, #102, #107, #109, #112, #115.
 - Reproduce and investigate with supplied or generated fixtures: #82, #104,
   #116.
-- Features/API work: #89.
+- Features/API work: none from the current open-issue set.
 - Documentation/scientific guidance: #110, #117.
 - Browser-only architecture: #113 is the direct static-site `/maketree` gap.
-- Fixed feature awaiting release/closure: #81, #94, #101, #111.
+- Fixed feature awaiting release/closure: #81, #89, #94, #101, #111.
 
 Notes from representative checks:
 

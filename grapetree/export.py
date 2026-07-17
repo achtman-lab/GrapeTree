@@ -138,3 +138,40 @@ def network_document(newick, output_format):
         }
         return json.dumps(document, indent=2, sort_keys=True) + '\n'
     raise ValueError('Unknown network format: {0}'.format(output_format))
+
+
+def cluster_document(newick, thresholds):
+    """Match the UI's collapse rule: join links at or below each cutoff."""
+    graph = tree_network(newick)
+    leaves = sorted(
+        node_id
+        for node_id, attributes in graph.nodes(data=True)
+        if not attributes['hypothetical']
+    )
+    assignments = {leaf: [] for leaf in leaves}
+    for threshold in thresholds:
+        retained = nx.Graph()
+        retained.add_nodes_from(graph.nodes)
+        retained.add_edges_from(
+            (source, target)
+            for source, target, attributes in graph.edges(data=True)
+            if attributes['distance'] <= threshold
+        )
+        groups = []
+        for component in nx.connected_components(retained):
+            members = sorted(set(component) & set(leaves))
+            if members:
+                groups.append(members)
+        for cluster_index, members in enumerate(sorted(groups), 1):
+            cluster_id = 'C{0}'.format(cluster_index)
+            for member in members:
+                assignments[member].append(cluster_id)
+
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter='\t', lineterminator='\n')
+    writer.writerow(
+        ['ID'] + ['Cluster_{0:g}'.format(value) for value in thresholds]
+    )
+    for leaf in leaves:
+        writer.writerow([leaf] + assignments[leaf])
+    return output.getvalue()

@@ -143,6 +143,24 @@ def test_cli_exports_analysis_ready_networks(tmp_path, output_format):
         assert len(document['links']) == 2
 
 
+def test_cli_clusters_match_the_ui_branch_cutoff_rule(tmp_path):
+    tree_path = tmp_path / 'tree.nwk'
+    tree_path.write_text('((alpha:0,beta:1):1,gamma:3);')
+
+    completed = run_cli(
+        '--treefile', str(tree_path),
+        '--clusters', '0', '1', '3',
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert completed.stdout == (
+        'ID\tCluster_0\tCluster_1\tCluster_3\n'
+        'alpha\tC1\tC1\tC1\n'
+        'beta\tC2\tC1\tC1\n'
+        'gamma\tC3\tC2\tC1\n'
+    )
+
+
 @pytest.mark.parametrize(
     ('arguments', 'message'),
     [
