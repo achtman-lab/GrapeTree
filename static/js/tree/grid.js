@@ -449,10 +449,12 @@ D3MSMetadataTable.prototype.sendToMicroReact = function (callback, haveBackend) 
 	data.metadata = this.meta2tsv(['Selected', 'index']);
 	var colors = {};
 	var display_field = this.tree.display_category;
-	var display_field = this.grid.getColumns().filter(function(d) {
-			return d.field == display_field;
-		})[0]['id'];
-	colors[display_field] = this.tree.category_colours;
+	var display_column = this.grid.getColumns().filter(function(d) {
+		return d.field == display_field;
+	})[0];
+	if (display_column) {
+		colors[display_column.id] = this.tree.category_colours;
+	}
 	data.colors = JSON.stringify(colors);
 	data.name = $("#headertag").html();
 	$.ajax({
@@ -487,4 +489,3 @@ D3MSMetadataTable.prototype.sendToMicroReact = function (callback, haveBackend) 
 	})
 
 }
-

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GrapeTree · browser-only</title>
+    <style>
+      html, body, iframe { height: 100%; width: 100%; }
+      html, body { margin: 0; overflow: hidden; }
+      iframe { border: 0; display: block; }
+      #browser-status {
+        background: rgba(255, 255, 255, .94);
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        bottom: 10px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .18);
+        color: #333;
+        font: 12px/1.4 system-ui, sans-serif;
+        padding: 5px 9px;
+        pointer-events: none;
+        position: fixed;
+        right: 10px;
+        z-index: 10;
+      }
+      #browser-status[data-state="working"] { color: #725600; }
+      #browser-status[data-state="error"] { color: #9b1c1c; }
+    </style>
+  </head>
+  <body>
+    <iframe id="visualiser" src="../MSTree_holder.html?browser_backend=wasm" title="GrapeTree browser-only visualiser"></iframe>
+    <div id="browser-status" role="status" aria-live="polite">Starting browser backend…</div>
+    <noscript>GrapeTree browser-only requires JavaScript.</noscript>
+    <script src="./app.js"></script>
+  </body>
+</html>

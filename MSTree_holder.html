@@ -56,9 +56,9 @@
 		<div  id ='param-panel' style = 'display:none'>
 		   <label>Method</label>
 		   <select id ='method-select'>
-                           <option class='show-tooltip' title='NINJA is a scalable alternative to Neighbor-Joining algorithm' value='ninja'>NINJA NJ</option>
-			   <option class='show-tooltip' title='MSTreeV2 uses a directed graph to handle missing data' value='MSTreeV2'>MSTreeV2</option>
-			   <option class='show-tooltip' title='A traditional Minimum spanning tree + eBurst weighting' value='MSTree'>MSTree</option>
+                           <option class='show-tooltip' title='NINJA is a scalable alternative to Neighbor-Joining algorithm and requires Java' value='ninja'>NINJA NJ</option>
+			   <option selected class='show-tooltip' title='Directed missing-data distances. Technical replicates with different missing loci can separate.' value='MSTreeV2'>MSTreeV2</option>
+			   <option class='show-tooltip' title='Pairwise-overlap minimum spanning tree; often preferable for technical replicates with non-matching missing calls.' value='MSTree'>MSTree</option>
 			   <option class='show-tooltip' title='A standard Neighbor-Joining algorithm implemented in FastME V2.0' value='NJ'>Standard Neighbour Joining</option>
 			   <option class='show-tooltip' title='Rapid Neighbour Joining for very large datasets' value='RapidNJ'>RapidNJ</option>
 		   </select>
@@ -152,6 +152,8 @@
 					<hr>
 					<label><input id ='show-node-labels'type="checkbox" checked /> Show Labels</label>
 					<span class="glyphicon glyphicon-question-sign" style="float:right;margin-right:5px" onclick="getHelpBox('show_labels');"></span>
+					<br>
+					<label><input id ='show-all-node-labels' type="checkbox" /> Show all IDs in grouped nodes</label>
 					<select style='width:160px' id = 'node-label-text'></select>
 					<br>
 					<label>Font Size:</label>
@@ -272,6 +274,7 @@
 	var metadata_categories={};
 	
 	var cannot_connect=false;
+	var backend_unavailable_message = "Tree calculation is unavailable on this static page. Load a Newick or GrapeTree JSON file, or install the standalone server with 'pip install grapetree' and run 'grapetree'.";
 
 	var default_control_panel_values={
 		max_link_scale:500,
@@ -487,6 +490,7 @@
 
 		$("#show-link-labels").prop("checked",sll);
 		$("#show-node-labels").prop("checked",data['show_node_labels']);
+		$("#show-all-node-labels").prop("checked",data['show_all_node_labels']);
 		if (data['node_font_size']){
 			$("#slider-node-fontsize").slider("value",data['node_font_size']);
 			$("#spinner-node-fontsize").spinner("value",data['node_font_size']);
@@ -840,6 +844,9 @@ window.onload = function (){
 	$("#show-node-labels").click(function(e){
 			the_tree.showNodeLabels($(this).is(":checked"));
 	});
+	$("#show-all-node-labels").click(function(e){
+			the_tree.showAllNodeLabels($(this).is(":checked"));
+	});
 	$("#show-individual-segments").click(function(e){
 			the_tree.showIndividualSegments($(this).is(":checked"));
 	});
@@ -999,7 +1006,14 @@ window.onload = function (){
 			icon.attr("class","glyphicon glyphicon-menu-down");
 		}
 	});
-	try_backend();
+	// The browser-only flavour supplies profile calculation through a parent
+	// Web Worker. Keep the normal Flask availability check for every other
+	// entry point.
+	if (location.search.indexOf('browser_backend=wasm') >= 0) {
+		cannot_connect=false;
+	} else {
+		try_backend();
+	}
 	loadNetFiles();
 };
 

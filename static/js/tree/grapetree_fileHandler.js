@@ -36,6 +36,29 @@ $('#welcome-div').toggle();
 }
 
 function loadNetFiles() {
+	function normaliseRemoteUrl(url) {
+		return url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
+			.replace('drive.google.com/open?', 'drive.google.com/uc?')
+			.replace('/blob/', '/').replace('github.com', 'raw.githubusercontent.com');
+	}
+	function loadRemoteText(url, description, onSuccess) {
+		$.ajax({
+			type: "GET",
+			url: url,
+			dataType: "text"
+		}).done(function(data) {
+			try {
+				onSuccess(data);
+			} catch (error) {
+				loadFailed("Unable to load remote " + description + ": " + error.message);
+			}
+		}).fail(function(jqXHR, textStatus) {
+			loadFailed(
+				"Unable to load remote " + description + " from " + url
+				+ ": " + textStatus
+			);
+		});
+	}
 	function getJsonFromUrl(hashBased) {
 		var query;
 		if(hashBased) {
@@ -68,9 +91,7 @@ function loadNetFiles() {
 	var params = getJsonFromUrl();
 	var tree = null, metadata = null;
 	for (var key in params) {
-		params[key] = params[key].replace('www.dropbox.com', 'dl.dropboxusercontent.com')
-						.replace('drive.google.com/open?', 'drive.google.com/uc?')
-						.replace('/blob/', '/').replace('github.com', 'raw.githubusercontent.com')
+		params[key] = normaliseRemoteUrl(params[key]);
 		if (key === 'tree') {
 			tree = params[key];
 		} else if (key == 'metadata') {
@@ -78,11 +99,7 @@ function loadNetFiles() {
 		}
 	}
 	if (tree) {
-		$.ajax({
-			type: "GET",
-			url: 'https://enterobase.warwick.ac.uk/grapetree_remote/'+tree,
-			headers: {'X-Requested-With': 'XMLHttpRequest'},
-			success: function(tree){
+		loadRemoteText(tree, "tree", function(tree) {
 				try {
 					data = typeof(tree) == 'string'? JSON.parse(tree) : tree;
 				} catch(error) {
@@ -99,16 +116,10 @@ function loadNetFiles() {
 					loadMSTree(tree_raw);
 				}
 				if (the_tree && metadata) {
-					$.ajax({
-						type: "GET",
-						url: 'https://enterobase.warwick.ac.uk/grapetree_remote/'+metadata,
-						headers: {'X-Requested-With': 'XMLHttpRequest'},
-						success: function(data){
-							loadMetadataText(data);
-						}
+					loadRemoteText(metadata, "metadata", function(data) {
+						loadMetadataText(data);
 					});
 				}
-			}
 		});
 	}
 }
@@ -148,7 +159,7 @@ function distributeFile(text, filename) {
 	var head_line = text.substring(0, 2048).split(/[\n\r]/)[0];
 	if (head_line.startsWith(">")  || (head_line.startsWith("#") && ! head_line.toUpperCase().startsWith("#NEXUS")) || (head_line.indexOf('\t') >=0 && ! the_tree)) {
 		if (cannot_connect){
-			loadFailed("Cannot Connect to the backend server");
+			loadFailed(backend_unavailable_message);
 			return;
 		}
 		profile_file=this.file;
@@ -226,20 +237,24 @@ function loadTreeText(tree){
 	//give time to dialog to display
 	setTimeout(function(){
 		try {
-			data =JSON.parse(tree);
-		} catch (e) {
-			data = {};
-			if ( tree.toUpperCase().startsWith('#NEXUS') ) {
-				data['nexus'] = tree;
-				data['layout_algorithm']=$("#layout-select").val();
+			try {
+				data =JSON.parse(tree);
+			} catch (e) {
+				data = {};
+				if ( tree.toUpperCase().startsWith('#NEXUS') ) {
+					data['nexus'] = tree;
+					data['layout_algorithm']=$("#layout-select").val();
+				}
+				else{
+					data['nwk']=tree;
+					data['layout_algorithm']=$("#layout-select").val();
+				}
 			}
-			else{
-				data['nwk']=tree;
-				data['layout_algorithm']=$("#layout-select").val();
-			}
+			tree_raw = data;
+			loadMSTree(tree_raw);
+		} catch (error) {
+			loadFailed("Unable to load tree: " + error.message);
 		}
-		tree_raw = data;
-		loadMSTree(tree_raw);
 	},500);
 };
 
@@ -339,10 +354,12 @@ function profile2check(profile) {
 						}
 					}
 				});
-	   }).fail(function( jqXHR, textStatus){
-				if (jqXHR.status == 405 || jqXHR.status == 404) {
-					loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/achtman-lab/GrapeTree/");
-				} else {
+				}).fail(function( jqXHR, textStatus){
+						if (jqXHR.status == 405 || jqXHR.status == 404) {
+							loadFailed(backend_unavailable_message);
+						} else if (jqXHR.status == 400 && jqXHR.responseText) {
+							loadFailed(jqXHR.responseText);
+						} else {
 					console.log(textStatus);
 					loadFailed("There server returned an error. Is the profile file in the right format?");
 				}
@@ -368,9 +385,11 @@ function profile2check(profile) {
 						tree_raw = {"nwk":result,"layout_algorithm":$("#layout-select").val()};
 						$("#headertag").text( $("#headertag").text() + ' (' + $("#method-select").val() + ')' );
 						loadMSTree(tree_raw);
-               }).fail(function( jqXHR, textStatus){
+				}).fail(function( jqXHR, textStatus){
 						if (jqXHR.status == 405 || jqXHR.status == 404) {
-							loadFailed("Cannot reach the backend. Please download a FREE standalone version from https://github.com/achtman-lab/GrapeTree/");
+							loadFailed(backend_unavailable_message);
+						} else if (jqXHR.status == 400 && jqXHR.responseText) {
+							loadFailed(jqXHR.responseText);
 						} else {
 							console.log(textStatus);
 							loadFailed("There server returned an error. Is the profile file in the right format?");

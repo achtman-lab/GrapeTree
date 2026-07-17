@@ -1,6 +1,6 @@
 # GrapeTree
 
-[![Build Status](https://travis-ci.org/achtman-lab/GrapeTree.svg?branch=master)](https://travis-ci.org/achtman-lab/GrapeTree)
+[![CI](https://github.com/achtman-lab/GrapeTree/actions/workflows/ci.yml/badge.svg)](https://github.com/achtman-lab/GrapeTree/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Docs Status](https://readthedocs.org/projects/enterobase/badge/)](http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html)
 
@@ -32,29 +32,34 @@ grapetree
 
 **We also have ready-made binaries for download here: [https://github.com/achtman-lab/GrapeTree/releases](https://github.com/achtman-lab/GrapeTree/releases)**
 
-**Running on Mac: Download GrapeTree_mac.zip**
+**Running on Mac: Download GrapeTree-macOS-Intel.zip**
 
-You will need to unzip GrapeTree_mac.zip (just double click). Inside there will
-be an app you can drag into your Applications folder. You may be warned about
-Security settings, if you right click on the GrapeTree app and then click "Open"
-it should be fine.
+Unzip the archive and drag `GrapeTree.app` into the Applications folder. This
+build currently targets Intel Macs. It can run on Apple silicon through Rosetta
+2, but a native Apple-silicon release requires native builds of all three
+bundled tree executables. Published applications are not yet code-signed or
+notarised, so macOS may require explicitly allowing the application in Privacy
+& Security.
 
-**Running on Windows: Download GrapeTree_win.zip**
+**Running on Windows: Download GrapeTree-Windows.zip**
 
-Once downloaded, you will need to untzip GrapeTree_win.zip and then open the
-extracted folder and  run GrapeTree_win.exe. When you run it the first time on
-windows you might get a prompt about security. On Windows 10, click the small
-text: "More info", and then the button "Run Anyway".
+Unzip the whole archive, keep its files together, and run `GrapeTree.exe` from
+the extracted folder. Unsigned development builds may trigger Windows
+SmartScreen; release signing remains a prerequisite for removing that warning.
 
-**Running from Source code**
+**Running from source code**
 
-GrapeTree requires [Python 2.7](https://www.python.org/downloads/release/python-2712/) or [Python 3.6](https://www.python.org/downloads/release/python-360/)
-and some additional python modules (listed in requirements.txt). The easiest way
-to install these modules is with pip:
+GrapeTree supports Python 3.10 through 3.14. Install GrapeTree and its
+dependencies from the repository with pip:
 
 ```
-pip install -r requirements.txt
-chmod +x binaries/
+python -m pip install .
+```
+
+For development, use an editable install with the test dependencies:
+
+```
+python -m pip install -e . pytest
 ```
 On Linux or MacOSX you need to make sure the binaries in binaries/ can be
 executed. To run GrapeTree;
@@ -74,60 +79,165 @@ view a tree (newick or Nexus) or create a tree from an allele profile, just drag
 and drop the file into the browser window.
 
 ### Configuration
-Runtime behaviour can be configured in grapetree/config.py.
+Runtime behaviour can be configured in `grapetree/module/config.py`.
 
 Developers may wish to look at the [JavaScript documentation](https://achtman-lab.github.io/GrapeTree/documentation/developer/index.html) (JSDoc).
 
 ### Tests
-To run tests, run pytests in the top level directory.
-```
-pytest
+
+Install the package and pytest, then run the test suite from the top-level
+directory:
 
 ```
+python -m pip install . pytest
+python -m pytest
+```
+
+### Building distributions
+
+Package metadata and build configuration live in `pyproject.toml`. GrapeTree
+uses Hatchling as its build backend:
+
+```
+python -m pip install build
+python -m build
+```
+
+A Bioconda-style recipe is available in `conda/meta.yaml`. It targets Linux
+and macOS on x86-64 because GrapeTree includes platform-specific tree-building
+binaries. With `conda-build` installed, render or build it using:
+
+```
+conda render conda -c conda-forge -c bioconda
+conda build conda -c conda-forge -c bioconda
+```
+
+### Docker
+
+Build and run the supported container from the repository root:
+
+```bash
+docker build -t grapetree .
+docker run --rm -p 8000:8000 grapetree
+```
+
+Then open <http://localhost:8000>. The image runs the same Flask-backed
+application under Gunicorn and includes the Linux MSTreeV2, NJ, and RapidNJ
+backends. It runs as an unprivileged user and does not include SSH or require
+mounting the source tree. To keep generated files outside the container, use
+the command-line wheel on the host or add an explicit bind mount for your own
+workflow; uploaded browser data is processed in the request and is not kept as
+a container volume.
 
 ## Usage - Command line module for generating Trees
-```
->grapetree -h
-usage: MSTrees.py [-h] --profile FNAME [--method TREE] [--matrix MATRIX_TYPE]
-                  [--recraft] [--missing HANDLER] [--wgMLST]
-                  [--heuristic HEURISTIC] [--n_proc NUMBER_OF_PROCESSES]
-                  [--check]
 
-For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/README.md".
-In brief, GrapeTree generates a NEWICK tree to the default output (screen)
-or a redirect output, e.g., a file.
+Generate an MSTreeV2 Newick tree from a profile file:
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --profile FNAME, -p FNAME
-                        [REQUIRED] An input filename of a file containing MLST or SNP character data, 
-                        OR a fasta file containing aligned sequences.
-  --method TREE, -m TREE
-                        "MSTreeV2" [DEFAULT]
-                        "MSTree"
-                        "NJ": FastME V2 NJ tree
-                        "RapidNJ": RapidNJ for very large datasets
-                        "distance": p-distance matrix in PHYLIP format.
-  --matrix MATRIX_TYPE, -x MATRIX_TYPE
-                        "symmetric": [DEFAULT: MSTree and NJ]
-                        "asymmetric": [DEFAULT: MSTreeV2].
-  --recraft, -r         Triggers local branch recrafting. [DEFAULT: MSTreeV2].
-  --missing HANDLER, -y HANDLER
-                        ONLY FOR symmetric DISTANCE MATRIX.
-                        0: [DEFAULT] ignore missing data in pairwise comparison.
-                        1: Remove column with missing data.
-                        2: treat data as an allele.
-                        3: Absolute number of allelic differences.
-  --heuristic HEURISTIC, -t HEURISTIC
-                        Tiebreak heuristic used only in MSTree and MSTreeV2
-                        "eBurst" [DEFAULT: MSTree]
-                        "harmonic" [DEFAULT: MSTreeV2]
-  --n_proc NUMBER_OF_PROCESSES, -n NUMBER_OF_PROCESSES
-                        Number of CPU processes in parallel use. [DEFAULT]: 5.
-  --check, -c           Only calculate the expected time/memory requirements.
 ```
-NOTE:
-* Detailed descriptions for [--matrix](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf), [--recraft](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf) and [--heuristic](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf)
+grapetree --profile examples/simulated_data.profile > tree.nwk
+```
+
+Profiles can also be streamed on standard input by using `-` as the profile:
+
+```
+cat examples/simulated_data.profile | grapetree --profile - > tree.nwk
+```
+
+The supported methods are `MSTreeV2` (default), `MSTree`, `NJ`, `RapidNJ`,
+`ninja`, and `distance`. Run `grapetree --help` for all current options and
+accepted values. Invalid methods, matrices, missing-data modes, heuristics, and
+profile paths are rejected before calculation with a concise command-line
+error.
+
+Create a reloadable GrapeTree visualisation document from an existing Newick
+tree and optional tab- or comma-delimited metadata:
+
+```bash
+grapetree --json --treefile tree.nwk --meta metadata.tsv > ms_tree.json
+```
+
+The metadata identifier column should be named `ID`; when it is absent, the
+first column is used. Duplicate or blank identifiers are rejected. The JSON can
+be dropped onto either the standalone or server-backed GrapeTree interface.
+An existing `ms_tree.json` saved from the interface is opened the same way:
+press **Load Files** and choose it, paste its contents into the load dialog, or
+drag it onto the graph. It already contains the tree, metadata, colours, and
+saved layout, so it must be loaded as a tree document rather than as metadata.
+
+The GitHub Pages site is a static visualiser. It can load Newick, Nexus, and
+GrapeTree JSON documents, but it cannot calculate a tree from an allele/SNP
+profile because there is no Python/native backend behind `/maketree`. Use the
+standalone server, Docker image, or a precomputed tree. The separate
+`browser-wasm/` track is intended to remove that limitation without changing
+the established Flask application.
+
+Export the same tree as an undirected network for igraph, NetworkX, or other
+analysis tools:
+
+```bash
+grapetree --treefile tree.nwk --network-format graphml > tree.graphml
+grapetree --treefile tree.nwk --network-format csv > edges.csv
+grapetree --treefile tree.nwk --network-format json > network.json
+```
+
+These export flags also accept `--profile` instead of `--treefile`, calculating
+the selected tree method before serialising it.
+
+To reproduce the interface's “collapse nodes” cluster memberships at several
+cutoffs, request all thresholds in one command:
+
+```bash
+grapetree --treefile tree.nwk --clusters 0 1 2 5 10 > clusters.tsv
+```
+
+For each cutoff, links with distance less than or equal to the value are joined
+into a component, exactly matching the UI rule. Cluster labels are stable and
+deterministic (`C1`, `C2`, …); the memberships, rather than the arbitrary label
+text, are the scientifically meaningful result. `--profile` can again replace
+`--treefile` to calculate and cluster in one call.
+
+Detailed descriptions are available for
+[`--matrix`](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/asymmetricDistances.pdf),
+[`--recraft`](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/branchRecrafting.pdf),
+and
+[`--heuristic`](https://github.com/achtman-lab/GrapeTree/blob/master/documentation/tiebreak.pdf).
+
+### SNP-only alignments
+
+A SNP-only alignment can reduce input size without changing ordinary Hamming
+distances when every omitted site is genuinely invariant and samples have no
+missing/ambiguous calls there. MSTreeV2's branch-recrafting model also uses the
+number of loci, however, so silently treating the SNP count as the original
+alignment length can change the topology. Supply the original alignment length
+to preserve that model:
+
+```bash
+grapetree --profile variable-sites.fasta --method MSTreeV2 \
+  --total-loci 2849012 > tree.nwk
+```
+
+Do not remove constant sites if they contain missing calls, and do not treat a
+SNP-only tree as directly comparable when ascertainment/filtering differs.
+For memory-limited data, also consider `--method MSTree`, filtering samples
+with excessive missingness, or calculating on a machine with more memory; the
+pairwise distance matrix itself remains quadratic in sample count.
+
+MSTreeV2's asymmetric missing-data model is directional: when technical
+replicates have different sets of uncalled loci, their directed distances can
+be much larger than the allele differences on their shared calls. That can
+separate otherwise close replicate runs, as in issue #82. This is expected for
+the published algorithm rather than a rendering error. Use `--method MSTree`
+when clustering should be based on pairwise-called overlap, and inspect/filter
+missingness before interpreting either tree. The public issue attachment is now
+an exact regression fixture for both behaviours, so this scientific choice
+cannot change accidentally.
+
+### Ridom SeqSphere+
+
+Use SeqSphere+'s dedicated **Export profile and metadata files for GrapeTree
+(TSV)** action, not a generic comparison-table export. A complete two-file
+workflow, large-dataset checks, and the matching CLI commands are documented in
+[`documentation/ridom-seqsphere.md`](documentation/ridom-seqsphere.md).
 
 ## Inputs
 #### profile
@@ -211,4 +321,3 @@ Z Zhou, NF Alikhan, MJ Sergeant, N Luhmann, C Vaz, AP Francisco, JA Carrico,
 M Achtman (2018) "GrapeTree: Visualization of core genomic relationships among 
 100,000 bacterial pathogens", Genome Res; doi:
 [https://doi.org/10.1101/gr.232397.117](https://doi.org/10.1101/gr.232397.117)
-

@@ -1,0 +1,82 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "grapetree"
+dynamic = ["version"]
+description = "Web interface of GrapeTree, which is a program for phylogenetic analysis."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [
+  { name = "EnteroBase development team", email = "zhemin.zhou@warwick.ac.uk" },
+]
+keywords = ["bioinformatics", "microbial", "genomics", "MLST", "visualisation"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+  "ete3",
+  "Flask",
+  "networkx",
+  "numpy",
+  "pandas",
+  "psutil",
+  "requests",
+  "standard-cgi; python_version >= '3.13'",
+  "unidecode",
+]
+
+[project.scripts]
+grapetree = "grapetree.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/achtman-lab/GrapeTree"
+"Bug Reports" = "https://github.com/achtman-lab/GrapeTree/issues"
+Source = "https://github.com/achtman-lab/GrapeTree"
+
+[tool.hatch.version]
+path = "grapetree/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["grapetree"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"MSTree_holder.html" = "grapetree/MSTree_holder.html"
+"GT_icon.icns" = "grapetree/GT_icon.icns"
+"GT_icon.ico" = "grapetree/GT_icon.ico"
+"static" = "grapetree/static"
+"binaries" = "grapetree/binaries"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/grapetree",
+  "/grapetree.py",
+  "/MSTree_holder.html",
+  "/GT_icon.icns",
+  "/GT_icon.ico",
+  "/LICENSE",
+  "/README.md",
+  "/pyproject.toml",
+  "/requirements.txt",
+  "/build_mac.sh",
+  "/build_win.bat",
+  "/static",
+  "/binaries",
+  "/documentation",
+  "/examples",
+  "/simulations",
+  "/src",
+  "/tests",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

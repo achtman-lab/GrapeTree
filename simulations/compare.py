@@ -124,7 +124,7 @@ def compare_with_binning(ms_splits,ref_splits,profile):
                     tp.append((quartet,avg_dist))
                     bins[b]['tp'].append((quartet,avg_dist))
                 else:
-                    print "ERROR"
+                    print("ERROR")
             else:
                 #we have a false positive
                 fp.append((quartet,avg_dist))

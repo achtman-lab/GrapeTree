@@ -1,10 +1,8 @@
 import numpy as np, json, pandas as pd, re, requests, tempfile, os
 from ete3 import Tree
 from flask import render_template, request, make_response
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
+from werkzeug.exceptions import HTTPException
 
 from . import app
 from .MSTrees import methods, backend
@@ -20,8 +18,8 @@ def index():
 @app.route("/maketree", methods=['POST'])
 def generate_tree():
     try:
-        params = app.config.get('PARAMS')
-        params.update(dict(request.form))
+        params = dict(app.config.get('PARAMS', {}))
+        params.update(request.form.to_dict(flat=True))
         if 'profile' not in params :
             return make_response('', 204)
         for param in params:
@@ -30,9 +28,14 @@ def generate_tree():
         tree = backend(profile= params['profile'],
                         method=params['method'],
                         checkEnv = params['checkEnv'],
+                        n_proc=params.get('n_proc', 1),
                         )
         return make_response(tree, 200)
 
+    except ValueError as e:
+        return make_response(str(e), 400)
+    except HTTPException:
+        raise
     except Exception as e:
         return make_response(str(e), 500)
 
@@ -53,8 +56,9 @@ def sendToMicroReact(debug=None) :
             import pickle
             tree, metaString, colors = pickle.load(open(debug, 'rb'))
         else :
-            params = dict(request.form)
-            tree, metaString, colors, name = params['tree'][0], params['metadata'][0], json.loads(params['colors'][0]), params['name'][0]
+            params = request.form.to_dict(flat=True)
+            tree, metaString = params['tree'], params['metadata']
+            colors, name = json.loads(params['colors']), params['name']
 
         metadata = pd.read_csv(StringIO(metaString), sep='\t', header=[0], dtype=str, na_filter=False)
         for fld, categories in colors.items() :

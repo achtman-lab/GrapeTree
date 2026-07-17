@@ -101,3 +101,8 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# JavaScript browser-test artefacts
+node_modules/
+playwright-report/
+test-results/
