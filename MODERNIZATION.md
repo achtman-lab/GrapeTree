@@ -57,11 +57,14 @@ There are three distinct delivery tracks. Do not collapse them into one rewrite.
   (issue #65). The backend now reports a deterministic input error, the Flask
   route preserves 400 and 413 status codes, and the browser displays the
   backend's duplicate-name explanation.
+- Removed the Numba reflected-list call in MSTreeV2 branch recrafting (issue
+  #100). `contemporary` now accepts scalar distances and has a regression test
+  that rejects both the warning and any reflected-list compilation signature.
 
 ## Current verification
 
 - Clean wheel and source distribution build successfully with Hatchling.
-- 41 Python tests pass on Python 3.12.
+- 42 Python tests pass on Python 3.12.
 - 6 Playwright/Chromium tests pass against the Flask app, covering Newick
   rendering, profile calculation, selected-subtree collapse, MicroReact export
   without metadata, exact long-branch cutoff behaviour, and visible duplicate
@@ -95,8 +98,7 @@ Twenty-five issues were open at the 2026-07-17 audit.
 - Already answered/resolved; confirm and close with documentation links: #92,
   #103.
 - Fixed with regression tests and awaiting release/closure: #65, #96, #99,
-  #102, #109, #115.
-- Remaining regression-sized fix needing tests first: #100.
+  #100, #102, #109, #115.
 - Reproduce and investigate with supplied or generated fixtures: #82, #97,
   #104, #107, #112, #115, #116.
 - Features/API work: #81, #89, #94, #101, #111.
@@ -109,9 +111,10 @@ Notes from representative checks:
   fix are now present.
 - #99 still failed for `distance` estimates but not NINJA; a test and fix are now
   present.
-- #100's historical Numba reflected-list warning did not reproduce on the
-  current supported dependency set. Keep it open until CI and a targeted fixture
-  establish whether it is obsolete.
+- #100 reproduced on the current supported dependency set by calling the exact
+  `contemporary` signature: Numba compiled `List(float64, True)` and emitted
+  `NumbaPendingDeprecationWarning`. Passing its two values as scalars removes
+  the warning and reflected-list signature without changing the calculation.
 - Old PR #98 changes one collapse call from an implicit argument to `false`, but
   contains distracting whitespace edits. Its functional fix has now been
   independently reproduced, ported, and covered for #96.

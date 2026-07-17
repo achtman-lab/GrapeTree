@@ -1,10 +1,12 @@
 import subprocess
+import warnings
 
 import numpy as np
 import pytest
+from numba.core.errors import NumbaPendingDeprecationWarning
 
 from grapetree.module import MSTrees
-from grapetree.module.MSTrees import methods
+from grapetree.module.MSTrees import contemporary, methods
 
 
 EDMONDS_DISTANCES = np.array(
@@ -22,6 +24,22 @@ def asymmetric_config(tmp_path, edmonds_path):
         'tempfix': str(tmp_path / 'grapetree'),
         'edmonds_Test': str(edmonds_path),
     }
+
+
+def test_contemporary_uses_scalars_without_numba_reflected_lists():
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter('always')
+        result = contemporary(1.0, 2.0, 3.0, 1.0, 100)
+
+    assert result is False
+    assert not any(
+        isinstance(item.message, NumbaPendingDeprecationWarning)
+        for item in caught
+    )
+    assert all(
+        'reflected list' not in str(signature).lower()
+        for signature in contemporary.signatures
+    )
 
 
 def test_asymmetric_mst_uses_networkx_when_edmonds_is_unavailable(
