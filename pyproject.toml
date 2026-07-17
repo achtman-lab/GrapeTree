@@ -1,6 +1,92 @@
 [build-system]
-requires = ["setuptools>=77", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "grapetree"
+version = "2.2"
+description = "Web interface of GrapeTree, which is a program for phylogenetic analysis."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [
+  { name = "EnteroBase development team", email = "zhemin.zhou@warwick.ac.uk" },
+]
+keywords = ["bioinformatics", "microbial", "genomics", "MLST", "visualisation"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+  "ete3",
+  "Flask",
+  "networkx",
+  "numba",
+  "numpy",
+  "pandas",
+  "psutil",
+  "requests",
+  "standard-cgi; python_version >= '3.13'",
+  "unidecode",
+]
+
+[project.scripts]
+grapetree = "grapetree.grapetree:main"
+
+[project.urls]
+Homepage = "https://github.com/achtman-lab/GrapeTree"
+"Bug Reports" = "https://github.com/achtman-lab/GrapeTree/issues"
+Source = "https://github.com/achtman-lab/GrapeTree"
+
+[tool.hatch.build.targets.wheel]
+only-include = [
+  "__init__.py",
+  "grapetree.py",
+  "simulation_generate.py",
+  "simulation_getTrees.py",
+  "MSTree_holder.html",
+  "GT_icon.icns",
+  "GT_icon.ico",
+  "LICENSE",
+  "README.md",
+  "module",
+  "static",
+  "binaries",
+]
+
+[tool.hatch.build.targets.wheel.sources]
+"" = "grapetree"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/__init__.py",
+  "/grapetree.py",
+  "/simulation_generate.py",
+  "/simulation_getTrees.py",
+  "/MSTree_holder.html",
+  "/GT_icon.icns",
+  "/GT_icon.ico",
+  "/LICENSE",
+  "/README.md",
+  "/pyproject.toml",
+  "/requirements.txt",
+  "/build_mac.sh",
+  "/build_win.bat",
+  "/module",
+  "/static",
+  "/binaries",
+  "/documentation",
+  "/examples",
+  "/simulations",
+  "/src",
+  "/tests",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

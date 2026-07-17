@@ -86,6 +86,16 @@ python -m pip install . pytest
 python -m pytest
 ```
 
+### Building distributions
+
+Package metadata and build configuration live in `pyproject.toml`. GrapeTree
+uses Hatchling as its build backend:
+
+```
+python -m pip install build
+python -m build
+```
+
 ## Usage - Command line module for generating Trees
 ```
 >grapetree -h

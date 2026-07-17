@@ -1,7 +1,0 @@
-include MSTree_holder.html
-include binaries/*
-include GT_icon*
-include LICENSE
-include README*
-recursive-include module *
-recursive-include static *
