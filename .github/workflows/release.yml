@@ -159,10 +159,6 @@ jobs:
         with:
           path: release-assets
           merge-multiple: true
-      - name: Add familiar desktop download names
-        run: |
-          cp release-assets/GrapeTree-*-macOS-Intel.zip release-assets/GrapeTree_mac.zip
-          cp release-assets/GrapeTree-*-Windows.zip release-assets/GrapeTree_win.zip
       - name: Generate SHA-256 checksums
         working-directory: release-assets
         run: sha256sum * > SHA256SUMS
