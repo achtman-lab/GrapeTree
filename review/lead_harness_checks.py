@@ -2,6 +2,7 @@
 """Lead-owned fault injection: the review harness must reject wrong results."""
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -62,12 +63,14 @@ def main():
         check('identical malformed large trees fail validation', False)
 
     repo = Path(__file__).resolve().parents[1]
+    source_sha = subprocess.check_output(
+        ['git', '-C', str(repo), 'rev-parse', 'HEAD'], text=True).strip()
     for name, overrides, reason in [
         ('large_stdout', {}, 'normal_exit'),
         ('timeout', {'timeout': 0}, 'timeout'),
         ('rss_limit', {'max_rss_mb': 0}, 'sampled_rss_limit'),
     ]:
-        options = dict(source=repo, source_sha='d1a11219b4ef3ba4c660eabcb6253ab7fcc67fcc',
+        options = dict(source=repo, source_sha=source_sha,
                        revision='candidate', profile=repo / 'examples/simulated_data.profile',
                        output=args.output / name, python=Path(sys.executable),
                        method='MSTreeV2', matrix_type='symmetric',

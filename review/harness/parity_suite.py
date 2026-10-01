@@ -111,8 +111,8 @@ def execute_case(case, args):
     case_dir = args.output / case["name"]
     results = {}
     for revision, source, sha in (
-        ("baseline", args.baseline, BASELINE_SHA),
-        ("candidate", args.candidate, CANDIDATE_SHA),
+        ("baseline", args.baseline, args.baseline_sha),
+        ("candidate", args.candidate, args.candidate_sha),
     ):
         options = dict(source=source, source_sha=sha, revision=revision,
                        profile=case["profile"], output=case_dir / revision,
@@ -254,6 +254,8 @@ def main():
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--baseline", type=Path, required=True)
     parser.add_argument("--candidate", type=Path, required=True)
+    parser.add_argument("--baseline-sha", default=BASELINE_SHA)
+    parser.add_argument("--candidate-sha", default=CANDIDATE_SHA)
     parser.add_argument("--python", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--timeout", type=float, default=120)

@@ -71,6 +71,11 @@ metadata and a comparison JSON. The summary counts distinguish ordinary
 parity, independently verified intentional corrections, matching baseline
 failures, and new failures.
 
+Both parity and benchmark suites accept `--baseline-sha` and `--candidate-sha`.
+The defaults reproduce the original frozen review. To test a newer candidate
+checkout, pass its full commit ID with `--candidate-sha`; the runner rejects a
+checkout whose HEAD differs from that ID and separately records uncommitted edits.
+
 The option matrix is deliberately not a Cartesian product. `blockwise` takes
 numeric penalties such as `0.01`, `0.1` and `1.0`; the string missing-data
 modes do not apply to it. `complete_delete` is expected to differ from master
