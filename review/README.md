@@ -67,6 +67,10 @@ generalise beyond their development fixtures.
 
 ## Reproduction and suite boundaries
 
+See [TESTING.md](../TESTING.md) for the ongoing quick-CI, periodic local review
+and pre-release benchmark policy. The sections below preserve this PR's review
+record and detailed reproduction steps.
+
 Use [harness/README.md](harness/README.md) for archive sampling and scientific
 runs. On the review host the external evidence root is
 `/private/tmp/grapetree-pr118-review`; it contains `baseline`, `candidate`,

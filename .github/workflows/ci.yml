@@ -5,6 +5,7 @@ on:
     branches:
       - master
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,8 +14,11 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Keep archive sampling, full scientific parity and benchmarks out of this workflow.
+# TESTING.md describes the opt-in local review tiers. The jobs below run in parallel.
 jobs:
   test:
+    timeout-minutes: 5
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
@@ -46,6 +50,7 @@ jobs:
         run: python -m pytest -q review/harness review/test_wasm_precision.py
 
   package:
+    timeout-minutes: 5
     name: Build and inspect package
     runs-on: ubuntu-latest
 
@@ -80,6 +85,7 @@ jobs:
           grapetree --version
 
   conda-package:
+    timeout-minutes: 10
     name: Build Conda recipe
     runs-on: ubuntu-latest
     defaults:
@@ -101,6 +107,7 @@ jobs:
         run: conda-build conda --override-channels --channel conda-forge --channel bioconda
 
   browser:
+    timeout-minutes: 5
     name: Browser smoke tests
     runs-on: ubuntu-latest
 
@@ -124,6 +131,7 @@ jobs:
         run: npm run test:browser
 
   browser-wasm-build:
+    timeout-minutes: 10
     name: Rebuild browser WASM
     runs-on: ubuntu-latest
 
@@ -135,6 +143,7 @@ jobs:
         run: git diff --exit-code -- browser-wasm/vendor
 
   docker:
+    timeout-minutes: 5
     name: Docker application
     runs-on: ubuntu-latest
 
@@ -155,6 +164,7 @@ jobs:
           grep --quiet ';' docker-tree.nwk
 
   platform:
+    timeout-minutes: 10
     name: ${{ matrix.name }} compatibility
     runs-on: ${{ matrix.os }}
     strategy:
@@ -182,6 +192,7 @@ jobs:
         shell: bash
 
   native-macos:
+    timeout-minutes: 10
     name: Build macOS Intel application
     runs-on: macos-15-intel
 
@@ -212,6 +223,7 @@ jobs:
           if-no-files-found: error
 
   native-windows:
+    timeout-minutes: 10
     name: Build Windows application
     runs-on: windows-latest
 

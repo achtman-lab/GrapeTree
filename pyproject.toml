@@ -65,6 +65,7 @@ include = [
   "/GT_icon.ico",
   "/LICENSE",
   "/README.md",
+  "/TESTING.md",
   "/pyproject.toml",
   "/requirements.txt",
   "/build_mac.sh",
