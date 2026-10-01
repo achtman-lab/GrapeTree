@@ -104,7 +104,8 @@ def smoke(expected_version, required_architecture=None):
         port = sock.getsockname()[1]
     # Exercise the installed CLI's no-argument path on an unused port without
     # opening a desktop browser on CI. Application code is not replaced.
-    bootstrap = f'''import sys, webbrowser
+    bootstrap = f'''import sys, webbrowser, faulthandler
+faulthandler.dump_traceback_later(20)
 from importlib.metadata import distribution
 from grapetree.module import app
 app.config['PORT'] = {port}
@@ -114,13 +115,16 @@ entry = next(e for e in distribution('grapetree').entry_points if e.group == 'co
 entry.load()()
 '''
     base = f'http://127.0.0.1:{port}'
+    # Local application checks must not inherit a runner's HTTP proxy.
+    http = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    print(f'Starting installed web application at {base}', flush=True)
     with open('server.log', 'w+') as log:
-        server = subprocess.Popen([sys.executable, '-I', '-c', bootstrap], stdout=log, stderr=log)
+        server = subprocess.Popen([sys.executable, '-I', '-u', '-c', bootstrap], stdout=log, stderr=log)
         try:
             deadline = time.monotonic() + 30
             while True:
                 try:
-                    with urllib.request.urlopen(base, timeout=2) as response:
+                    with http.open(base, timeout=2) as response:
                         html = response.read().decode()
                     break
                 except (urllib.error.URLError, TimeoutError):
@@ -133,11 +137,11 @@ entry.load()()
             assert any('.js' in url for url in assets.urls), 'No packaged JavaScript referenced'
             assert any('.css' in url for url in assets.urls), 'No packaged CSS referenced'
             for url in sorted(assets.urls):
-                with urllib.request.urlopen(base + url, timeout=5) as response:
+                with http.open(base + url, timeout=5) as response:
                     assert response.read(), f'Empty asset: {url}'
             for method in methods:
                 data = urllib.parse.urlencode({'profile': PROFILE, 'method': method, 'n_proc': 1, 'checkEnv': 0}).encode()
-                with urllib.request.urlopen(base + '/maketree', data=data, timeout=30) as response:
+                with http.open(base + '/maketree', data=data, timeout=30) as response:
                     assert check_tree(response.read().decode()) == trees[method]
                 print(f'Installed web application: {method} calculation passed', flush=True)
             print(f'Installed web application: HTTP and {len(assets.urls)} assets passed', flush=True)
