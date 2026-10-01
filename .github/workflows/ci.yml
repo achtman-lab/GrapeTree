@@ -104,6 +104,8 @@ jobs:
       - name: Install conda-build
         run: conda install --yes conda-build
       - name: Build and test recipe
+        env:
+          GRAPETREE_CONDA_SOURCE_PATH: ${{ github.event_name == 'pull_request' && github.workspace || '' }}
         run: conda-build conda --override-channels --channel conda-forge --channel bioconda
 
   browser:

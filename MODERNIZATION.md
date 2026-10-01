@@ -316,7 +316,7 @@ the time. PyPI already has 2.0, 2.1 and 2.2; do not reuse those version numbers.
    Preparing a draft does not authorise publishing it. Publication triggers
    the release workflow and PyPI upload, and builds the Python, browser,
    Intel macOS and Windows archives with SHA-256 checksums.
-4. For Bioconda submission, replace the local recipe source with the uploaded
+4. For Bioconda submission, replace the branch-based recipe source with the uploaded
    `grapetree-3.0.0.tar.gz` source distribution and its actual checksum.
 5. Keep issue #93 open until the new PyPI release is installed successfully on
    supported Python versions.
