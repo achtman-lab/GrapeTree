@@ -165,5 +165,6 @@ jobs:
       - name: Attach files to the published release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: gh release upload "${RELEASE_TAG}" release-assets/* --clobber
