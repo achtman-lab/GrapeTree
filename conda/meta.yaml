@@ -1,15 +1,19 @@
 {% set name = "grapetree" %}
-{% set version = "2.3.0" %}
+{% set version = "3.0.0" %}
 
 package:
   name: {{ name }}
   version: {{ version }}
 
 source:
-  # Use the modernization branch until v2.3.0 is tagged. Replace this with the
-  # release tarball URL and SHA-256 before submitting the recipe to Bioconda.
+  # Normal builds follow the repository's default branch. PR CI explicitly
+  # supplies its checkout so proposed changes are tested before merging.
+{% if environ.get('GRAPETREE_CONDA_SOURCE_PATH') %}
+  path: {{ environ.get('GRAPETREE_CONDA_SOURCE_PATH') | tojson }}
+{% else %}
   git_url: https://github.com/achtman-lab/GrapeTree.git
-  git_rev: codex/modernize-packaging-ci
+  git_rev: master
+{% endif %}
 
 build:
   number: 0
@@ -46,6 +50,7 @@ test:
   commands:
     - grapetree --help
     - grapetree --version
+    - python -c "import grapetree, importlib.metadata; assert grapetree.__version__ == '{{ version }}' and importlib.metadata.version('grapetree') == '{{ version }}'"
     - python -c "from grapetree import app; assert app.test_client().get('/').status_code == 200"
     - test -x "$SP_DIR/grapetree/binaries/edmonds-linux"  # [linux]
     - test -x "$SP_DIR/grapetree/binaries/edmonds-osx"  # [osx]

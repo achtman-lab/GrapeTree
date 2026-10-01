@@ -47,7 +47,7 @@ def test_cli_reports_the_package_version():
     completed = run_cli('--version')
 
     assert completed.returncode == 0
-    assert completed.stdout.strip() == 'grapetree 2.3.0'
+    assert completed.stdout.strip() == 'grapetree 3.0.0'
 
 
 @pytest.mark.parametrize('method', ['MSTree', 'MSTreeV2', 'NJ', 'RapidNJ'])
