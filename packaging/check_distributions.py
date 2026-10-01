@@ -121,7 +121,11 @@ entry.load()()
     with open('server.log', 'w+') as log:
         server = subprocess.Popen([sys.executable, '-I', '-u', '-c', bootstrap], stdout=log, stderr=log)
         try:
-            deadline = time.monotonic() + 30
+            # macOS 15+ hosted runners can spend over 30 seconds in the stdlib
+            # HTTPServer's loopback reverse lookup (actions/setup-python#1223).
+            # Keep exercising the real server without replacing DNS behaviour.
+            startup_timeout = 90 if platform.system() == 'Darwin' else 30
+            deadline = time.monotonic() + startup_timeout
             while True:
                 try:
                     with http.open(base, timeout=2) as response:
