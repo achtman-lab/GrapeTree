@@ -17,11 +17,11 @@ delta\t2\t3\t2
 """
 
 
-def run_cli(*arguments, input_text=None):
+def run_cli(*arguments, input_text=None, command="grapetree"):
     environment = dict(os.environ)
     environment['PYTHONPATH'] = ''
     executable = shutil.which(
-        'grapetree',
+        command,
         path=sysconfig.get_path('scripts'),
     )
     assert executable is not None
@@ -176,3 +176,17 @@ def test_cli_reports_invalid_input_without_a_traceback(
     assert completed.returncode == 2
     assert message in completed.stderr
     assert 'Traceback' not in completed.stderr
+
+
+def test_installed_mstrees_command(tmp_path):
+    command = 'MSTrees' if os.name == 'nt' else 'MSTrees.py'
+    completed = run_cli('--version', command=command)
+    assert completed.returncode == 0, completed.stderr
+    assert completed.stdout.strip().split()[-1] == '3.0.0'
+    profile = tmp_path / 'profile.tsv'
+    profile.write_text(PROFILE)
+    completed = run_cli('--profile', str(profile), '--n_proc', '1', command=command)
+    assert completed.returncode == 0, completed.stderr
+    assert sorted(Tree(completed.stdout, format=1).get_leaf_names()) == [
+        'alpha', 'beta', 'delta', 'gamma'
+    ]

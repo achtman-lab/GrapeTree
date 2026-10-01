@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.26"]
 build-backend = "hatchling.build"
 
 [project]
@@ -37,6 +37,7 @@ dependencies = [
 
 [project.scripts]
 grapetree = "grapetree.cli:main"
+"MSTrees.py" = "grapetree.module.MSTrees:main"
 
 [project.urls]
 Homepage = "https://github.com/achtman-lab/GrapeTree"

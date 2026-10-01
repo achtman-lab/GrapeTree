@@ -22,6 +22,7 @@ build:
   script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation --no-cache-dir -vv
   entry_points:
     - grapetree = grapetree.cli:main
+    - MSTrees.py = grapetree.module.MSTrees:main
   run_exports:
     - {{ pin_subpackage(name, max_pin="x") }}
 
@@ -50,6 +51,7 @@ test:
   commands:
     - grapetree --help
     - grapetree --version
+    - MSTrees.py --version
     - python -c "import grapetree, importlib.metadata; assert grapetree.__version__ == '{{ version }}' and importlib.metadata.version('grapetree') == '{{ version }}'"
     - python -c "from grapetree import app; assert app.test_client().get('/').status_code == 200"
     - test -x "$SP_DIR/grapetree/binaries/edmonds-linux"  # [linux]

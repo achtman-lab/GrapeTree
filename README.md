@@ -1,7 +1,5 @@
 # GrapeTree
 
-For development checks and periodic scientific benchmarks, see [Testing GrapeTree](TESTING.md).
-
 [![CI](https://github.com/achtman-lab/GrapeTree/actions/workflows/ci.yml/badge.svg)](https://github.com/achtman-lab/GrapeTree/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Docs Status](https://readthedocs.org/projects/enterobase/badge/)](http://enterobase.readthedocs.io/en/latest/grapetree/grapetree-about.html)
@@ -28,9 +26,20 @@ program as you would in EnteroBase; through a web browser. We recommend
 There are number of different ways to interact with GrapeTree, for **best results install via pip** :
 
 ```
-pip install grapetree
+python -m pip install grapetree
 grapetree
 ```
+
+Use a virtual environment with Python 3.10 or newer. The `grapetree` command
+opens the local web application. The same installation also provides the
+tree-building command:
+
+```
+MSTrees.py --profile profiles.tsv --method MSTreeV2 > tree.nwk
+```
+
+On Windows, pip installs this command as `MSTrees.exe`; use `MSTrees` instead
+of `MSTrees.py`.
 
 **We also have ready-made binaries for download here: [https://github.com/achtman-lab/GrapeTree/releases](https://github.com/achtman-lab/GrapeTree/releases)**
 
@@ -185,10 +194,6 @@ produce an error instead of ambiguous output. Ninja works with modern Java
 without the obsolete `-d64` option. One-profile MSTree/MSTreeV2 failures and
 exclusion of completely missing profiles remain known limitations.
 
-The [compatibility review](review/final-report.md) records real cgMLST parity,
-benchmarks, browser checks and remaining limits. The larger data review is
-reproducible using the [test harness](review/harness/README.md).
-
 Create a reloadable GrapeTree visualisation document from an existing Newick
 tree and optional tab- or comma-delimited metadata:
 
@@ -268,9 +273,7 @@ be much larger than the allele differences on their shared calls. That can
 separate otherwise close replicate runs, as in issue #82. This is expected for
 the published algorithm rather than a rendering error. Use `--method MSTree`
 when clustering should be based on pairwise-called overlap, and inspect/filter
-missingness before interpreting either tree. The public issue attachment is now
-an exact regression fixture for both behaviours, so this scientific choice
-cannot change accidentally.
+missingness before interpreting either tree.
 
 ### Ridom SeqSphere+
 

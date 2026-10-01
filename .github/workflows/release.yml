@@ -9,7 +9,8 @@ permissions:
 
 jobs:
   python-distributions:
-    name: Build Python distributions
+    name: Build and test Python distributions
+    timeout-minutes: 5
     runs-on: ubuntu-latest
 
     steps:
@@ -30,6 +31,8 @@ jobs:
           python -m pip install --upgrade build twine
           python -m build
           python -m twine check dist/*
+      - name: Test clean installs before publication
+        run: python packaging/check_distributions.py dist/*.tar.gz dist/*.whl
       - uses: actions/upload-artifact@v7
         with:
           name: python-package-distributions
