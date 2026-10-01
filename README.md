@@ -41,6 +41,10 @@ MSTrees.py --profile profiles.tsv --method MSTreeV2 > tree.nwk
 On Windows, pip installs this command as `MSTrees.exe`; use `MSTrees` instead
 of `MSTrees.py`.
 
+The bundled tree-building executables target Linux AMD64 (x86-64), Intel
+macOS (x86-64), and Windows x64. Apple silicon Macs need Rosetta 2 for these
+executables; native ARM64 Linux and macOS builds are not yet provided.
+
 **We also have ready-made binaries for download here: [https://github.com/achtman-lab/GrapeTree/releases](https://github.com/achtman-lab/GrapeTree/releases)**
 
 **Running on Mac: Download GrapeTree-macOS-Intel.zip**

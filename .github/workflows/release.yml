@@ -32,12 +32,41 @@ jobs:
           python -m build
           python -m twine check dist/*
       - name: Test clean installs before publication
-        run: python packaging/check_distributions.py dist/*.tar.gz dist/*.whl
+        run: python packaging/check_distributions.py --require-architecture x86_64 dist/*.tar.gz dist/*.whl
       - uses: actions/upload-artifact@v7
         with:
           name: python-package-distributions
           path: dist/
           if-no-files-found: error
+
+  wheel-compatibility:
+    name: Test release wheel on ${{ matrix.name }}
+    needs: python-distributions
+    timeout-minutes: 5
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS Intel
+            os: macos-15-intel
+          - name: Windows x64
+            os: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          architecture: x64
+      - uses: actions/download-artifact@v8
+        with:
+          name: python-package-distributions
+          path: dist
+      - name: Test the exact release wheel and native backends
+        shell: bash
+        run: python packaging/check_distributions.py --require-architecture x86_64 dist/*.whl
 
   macos-application:
     name: Package macOS Intel application
@@ -57,8 +86,11 @@ jobs:
           expected_version=$(python -c "exec(open('grapetree/_version.py').read()); print(__version__)")
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' dist/GrapeTree.app/Contents/Info.plist)" = "$expected_version"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' dist/GrapeTree.app/Contents/Info.plist)" = "$expected_version"
-          dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method MSTreeV2 --n_proc 1 > mstree.nwk
-          test -s mstree.nwk
+          test "$(lipo -archs dist/GrapeTree.app/Contents/MacOS/GrapeTree)" = "x86_64"
+          for method in MSTreeV2 NJ RapidNJ; do
+            dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method "$method" --n_proc 1 > "$method.nwk"
+            test -s "$method.nwk"
+          done
       - name: Create portable archive
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
@@ -89,8 +121,11 @@ jobs:
           $expectedVersion = python -c "exec(open('grapetree/_version.py').read()); print(__version__)"
           $fileVersion = (Get-Item ".\dist\GrapeTree\GrapeTree.exe").VersionInfo
           if ($fileVersion.FileVersion -ne $expectedVersion -or $fileVersion.ProductVersion -ne $expectedVersion) { throw "Unexpected executable version metadata" }
-          & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method MSTreeV2 --n_proc 1 | Out-File -Encoding ascii mstree.nwk
-          if ((Get-Item mstree.nwk).Length -eq 0) { throw "Packaged calculation produced no tree" }
+          foreach ($method in @("MSTreeV2", "NJ", "RapidNJ")) {
+            & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method $method --n_proc 1 | Out-File -Encoding ascii "$method.nwk"
+            if ($LASTEXITCODE -ne 0) { throw "$method calculation failed" }
+            if ((Get-Item "$method.nwk").Length -eq 0) { throw "$method produced no tree" }
+          }
       - name: Create portable archive
         shell: pwsh
         env:
@@ -127,7 +162,7 @@ jobs:
 
   publish-pypi:
     name: Publish to PyPI
-    needs: python-distributions
+    needs: [python-distributions, wheel-compatibility]
     runs-on: ubuntu-latest
     environment:
       name: pypi

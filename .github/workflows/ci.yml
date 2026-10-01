@@ -72,7 +72,7 @@ jobs:
           python -c "import grapetree; assert grapetree.__version__ == '3.0.0'"
           grapetree --version
       - name: Test clean installs of the source distribution and wheel
-        run: python packaging/check_distributions.py dist/*.tar.gz dist/*.whl
+        run: python packaging/check_distributions.py --require-architecture x86_64 dist/*.tar.gz dist/*.whl
 
   conda-package:
     timeout-minutes: 10
@@ -184,6 +184,12 @@ jobs:
           cd "${RUNNER_TEMP}"
           python -m pytest -q tests
         shell: bash
+      - name: Test a clean wheel install and all native backends
+        shell: bash
+        run: |
+          python -m pip install build
+          python -m build --wheel
+          python packaging/check_distributions.py --require-architecture x86_64 dist/*.whl
 
   native-macos:
     timeout-minutes: 10
@@ -211,7 +217,7 @@ jobs:
           test -s mstree.nwk
           test -s nj.nwk
           test -s rapidnj.nwk
-          test "$(file -b dist/GrapeTree.app/Contents/MacOS/GrapeTree)" != ""
+          test "$(lipo -archs dist/GrapeTree.app/Contents/MacOS/GrapeTree)" = "x86_64"
       - uses: actions/upload-artifact@v4
         with:
           name: GrapeTree-macOS-Intel
