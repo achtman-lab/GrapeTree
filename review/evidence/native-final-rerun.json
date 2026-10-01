@@ -1,0 +1,63 @@
+{
+  "tier": "native",
+  "count": 3,
+  "statuses": {
+    "baseline_native_tool_incompatible_candidate_valid": 1,
+    "parity_pass": 2
+  },
+  "parity_acceptable": true,
+  "all_functionality_pass": true,
+  "results": [
+    {
+      "case": {
+        "name": "Yersinia-n10-NJ",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Yersinia.n10.s7.profile",
+        "method": "NJ"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/native-final-rerun/Yersinia-n10-NJ/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/native-final-rerun/Yersinia-n10-NJ/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Yersinia-n10-RapidNJ",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Yersinia.n10.s7.profile",
+        "method": "RapidNJ"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/native-final-rerun/Yersinia-n10-RapidNJ/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/native-final-rerun/Yersinia-n10-RapidNJ/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Yersinia-n10-ninja",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Yersinia.n10.s7.profile",
+        "method": "ninja"
+      },
+      "status": "baseline_native_tool_incompatible_candidate_valid",
+      "comparison": {
+        "pass": false,
+        "baseline_exit": 1,
+        "candidate_exit": 0,
+        "candidate_valid_leaf_set": true
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/native-final-rerun/Yersinia-n10-ninja/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/native-final-rerun/Yersinia-n10-ninja/candidate/run.json"
+    }
+  ]
+}

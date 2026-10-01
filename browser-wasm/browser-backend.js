@@ -45,7 +45,7 @@
           names.push(line.slice(1).trim().split(/\s+/)[0]);
           rawProfiles.push([]);
         } else if (rawProfiles.length) {
-          rawProfiles.at(-1).push(...line.trim());
+          rawProfiles.at(-1).push(...line.replace(/\s/g, ''));
         }
       }
     } else {
@@ -53,6 +53,9 @@
         if (!line.trim()) continue;
         const fields = line.trim().split('\t');
         if (!fields[0]) continue;
+        if (alleleColumns.some((column) => fields[column] === undefined || !fields[column].trim())) {
+          throw new Error(`Profile ${fields[0]} has a missing locus column; use 0 or - for missing alleles.`);
+        }
         names.push(fields[0]);
         rawProfiles.push(alleleColumns.map((column) => fields[column]));
       }
@@ -121,8 +124,10 @@
         const distance = mode === 'pair_delete'
           ? ((differences + 0.01) * loci) / (comparable + 0.01)
           : differences;
-        matrix[left][right] = distance;
-        matrix[right][left] = distance;
+        // The Python symmetric matrix is float32, including the input later
+        // printed for FastME. Round once at assignment, as NumPy does.
+        matrix[left][right] = Math.fround(distance);
+        matrix[right][left] = matrix[left][right];
       }
     }
     return matrix;
@@ -191,6 +196,10 @@
   }
 
   function symmetricTree(matrix, weights) {
+    const roundHalfEven = (value) => {
+      const lower = Math.floor(value);
+      return value - lower === 0.5 ? lower + (lower % 2) : Math.round(value);
+    };
     const parents = matrix.map((_, index) => index);
     const find = (node) => {
       while (parents[node] !== node) {
@@ -200,9 +209,14 @@
       return node;
     };
     const edges = [];
-    for (let target = 0; target < matrix.length; target += 1) {
-      for (let source = 0; source < target; source += 1) {
-        edges.push([source, target, Math.trunc(Math.round(matrix[source][target]) + Math.min(weights[source], weights[target]))]);
+    // NetworkX constructs its graph in source-major order and omits zero
+    // entries. Kruskal sorts the untruncated weights stably; truncation occurs
+    // only after choosing edges in the Python backend.
+    for (let source = 0; source < matrix.length; source += 1) {
+      for (let target = source + 1; target < matrix.length; target += 1) {
+        const score = roundHalfEven(Math.fround(matrix[source][target]))
+          + Math.min(weights[source], weights[target]);
+        if (score !== 0) edges.push([source, target, score]);
       }
     }
     edges.sort((left, right) => left[2] - right[2]);
@@ -212,7 +226,7 @@
       const right = find(edge[1]);
       if (left === right) continue;
       parents[right] = left;
-      tree.push(edge);
+      tree.push([edge[0], edge[1], Math.trunc(edge[2])]);
       if (tree.length === matrix.length - 1) break;
     }
     return tree;
@@ -437,6 +451,13 @@
     return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(6)));
   }
 
+  function formatEteDistance(value) {
+    // ete3 writes format=1 Newick distances with %0.6g, six significant
+    // digits. Retain full precision for the calculations above, then round
+    // only at the final serialization boundary.
+    return String(Number(value.toPrecision(6)));
+  }
+
   function expandNumericNewick(newick, names, embedded) {
     return newick.replace(/(^|[(,])'?(\d+)'?(?=:)/g, (match, prefix, rawIndex) => {
       const name = names[Number(rawIndex)];
@@ -517,13 +538,92 @@
       current = current.parent;
     }
     if (!current || current === root) current = root.children[0];
-    current.length /= 2;
+
+    // ETE set_outgroup() followed by the default legacy unroot() places the
+    // multifurcating root next to the selected midpoint node. If the node is
+    // a leaf, its parent becomes the root; otherwise the node itself does.
+    // The edge crossing that root is halved. Root placement matters because
+    // backend() subsequently transfers tiny branches to their sisters.
+    const midpointParent = current.parent;
+    const anchor = current.children.length ? current : midpointParent;
+    const adjacency = new Map();
+    (function connect(node) {
+      adjacency.set(node, []);
+      for (const child of node.children) {
+        connect(child);
+        const length = child === current ? child.length / 2 : child.length;
+        adjacency.get(node).push([child, length]);
+        adjacency.get(child).push([node, length]);
+      }
+    }(root));
+    function orient(node, parent = null, length = 0) {
+      return {
+        label: node.label,
+        length,
+        parent,
+        children: adjacency.get(node)
+          .filter(([neighbour]) => neighbour !== parent)
+          .map(([neighbour, edgeLength]) => orient(neighbour, node, edgeLength)),
+      };
+    }
+    const rerooted = orient(anchor);
 
     function serialise(node) {
       const body = node.children.length
         ? `(${node.children.map(serialise).join(',')})${node.label}`
         : node.label;
       return node.parent ? `${body}:${formatDistance(node.length)}` : body;
+    }
+    return `${serialise(rerooted)};`;
+  }
+
+  function postprocessShortBranches(newick) {
+    // Python backend moves each tiny positive branch onto all of its sisters
+    // when the tree has any branch longer than three alleles. Apply this
+    // before embedded-profile leaves are expanded, matching backend().
+    const tokens = newick.match(/[^\s(),:;]+|[(),:;]/g);
+    let position = 0;
+    function parse(parent = null) {
+      const node = { children: [], label: '', length: 0, parent };
+      if (tokens[position] === '(') {
+        position += 1;
+        do {
+          node.children.push(parse(node));
+          if (tokens[position] === ',') position += 1;
+          else break;
+        } while (position < tokens.length);
+        if (tokens[position++] !== ')') throw new Error('Invalid Newick during branch postprocessing.');
+        if (![':', ',', ')', ';'].includes(tokens[position])) node.label = tokens[position++];
+      } else {
+        node.label = tokens[position++];
+      }
+      if (tokens[position] === ':') {
+        position += 1;
+        node.length = Number(tokens[position++]);
+      }
+      return node;
+    }
+    const root = parse();
+    function hasLongBranch(node) {
+      return node.children.some((child) => child.length > 3 || hasLongBranch(child));
+    }
+    if (hasLongBranch(root)) {
+      function recraft(node) {
+        node.children.forEach(recraft);
+        if (node.parent && node.length > 0 && node.length < 0.1) {
+          for (const sister of node.parent.children) {
+            if (sister !== node) sister.length += node.length;
+          }
+          node.length = 0;
+        }
+      }
+      root.children.forEach(recraft);
+    }
+    function serialise(node) {
+      const body = node.children.length
+        ? `(${node.children.map(serialise).join(',')})${node.label}`
+        : node.label;
+      return node.parent ? `${body}:${formatEteDistance(node.length)}` : body;
     }
     return `${serialise(root)};`;
   }
@@ -548,7 +648,13 @@
       const pairDistance = matrix[bestLeft][bestRight];
       const leftLength = pairDistance / 2 + (totals[bestLeft] - totals[bestRight]) / (2 * (size - 2));
       const rightLength = pairDistance - leftLength;
-      const joined = `(${nodes[bestLeft]}:${formatDistance(leftLength)},${nodes[bestRight]}:${formatDistance(rightLength)})`;
+      // FastME emits a directly joined pair of numeric leaves in descending
+      // index order. ETE's later postorder short-branch transfer depends on
+      // that child order when both leaf branches are positive and below 0.1.
+      const leafPair = /^\d+$/.test(nodes[bestLeft]) && /^\d+$/.test(nodes[bestRight]);
+      const joined = leafPair
+        ? `(${nodes[bestRight]}:${formatDistance(rightLength)},${nodes[bestLeft]}:${formatDistance(leftLength)})`
+        : `(${nodes[bestLeft]}:${formatDistance(leftLength)},${nodes[bestRight]}:${formatDistance(rightLength)})`;
       const retained = nodes.map((_, index) => index).filter((index) => index !== bestLeft && index !== bestRight);
       const nextNodes = retained.map((index) => nodes[index]).concat(joined);
       const nextMatrix = Array.from({ length: size - 1 }, () => Array(size - 1).fill(0));
@@ -600,7 +706,9 @@
     }
     if (method === 'RapidNJ') {
       matrix = symmetricDistance(parsed.profiles, mode);
-      const newick = eteLegacyMidpointUnroot(await runners.rapidNJ(matrix));
+      const newick = postprocessShortBranches(
+        eteLegacyMidpointUnroot(await runners.rapidNJ(matrix))
+      );
       return {
         method,
         names: parsed.names,
@@ -609,7 +717,9 @@
     }
     if (method === 'NJ') {
       matrix = symmetricDistance(parsed.profiles, mode);
-      const newick = eteLegacyMidpointUnroot(neighbourJoiningNewick(matrix));
+      const newick = postprocessShortBranches(
+        eteLegacyMidpointUnroot(neighbourJoiningNewick(matrix))
+      );
       return {
         method,
         names: parsed.names,

@@ -324,6 +324,18 @@ feature branch:
 
 ## Useful verification commands
 
+The subsequent [independent acceptance review](review/final-report.md) found
+and repaired standalone-script, browser scientific parity, export and metadata
+regressions. It includes a reproducible EnteroBase sampling/benchmark harness,
+independent held-back cases and real browser journeys. Those results supersede
+earlier local test counts in this log. Current platform CI is attached to PR
+#118; review evidence preserves the original reference commits and limitations.
+
+The [README compatibility notes](README.md#compatibility-changes-in-23) document
+the moved script/import path, corrected complete-deletion and wgMLST options,
+duplicate-ID rejection and retained limitations. No merge or release is part
+of this follow-up.
+
 Build and test both the editable checkout and installed wheel. The Hatchling
 editable-layout problem was fixed by moving the package under `grapetree/`.
 

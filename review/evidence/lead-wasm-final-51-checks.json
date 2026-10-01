@@ -1,0 +1,262 @@
+{
+  "unique_checks": 51,
+  "passed": 51,
+  "scope": "42 unaffected checks from initial run; 9 NJ checks after ordering fix",
+  "results": [
+    {
+      "case": "Escherichia.n37.s103.RapidNJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n37.s103.RapidNJ.comparison.json"
+    },
+    {
+      "case": "Escherichia.n137.s103.MSTreeV2",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n137.s103.MSTreeV2.comparison.json"
+    },
+    {
+      "case": "Escherichia.n37.s103.distance.complete_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n37.s103.distance.complete_delete.comparison.json"
+    },
+    {
+      "case": "Yersinia.n137.s103.distance.absolute_distance",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n137.s103.distance.absolute_distance.comparison.json"
+    },
+    {
+      "case": "Salmonella.n37.s103.distance.complete_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n37.s103.distance.complete_delete.comparison.json"
+    },
+    {
+      "case": "Yersinia.n137.s103.distance.pair_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n137.s103.distance.pair_delete.comparison.json"
+    },
+    {
+      "case": "Escherichia.n137.s103.MSTree",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n137.s103.MSTree.comparison.json"
+    },
+    {
+      "case": "Yersinia.n137.s103.RapidNJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n137.s103.RapidNJ.comparison.json"
+    },
+    {
+      "case": "Escherichia.n137.s103.distance.pair_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n137.s103.distance.pair_delete.comparison.json"
+    },
+    {
+      "case": "Escherichia.n37.s103.distance.as_allele",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n37.s103.distance.as_allele.comparison.json"
+    },
+    {
+      "case": "Salmonella.n37.s103.distance.as_allele",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n37.s103.distance.as_allele.comparison.json"
+    },
+    {
+      "case": "Escherichia.n37.s103.MSTreeV2",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n37.s103.MSTreeV2.comparison.json"
+    },
+    {
+      "case": "Yersinia.n37.s103.distance.complete_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n37.s103.distance.complete_delete.comparison.json"
+    },
+    {
+      "case": "Salmonella.n137.s103.distance.absolute_distance",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n137.s103.distance.absolute_distance.comparison.json"
+    },
+    {
+      "case": "Salmonella.n137.s103.distance.as_allele",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n137.s103.distance.as_allele.comparison.json"
+    },
+    {
+      "case": "Yersinia.n37.s103.distance.pair_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n37.s103.distance.pair_delete.comparison.json"
+    },
+    {
+      "case": "Escherichia.n37.s103.distance.pair_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n37.s103.distance.pair_delete.comparison.json"
+    },
+    {
+      "case": "Salmonella.n37.s103.MSTreeV2",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n37.s103.MSTreeV2.comparison.json"
+    },
+    {
+      "case": "Yersinia.n37.s103.RapidNJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n37.s103.RapidNJ.comparison.json"
+    },
+    {
+      "case": "Salmonella.n37.s103.MSTree",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n37.s103.MSTree.comparison.json"
+    },
+    {
+      "case": "Yersinia.n37.s103.MSTree",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n37.s103.MSTree.comparison.json"
+    },
+    {
+      "case": "Salmonella.n137.s103.distance.pair_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n137.s103.distance.pair_delete.comparison.json"
+    },
+    {
+      "case": "Escherichia.n37.s103.MSTree",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n37.s103.MSTree.comparison.json"
+    },
+    {
+      "case": "Yersinia.n37.s103.distance.absolute_distance",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n37.s103.distance.absolute_distance.comparison.json"
+    },
+    {
+      "case": "Salmonella.n137.s103.RapidNJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n137.s103.RapidNJ.comparison.json"
+    },
+    {
+      "case": "Salmonella.n137.s103.distance.complete_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n137.s103.distance.complete_delete.comparison.json"
+    },
+    {
+      "case": "Yersinia.n37.s103.distance.as_allele",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n37.s103.distance.as_allele.comparison.json"
+    },
+    {
+      "case": "Escherichia.n137.s103.distance.complete_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n137.s103.distance.complete_delete.comparison.json"
+    },
+    {
+      "case": "Yersinia.n137.s103.MSTree",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n137.s103.MSTree.comparison.json"
+    },
+    {
+      "case": "Yersinia.n137.s103.distance.as_allele",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n137.s103.distance.as_allele.comparison.json"
+    },
+    {
+      "case": "Yersinia.n137.s103.MSTreeV2",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n137.s103.MSTreeV2.comparison.json"
+    },
+    {
+      "case": "Yersinia.n137.s103.distance.complete_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n137.s103.distance.complete_delete.comparison.json"
+    },
+    {
+      "case": "Escherichia.n137.s103.RapidNJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n137.s103.RapidNJ.comparison.json"
+    },
+    {
+      "case": "Yersinia.n37.s103.MSTreeV2",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Yersinia.n37.s103.MSTreeV2.comparison.json"
+    },
+    {
+      "case": "Salmonella.n137.s103.MSTree",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n137.s103.MSTree.comparison.json"
+    },
+    {
+      "case": "Salmonella.n137.s103.MSTreeV2",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n137.s103.MSTreeV2.comparison.json"
+    },
+    {
+      "case": "Salmonella.n37.s103.distance.pair_delete",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n37.s103.distance.pair_delete.comparison.json"
+    },
+    {
+      "case": "Salmonella.n37.s103.distance.absolute_distance",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n37.s103.distance.absolute_distance.comparison.json"
+    },
+    {
+      "case": "Escherichia.n137.s103.distance.absolute_distance",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n137.s103.distance.absolute_distance.comparison.json"
+    },
+    {
+      "case": "Escherichia.n37.s103.distance.absolute_distance",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n37.s103.distance.absolute_distance.comparison.json"
+    },
+    {
+      "case": "Salmonella.n37.s103.RapidNJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Salmonella.n37.s103.RapidNJ.comparison.json"
+    },
+    {
+      "case": "Escherichia.n137.s103.distance.as_allele",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/Escherichia.n137.s103.distance.as_allele.comparison.json"
+    },
+    {
+      "case": "Yersinia.n73.parent-s43.subsample-s211.NJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-nj-final/Yersinia.n73.parent-s43.subsample-s211.NJ.comparison.json"
+    },
+    {
+      "case": "Salmonella.n73.parent-s43.subsample-s211.NJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-nj-final/Salmonella.n73.parent-s43.subsample-s211.NJ.comparison.json"
+    },
+    {
+      "case": "Escherichia.n73.parent-s43.subsample-s211.NJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-nj-final/Escherichia.n73.parent-s43.subsample-s211.NJ.comparison.json"
+    },
+    {
+      "case": "Salmonella.n137.s103.NJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-nj-final/Salmonella.n137.s103.NJ.comparison.json"
+    },
+    {
+      "case": "Yersinia.n37.s103.NJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-nj-final/Yersinia.n37.s103.NJ.comparison.json"
+    },
+    {
+      "case": "Escherichia.n137.s103.NJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-nj-final/Escherichia.n137.s103.NJ.comparison.json"
+    },
+    {
+      "case": "Salmonella.n37.s103.NJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-nj-final/Salmonella.n37.s103.NJ.comparison.json"
+    },
+    {
+      "case": "Yersinia.n137.s103.NJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-nj-final/Yersinia.n137.s103.NJ.comparison.json"
+    },
+    {
+      "case": "Escherichia.n37.s103.NJ",
+      "pass": true,
+      "source_report": "/private/tmp/grapetree-pr118-review/results/lead/wasm-nj-final/Escherichia.n37.s103.NJ.comparison.json"
+    }
+  ]
+}

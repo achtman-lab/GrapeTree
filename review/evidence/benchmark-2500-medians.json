@@ -1,0 +1,40 @@
+[
+  {
+    "size": 2500,
+    "method": "MSTreeV2",
+    "repetitions": 3,
+    "baseline_seconds": [
+      52.17542095808312,
+      51.924177875276655,
+      52.30806141719222
+    ],
+    "candidate_seconds": [
+      50.86775283282623,
+      52.889319790992886,
+      52.030944833066314
+    ],
+    "baseline_median_seconds": 52.17542095808312,
+    "candidate_median_seconds": 52.030944833066314,
+    "baseline_range_seconds": [
+      51.924177875276655,
+      52.30806141719222
+    ],
+    "candidate_range_seconds": [
+      50.86775283282623,
+      52.889319790992886
+    ],
+    "candidate_over_baseline": 0.9972309543006298,
+    "baseline_peak_rss_bytes": [
+      2717257728,
+      2729127936,
+      2749243392
+    ],
+    "candidate_peak_rss_bytes": [
+      2575626240,
+      2599251968,
+      2726264832
+    ],
+    "baseline_median_peak_rss_bytes": 2729127936,
+    "candidate_median_peak_rss_bytes": 2599251968
+  }
+]

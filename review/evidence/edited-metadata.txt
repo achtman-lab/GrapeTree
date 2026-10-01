@@ -1,0 +1,5 @@
+Selected	index	ID	Count	Country	Source	Year
+true	1	case_a	1	Spain	Human	2021
+	2	case_b	2	UK	Food	2022
+	3	case_c	3	France	Human	2023
+	4	case_d	4	Germany	Environment	2024

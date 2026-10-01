@@ -149,6 +149,44 @@ accepted values. Invalid methods, matrices, missing-data modes, heuristics, and
 profile paths are rejected before calculation with a concise command-line
 error.
 
+The original tree-building entry point remains a single Python script. It can
+be run directly, or copied to another directory, with the Python dependencies
+installed:
+
+```bash
+python grapetree/module/MSTrees.py --profile examples/simulated_data.profile --method MSTreeV2 > tree.nwk
+```
+
+For NJ and RapidNJ, place the matching native executable in a `binaries/`
+directory beside a copied script. Ninja also needs `Ninja.jar` there and a
+working Java installation. The installed `grapetree` command provides the
+additional JSON, network, and cluster export options.
+
+### Compatibility changes in 2.3
+
+The core script moved from `module/MSTrees.py` to
+`grapetree/module/MSTrees.py`. Update scripts that use the old source path or
+`import module.MSTrees`; the installed import is now
+`from grapetree.module.MSTrees import backend`. The calculation and its core
+CLI remain in one Python file. Python 3.10 or newer is required.
+
+Two corrected options can change scientific results compared with older
+versions:
+
+- `--missing 1` (complete deletion) now retains only loci called in every
+  sample. Previously it selected loci containing missing calls.
+- `--wgMLST` now selects the weighted asymmetric distance calculation;
+  previously the flag did not take effect.
+
+Duplicate taxon IDs, including IDs that collide after sanitisation, now
+produce an error instead of ambiguous output. Ninja works with modern Java
+without the obsolete `-d64` option. One-profile MSTree/MSTreeV2 failures and
+exclusion of completely missing profiles remain known limitations.
+
+The [compatibility review](review/final-report.md) records real cgMLST parity,
+benchmarks, browser checks and remaining limits. The larger data review is
+reproducible using the [test harness](review/harness/README.md).
+
 Create a reloadable GrapeTree visualisation document from an existing Newick
 tree and optional tab- or comma-delimited metadata:
 

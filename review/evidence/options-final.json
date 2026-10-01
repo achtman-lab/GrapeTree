@@ -1,0 +1,1081 @@
+{
+  "tier": "options",
+  "count": 23,
+  "statuses": {
+    "intentional_correction_verified": 3,
+    "parity_pass": 20
+  },
+  "parity_acceptable": true,
+  "all_functionality_pass": true,
+  "results": [
+    {
+      "case": {
+        "name": "distance-symmetric-pair_delete",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "matrix_type": "symmetric",
+        "handle_missing": "pair_delete"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-symmetric-pair_delete/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-symmetric-pair_delete/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "distance-symmetric-absolute_distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "matrix_type": "symmetric",
+        "handle_missing": "absolute_distance"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-symmetric-absolute_distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-symmetric-absolute_distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "distance-symmetric-as_allele",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "matrix_type": "symmetric",
+        "handle_missing": "as_allele"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-symmetric-as_allele/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-symmetric-as_allele/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "distance-symmetric-complete_delete",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "matrix_type": "symmetric",
+        "handle_missing": "complete_delete"
+      },
+      "status": "intentional_correction_verified",
+      "comparison": {
+        "pass": false,
+        "differences": [
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_missing",
+            "expected": 0.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_2",
+            "expected": 0.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_3",
+            "expected": 0.0,
+            "observed": 0.044952
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_1",
+            "expected": 0.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_duplicate",
+            "expected": 0.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_ref",
+            "expected": 0.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_missing",
+            "target": "outbreak_outlier",
+            "expected": 0.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_missing",
+            "target": "outbreak_3",
+            "expected": 0.0,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_2",
+            "target": "outbreak_outlier",
+            "expected": 0.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_2",
+            "target": "outbreak_3",
+            "expected": 0.0,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_outlier",
+            "expected": 0.0,
+            "observed": 0.044952
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_missing",
+            "expected": 0.0,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_2",
+            "expected": 0.0,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_1",
+            "expected": 0.0,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_duplicate",
+            "expected": 0.0,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_ref",
+            "expected": 0.0,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_1",
+            "target": "outbreak_outlier",
+            "expected": 0.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_1",
+            "target": "outbreak_3",
+            "expected": 0.0,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_duplicate",
+            "target": "outbreak_outlier",
+            "expected": 0.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_duplicate",
+            "target": "outbreak_3",
+            "expected": 0.0,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_ref",
+            "target": "outbreak_outlier",
+            "expected": 0.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_ref",
+            "target": "outbreak_3",
+            "expected": 0.0,
+            "observed": 0.000692
+          }
+        ],
+        "difference_count": 22,
+        "size": 7,
+        "independent_candidate_oracle": {
+          "pass": true,
+          "retained_loci": 1446,
+          "differences": [],
+          "difference_count": 0
+        }
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-symmetric-complete_delete/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-symmetric-complete_delete/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "distance-asymmetric-pair_delete",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "matrix_type": "asymmetric",
+        "handle_missing": "pair_delete"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-asymmetric-pair_delete/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-asymmetric-pair_delete/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "distance-asymmetric-absolute_distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "matrix_type": "asymmetric",
+        "handle_missing": "absolute_distance"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-asymmetric-absolute_distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-asymmetric-absolute_distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "distance-asymmetric-as_allele",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "matrix_type": "asymmetric",
+        "handle_missing": "as_allele"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-asymmetric-as_allele/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-asymmetric-as_allele/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "distance-asymmetric-complete_delete",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "matrix_type": "asymmetric",
+        "handle_missing": "complete_delete"
+      },
+      "status": "intentional_correction_verified",
+      "comparison": {
+        "pass": false,
+        "differences": [
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_missing",
+            "expected": 1.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_2",
+            "expected": 1.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_3",
+            "expected": 1.0,
+            "observed": 0.044952
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_1",
+            "expected": 0.990566,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_duplicate",
+            "expected": 0.981132,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_outlier",
+            "target": "outbreak_ref",
+            "expected": 0.981132,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_missing",
+            "target": "outbreak_outlier",
+            "expected": 1.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_missing",
+            "target": "outbreak_2",
+            "expected": 0.018868,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_missing",
+            "target": "outbreak_3",
+            "expected": 0.018868,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_missing",
+            "target": "outbreak_1",
+            "expected": 0.018868,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_missing",
+            "target": "outbreak_duplicate",
+            "expected": 0.018868,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_missing",
+            "target": "outbreak_ref",
+            "expected": 0.018868,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_2",
+            "target": "outbreak_outlier",
+            "expected": 1.0,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_2",
+            "target": "outbreak_3",
+            "expected": 0.018868,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_2",
+            "target": "outbreak_1",
+            "expected": 0.018868,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_2",
+            "target": "outbreak_duplicate",
+            "expected": 0.018868,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_2",
+            "target": "outbreak_ref",
+            "expected": 0.018868,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_outlier",
+            "expected": 1.0,
+            "observed": 0.044952
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_missing",
+            "expected": 0.0,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_2",
+            "expected": 0.018868,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_1",
+            "expected": 0.018868,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_duplicate",
+            "expected": 0.018868,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_3",
+            "target": "outbreak_ref",
+            "expected": 0.018868,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_1",
+            "target": "outbreak_outlier",
+            "expected": 0.666667,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_1",
+            "target": "outbreak_2",
+            "expected": 0.018868,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_1",
+            "target": "outbreak_3",
+            "expected": 0.018868,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_1",
+            "target": "outbreak_duplicate",
+            "expected": 0.009434,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_1",
+            "target": "outbreak_ref",
+            "expected": 0.009434,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_duplicate",
+            "target": "outbreak_outlier",
+            "expected": 0.333333,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_duplicate",
+            "target": "outbreak_2",
+            "expected": 0.018868,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_duplicate",
+            "target": "outbreak_3",
+            "expected": 0.018868,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_duplicate",
+            "target": "outbreak_1",
+            "expected": 0.009434,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_ref",
+            "target": "outbreak_outlier",
+            "expected": 0.333333,
+            "observed": 0.04426
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_ref",
+            "target": "outbreak_2",
+            "expected": 0.018868,
+            "observed": 0.0
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_ref",
+            "target": "outbreak_3",
+            "expected": 0.018868,
+            "observed": 0.000692
+          },
+          {
+            "kind": "distance",
+            "source": "outbreak_ref",
+            "target": "outbreak_1",
+            "expected": 0.009434,
+            "observed": 0.0
+          }
+        ],
+        "difference_count": 36,
+        "size": 7,
+        "independent_candidate_oracle": {
+          "pass": true,
+          "retained_loci": 1446,
+          "differences": [],
+          "difference_count": 0
+        }
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-asymmetric-complete_delete/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-asymmetric-complete_delete/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "distance-blockwise-0.01",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "matrix_type": "blockwise",
+        "handle_missing": "0.01"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-blockwise-0.01/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-blockwise-0.01/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "distance-blockwise-0.1",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "matrix_type": "blockwise",
+        "handle_missing": "0.1"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-blockwise-0.1/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-blockwise-0.1/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "distance-blockwise-1.0",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "matrix_type": "blockwise",
+        "handle_missing": "1.0"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-blockwise-1.0/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-blockwise-1.0/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "MSTree-symmetric-eBurst",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTree",
+        "matrix_type": "symmetric",
+        "heuristic": "eBurst"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-symmetric-eBurst/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-symmetric-eBurst/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "MSTree-symmetric-harmonic",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTree",
+        "matrix_type": "symmetric",
+        "heuristic": "harmonic"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-symmetric-harmonic/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-symmetric-harmonic/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "MSTree-asymmetric-eBurst",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTree",
+        "matrix_type": "asymmetric",
+        "heuristic": "eBurst"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-asymmetric-eBurst/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-asymmetric-eBurst/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "MSTree-asymmetric-harmonic",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTree",
+        "matrix_type": "asymmetric",
+        "heuristic": "harmonic"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-asymmetric-harmonic/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-asymmetric-harmonic/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "MSTree-blockwise-0.01",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTree",
+        "matrix_type": "blockwise",
+        "handle_missing": "0.01"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-blockwise-0.01/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-blockwise-0.01/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "MSTree-blockwise-0.1",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTree",
+        "matrix_type": "blockwise",
+        "handle_missing": "0.1"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-blockwise-0.1/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-blockwise-0.1/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "MSTree-blockwise-1.0",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTree",
+        "matrix_type": "blockwise",
+        "handle_missing": "1.0"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-blockwise-1.0/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-blockwise-1.0/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "distance-multiprocess",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance",
+        "n_proc": 2
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-multiprocess/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/distance-multiprocess/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "MSTree-multiprocess",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTree",
+        "n_proc": 2
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-multiprocess/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-multiprocess/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "MSTreeV2-multiprocess",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTreeV2",
+        "n_proc": 2
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTreeV2-multiprocess/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTreeV2-multiprocess/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "MSTree-wgMLST",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTree",
+        "matrix_type": "asymmetric",
+        "wgmlst": true
+      },
+      "status": "intentional_correction_verified",
+      "comparison": {
+        "pass": false,
+        "differences": [
+          {
+            "kind": "raw_topology",
+            "missing": 0,
+            "extra": 1
+          },
+          {
+            "kind": "path_length",
+            "pair": [
+              "outbreak_1",
+              "outbreak_2"
+            ],
+            "expected": 3.0,
+            "observed": 1.0
+          },
+          {
+            "kind": "path_length",
+            "pair": [
+              "outbreak_1",
+              "outbreak_3"
+            ],
+            "expected": 4.0,
+            "observed": 2.0
+          },
+          {
+            "kind": "path_length",
+            "pair": [
+              "outbreak_2",
+              "outbreak_3"
+            ],
+            "expected": 5.0,
+            "observed": 1.0
+          },
+          {
+            "kind": "path_length",
+            "pair": [
+              "outbreak_2",
+              "outbreak_duplicate"
+            ],
+            "expected": 2.0,
+            "observed": 0.0
+          },
+          {
+            "kind": "path_length",
+            "pair": [
+              "outbreak_2",
+              "outbreak_missing"
+            ],
+            "expected": 2.0,
+            "observed": 0.0
+          },
+          {
+            "kind": "path_length",
+            "pair": [
+              "outbreak_2",
+              "outbreak_outlier"
+            ],
+            "expected": 66.0,
+            "observed": 64.0
+          },
+          {
+            "kind": "path_length",
+            "pair": [
+              "outbreak_2",
+              "outbreak_ref"
+            ],
+            "expected": 2.0,
+            "observed": 0.0
+          },
+          {
+            "kind": "path_length",
+            "pair": [
+              "outbreak_3",
+              "outbreak_duplicate"
+            ],
+            "expected": 3.0,
+            "observed": 1.0
+          },
+          {
+            "kind": "path_length",
+            "pair": [
+              "outbreak_3",
+              "outbreak_missing"
+            ],
+            "expected": 3.0,
+            "observed": 1.0
+          },
+          {
+            "kind": "path_length",
+            "pair": [
+              "outbreak_3",
+              "outbreak_outlier"
+            ],
+            "expected": 67.0,
+            "observed": 65.0
+          },
+          {
+            "kind": "path_length",
+            "pair": [
+              "outbreak_3",
+              "outbreak_ref"
+            ],
+            "expected": 3.0,
+            "observed": 1.0
+          }
+        ],
+        "difference_count": 12,
+        "leaf_count": 7,
+        "independent_wgmlst_oracle": {
+          "pass": true,
+          "observed": {
+            "baseline": {
+              "revision": "baseline",
+              "raw_distance_oracle_pass": true,
+              "backend_flag_oracle_pass": false,
+              "backend_differences": [
+                {
+                  "source": "c",
+                  "target": "a",
+                  "expected": 0.4444444444444444,
+                  "observed": 0.666667
+                },
+                {
+                  "source": "c",
+                  "target": "b",
+                  "expected": 0.6666666666666666,
+                  "observed": 1.0
+                },
+                {
+                  "source": "b",
+                  "target": "c",
+                  "expected": 0.6666666666666666,
+                  "observed": 1.0
+                },
+                {
+                  "source": "b",
+                  "target": "a",
+                  "expected": 0.4444444444444444,
+                  "observed": 0.666667
+                }
+              ],
+              "expected_raw": [
+                [
+                  0.0,
+                  1.5,
+                  1.5
+                ],
+                [
+                  1.3333333333333333,
+                  0.0,
+                  2.0
+                ],
+                [
+                  1.3333333333333333,
+                  2.0,
+                  0.0
+                ]
+              ],
+              "actual_raw": [
+                [
+                  0.0,
+                  1.5,
+                  1.5
+                ],
+                [
+                  1.3333333730697632,
+                  0.0,
+                  2.0
+                ],
+                [
+                  1.3333333730697632,
+                  2.0,
+                  0.0
+                ]
+              ]
+            },
+            "candidate": {
+              "revision": "candidate",
+              "raw_distance_oracle_pass": true,
+              "backend_flag_oracle_pass": true,
+              "backend_differences": [],
+              "expected_raw": [
+                [
+                  0.0,
+                  1.5,
+                  1.5
+                ],
+                [
+                  1.3333333333333333,
+                  0.0,
+                  2.0
+                ],
+                [
+                  1.3333333333333333,
+                  2.0,
+                  0.0
+                ]
+              ],
+              "actual_raw": [
+                [
+                  0.0,
+                  1.5,
+                  1.5
+                ],
+                [
+                  1.3333333730697632,
+                  0.0,
+                  2.0
+                ],
+                [
+                  1.3333333730697632,
+                  2.0,
+                  0.0
+                ]
+              ]
+            }
+          }
+        }
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-wgMLST/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-wgMLST/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "MSTree-recraft",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTree",
+        "matrix_type": "symmetric",
+        "branch_recraft": true
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-recraft/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/options-final/MSTree-recraft/candidate/run.json"
+    }
+  ]
+}

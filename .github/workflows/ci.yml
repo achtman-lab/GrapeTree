@@ -41,6 +41,10 @@ jobs:
           cd "${RUNNER_TEMP}"
           python -m pytest -q tests
 
+      - name: Check the scientific review harness
+        if: matrix.python-version == '3.12'
+        run: python -m pytest -q review/harness review/test_wasm_precision.py
+
   package:
     name: Build and inspect package
     runs-on: ubuntu-latest

@@ -1,0 +1,196 @@
+{
+  "tier": "edges",
+  "count": 9,
+  "statuses": {
+    "both_exclude_all_missing": 3,
+    "intentional_input_rejection_verified": 3,
+    "parity_pass": 3
+  },
+  "parity_acceptable": true,
+  "all_functionality_pass": false,
+  "results": [
+    {
+      "case": {
+        "name": "synthetic_outbreak-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "distance"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7,
+        "duplicate_profile_zero_distance": true
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_outbreak-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_outbreak-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "synthetic_outbreak-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTree"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7,
+        "duplicate_profile_zero_distance": true
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_outbreak-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_outbreak-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "synthetic_outbreak-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_outbreak.profile",
+        "method": "MSTreeV2"
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7,
+        "duplicate_profile_zero_distance": true
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_outbreak-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_outbreak-MSTreeV2/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "synthetic_all_missing-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_all_missing.profile",
+        "method": "distance"
+      },
+      "status": "both_exclude_all_missing",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7,
+        "input_taxa_excluded": {
+          "baseline": [
+            "all_missing"
+          ],
+          "candidate": [
+            "all_missing"
+          ]
+        }
+      },
+      "functionality_pass": false,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_all_missing-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_all_missing-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "synthetic_all_missing-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_all_missing.profile",
+        "method": "MSTree"
+      },
+      "status": "both_exclude_all_missing",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7,
+        "input_taxa_excluded": {
+          "baseline": [
+            "all_missing"
+          ],
+          "candidate": [
+            "all_missing"
+          ]
+        }
+      },
+      "functionality_pass": false,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_all_missing-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_all_missing-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "synthetic_all_missing-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_all_missing.profile",
+        "method": "MSTreeV2"
+      },
+      "status": "both_exclude_all_missing",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7,
+        "input_taxa_excluded": {
+          "baseline": [
+            "all_missing"
+          ],
+          "candidate": [
+            "all_missing"
+          ]
+        }
+      },
+      "functionality_pass": false,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_all_missing-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_all_missing-MSTreeV2/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "synthetic_duplicate_id-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_duplicate_id.profile",
+        "method": "distance"
+      },
+      "status": "intentional_input_rejection_verified",
+      "comparison": {
+        "pass": false,
+        "baseline_exit": 0,
+        "candidate_exit": 1,
+        "expected_invalid_input": true,
+        "candidate_error": "ValueError: Duplicate taxon names after sanitising: outbreak_ref"
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_duplicate_id-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_duplicate_id-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "synthetic_duplicate_id-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_duplicate_id.profile",
+        "method": "MSTree"
+      },
+      "status": "intentional_input_rejection_verified",
+      "comparison": {
+        "pass": false,
+        "baseline_exit": 0,
+        "candidate_exit": 1,
+        "expected_invalid_input": true,
+        "candidate_error": "ValueError: Duplicate taxon names after sanitising: outbreak_ref"
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_duplicate_id-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_duplicate_id-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "synthetic_duplicate_id-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/scenarios/synthetic_duplicate_id.profile",
+        "method": "MSTreeV2"
+      },
+      "status": "intentional_input_rejection_verified",
+      "comparison": {
+        "pass": false,
+        "baseline_exit": 0,
+        "candidate_exit": 1,
+        "expected_invalid_input": true,
+        "candidate_error": "ValueError: Duplicate taxon names after sanitising: outbreak_ref"
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_duplicate_id-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/edges-final/synthetic_duplicate_id-MSTreeV2/candidate/run.json"
+    }
+  ]
+}

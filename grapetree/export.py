@@ -17,17 +17,27 @@ def parse_metadata(text):
     if not text:
         return {}, []
 
-    lines = [line for line in text.splitlines() if line.strip()]
-    if not lines:
+    lines = text.splitlines(keepends=True)
+    first_row = next((index for index, line in enumerate(lines) if line.strip()), None)
+    if first_row is None:
         return {}, []
-    delimiter = ',' if ',' in lines[0] and '\t' not in lines[0] else '\t'
-    reader = csv.DictReader(lines, delimiter=delimiter)
+    first_line = lines[first_row]
+    delimiter = ',' if ',' in first_line and '\t' not in first_line else '\t'
+    # csv must see the original line breaks: a quoted metadata value may span
+    # several physical lines.
+    reader = csv.DictReader(
+        io.StringIO(''.join(lines[first_row:]), newline=''), delimiter=delimiter
+    )
     headers = reader.fieldnames or []
     if not headers:
         raise ValueError('Metadata has no header row')
     identifier = 'ID' if 'ID' in headers else headers[0]
     metadata = {}
     for row_number, row in enumerate(reader, 2):
+        if None in row:
+            raise ValueError('Metadata row {0} has more fields than the header'.format(row_number))
+        if not any(value and value.strip() for value in row.values()):
+            continue
         node_id = (row.get(identifier) or '').strip()
         if not node_id:
             raise ValueError(
@@ -83,13 +93,19 @@ def tree_network(newick):
     graph = nx.Graph()
     identifiers = {}
     hypothetical_index = 0
+    leaf_names = [node.name for node in tree.iter_leaves()]
+    if not all(leaf_names):
+        raise ValueError('Tree contains an unnamed leaf')
+    if len(leaf_names) != len(set(leaf_names)):
+        raise ValueError('Tree contains a duplicate leaf name')
+    reserved_names = set(leaf_names)
     for node in tree.traverse('preorder'):
         if node.is_leaf():
             node_id = node.name
-            if not node_id:
-                raise ValueError('Tree contains an unnamed leaf')
             hypothetical = False
         else:
+            while '_hypo_{0}'.format(hypothetical_index) in reserved_names:
+                hypothetical_index += 1
             node_id = '_hypo_{0}'.format(hypothetical_index)
             hypothetical_index += 1
             hypothetical = True

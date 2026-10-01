@@ -1,0 +1,40 @@
+{
+  "revision": "candidate",
+  "raw_distance_oracle_pass": true,
+  "backend_flag_oracle_pass": true,
+  "backend_differences": [],
+  "expected_raw": [
+    [
+      0.0,
+      1.5,
+      1.5
+    ],
+    [
+      1.3333333333333333,
+      0.0,
+      2.0
+    ],
+    [
+      1.3333333333333333,
+      2.0,
+      0.0
+    ]
+  ],
+  "actual_raw": [
+    [
+      0.0,
+      1.5,
+      1.5
+    ],
+    [
+      1.3333333730697632,
+      0.0,
+      2.0
+    ],
+    [
+      1.3333333730697632,
+      2.0,
+      0.0
+    ]
+  ]
+}

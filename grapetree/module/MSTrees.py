@@ -4,18 +4,82 @@ from glob import glob
 from ete3 import Tree
 from subprocess import Popen, PIPE
 from types import MappingProxyType
-import sys, os, tempfile, platform, re, tempfile, psutil, gzip, subprocess
+import sys, os, tempfile, platform, re, tempfile, psutil, gzip, subprocess, argparse
 
-from ..arguments import add_args
 
-package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+def tree_argument_parser(require_profile=True, version=None):
+    """Build the original tree CLI without importing the GrapeTree package."""
+    parser = argparse.ArgumentParser(
+        description=(
+            'For details, see "https://github.com/achtman-lab/GrapeTree/blob/master/README.md".\n'
+            'In brief, GrapeTree generates a NEWICK tree to the default output (screen) \n'
+            'or a redirect output, e.g., a file. '
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    if version is not None:
+        parser.add_argument('--version', action='version', version=version)
+    parser.add_argument('--profile', '-p', dest='fname', required=require_profile,
+                        help='An input filename containing MLST/SNP characters or aligned FASTA, or - for standard input. Required unless --treefile is supplied.\n')
+    parser.add_argument('--method', '-m', dest='tree', help='"MSTreeV2" [DEFAULT]\n"MSTree"\n"NJ": FastME V2 NJ tree\n"RapidNJ": RapidNJ for very large datasets\n"ninja": Alternative NJ algorithm for very large datasets\n"distance": allelic distance matrix in PHYLIP format.', choices=['MSTreeV2', 'MSTree', 'NJ', 'RapidNJ', 'ninja', 'distance'], default='MSTreeV2')
+    parser.add_argument('--matrix', '-x', dest='matrix_type', help='"symmetric": [DEFAULT: MSTree, NJ and RapidNJ] \n"asymmetric": [DEFAULT: MSTreeV2].\n"blockwise": (experimental for ordered loci) A different locus is given less penalty (defined by -b) if the previous locus is also different\n', choices=['symmetric', 'asymmetric', 'blockwise'], default='symmetric')
+    parser.add_argument('--recraft', '-r', dest='branch_recraft', help='Triggers local branch recrafting. [DEFAULT: MSTreeV2]. ', action='store_true')
+    parser.add_argument('--missing', '-y', dest='handler', help='ONLY FOR symmetric DISTANCE MATRIX. \n0: [DEFAULT] ignore missing data in pairwise comparison. \n1: Remove column with missing data. \n2: treat data as an allele. \n3: Absolute number of allelic differences. ', choices=range(4), default=0, type=int)
+    parser.add_argument('--wgMLST', '-w', help='[EXPERIMENTAL] a better support of wgMLST schemes.', action='store_true')
+    parser.add_argument('--heuristic', '-t', dest='heuristic', help='Tiebreak heuristic used only in MSTree and MSTreeV2\n"eBurst" [DEFAULT: MSTree]\n"harmonic" [DEFAULT: MSTreeV2]', choices=['eBurst', 'harmonic'], default='eBurst')
+    parser.add_argument('--n_proc', '-n', dest='number_of_processes', help='Number of CPU processes in parallel use. [DEFAULT]: 5. ', type=int, default=5)
+    parser.add_argument('--check', '-c', dest='checkEnv', help='Only calculate the expected time/memory requirements. ', action='store_true')
+    parser.add_argument('--block_penalty', '-b', dest='block_penalty', help='[DEFAULT: 0.01] The penalty that is given to a different locus if it is led by another difference. Only works for "-x blockwise"', default=0.01)
+    parser.add_argument('--total-loci', type=int, help='Original alignment length when a SNP-only alignment is supplied; used by MSTreeV2 branch recrafting.')
+    return parser
+
+
+def normalise_tree_arguments(args, parser):
+    """Translate CLI names and defaults to the backend's public arguments."""
+    if args.fname == '-':
+        args.profile = sys.stdin.read()
+        if not args.profile.strip():
+            parser.error('standard input is empty')
+    elif args.fname and os.path.isfile(args.fname):
+        args.profile = args.fname
+    elif args.fname:
+        parser.error('profile file does not exist: {0}'.format(args.fname))
+    args.method = args.tree
+    args.n_proc = args.number_of_processes
+    args.handle_missing = ['pair_delete', 'complete_delete', 'as_allele', 'absolute_distance'][args.handler]
+
+    if args.matrix_type == 'blockwise':
+        if args.method == 'MSTreeV2':
+            args.method = 'MSTree'
+        sys.stderr.write('You have chosen the "blockwise" matrix. The --recraft option will be disabled and all values in the profile will be treated as real alleles\n\n')
+        args.branch_recraft = False
+        args.handle_missing = args.block_penalty
+    if args.method == 'MSTreeV2':
+        args.method = 'MSTree'
+        args.matrix_type = 'asymmetric'
+        args.heuristic = 'harmonic'
+        args.branch_recraft = True
+    return args.__dict__
+
+
+def add_args():
+    """Parse arguments when MSTrees.py is copied or run as a single script."""
+    parser = tree_argument_parser()
+    return normalise_tree_arguments(parser.parse_args(), parser)
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+package_root = os.path.dirname(script_dir)
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
-elif os.path.isdir(os.path.join(package_root, 'binaries')):
-    base_dir = package_root
 else:
-    # In editable installs, bundled executables remain at the repository root.
-    base_dir = os.path.dirname(package_root)
+    # Standalone copies may keep native tools next to this script; wheels put
+    # them at the package root, and editable checkouts keep them at repo root.
+    base_dir = next(
+        (candidate for candidate in (
+            script_dir, package_root, os.path.dirname(package_root)
+        ) if os.path.isdir(os.path.join(candidate, 'binaries'))),
+        package_root,
+    )
 
 DEFAULT_PARAMS = MappingProxyType(dict(
     method='MSTreeV2',  # MSTree, NJ
@@ -678,12 +742,24 @@ class methods(object) :
             for n, d in enumerate(dist) :
                 fout.write( '{0!s:10} {1}\n'.format(n, ' '.join(['{:.6f}'.format(dd) for dd in d])) )
         del dist, d
-        free_memory = int(0.9*psutil.virtual_memory().total/(1024.**2))
-        ninja_out = Popen(['java', '-d64', '-Xmx'+str(free_memory)+'M', '-jar', config['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
-        if ninja_out[1].find('64-bit JVM') >= 0 :
-            ninja_out = Popen(['java', '-Xmx1200M', '-jar', config['ninja_{0}'.format(platform.system())], '--in_type', 'd', dist_file], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
+        free_memory = max(128, int(0.9*psutil.virtual_memory().available/(1024.**2)))
+        command = ['java', '-Xmx'+str(free_memory)+'M', '-jar',
+                   config['ninja_{0}'.format(platform.system())],
+                   '--in_type', 'd', dist_file]
+        ninja_result = subprocess.run(command, stdout=PIPE, stderr=PIPE,
+                                      universal_newlines=True)
+        memory_error = any(message in ninja_result.stderr.lower() for message in (
+            'could not reserve', 'insufficient memory',
+            'invalid maximum heap size', 'not enough space for object heap',
+        ))
+        if ninja_result.returncode != 0 and free_memory > 1200 and memory_error:
+            command[1] = '-Xmx1200M'
+            ninja_result = subprocess.run(command, stdout=PIPE, stderr=PIPE,
+                                          universal_newlines=True)
+        if ninja_result.returncode != 0:
+            raise RuntimeError('Ninja failed: {0}'.format(ninja_result.stderr.strip()))
         with open(dist_file + '.nwk', 'wt') as fout :
-            fout.write(ninja_out[0])
+            fout.write(ninja_result.stdout)
         tree = Tree(dist_file + '.nwk')
         for fname in glob(dist_file + '*') :
             os.unlink(fname)

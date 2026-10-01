@@ -1,0 +1,164 @@
+[
+  {
+    "case": "Escherichia.n137.s103.MSTree.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Escherichia.n137.s103.MSTreeV2.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Escherichia.n137.s103.NJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 1.0000000000509601e-05
+  },
+  {
+    "case": "Escherichia.n137.s103.RapidNJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Escherichia.n37.s103.MSTree.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Escherichia.n37.s103.MSTreeV2.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Escherichia.n37.s103.NJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Escherichia.n37.s103.RapidNJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Escherichia.n73.parent-s43.subsample-s211.NJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Salmonella.n137.s103.MSTree.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Salmonella.n137.s103.MSTreeV2.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Salmonella.n137.s103.NJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 9.999999999621423e-06
+  },
+  {
+    "case": "Salmonella.n137.s103.RapidNJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Salmonella.n37.s103.MSTree.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Salmonella.n37.s103.MSTreeV2.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Salmonella.n37.s103.NJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Salmonella.n37.s103.RapidNJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Salmonella.n73.parent-s43.subsample-s211.NJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Yersinia.n137.s103.MSTree.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Yersinia.n137.s103.MSTreeV2.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Yersinia.n137.s103.NJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0.00010000000000331966
+  },
+  {
+    "case": "Yersinia.n137.s103.RapidNJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Yersinia.n37.s103.MSTree.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Yersinia.n37.s103.MSTreeV2.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Yersinia.n37.s103.NJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 1.0000000000065512e-05
+  },
+  {
+    "case": "Yersinia.n37.s103.RapidNJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 0
+  },
+  {
+    "case": "Yersinia.n73.parent-s43.subsample-s211.NJ.browser",
+    "pass": true,
+    "errors": [],
+    "max_edge_delta": 1.0000000000509601e-05
+  }
+]
