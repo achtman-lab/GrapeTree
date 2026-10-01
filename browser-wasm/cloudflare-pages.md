@@ -18,9 +18,17 @@ production branch. Authenticate Wrangler to the GenomicX Cloudflare account
 before deploying.
 
 The non-production branch creates a Pages preview URL. Inspect the returned URL
-and run a browser profile-load check before attaching `grapetree.genomicx.org`.
-Adding that domain in the Pages dashboard and updating DNS is a separate
-production cutover. The repository's GitHub Pages site is independent of this Pages project.
+and run a browser profile-load check before promoting the same staged bundle:
+
+```bash
+wrangler pages deploy dist/grapetree-pages --project-name grapetree --branch master
+```
+
+The production site is <https://grapetree.genomicx.org/browser-wasm/>.
+Cloudflare Pages binds `grapetree.genomicx.org` to the `grapetree` project;
+the proxied DNS CNAME `grapetree` points to `grapetree.pages.dev`. Check the
+Pages custom-domain status and HTTPS after a production deployment. The
+repository's GitHub Pages site is independent of this Pages project.
 
 The staging script must be rerun after changing any file in `MSTree_holder.html`,
 `static/`, or the browser runtime. It excludes Flask and Python packages from
