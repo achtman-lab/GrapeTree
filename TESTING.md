@@ -43,6 +43,35 @@ New regressions should use the smallest input that reproduces the defect.
 The reduced eight-profile NJ fixture is an example. Do not add full archive
 downloads, thousand-profile calculations or timing assertions to these tests.
 
+## Native Mac releases
+
+CI builds separate Intel (`x86_64`) and Apple-silicon (`arm64`) apps on native
+runners. Each job checks the launcher and all three tree executables, runs a
+direct Edmonds calculation, and tests MSTreeV2, NJ and RapidNJ from the app.
+The wheel is also installed in a clean environment on both architectures and
+checked through both command-line entry points and the local web application.
+CI uploads ZIP archives so app permissions and symlinks survive downloading.
+
+To repeat the app check locally with a Python matching the intended architecture:
+
+```sh
+./build_mac.sh
+python packaging/check_macos_app.py dist/GrapeTree.app --architecture arm64 --version 3.0.0
+```
+
+Use `x86_64` on an Intel Mac. Before changing bundled Mac executables, compare
+both sets on an Apple-silicon Mac with Rosetta and the existing cached samples:
+
+```sh
+PYTHONPATH=. python review/check_mac_backends.py \
+  --samples /path/to/grapetree-review/data/samples \
+  --output /path/to/mac-backend-parity.json
+```
+
+That optional comparison uses 100 profiles from each of three species and small
+regression fixtures. It is excluded from routine CI. Source/build instructions
+and licences are in [packaging/native](packaging/native).
+
 ## Periodic local scientific review
 
 Prepare the cached archives, samples, synthetic scenarios and pinned Python

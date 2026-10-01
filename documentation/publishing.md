@@ -22,10 +22,21 @@ archive into its own temporary virtual environment, resolves dependencies,
 and runs `pip check`. Outside the checkout, it checks both installed commands,
 copies `MSTrees.py` and runs it independently, starts the installed web app,
 fetches the page's local assets, and submits a small profile for calculation.
-All three command-line results and the HTTP result must agree. Temporary
+MSTreeV2, NJ and RapidNJ must agree between the installed commands and HTTP.
+Edmonds is also exercised directly so its Python fallback cannot hide an
+executable that fails to run. The copied script is checked with MSTreeV2. Temporary
 environments and the server are removed afterwards.
 
-This small check runs on pull requests and before PyPI publication. The larger
+This small check runs on pull requests and before PyPI publication. Release
+publication also waits for the exact wheel to pass clean installation on Intel
+macOS and Windows x64, in addition to the Linux AMD64 build job. Use
+`--require-architecture x86_64` to fail if the interpreter has the wrong CPU
+architecture. AMD64, x64 and x86-64 describe the same CPU architecture; the
+executables are still specific to each operating system.
+
+The Mac application builder requires x86-64 Python and verifies that all three
+bundled tools contain x86-64 code. Apple silicon users currently need Rosetta 2;
+native ARM64 binaries need a separate build and scientific parity review. The larger
 scientific and browser suites are described in [TESTING.md](../TESTING.md).
 The packaging check checks HTTP behaviour and asset availability; it does not
 replace the browser interaction suite.

@@ -85,6 +85,9 @@ else:
         package_root,
     )
 
+# Match the running Python process, including Intel Python under Rosetta.
+mac_suffix = '-arm64' if platform.machine().lower() in ('arm64', 'aarch64') else ''
+
 DEFAULT_PARAMS = MappingProxyType(dict(
     method='MSTreeV2',  # MSTree, NJ
     matrix_type='symmetric',
@@ -96,14 +99,14 @@ DEFAULT_PARAMS = MappingProxyType(dict(
     n_proc=5,
     checkEnv=False,
     NJ_Windows=os.path.join(base_dir, 'binaries', 'fastme.exe'),
-    NJ_Darwin=os.path.join(base_dir, 'binaries', 'fastme-2.1.5-osx'),
+    NJ_Darwin=os.path.join(base_dir, 'binaries', 'fastme-2.1.5-osx' + mac_suffix),
     NJ_Linux=os.path.join(base_dir, 'binaries', 'fastme-2.1.5-linux64'),
     NJ_Linux32=os.path.join(base_dir, 'binaries', 'fastme-2.1.5-linux32'),
     edmonds_Windows=os.path.join(base_dir, 'binaries', 'edmonds.exe'),
-    edmonds_Darwin=os.path.join(base_dir, 'binaries', 'edmonds-osx'),
+    edmonds_Darwin=os.path.join(base_dir, 'binaries', 'edmonds-osx' + mac_suffix),
     edmonds_Linux=os.path.join(base_dir, 'binaries', 'edmonds-linux'),
     RapidNJ_Linux=os.path.join(base_dir, 'binaries', 'rapidnj'),
-    RapidNJ_Darwin=os.path.join(base_dir, 'binaries', 'rapidnj-osx'),
+    RapidNJ_Darwin=os.path.join(base_dir, 'binaries', 'rapidnj-osx' + mac_suffix),
     RapidNJ_Windows=os.path.join(base_dir, 'binaries', 'rapidnj.exe'),
     ninja_Linux=os.path.join(base_dir, 'binaries', 'Ninja.jar'),
     ninja_Darwin=os.path.join(base_dir, 'binaries', 'Ninja.jar'),

@@ -56,6 +56,7 @@ packages = ["grapetree"]
 "GT_icon.ico" = "grapetree/GT_icon.ico"
 "static" = "grapetree/static"
 "binaries" = "grapetree/binaries"
+"packaging/native/LICENSES" = "grapetree/native-licenses"
 
 [tool.hatch.build.targets.sdist]
 include = [
