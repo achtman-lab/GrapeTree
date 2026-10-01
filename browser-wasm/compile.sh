@@ -39,3 +39,5 @@ mkdir -p "${rapidnj_output}"
 install -m 0644 "${rapidnj_build}/bin/rapidnj" "${rapidnj_output}/rapidnj.js"
 install -m 0644 "${rapidnj_build}/bin/rapidnj.wasm" "${rapidnj_output}/rapidnj.wasm"
 install -m 0644 "${rapidnj_build}/LICENSE" "${rapidnj_output}/LICENSE"
+
+python3 "${repo_root}/browser-wasm/build-worker.py"

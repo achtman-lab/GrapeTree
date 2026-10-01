@@ -33,3 +33,10 @@ missing-data mode, the full issue #82 technical-replicate input, the
 native/WASM branching result, and actual visualiser rendering. The browser
 backends are checked against the established Python/native pairwise-distance
 goldens rather than merely checked for producing parseable output.
+
+The application loads `runtime-worker.js`, a generated bundle containing the
+worker JavaScript and the same WASM binaries embedded as bytes. This avoids
+additional network requests from within the worker. After editing the worker,
+browser backend, or compiled modules, run `python browser-wasm/build-worker.py`.
+CI uses `--check` to ensure the bundle matches its sources; `compile.sh` also
+regenerates it after rebuilding the modules.

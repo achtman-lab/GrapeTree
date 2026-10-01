@@ -4,7 +4,7 @@ The browser-only GrapeTree app is static. `stage-cloudflare-pages.sh` copies its
 runtime assets and the established visualiser into `dist/grapetree-pages/`.
 The root URL redirects to `/browser-wasm/`; the original visualiser remains at
 `/MSTree_holder.html`. Uploaded profiles stay in the browser.
-The generated `_headers` and `vercel.json` make the app shell and loader
+The generated `_headers` and `vercel.json` make the app shell and bundled worker
 revalidate on each visit, so a previous deployment does not keep invoking an
 old worker revision.
 

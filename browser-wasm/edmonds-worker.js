@@ -2,7 +2,7 @@
 'use strict';
 
 const workerURL = self.GRAPETREE_WORKER_URL || self.location.href;
-let wasmBinaries = {};
+let wasmBinaries = self.GRAPETREE_WASM_BINARIES || {};
 const assetVersion = new URL(workerURL).searchParams.get('v') || 'development';
 
 function versionedAsset(relativePath) {

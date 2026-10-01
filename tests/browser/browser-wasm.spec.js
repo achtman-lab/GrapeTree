@@ -175,19 +175,17 @@ test('retries a transient imported worker asset failure without changing the res
   expect(edmondsRequests).toBe(2);
 });
 
-test('page-loaded runtime calculates when worker network access is unavailable', async ({ page }) => {
-  await page.addInitScript(() => {
-    const createObjectURL = URL.createObjectURL.bind(URL);
-    URL.createObjectURL = (blob) => createObjectURL(new Blob([
-      `self.importScripts = () => { throw new DOMException('Worker requests blocked', 'NetworkError'); };
-       self.fetch = () => Promise.reject(new TypeError('Worker requests blocked'));
-       self.XMLHttpRequest = class { open() { throw new Error('Worker requests blocked'); } };
-`,
-      blob,
-    ], { type: 'application/javascript' }));
+test('bundled runtime calculates when worker network access is unavailable', async ({ page }) => {
+  await page.route('**/runtime-worker.js*', async (route) => {
+    const response = await route.fetch();
+    await route.fulfill({ response, body: `
+      self.importScripts = () => { throw new DOMException('Worker requests blocked', 'NetworkError'); };
+      self.fetch = () => Promise.reject(new TypeError('Worker requests blocked'));
+      self.XMLHttpRequest = class { open() { throw new Error('Worker requests blocked'); } };
+      ${await response.text()}
+    ` });
   });
   await page.goto(wasmURL);
-  expect(await page.evaluate(() => typeof window.createGrapeTreeWorker)).toBe('function');
   const profile = fixtureText('compatibility/basic.profile');
   for (const method of ['MSTreeV2', 'RapidNJ']) {
     const result = await page.evaluate(({ profile, method }) => (
@@ -199,8 +197,8 @@ test('page-loaded runtime calculates when worker network access is unavailable',
   }
 });
 
-test('failed page asset loading reports the file and allows another attempt', async ({ page }) => {
-  const asset = '**/vendor/edmonds/edmonds.js*';
+test('failed worker loading explains recovery and allows another attempt', async ({ page }) => {
+  const asset = '**/runtime-worker.js*';
   await page.route(asset, (route) => route.abort('failed'));
   await page.goto(wasmURL);
   const profile = fixtureText('compatibility/basic.profile');
@@ -209,7 +207,7 @@ test('failed page asset loading reports the file and allows another attempt', as
     catch (error) { return error.message; }
     return '';
   }, profile);
-  expect(failure).toContain('edmonds.js');
+  expect(failure).toContain('worker could not start');
   expect(failure).toContain('reload the page');
   await expect(page.locator('#browser-status')).toHaveAttribute('data-state', 'error');
   await page.unroute(asset);
