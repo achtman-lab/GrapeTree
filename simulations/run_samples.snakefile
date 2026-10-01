@@ -34,7 +34,7 @@ rule parse_trees_indels:
     output:
         temp("indels/{sample_in}.profile.{form}_{type,\w+}")
     shell:
-        "python2 {SCRIPTS}/parse_trees.py {input} {wildcards.type}"
+        "python3 {SCRIPTS}/parse_trees.py {input} {wildcards.type}"
 
 #takes each tree file for each sample and computes splits
 rule compare_trees_mst_indels:
@@ -44,7 +44,7 @@ rule compare_trees_mst_indels:
     output:
         "indels/{sample_in}.profile.{form}_{type}.splits"
     shell:
-        "python2 {SCRIPTS}/compare_trees.py {input} 'MST'"
+        "python3 {SCRIPTS}/compare_trees.py {input} 'MST'"
 
 
 #takes all splits on the same sample and produces one outfile per sample
@@ -56,7 +56,7 @@ rule compare_splits_indels:
     output:
         temp("indels/{sample_in}.profile.{form}.sum")
     shell:
-        "python2 {SCRIPTS}/compare.py {input.ref} {input.profile} {output} {input.splits}"
+        "python3 {SCRIPTS}/compare.py {input.ref} {input.profile} {output} {input.splits}"
 
 
 rule collectTrees_indels:
@@ -94,7 +94,7 @@ rule parse_trees:
 	output:
 		temp("{sample}.profile_{type,\w+}")
 	shell:
-		"python2 {SCRIPTS}/parse_trees.py {input} {wildcards.type}"
+		"python3 {SCRIPTS}/parse_trees.py {input} {wildcards.type}"
 
 
 
@@ -106,7 +106,7 @@ rule compare_trees_mst:
 	output:
 		"{sample}.profile_{type,\w+}.splits"
 	shell:
-		"python2 {SCRIPTS}/compare_trees.py {input} 'MST'"
+		"python3 {SCRIPTS}/compare_trees.py {input} 'MST'"
 
 
 
@@ -118,7 +118,7 @@ rule compute_ref_splits:
     output:
         "{sample}.global.splits"
     shell:
-        "python2 {SCRIPTS}/compare_trees.py {input} 'hierarc'"
+        "python3 {SCRIPTS}/compare_trees.py {input} 'hierarc'"
 
 
 
@@ -145,7 +145,7 @@ rule divide_quartets:
     output:
         temp("{sample}.global.splits_div")
     shell:
-        "python2 {SCRIPTS}/divide_quartets.py {input} {output}"
+        "python3 {SCRIPTS}/divide_quartets.py {input} {output}"
                   
 
 
@@ -155,7 +155,7 @@ rule sum_binning:
     output:
         "summary_binning_50" 
     shell:
-        "python2 {SCRIPTS}/sum_binning.py {output} {input}"		
+        "python3 {SCRIPTS}/sum_binning.py {output} {input}"
 
 rule compare_divide:
     input:
@@ -165,7 +165,7 @@ rule compare_divide:
     output:
         temp("{sample}.splits.sum_div")
     shell:
-        "python2 {SCRIPTS}/compare_divide.py {input.ref} {input.profile} {output} {input.splits}"
+        "python3 {SCRIPTS}/compare_divide.py {input.ref} {input.profile} {output} {input.splits}"
 
 rule sum_divided:
     input:
@@ -187,7 +187,7 @@ rule plot_divided_binned:
     shell:
         """
         grep -v "#" {input} | paste - - > summary_binning_50_divided
-        python2 {SCRIPTS}/plot_divided_binned.py summary_binning_50_divided
+        python3 {SCRIPTS}/plot_divided_binned.py summary_binning_50_divided
         """
 
 rule plot_divided:
@@ -199,7 +199,7 @@ rule plot_divided:
     shell:
         """
         grep 'balanced\|unbalanced' {input} | awk -v OFS='\t' 'BEGIN{{FS="_"}} {{print $2,$5}}' | grep 'pre\|sens' | sed s/^0/"0.0"/g | sed s/".splits"/""/g | paste - - > summary_divided_rates
-        python2 {SCRIPTS}/plot_divided.py summary_divided_rates
+        python3 {SCRIPTS}/plot_divided.py summary_divided_rates
         """
         
 
@@ -212,7 +212,7 @@ rule plot_sens_pre_binned:
     shell:
         """
         grep "#" {input} | cut -c 2- | grep -v 'balanced\|unbalanced' | paste - - > summary_binning_50_undivided 
-        python2 {SCRIPTS}/plot_sens_pre_binned.py summary_binning_50_undivided
+        python3 {SCRIPTS}/plot_sens_pre_binned.py summary_binning_50_undivided
         """
 
 
@@ -225,7 +225,7 @@ rule plot_sens_pre:
     shell:
         """
         grep -v 'balanced\|unbalanced' {input} | awk -v OFS='\t' 'BEGIN{{FS="_"}} {{print $2,$5}}' | sed s/^0/"0.0"/g | sed s/".splits"/""/g | paste - - > summary_tab_0_pre_sens
-        python2 {SCRIPTS}/plot_sens_pre.py summary_tab_0_pre_sens
+        python3 {SCRIPTS}/plot_sens_pre.py summary_tab_0_pre_sens
         """
 
 
@@ -238,9 +238,7 @@ rule plot_indels_sens_pre:
         "indels_badseq.pdf"
     priority: 100
     shell:
-        "python2 {SCRIPTS}/plot_indels_sens_pre.py {input}"
-
-
+        "python3 {SCRIPTS}/plot_indels_sens_pre.py {input}"
 
 
 

@@ -6,7 +6,10 @@ Jinja2>=2.10.1
 MarkupSafe>=1.0
 networkx>=2.1
 numpy>=1.14.3
+pandas
 psutil>=5.4.5
+requests
 Werkzeug>=0.14.1
-numba
 ete3
+standard-cgi; python_version >= "3.13"
+unidecode

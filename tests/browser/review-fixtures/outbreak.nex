@@ -1,0 +1,4 @@
+#NEXUS
+Begin trees;
+Tree outbreak = ((case_a:0,case_b:1):1,(case_c:1,case_d:9):2);
+End;

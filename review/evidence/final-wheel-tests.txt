@@ -1,0 +1,9 @@
+........................................................................ [ 71%]
+.............................                                            [100%]
+=============================== warnings summary ===============================
+../../../venv-clean/lib/python3.11/site-packages/ete3/webplugin/webapp.py:44
+  /private/tmp/grapetree-pr118-review/venv-clean/lib/python3.11/site-packages/ete3/webplugin/webapp.py:44: DeprecationWarning: 'cgi' is deprecated and slated for removal in Python 3.13
+    import cgi
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+101 passed, 1 warning in 63.09s (0:01:03)

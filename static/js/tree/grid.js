@@ -187,9 +187,9 @@ D3MSMetadataTable.prototype.selectItems = function(item, selectMode='auto') {
 
 D3MSMetadataTable.prototype._setupDiv= function(){
 	var self = this;
-	var grid_html = "<div id = 'metadata-div' style='font-size:0.75em;width:700px;height:600px;position:absolute;top:10%;left:50%;z-index:2;background-color:#f1f1f1;display:none'>\
+	var grid_html = "<div id = 'metadata-div' style='font-size:0.75em;width:min(700px, calc(100vw - 20px));height:600px;position:absolute;top:10%;left:max(10px, calc(50% - 350px));z-index:2;background-color:#f1f1f1;display:none'>\
 		<div id='handler' class='ui-draggable-handle'>\
-		<span title='Close The Window' id='metadata-close' class='glyphicon glyphicon-remove show-tooltip' style='top:-3px;float:right;margin-right:0px'></span>\
+		<span title='Close The Window' id='metadata-close' class='glyphicon glyphicon-remove show-tooltip' style='top:0;float:right;margin-right:0px;cursor:pointer'></span>\
 		<span id ='meta_help' class='glyphicon glyphicon-question-sign' style='top:-3px;float:right;margin-right:5px'></span>\
 		<span title='Download This Table' id='metadata-download' class='glyphicon glyphicon-download show-tooltip'><span>Download</span></span>\
 		<span title='Add A New Category' id='metadata-add-icon' class='glyphicon glyphicon-plus show-tooltip'><span>Add Columns</span></span>\
@@ -449,10 +449,12 @@ D3MSMetadataTable.prototype.sendToMicroReact = function (callback, haveBackend) 
 	data.metadata = this.meta2tsv(['Selected', 'index']);
 	var colors = {};
 	var display_field = this.tree.display_category;
-	var display_field = this.grid.getColumns().filter(function(d) {
-			return d.field == display_field;
-		})[0]['id'];
-	colors[display_field] = this.tree.category_colours;
+	var display_column = this.grid.getColumns().filter(function(d) {
+		return d.field == display_field;
+	})[0];
+	if (display_column) {
+		colors[display_column.id] = this.tree.category_colours;
+	}
 	data.colors = JSON.stringify(colors);
 	data.name = $("#headertag").html();
 	$.ajax({
@@ -487,4 +489,3 @@ D3MSMetadataTable.prototype.sendToMicroReact = function (callback, haveBackend) 
 	})
 
 }
-

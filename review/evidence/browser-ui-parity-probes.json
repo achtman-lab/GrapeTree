@@ -1,0 +1,38 @@
+{
+  "master": {
+    "tableBox": {
+      "x": 640,
+      "y": 72,
+      "width": 700,
+      "height": 600
+    },
+    "viewportWidth": 1280,
+    "initiallyInViewport": false,
+    "closeIconWorks": false,
+    "sameFileReloadWorks": true,
+    "afterRetryIds": [
+      "case_a",
+      "case_b",
+      "case_c",
+      "case_d"
+    ]
+  },
+  "pr118": {
+    "tableBox": {
+      "x": 290,
+      "y": 72,
+      "width": 700,
+      "height": 600
+    },
+    "viewportWidth": 1280,
+    "initiallyInViewport": true,
+    "closeIconWorks": true,
+    "sameFileReloadWorks": true,
+    "afterRetryIds": [
+      "case_a",
+      "case_b",
+      "case_c",
+      "case_d"
+    ]
+  }
+}

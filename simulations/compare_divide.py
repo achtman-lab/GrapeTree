@@ -33,7 +33,7 @@ def read_splits_ref(file):
         elif arr[0] == "UNBALANCED":
             b = "U"
         else:
-            print "ERROR"
+            print("ERROR")
         s = arr[1].rstrip("\n").split("|")
         left = s[0].split(",")
         tup1 = sorted(map(int, left))
@@ -167,11 +167,11 @@ def compare_with_binning(ms_splits,ref_splits,profile,type):
                         splits['tp_u'].append((quartet, avg_dist))
                         bins[b]['tp_u'].append((quartet, avg_dist))
                     else:
-                        print "ERROR"
+                        print("ERROR")
                     #tp.append((quartet,avg_dist))
                     #bins[b]['tp'].append((quartet,avg_dist))
                 else:
-                    print "ERROR"
+                    print("ERROR")
             else:
                 #we have a false positive
                 if quartet_type == "B":
@@ -185,7 +185,7 @@ def compare_with_binning(ms_splits,ref_splits,profile,type):
                     splits['fn_u'].append((quartet, avg_dist))
                     bins[b]['fn_u'].append((quartet, avg_dist))
                 else:
-                    print "ERROR"
+                    print("ERROR")
                 #fp.append((quartet,avg_dist))
                 #fn.append((quartet,avg_dist))
                 #bins[b]['fp'].append((quartet, avg_dist))

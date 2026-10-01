@@ -1,0 +1,326 @@
+[
+  {
+    "dataset": "Escherichia.n137.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Escherichia.n137.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Escherichia.n137.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Escherichia.n137.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Escherichia.n137.s103.profile",
+    "method": "distance",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 137
+  },
+  {
+    "dataset": "Escherichia.n137.s103.profile",
+    "method": "distance",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 137
+  },
+  {
+    "dataset": "Escherichia.n37.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Escherichia.n37.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Escherichia.n37.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Escherichia.n37.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Escherichia.n37.s103.profile",
+    "method": "distance",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 37
+  },
+  {
+    "dataset": "Escherichia.n37.s103.profile",
+    "method": "distance",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 37
+  },
+  {
+    "dataset": "Salmonella.n137.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Salmonella.n137.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Salmonella.n137.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Salmonella.n137.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Salmonella.n137.s103.profile",
+    "method": "distance",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 137
+  },
+  {
+    "dataset": "Salmonella.n137.s103.profile",
+    "method": "distance",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 137
+  },
+  {
+    "dataset": "Salmonella.n37.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Salmonella.n37.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Salmonella.n37.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Salmonella.n37.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Salmonella.n37.s103.profile",
+    "method": "distance",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 37
+  },
+  {
+    "dataset": "Salmonella.n37.s103.profile",
+    "method": "distance",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 37
+  },
+  {
+    "dataset": "Yersinia.n137.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Yersinia.n137.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Yersinia.n137.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Yersinia.n137.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 137
+  },
+  {
+    "dataset": "Yersinia.n137.s103.profile",
+    "method": "distance",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 137
+  },
+  {
+    "dataset": "Yersinia.n137.s103.profile",
+    "method": "distance",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 137
+  },
+  {
+    "dataset": "Yersinia.n37.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Yersinia.n37.s103.profile",
+    "method": "MSTree",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Yersinia.n37.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Yersinia.n37.s103.profile",
+    "method": "MSTreeV2",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "leaf_count": 37
+  },
+  {
+    "dataset": "Yersinia.n37.s103.profile",
+    "method": "distance",
+    "candidate": "review-pinned",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 37
+  },
+  {
+    "dataset": "Yersinia.n37.s103.profile",
+    "method": "distance",
+    "candidate": "review-current",
+    "pass": true,
+    "differences": [],
+    "difference_count": 0,
+    "size": 37
+  }
+]

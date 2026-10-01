@@ -1,0 +1,122 @@
+{
+  "config": {
+    "argv": [
+      "/Users/nfareed/.nvm/versions/node/v20.11.1/bin/node",
+      "/Users/nfareed/Documents/grapetree/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/browser/review.config.js",
+      "tests/browser/review-baseline.spec.js"
+    ],
+    "configFile": "/Users/nfareed/Documents/grapetree/tests/browser/review.config.js",
+    "rootDir": "/Users/nfareed/Documents/grapetree/tests/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/tmp/grapetree-pr118-review/results/browser/parity-probe-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/nfareed/Documents/grapetree/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "review*.spec.js"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/private/tmp/grapetree-pr118-review/results/browser/parity-probe.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "review-baseline.spec.js",
+      "file": "review-baseline.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "records baseline versus candidate parity for table close and same-file retry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 22944,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:07.038Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d1b8a2a5b2a70050f9f7-d86e5430ffac1533b021",
+          "file": "review-baseline.spec.js",
+          "line": 56,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-01T17:28:06.532Z",
+    "duration": 23964.207,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

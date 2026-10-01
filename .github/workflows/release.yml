@@ -1,0 +1,159 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  python-distributions:
+    name: Build Python distributions
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Verify release tag matches package version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          package_version=$(python -c "exec(open('grapetree/_version.py').read()); print(__version__)")
+          test "${RELEASE_TAG}" = "v${package_version}"
+      - name: Build and inspect distributions
+        run: |
+          python -m pip install --upgrade build twine
+          python -m build
+          python -m twine check dist/*
+      - uses: actions/upload-artifact@v7
+        with:
+          name: python-package-distributions
+          path: dist/
+          if-no-files-found: error
+
+  macos-application:
+    name: Package macOS Intel application
+    runs-on: macos-15-intel
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build and smoke-test application
+        run: |
+          python -m pip install . pyinstaller
+          ./build_mac.sh
+          dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method MSTreeV2 --n_proc 1 > mstree.nwk
+          test -s mstree.nwk
+      - name: Create portable archive
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: ditto -c -k --sequesterRsrc --keepParent dist/GrapeTree.app "GrapeTree-${RELEASE_TAG#v}-macOS-Intel.zip"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: macos-application
+          path: GrapeTree-*-macOS-Intel.zip
+          if-no-files-found: error
+
+  windows-application:
+    name: Package Windows application
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build and smoke-test application
+        shell: pwsh
+        run: |
+          python -m pip install . pyinstaller
+          .\build_win.bat
+          & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method MSTreeV2 --n_proc 1 | Out-File -Encoding ascii mstree.nwk
+          if ((Get-Item mstree.nwk).Length -eq 0) { throw "Packaged calculation produced no tree" }
+      - name: Create portable archive
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          $version = $env:RELEASE_TAG.TrimStart('v')
+          Compress-Archive -Path dist\GrapeTree -DestinationPath "GrapeTree-$version-Windows.zip"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows-application
+          path: GrapeTree-*-Windows.zip
+          if-no-files-found: error
+
+  browser-application:
+    name: Package static browser application
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Build static browser archive
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          mkdir GrapeTree-browser
+          cp -R MSTree_holder.html static browser-wasm GrapeTree-browser/
+          tar -czf "GrapeTree-${RELEASE_TAG#v}-browser.tar.gz" GrapeTree-browser
+      - uses: actions/upload-artifact@v7
+        with:
+          name: browser-application
+          path: GrapeTree-*-browser.tar.gz
+          if-no-files-found: error
+
+  publish-pypi:
+    name: Publish to PyPI
+    needs: python-distributions
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/grapetree
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: python-package-distributions
+          path: dist
+      - name: Publish with trusted identity
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release-assets:
+    name: Attach release archives and checksums
+    needs:
+      - python-distributions
+      - macos-application
+      - windows-application
+      - browser-application
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: release-assets
+          merge-multiple: true
+      - name: Generate SHA-256 checksums
+        working-directory: release-assets
+        run: sha256sum * > SHA256SUMS
+      - name: Attach files to the published release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "${RELEASE_TAG}" release-assets/* --clobber

@@ -1,0 +1,1760 @@
+{
+  "config": {
+    "argv": [
+      "/Users/nfareed/.nvm/versions/node/v20.11.1/bin/node",
+      "/Users/nfareed/Documents/grapetree/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/browser/wasm-review.config.js"
+    ],
+    "configFile": "/Users/nfareed/Documents/grapetree/tests/browser/wasm-review.config.js",
+    "rootDir": "/Users/nfareed/Documents/grapetree/tests/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/nfareed/Documents/grapetree/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "wasm-review-parity.spec.js"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/playwright-final.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 1,
+    "webServer": {
+      "command": "python3 -m http.server 8133 --bind 127.0.0.1",
+      "cwd": "/Users/nfareed/Documents/grapetree",
+      "url": "http://127.0.0.1:8133/browser-wasm/",
+      "reuseExistingServer": true,
+      "timeout": 30000
+    }
+  },
+  "suites": [
+    {
+      "title": "wasm-review-parity.spec.js",
+      "file": "wasm-review-parity.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Salmonella.n37.s103 MSTreeV2 browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4540,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:27:18.065Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-0d6b1b328f98c81d5be4",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n37.s103 MSTree browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4712,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:27:22.855Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-7d79bc963de435b6958c",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n37.s103 NJ browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5039,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:27:27.577Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-d39034be9d0efee65c7d",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n37.s103 RapidNJ browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4000,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:27:32.626Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-ecd199f576401617a57c",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n137.s103 MSTreeV2 browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8661,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:27:36.632Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-0fa216d89d117054ac04",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n137.s103 MSTree browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7865,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:27:45.302Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-ffbaf28cb250fce766b3",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n137.s103 NJ browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8571,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:27:53.174Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-a327d6500d0c0e1144cb",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n137.s103 RapidNJ browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8010,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:01.753Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-b4e82eb52af520e67941",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n37.s103 MSTreeV2 browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5395,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:09.770Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-95dab09357112f455542",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n37.s103 MSTree browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2907,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:15.173Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-f83bf90eb6b43a1e2807",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n37.s103 NJ browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3690,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:18.086Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-b5416a4475b72a7a8436",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n37.s103 RapidNJ browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3362,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:21.782Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-1f84897af1ba9a63a3e7",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n137.s103 MSTreeV2 browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5329,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:25.151Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-1d48e19569c90e9355aa",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n137.s103 MSTree browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5396,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:30.485Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-f6f48a03f473a027b597",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n137.s103 NJ browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5430,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:35.888Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-1f8c4168cc01ef168dd8",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n137.s103 RapidNJ browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5135,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:41.323Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-f776eddb16602856b048",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n37.s103 MSTreeV2 browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2422,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:46.465Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-0945e8e23012fcaa4348",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n37.s103 MSTree browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2549,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:48.892Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-7f25db05157a581f23e4",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n37.s103 NJ browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2536,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:51.446Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-c4b1a6dba4ce9b61c3f5",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n37.s103 RapidNJ browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3041,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:53.987Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-d09fb719fdcb4a07c274",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n137.s103 MSTreeV2 browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3849,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:28:57.035Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-0318680e35ed1b57164d",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n137.s103 MSTree browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3703,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:00.890Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-1585d61a363f5806f100",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n137.s103 NJ browser/Python tree parity",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4553,
+                  "error": {
+                    "message": "Error: []\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatchObject\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"pass\": true,\u001b[39m\n\u001b[31m+   \"pass\": false,\u001b[39m\n\u001b[2m  }\u001b[22m",
+                    "stack": "Error: []\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatchObject\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"pass\": true,\u001b[39m\n\u001b[31m+   \"pass\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n    at /Users/nfareed/Documents/grapetree/tests/browser/wasm-review-parity.spec.js:112:70",
+                    "location": {
+                      "file": "/Users/nfareed/Documents/grapetree/tests/browser/wasm-review-parity.spec.js",
+                      "column": 70,
+                      "line": 112
+                    },
+                    "snippet": "  110 |       const result = await workerCalculate(page, profile, { method, handleMissing: 'pair_delete' });\n  111 |       const report = compare('tree', expected, result.newick, tolerance[method], `${fixture.label}.${method}`);\n> 112 |       expect(report, JSON.stringify(report.differences.slice(0, 4))).toMatchObject({ pass: true });\n      |                                                                      ^\n  113 |     });\n  114 |   }\n  115 | }"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/nfareed/Documents/grapetree/tests/browser/wasm-review-parity.spec.js",
+                        "column": 70,
+                        "line": 112
+                      },
+                      "message": "Error: []\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatchObject\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"pass\": true,\u001b[39m\n\u001b[31m+   \"pass\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\n  110 |       const result = await workerCalculate(page, profile, { method, handleMissing: 'pair_delete' });\n  111 |       const report = compare('tree', expected, result.newick, tolerance[method], `${fixture.label}.${method}`);\n> 112 |       expect(report, JSON.stringify(report.differences.slice(0, 4))).toMatchObject({ pass: true });\n      |                                                                      ^\n  113 |     });\n  114 |   }\n  115 | }\n    at /Users/nfareed/Documents/grapetree/tests/browser/wasm-review-parity.spec.js:112:70"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:04.599Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/artifacts/wasm-review-parity-Yersini-04977--browser-Python-tree-parity/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/private/tmp/grapetree-pr118-review/results/lead/wasm-heldout/artifacts/wasm-review-parity-Yersini-04977--browser-Python-tree-parity/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/nfareed/Documents/grapetree/tests/browser/wasm-review-parity.spec.js",
+                    "column": 70,
+                    "line": 112
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-f76c90b204300b959cc5",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n137.s103 RapidNJ browser/Python tree parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3091,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:09.955Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-bab1bcf3fb8c39ee467b",
+          "file": "wasm-review-parity.spec.js",
+          "line": 105,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n37.s103 pair_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3595,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:13.235Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-6ceca900cd65caedb288",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n37.s103 complete_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3789,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:16.838Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-c56767d18ba187d924ca",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n37.s103 as_allele full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3681,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:20.635Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-2dcde3deb4bd0f37ff87",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n37.s103 absolute_distance full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3723,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:24.324Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-07b2f2fcd3696d12f176",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n137.s103 pair_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6978,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:28.054Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-65411add66ecaa73ce82",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n137.s103 complete_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5962,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:35.039Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-44f5a0c860091391fd50",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n137.s103 as_allele full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5709,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:41.007Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-2516d7c53d0198e08137",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Salmonella.n137.s103 absolute_distance full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7066,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:46.723Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-d57b64a626995e267c74",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n37.s103 pair_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2376,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:53.797Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-96d40f779ea8a9c2abf7",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n37.s103 complete_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3058,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:56.179Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-0e15b1c21b28915940e3",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n37.s103 as_allele full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3246,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:29:59.243Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-3c0e1932bc4daff55848",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n37.s103 absolute_distance full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3284,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:02.494Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-93cac7b61978350dc33b",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n137.s103 pair_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5514,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:05.785Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-5463cdcd3af8a247a36d",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n137.s103 complete_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4673,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:11.304Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-2ca334bb9718d413b614",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n137.s103 as_allele full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5238,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:15.982Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-75b6ddedf85638c2a1c4",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Escherichia.n137.s103 absolute_distance full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4939,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:21.226Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-a442b8ab1e2e6a1b4d8d",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n37.s103 pair_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1879,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:26.171Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-0334bdcdcd71bda1eeb8",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n37.s103 complete_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2282,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:28.056Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-8bc2e7d97d867d07fbb1",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n37.s103 as_allele full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2194,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:30.344Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-ad75122ea3087f60d48c",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n37.s103 absolute_distance full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2713,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:32.544Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-a2555d92bf2f0e829f28",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n137.s103 pair_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3583,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:35.262Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-813c36efc09238c8e8b3",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n137.s103 complete_delete full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3705,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:38.851Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-b00eb83b815c64d61c51",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n137.s103 as_allele full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3869,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:42.565Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-9671ce6236d14c946111",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "Yersinia.n137.s103 absolute_distance full distance matrix parity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3752,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-01T17:30:46.445Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c857289b072229ac04f5-98fe2bee2cb7e7d5f069",
+          "file": "wasm-review-parity.spec.js",
+          "line": 122,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-01T17:27:16.504Z",
+    "duration": 214005.172,
+    "expected": 47,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

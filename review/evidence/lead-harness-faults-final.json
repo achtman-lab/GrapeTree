@@ -1,0 +1,70 @@
+[
+  {
+    "name": "accept sibling order changes",
+    "pass": true
+  },
+  {
+    "name": "reject leaf substitution",
+    "pass": true
+  },
+  {
+    "name": "reject changed branch length",
+    "pass": true
+  },
+  {
+    "name": "reject changed topology",
+    "pass": true
+  },
+  {
+    "name": "reject nonfinite lengths",
+    "pass": true
+  },
+  {
+    "name": "accept labelled matrix permutation",
+    "pass": true
+  },
+  {
+    "name": "reject one directed cell change",
+    "pass": true
+  },
+  {
+    "name": "streaming comparator rejects directed mutation",
+    "pass": true
+  },
+  {
+    "name": "large exact trees validate",
+    "pass": true
+  },
+  {
+    "name": "large differences remain blocked",
+    "pass": true
+  },
+  {
+    "name": "identical malformed large trees fail validation",
+    "pass": true
+  },
+  {
+    "name": "large_stdout termination reason",
+    "pass": true
+  },
+  {
+    "name": "large stdout completes without deadlock",
+    "pass": true
+  },
+  {
+    "name": "timeout termination reason",
+    "pass": true
+  },
+  {
+    "name": "timeout has failing process status",
+    "pass": true
+  },
+  {
+    "name": "rss_limit termination reason",
+    "pass": true
+  },
+  {
+    "name": "rss_limit has failing process status",
+    "pass": true
+  }
+]

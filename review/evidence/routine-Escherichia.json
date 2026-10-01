@@ -1,0 +1,551 @@
+{
+  "tier": "routine",
+  "count": 27,
+  "statuses": {
+    "parity_pass": 27
+  },
+  "parity_acceptable": true,
+  "all_functionality_pass": true,
+  "results": [
+    {
+      "case": {
+        "name": "Escherichia-n100-s7-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n100.s7.profile",
+        "method": "distance",
+        "species": "Escherichia",
+        "size": 100,
+        "seed": 7
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 100
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s7-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s7-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n100-s7-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n100.s7.profile",
+        "method": "MSTree",
+        "species": "Escherichia",
+        "size": 100,
+        "seed": 7
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 100
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s7-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s7-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n100-s7-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n100.s7.profile",
+        "method": "MSTreeV2",
+        "species": "Escherichia",
+        "size": 100,
+        "seed": 7
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 100
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s7-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s7-MSTreeV2/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n100-s19-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n100.s19.profile",
+        "method": "distance",
+        "species": "Escherichia",
+        "size": 100,
+        "seed": 19
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 100
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s19-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s19-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n100-s19-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n100.s19.profile",
+        "method": "MSTree",
+        "species": "Escherichia",
+        "size": 100,
+        "seed": 19
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 100
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s19-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s19-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n100-s19-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n100.s19.profile",
+        "method": "MSTreeV2",
+        "species": "Escherichia",
+        "size": 100,
+        "seed": 19
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 100
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s19-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s19-MSTreeV2/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n100-s43-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n100.s43.profile",
+        "method": "distance",
+        "species": "Escherichia",
+        "size": 100,
+        "seed": 43
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 100
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s43-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s43-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n100-s43-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n100.s43.profile",
+        "method": "MSTree",
+        "species": "Escherichia",
+        "size": 100,
+        "seed": 43
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 100
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s43-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s43-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n100-s43-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n100.s43.profile",
+        "method": "MSTreeV2",
+        "species": "Escherichia",
+        "size": 100,
+        "seed": 43
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 100
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s43-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n100-s43-MSTreeV2/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n500-s7-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n500.s7.profile",
+        "method": "distance",
+        "species": "Escherichia",
+        "size": 500,
+        "seed": 7
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 500
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s7-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s7-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n500-s7-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n500.s7.profile",
+        "method": "MSTree",
+        "species": "Escherichia",
+        "size": 500,
+        "seed": 7
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 500
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s7-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s7-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n500-s7-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n500.s7.profile",
+        "method": "MSTreeV2",
+        "species": "Escherichia",
+        "size": 500,
+        "seed": 7
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 500
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s7-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s7-MSTreeV2/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n500-s19-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n500.s19.profile",
+        "method": "distance",
+        "species": "Escherichia",
+        "size": 500,
+        "seed": 19
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 500
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s19-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s19-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n500-s19-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n500.s19.profile",
+        "method": "MSTree",
+        "species": "Escherichia",
+        "size": 500,
+        "seed": 19
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 500
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s19-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s19-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n500-s19-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n500.s19.profile",
+        "method": "MSTreeV2",
+        "species": "Escherichia",
+        "size": 500,
+        "seed": 19
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 500
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s19-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s19-MSTreeV2/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n500-s43-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n500.s43.profile",
+        "method": "distance",
+        "species": "Escherichia",
+        "size": 500,
+        "seed": 43
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 500
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s43-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s43-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n500-s43-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n500.s43.profile",
+        "method": "MSTree",
+        "species": "Escherichia",
+        "size": 500,
+        "seed": 43
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 500
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s43-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s43-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n500-s43-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n500.s43.profile",
+        "method": "MSTreeV2",
+        "species": "Escherichia",
+        "size": 500,
+        "seed": 43
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 500
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s43-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n500-s43-MSTreeV2/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n1000-s7-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n1000.s7.profile",
+        "method": "distance",
+        "species": "Escherichia",
+        "size": 1000,
+        "seed": 7
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 1000
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s7-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s7-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n1000-s7-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n1000.s7.profile",
+        "method": "MSTree",
+        "species": "Escherichia",
+        "size": 1000,
+        "seed": 7
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 1000
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s7-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s7-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n1000-s7-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n1000.s7.profile",
+        "method": "MSTreeV2",
+        "species": "Escherichia",
+        "size": 1000,
+        "seed": 7
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 1000
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s7-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s7-MSTreeV2/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n1000-s19-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n1000.s19.profile",
+        "method": "distance",
+        "species": "Escherichia",
+        "size": 1000,
+        "seed": 19
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 1000
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s19-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s19-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n1000-s19-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n1000.s19.profile",
+        "method": "MSTree",
+        "species": "Escherichia",
+        "size": 1000,
+        "seed": 19
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 1000
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s19-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s19-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n1000-s19-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n1000.s19.profile",
+        "method": "MSTreeV2",
+        "species": "Escherichia",
+        "size": 1000,
+        "seed": 19
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 1000
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s19-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s19-MSTreeV2/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n1000-s43-distance",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n1000.s43.profile",
+        "method": "distance",
+        "species": "Escherichia",
+        "size": 1000,
+        "seed": 43
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 1000
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s43-distance/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s43-distance/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n1000-s43-MSTree",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n1000.s43.profile",
+        "method": "MSTree",
+        "species": "Escherichia",
+        "size": 1000,
+        "seed": 43
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 1000
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s43-MSTree/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s43-MSTree/candidate/run.json"
+    },
+    {
+      "case": {
+        "name": "Escherichia-n1000-s43-MSTreeV2",
+        "profile": "/private/tmp/grapetree-pr118-review/data/samples/Escherichia.n1000.s43.profile",
+        "method": "MSTreeV2",
+        "species": "Escherichia",
+        "size": 1000,
+        "seed": 43
+      },
+      "status": "parity_pass",
+      "comparison": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 1000
+      },
+      "functionality_pass": true,
+      "baseline_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s43-MSTreeV2/baseline/run.json",
+      "candidate_run": "/private/tmp/grapetree-pr118-review/results/science/routine-Escherichia/Escherichia-n1000-s43-MSTreeV2/candidate/run.json"
+    }
+  ]
+}

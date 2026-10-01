@@ -2,7 +2,7 @@ import sys
 import itertools
 import time
 import collections
-from ete2 import Tree
+from ete3 import Tree
 
 
 
@@ -75,10 +75,10 @@ def get_splits_divide(tree):
                             #print node.name
                             #print anc.name
                             if anc == node.up and anc2 == node.up:
-                                #print "BALANCED"
+                                # print("BALANCED")
                                 splits_balanced[(c[0].name, c[1].name)].add((d[0].name, d[1].name))
                             else:
-                                #print "UNBALANCED"
+                                # print("UNBALANCED")
                                 splits_unbalanced[(c[0].name, c[1].name)].add((d[0].name, d[1].name))
                             break
 

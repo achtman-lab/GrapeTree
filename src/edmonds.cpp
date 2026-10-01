@@ -25,10 +25,18 @@ typedef boost::graph_traits<Graph>::edge_descriptor         Edge;
 
 int edmonds(char* filename) {
 	std::ifstream infile(filename);
+	if (!infile) {
+		std::cerr << "Unable to open distance matrix: " << filename << std::endl;
+		return 2;
+	}
 	std::string line;
 	std::vector<std::string> strs;
 	std::getline(infile, line);
 	boost::split(strs, line, boost::is_any_of("\t "));
+	if (strs.empty() || (strs.size() == 1 && strs[0].empty())) {
+		std::cerr << "Distance matrix is empty" << std::endl;
+		return 2;
+	}
 	// Graph with N vertices    
 	int N = strs.size();
 	Graph G(N);
@@ -81,5 +89,9 @@ int edmonds(char* filename) {
 
 
 int main(int argc, char *argv[]) {
+	if (argc != 2) {
+		std::cerr << "Usage: edmonds DISTANCE_MATRIX" << std::endl;
+		return 2;
+	}
 	return edmonds(argv[1]);
 }

@@ -1,0 +1,445 @@
+{
+  "count": 44,
+  "passed": 44,
+  "raw_directory": "/private/tmp/grapetree-pr118-review/results/wasm-final-float32",
+  "results": [
+    {
+      "case": "Escherichia.n10.s19.MSTree.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10
+      }
+    },
+    {
+      "case": "Escherichia.n10.s19.MSTreeV2.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10
+      }
+    },
+    {
+      "case": "Escherichia.n10.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 17
+        }
+      }
+    },
+    {
+      "case": "Escherichia.n10.s19.RapidNJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10
+      }
+    },
+    {
+      "case": "Escherichia.n10.s19.distance.absolute_distance.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Escherichia.n10.s19.distance.as_allele.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Escherichia.n10.s19.distance.complete_delete.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Escherichia.n10.s19.distance.pair_delete.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Escherichia.n50.s19.MSTree.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50
+      }
+    },
+    {
+      "case": "Escherichia.n50.s19.MSTreeV2.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50
+      }
+    },
+    {
+      "case": "Escherichia.n50.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 97
+        }
+      }
+    },
+    {
+      "case": "Escherichia.n50.s19.RapidNJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50
+      }
+    },
+    {
+      "case": "Salmonella.n10.s19.MSTree.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10
+      }
+    },
+    {
+      "case": "Salmonella.n10.s19.MSTreeV2.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10
+      }
+    },
+    {
+      "case": "Salmonella.n10.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 17
+        }
+      }
+    },
+    {
+      "case": "Salmonella.n10.s19.RapidNJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10
+      }
+    },
+    {
+      "case": "Salmonella.n10.s19.distance.absolute_distance.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Salmonella.n10.s19.distance.as_allele.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Salmonella.n10.s19.distance.complete_delete.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Salmonella.n10.s19.distance.pair_delete.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Salmonella.n50.s19.MSTree.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50
+      }
+    },
+    {
+      "case": "Salmonella.n50.s19.MSTreeV2.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50
+      }
+    },
+    {
+      "case": "Salmonella.n50.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 97
+        }
+      }
+    },
+    {
+      "case": "Salmonella.n50.s19.RapidNJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50
+      }
+    },
+    {
+      "case": "Yersinia.n10.s19.MSTree.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10
+      }
+    },
+    {
+      "case": "Yersinia.n10.s19.MSTreeV2.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10
+      }
+    },
+    {
+      "case": "Yersinia.n10.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 17
+        }
+      }
+    },
+    {
+      "case": "Yersinia.n10.s19.RapidNJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10
+      }
+    },
+    {
+      "case": "Yersinia.n10.s19.distance.absolute_distance.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Yersinia.n10.s19.distance.as_allele.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Yersinia.n10.s19.distance.complete_delete.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Yersinia.n10.s19.distance.pair_delete.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 10
+      }
+    },
+    {
+      "case": "Yersinia.n50.s19.MSTree.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50
+      }
+    },
+    {
+      "case": "Yersinia.n50.s19.MSTreeV2.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50
+      }
+    },
+    {
+      "case": "Yersinia.n50.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 97
+        }
+      }
+    },
+    {
+      "case": "Yersinia.n50.s19.RapidNJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50
+      }
+    },
+    {
+      "case": "synthetic_outbreak.MSTree.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      }
+    },
+    {
+      "case": "synthetic_outbreak.MSTreeV2.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      }
+    },
+    {
+      "case": "synthetic_outbreak.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 11
+        }
+      }
+    },
+    {
+      "case": "synthetic_outbreak.RapidNJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7
+      }
+    },
+    {
+      "case": "synthetic_outbreak.distance.absolute_distance.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      }
+    },
+    {
+      "case": "synthetic_outbreak.distance.as_allele.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      }
+    },
+    {
+      "case": "synthetic_outbreak.distance.complete_delete.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      }
+    },
+    {
+      "case": "synthetic_outbreak.distance.pair_delete.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "size": 7
+      }
+    }
+  ]
+}

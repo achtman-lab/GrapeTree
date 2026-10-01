@@ -1,0 +1,65 @@
+{
+  "revision": "baseline",
+  "raw_distance_oracle_pass": true,
+  "backend_flag_oracle_pass": false,
+  "backend_differences": [
+    {
+      "source": "c",
+      "target": "a",
+      "expected": 0.4444444444444444,
+      "observed": 0.666667
+    },
+    {
+      "source": "c",
+      "target": "b",
+      "expected": 0.6666666666666666,
+      "observed": 1.0
+    },
+    {
+      "source": "b",
+      "target": "c",
+      "expected": 0.6666666666666666,
+      "observed": 1.0
+    },
+    {
+      "source": "b",
+      "target": "a",
+      "expected": 0.4444444444444444,
+      "observed": 0.666667
+    }
+  ],
+  "expected_raw": [
+    [
+      0.0,
+      1.5,
+      1.5
+    ],
+    [
+      1.3333333333333333,
+      0.0,
+      2.0
+    ],
+    [
+      1.3333333333333333,
+      2.0,
+      0.0
+    ]
+  ],
+  "actual_raw": [
+    [
+      0.0,
+      1.5,
+      1.5
+    ],
+    [
+      1.3333333730697632,
+      0.0,
+      2.0
+    ],
+    [
+      1.3333333730697632,
+      2.0,
+      0.0
+    ]
+  ]
+}

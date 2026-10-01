@@ -7,7 +7,7 @@ import sys
 import itertools
 import time
 import collections
-from ete2 import Tree
+from ete3 import Tree
 
 tree_file = sys.argv[1]
 mode = sys.argv[3]
@@ -116,7 +116,7 @@ def get_splits_hier(tree):
             if not split:
                 #stars.append(elem)
                 counter_star += 1
-                print "ERROR"
+                print("ERROR")
 
     return splits
 

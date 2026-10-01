@@ -1,0 +1,112 @@
+{
+  "count": 7,
+  "passed": 7,
+  "raw_directory": "/private/tmp/grapetree-pr118-review/results/wasm-leaf-order",
+  "results": [
+    {
+      "case": "Escherichia.n10.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 17
+        }
+      }
+    },
+    {
+      "case": "Escherichia.n50.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 97
+        }
+      }
+    },
+    {
+      "case": "Salmonella.n10.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 17
+        }
+      }
+    },
+    {
+      "case": "Salmonella.n50.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 97
+        }
+      }
+    },
+    {
+      "case": "Yersinia.n10.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 10,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 17
+        }
+      }
+    },
+    {
+      "case": "Yersinia.n50.s19.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 50,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 97
+        }
+      }
+    },
+    {
+      "case": "synthetic_outbreak.NJ.comparison.json",
+      "result": {
+        "pass": true,
+        "differences": [],
+        "difference_count": 0,
+        "leaf_count": 7,
+        "edge_precision": {
+          "pass": true,
+          "difference_count": 0,
+          "differences": [],
+          "edge_count": 11
+        }
+      }
+    }
+  ]
+}

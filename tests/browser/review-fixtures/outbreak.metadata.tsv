@@ -1,0 +1,5 @@
+ID	Country	Year	Source	Count
+case_a	UK	2021	Human	1
+case_b	UK	2022	Food	2
+case_c	France	2023	Human	3
+case_d	Germany	2024	Environment	4

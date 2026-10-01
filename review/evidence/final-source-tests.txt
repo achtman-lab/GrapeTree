@@ -1,0 +1,173 @@
+........................................................................ [ 71%]
+.............................                                            [100%]
+=============================== warnings summary ===============================
+../../../venv-source/lib/python3.11/site-packages/ete3/coretype/tree.py:365
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/coretype/tree.py:365: DeprecationWarning: invalid escape sequence '\-'
+    """
+
+../../../venv-source/lib/python3.11/site-packages/ete3/coretype/tree.py:436
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/coretype/tree.py:436: DeprecationWarning: invalid escape sequence '\-'
+    """Prunes the topology of a node to conserve only the selected list of leaf
+
+../../../venv-source/lib/python3.11/site-packages/ete3/coretype/tree.py:1508
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/coretype/tree.py:1508: DeprecationWarning: invalid escape sequence '\-'
+    """
+
+../../../venv-source/lib/python3.11/site-packages/ete3/parser/newick.py:51
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/parser/newick.py:51: DeprecationWarning: invalid escape sequence '\['
+    _ILEGAL_NEWICK_CHARS = ":;(),\[\]\t\n\r="
+
+../../../venv-source/lib/python3.11/site-packages/ete3/parser/newick.py:54
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/parser/newick.py:54: DeprecationWarning: invalid escape sequence '\['
+    _NHX_RE = "\[&&NHX:[^\]]*\]"
+
+../../../venv-source/lib/python3.11/site-packages/ete3/parser/newick.py:55
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/parser/newick.py:55: DeprecationWarning: invalid escape sequence '\s'
+    _FLOAT_RE = "\s*[+-]?\d+\.?\d*(?:[eE][-+]?\d+)?\s*"
+
+../../../venv-source/lib/python3.11/site-packages/ete3/parser/newick.py:402
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/parser/newick.py:402: DeprecationWarning: invalid escape sequence '\s'
+    matcher_str= '^\s*%s\s*%s\s*(%s)?\s*$' % (FIRST_MATCH, SECOND_MATCH, _NHX_RE)
+
+../../../venv-source/lib/python3.11/site-packages/ete3/utils.py:82
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/utils.py:82: DeprecationWarning: invalid escape sequence '\['
+    return re.sub("\\033\[[^m]+m", "", string)
+
+../../../venv-source/lib/python3.11/site-packages/ete3/treeview/main.py:64
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/treeview/main.py:64: DeprecationWarning: invalid escape sequence '\d'
+    _COLOR_MATCH = re.compile("^#[A-Fa-f\d]{6}$")
+
+../../../venv-source/lib/python3.11/site-packages/ete3/treeview/main.py:712
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/treeview/main.py:712: DeprecationWarning: invalid escape sequence '\d'
+    compatible_code = re.sub('font-size="(\d+)"', 'font-size="\\1pt"', compatible_code)
+
+../../../venv-source/lib/python3.11/site-packages/ete3/treeview/main.py:714
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/treeview/main.py:714: DeprecationWarning: invalid escape sequence '\s'
+    compatible_code = re.sub('<g [^>]+>\s*</g>', '', compatible_code)
+
+../../../venv-source/lib/python3.11/site-packages/ete3/parser/phylip.py:76
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/parser/phylip.py:76: DeprecationWarning: invalid escape sequence '\s'
+    m = re.match("^\s*(\d+)\s+(\d+)",line)
+
+../../../venv-source/lib/python3.11/site-packages/ete3/parser/phylip.py:108
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/parser/phylip.py:108: DeprecationWarning: invalid escape sequence '\s'
+    SG.id2seq[id_counter] += re.sub("\s","", line)
+
+../../../venv-source/lib/python3.11/site-packages/ete3/parser/phylip.py:123
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/parser/phylip.py:123: DeprecationWarning: invalid escape sequence '\s'
+    seq = re.sub("\s","",m.groups()[1])
+
+../../../venv-source/lib/python3.11/site-packages/ete3/parser/phylip.py:138
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/parser/phylip.py:138: DeprecationWarning: invalid escape sequence '\s'
+    seq = re.sub("\s", "", line)
+
+../../../venv-source/lib/python3.11/site-packages/ete3/phylo/phylotree.py:132
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/phylo/phylotree.py:132: DeprecationWarning: invalid escape sequence '\d'
+    id_match = re.compile("([^0-9])?(\d+)([^0-9])?")
+
+../../../venv-source/lib/python3.11/site-packages/ete3/phylo/phylotree.py:188
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/phylo/phylotree.py:188: DeprecationWarning: invalid escape sequence '\d'
+    id_match = re.compile("([^0-9])(\d+)([^0-9])")
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:74
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:74: DeprecationWarning: invalid escape sequence '\('
+    k = int(re.sub ('.* \(K=([0-9]+)\)\n', '\\1', line))
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:78
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:78: DeprecationWarning: invalid escape sequence '\d'
+    re.match ('^[a-z]+.*(\d+\.\d{5} *){'+ str(k) +'}', line):
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:82
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:82: DeprecationWarning: invalid escape sequence '\d'
+    classes[var] = [float(v) for v in re.findall('\d+\.\d{5}', line)]
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:86
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:86: DeprecationWarning: invalid escape sequence '\d'
+    k = int(re.sub('.*for (\d+) classes.*\n', '\\1', line))
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:92
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:92: DeprecationWarning: invalid escape sequence '\d'
+    k = int(re.sub('.*for (\d+) classes.*\n', '\\1', line))
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:217
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:217: DeprecationWarning: invalid escape sequence '\('
+    model._tree = EvolTree (re.findall ('\(.*\);', ''.join(all_lines))[2])
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:227
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:227: DeprecationWarning: invalid escape sequence '\d'
+    line = list(map (float, re.findall ('\d\.\d+', all_lines [i+j+1])))
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:240
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:240: DeprecationWarning: invalid escape sequence '\d'
+    line = re.sub ('.* np: *(\d+)\): +(-\d+\.\d+).*',
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:245
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:245: DeprecationWarning: invalid escape sequence '\d'
+    line = re.sub ('.* np: *(\d+)\): +(nan).*',
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:252
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:252: DeprecationWarning: invalid escape sequence '\d'
+    labels = re.findall ('\d+\.\.\d+', line + ' ')
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:258
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:258: DeprecationWarning: invalid escape sequence '\d'
+    model.stats ['kappa'] = float (re.sub ('.*(\d+\.\d+).*',
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:264
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:264: DeprecationWarning: invalid escape sequence '\d'
+    if not re.match (' +\d+\.\.\d+ +\d+\.\d+ ', line):
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:265
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/parser/codemlparser.py:265: DeprecationWarning: invalid escape sequence '\d'
+    if re.match (' +( +\d+\.\d+){8}', all_lines [i+1]):
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/evoltree.py:468
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/evoltree.py:468: DeprecationWarning: invalid escape sequence '\['
+    nwk += sub('\[&&NHX:mark=([ #0-9.]*)\]', r'\1',
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/evoltree.py:471
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/evoltree.py:471: DeprecationWarning: invalid escape sequence '\['
+    nwk = sub('\[&&NHX:mark=([ #0-9.]*)\]', r'\1',
+
+../../../venv-source/lib/python3.11/site-packages/ete3/tools/utils.py:28
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/tools/utils.py:28: DeprecationWarning: invalid escape sequence '\['
+    return re.sub("\\033\[[^m]+m", "", string)
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/model.py:367
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/model.py:367: DeprecationWarning: invalid escape sequence '\.'
+    if sub('\..*', '', model) in AVAIL:
+
+../../../venv-source/lib/python3.11/site-packages/ete3/evol/model.py:368
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/evol/model.py:368: DeprecationWarning: invalid escape sequence '\.'
+    return model, AVAIL [sub('\..*', '', model)]
+
+../../../venv-source/lib/python3.11/site-packages/ete3/webplugin/webapp.py:44
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/webplugin/webapp.py:44: DeprecationWarning: 'cgi' is deprecated and slated for removal in Python 3.13
+    import cgi
+
+../../../venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:75
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:75: DeprecationWarning: invalid escape sequence '\w'
+    ID_PATTERN = re.compile("^[Pp][Hh][Yy]\w{7}(_\w{2,7})?$")
+
+../../../venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:153
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:153: DeprecationWarning: invalid escape sequence '\w'
+    m = re.search("Phy(\w{7})_[\w\d]+", name)
+
+../../../venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:500
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:500: DeprecationWarning: invalid escape sequence '\w'
+    QUERY_OLD_REGEXP_FILTER = "^\w{3}\d{1,}$"
+
+../../../venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:756
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:756: DeprecationWarning: invalid escape sequence '\w'
+    QUERY_GEN_REGEXP_FILTER = "^[\w\d\-_,;:.|#@\/\\\()'<>!]+$"
+
+../../../venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:757
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:757: DeprecationWarning: invalid escape sequence '\w'
+    QUERY_OLD_REGEXP_FILTER = "^\w{3}\d{1,}$"
+
+../../../venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:758
+  /private/tmp/grapetree-pr118-review/venv-source/lib/python3.11/site-packages/ete3/phylomedb/phylomeDB3.py:758: DeprecationWarning: invalid escape sequence '\w'
+    QUERY_INT_REGEXP_FILTER = "^[Pp][Hh][Yy]\w{7}(_\w{2,7})?$"
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+101 passed, 42 warnings in 48.66s
