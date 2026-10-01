@@ -13,7 +13,7 @@ function setStatus(message, state = 'ready') {
 function calculateProfile(profile, options) {
   if (activeWorker) activeWorker.terminate();
 
-  const workerUrl = new URL('./edmonds-worker.js', window.location.href);
+  const workerUrl = new URL('./runtime-worker.js', window.location.href);
   workerUrl.searchParams.set('v', WORKER_ASSET_VERSION);
   const worker = new Worker(workerUrl);
   const id = crypto.randomUUID();
@@ -39,7 +39,7 @@ function calculateProfile(profile, options) {
       worker.terminate();
       if (activeWorker === worker) activeWorker = null;
       setStatus('Local calculation failed', 'error');
-      reject(new Error(event.message || 'The browser worker failed'));
+      reject(new Error(`The calculation worker could not start. Please reload the page and try again. ${event.message || ''}`));
     });
     worker.postMessage({ id, profile, options });
   });

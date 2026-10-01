@@ -119,6 +119,8 @@ jobs:
         run: npm ci
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+      - name: Check the bundled worker matches its sources
+        run: python browser-wasm/build-worker.py --check
       - name: Run browser smoke tests
         run: npm run test:browser
 
@@ -132,7 +134,7 @@ jobs:
       - name: Compile Edmonds WebAssembly reproducibly
         run: ./browser-wasm/compile-docker.sh
       - name: Verify committed browser artefacts are current
-        run: git diff --exit-code -- browser-wasm/vendor
+        run: git diff --exit-code -- browser-wasm/vendor browser-wasm/runtime-worker.js
 
   docker:
     timeout-minutes: 5
