@@ -164,7 +164,7 @@ directory beside a copied script. Ninja also needs `Ninja.jar` there and a
 working Java installation. The installed `grapetree` command provides the
 additional JSON, network, and cluster export options.
 
-### Compatibility changes in 2.3
+### Compatibility changes in 3.0.0
 
 The core script moved from `module/MSTrees.py` to
 `grapetree/module/MSTrees.py`. Update scripts that use the old source path or

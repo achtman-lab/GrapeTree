@@ -1,13 +1,21 @@
 # Conda/Bioconda recipe
 
-The recipe is built and tested on Linux x86-64 in pull-request CI. During the
-modernisation branch it installs from that branch so the recipe can be
-validated before a release exists.
+The recipe builds from `master`, the repository's default branch. The recipe
+version must match that source; its package tests reject a version mismatch.
 
-For the Bioconda submission after publishing v2.3.0:
+Pull-request CI explicitly sets `GRAPETREE_CONDA_SOURCE_PATH` to the checkout
+under review so changes are tested before merging. Builds on `master` use the
+normal remote source. To test a local change, set that variable to the absolute
+path of a clean checkout; this override also copies any uncommitted files.
 
-1. Replace `git_url` and `git_rev` with the v2.3.0 GitHub release source archive.
-2. Add the archive's SHA-256 from the release `SHA256SUMS` file.
+For the Bioconda submission after publishing the next version:
+
+1. Build the source distribution from the release commit and upload the
+   resulting `grapetree-<version>.tar.gz` as a release asset.
+2. Replace the recipe's `source` block with that asset's immutable download URL and its
+   `sha256`, computed from the uploaded source distribution. The GitHub
+   automatically generated source archive is a different file and its checksum
+   is not supplied by the project's `SHA256SUMS` unless explicitly added.
 3. Reset `build:number` to `0` for the new version.
 4. Run `conda-build conda --override-channels -c conda-forge -c bioconda`.
 5. Copy the final recipe into a fork of `bioconda-recipes` and open its normal

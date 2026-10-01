@@ -51,6 +51,9 @@ jobs:
         run: |
           python -m pip install . pyinstaller
           ./build_mac.sh
+          expected_version=$(python -c "exec(open('grapetree/_version.py').read()); print(__version__)")
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' dist/GrapeTree.app/Contents/Info.plist)" = "$expected_version"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' dist/GrapeTree.app/Contents/Info.plist)" = "$expected_version"
           dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method MSTreeV2 --n_proc 1 > mstree.nwk
           test -s mstree.nwk
       - name: Create portable archive
@@ -79,6 +82,10 @@ jobs:
         run: |
           python -m pip install . pyinstaller
           .\build_win.bat
+          if ($LASTEXITCODE -ne 0) { throw "Application build failed" }
+          $expectedVersion = python -c "exec(open('grapetree/_version.py').read()); print(__version__)"
+          $fileVersion = (Get-Item ".\dist\GrapeTree\GrapeTree.exe").VersionInfo
+          if ($fileVersion.FileVersion -ne $expectedVersion -or $fileVersion.ProductVersion -ne $expectedVersion) { throw "Unexpected executable version metadata" }
           & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method MSTreeV2 --n_proc 1 | Out-File -Encoding ascii mstree.nwk
           if ((Get-Item mstree.nwk).Length -eq 0) { throw "Packaged calculation produced no tree" }
       - name: Create portable archive
