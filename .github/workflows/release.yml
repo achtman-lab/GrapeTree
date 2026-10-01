@@ -32,17 +32,66 @@ jobs:
           python -m build
           python -m twine check dist/*
       - name: Test clean installs before publication
-        run: python packaging/check_distributions.py dist/*.tar.gz dist/*.whl
+        run: python packaging/check_distributions.py --require-architecture x86_64 dist/*.tar.gz dist/*.whl
       - uses: actions/upload-artifact@v7
         with:
           name: python-package-distributions
           path: dist/
           if-no-files-found: error
 
-  macos-application:
-    name: Package macOS Intel application
-    runs-on: macos-15-intel
+  wheel-compatibility:
+    name: Test release wheel on ${{ matrix.name }}
+    needs: python-distributions
+    timeout-minutes: 5
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS Intel
+            os: macos-15-intel
+            architecture: x86_64
+            python-architecture: x64
+          - name: macOS Apple silicon
+            os: macos-15
+            architecture: arm64
+            python-architecture: arm64
+          - name: Windows x64
+            os: windows-latest
+            architecture: x86_64
+            python-architecture: x64
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          architecture: ${{ matrix.python-architecture }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: python-package-distributions
+          path: dist
+      - name: Test the exact release wheel and native backends
+        shell: bash
+        run: python packaging/check_distributions.py --require-architecture ${{ matrix.architecture }} dist/*.whl
 
+  macos-application:
+    timeout-minutes: 10
+    name: Build macOS ${{ matrix.name }} application
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Intel
+            os: macos-15-intel
+            architecture: x86_64
+            python-architecture: x64
+          - name: AppleSilicon
+            os: macos-15
+            architecture: arm64
+            python-architecture: arm64
     steps:
       - uses: actions/checkout@v6
         with:
@@ -50,23 +99,25 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - name: Build and smoke-test application
+          architecture: ${{ matrix.python-architecture }}
+          cache: pip
+      - name: Build and test the native application
         run: |
           python -m pip install . pyinstaller
           ./build_mac.sh
-          expected_version=$(python -c "exec(open('grapetree/_version.py').read()); print(__version__)")
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' dist/GrapeTree.app/Contents/Info.plist)" = "$expected_version"
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' dist/GrapeTree.app/Contents/Info.plist)" = "$expected_version"
-          dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method MSTreeV2 --n_proc 1 > mstree.nwk
-          test -s mstree.nwk
+          version=$(python -c "exec(open('grapetree/_version.py').read()); print(__version__)")
+          python packaging/check_macos_app.py dist/GrapeTree.app --architecture ${{ matrix.architecture }} --version "$version"
       - name: Create portable archive
-        env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-        run: ditto -c -k --sequesterRsrc --keepParent dist/GrapeTree.app "GrapeTree-${RELEASE_TAG#v}-macOS-Intel.zip"
+        run: |
+          version=$(python -c "exec(open('grapetree/_version.py').read()); print(__version__)")
+          archive="GrapeTree-${version}-macOS-${{ matrix.name }}.zip"
+          ditto -c -k --sequesterRsrc --keepParent dist/GrapeTree.app "$archive"
+          ditto -x -k "$archive" "${RUNNER_TEMP}/extracted"
+          python packaging/check_macos_app.py "${RUNNER_TEMP}/extracted/GrapeTree.app" --architecture ${{ matrix.architecture }} --version "$version"
       - uses: actions/upload-artifact@v7
         with:
-          name: macos-application
-          path: GrapeTree-*-macOS-Intel.zip
+          name: GrapeTree-macOS-${{ matrix.name }}
+          path: GrapeTree-*-macOS-${{ matrix.name }}.zip
           if-no-files-found: error
 
   windows-application:
@@ -89,8 +140,11 @@ jobs:
           $expectedVersion = python -c "exec(open('grapetree/_version.py').read()); print(__version__)"
           $fileVersion = (Get-Item ".\dist\GrapeTree\GrapeTree.exe").VersionInfo
           if ($fileVersion.FileVersion -ne $expectedVersion -or $fileVersion.ProductVersion -ne $expectedVersion) { throw "Unexpected executable version metadata" }
-          & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method MSTreeV2 --n_proc 1 | Out-File -Encoding ascii mstree.nwk
-          if ((Get-Item mstree.nwk).Length -eq 0) { throw "Packaged calculation produced no tree" }
+          foreach ($method in @("MSTreeV2", "NJ", "RapidNJ")) {
+            & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method $method --n_proc 1 | Out-File -Encoding ascii "$method.nwk"
+            if ($LASTEXITCODE -ne 0) { throw "$method calculation failed" }
+            if ((Get-Item "$method.nwk").Length -eq 0) { throw "$method produced no tree" }
+          }
       - name: Create portable archive
         shell: pwsh
         env:
@@ -127,7 +181,7 @@ jobs:
 
   publish-pypi:
     name: Publish to PyPI
-    needs: python-distributions
+    needs: [python-distributions, wheel-compatibility]
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -147,6 +201,7 @@ jobs:
     name: Attach release archives and checksums
     needs:
       - python-distributions
+      - wheel-compatibility
       - macos-application
       - windows-application
       - browser-application
