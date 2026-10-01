@@ -28,9 +28,20 @@ program as you would in EnteroBase; through a web browser. We recommend
 There are number of different ways to interact with GrapeTree, for **best results install via pip** :
 
 ```
-pip install grapetree
+python -m pip install grapetree
 grapetree
 ```
+
+Use a virtual environment with Python 3.10 or newer. The `grapetree` command
+opens the local web application. The same installation also provides the
+tree-building command:
+
+```
+MSTrees.py --profile profiles.tsv --method MSTreeV2 > tree.nwk
+```
+
+On Windows, pip installs this command as `MSTrees.exe`; use `MSTrees` instead
+of `MSTrees.py`.
 
 **We also have ready-made binaries for download here: [https://github.com/achtman-lab/GrapeTree/releases](https://github.com/achtman-lab/GrapeTree/releases)**
 
