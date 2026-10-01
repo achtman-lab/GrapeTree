@@ -6,6 +6,10 @@ from subprocess import Popen, PIPE
 from types import MappingProxyType
 import sys, os, tempfile, platform, re, tempfile, psutil, gzip, subprocess, argparse
 
+# Kept here so a copied script can report its version without package files.
+# The standalone regression test checks agreement with grapetree._version.
+__version__ = '3.0.0'
+
 
 def tree_argument_parser(require_profile=True, version=None):
     """Build the original tree CLI without importing the GrapeTree package."""
@@ -17,8 +21,8 @@ def tree_argument_parser(require_profile=True, version=None):
         ),
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    if version is not None:
-        parser.add_argument('--version', action='version', version=version)
+    parser.add_argument('--version', action='version',
+                        version=version or 'MSTrees.py ' + __version__)
     parser.add_argument('--profile', '-p', dest='fname', required=require_profile,
                         help='An input filename containing MLST/SNP characters or aligned FASTA, or - for standard input. Required unless --treefile is supplied.\n')
     parser.add_argument('--method', '-m', dest='tree', help='"MSTreeV2" [DEFAULT]\n"MSTree"\n"NJ": FastME V2 NJ tree\n"RapidNJ": RapidNJ for very large datasets\n"ninja": Alternative NJ algorithm for very large datasets\n"distance": allelic distance matrix in PHYLIP format.', choices=['MSTreeV2', 'MSTree', 'NJ', 'RapidNJ', 'ninja', 'distance'], default='MSTreeV2')

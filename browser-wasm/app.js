@@ -2,7 +2,7 @@
 
 const visualiser = document.querySelector('#visualiser');
 const status = document.querySelector('#browser-status');
-const WORKER_ASSET_VERSION = '20260717.1';
+const WORKER_ASSET_VERSION = '3.0.0';
 let activeWorker = null;
 
 function setStatus(message, state = 'ready') {

@@ -18,7 +18,7 @@ archive sampling, full parity sweeps and benchmarks never run in routine CI.
 From a development checkout with GrapeTree, pytest and Playwright installed:
 
 ```sh
-python -m pytest -q tests review/harness review/test_wasm_precision.py
+python -m pytest -q tests review/harness review/test_wasm_precision.py review/test_native_version.py
 npm run test:browser
 ```
 

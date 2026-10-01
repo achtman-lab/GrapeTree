@@ -12,6 +12,7 @@ from ete3 import Tree
 import pytest
 
 from grapetree.module import MSTrees
+from grapetree import __version__
 from grapetree.module.MSTrees import DEFAULT_PARAMS, backend
 
 
@@ -40,6 +41,12 @@ def test_copied_script_runs_outside_package_checkout(tmp_path):
     assert result.returncode == 0, result.stderr
     assert '--profile' in result.stdout
     assert '--total-loci' in result.stdout
+
+
+def test_copied_script_reports_package_version_without_profile(tmp_path):
+    result = run_standalone(tmp_path, '--version')
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == 'MSTrees.py ' + __version__
 
 
 def test_script_has_no_package_or_relative_imports():

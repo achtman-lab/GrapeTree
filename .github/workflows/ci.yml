@@ -47,7 +47,7 @@ jobs:
 
       - name: Check the scientific review harness
         if: matrix.python-version == '3.12'
-        run: python -m pytest -q review/harness review/test_wasm_precision.py
+        run: python -m pytest -q review/harness review/test_wasm_precision.py review/test_native_version.py
 
   package:
     timeout-minutes: 5
@@ -69,7 +69,7 @@ jobs:
       - name: Smoke-test editable install
         run: |
           python -m pip install --editable .
-          python -c "import grapetree; assert grapetree.__version__ == '2.3.0'"
+          python -c "import grapetree; assert grapetree.__version__ == '3.0.0'"
           grapetree --version
       - name: Smoke-test the source distribution
         run: |
@@ -208,7 +208,9 @@ jobs:
         run: ./build_mac.sh
       - name: Smoke-test packaged command
         run: |
-          test "$(dist/GrapeTree.app/Contents/MacOS/GrapeTree --version)" = "GrapeTree 2.3.0"
+          test "$(dist/GrapeTree.app/Contents/MacOS/GrapeTree --version)" = "GrapeTree 3.0.0"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' dist/GrapeTree.app/Contents/Info.plist)" = "3.0.0"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' dist/GrapeTree.app/Contents/Info.plist)" = "3.0.0"
           dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method MSTreeV2 --n_proc 1 > mstree.nwk
           dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method NJ --n_proc 1 > nj.nwk
           dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method RapidNJ --n_proc 1 > rapidnj.nwk
@@ -242,7 +244,9 @@ jobs:
         shell: pwsh
         run: |
           $version = & ".\dist\GrapeTree\GrapeTree.exe" --version
-          if ($version -notmatch '^GrapeTree(?:\.exe)? 2\.3\.0$') { throw "Unexpected version: $version" }
+          if ($version -notmatch '^GrapeTree(?:\.exe)? 3\.0\.0$') { throw "Unexpected version: $version" }
+          $fileVersion = (Get-Item ".\dist\GrapeTree\GrapeTree.exe").VersionInfo
+          if ($fileVersion.FileVersion -ne '3.0.0' -or $fileVersion.ProductVersion -ne '3.0.0') { throw "Unexpected executable version metadata" }
           & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method MSTreeV2 --n_proc 1 | Out-File -Encoding ascii mstree.nwk
           & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method NJ --n_proc 1 | Out-File -Encoding ascii nj.nwk
           & ".\dist\GrapeTree\GrapeTree.exe" --profile examples\simulated_data.profile --method RapidNJ --n_proc 1 | Out-File -Encoding ascii rapidnj.nwk

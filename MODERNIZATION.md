@@ -298,29 +298,31 @@ packaging, native, and browser work was complete.
   including Python 3.10-3.14, packaging, Conda, Docker, browser/WASM rebuild,
   Windows, Intel macOS, and native application archives.
 
-## Immediate next steps
+## Release preparation
 
-The implementation work for draft PR #118 is complete. The remaining actions
-are intentionally owner/release gates and must not be performed from this
-feature branch:
+PR #118 was merged on 1 October 2026. The next release is **3.0.0** across
+GitHub, Python, Conda and desktop applications. Earlier 2.3.0 references in
+this log and the review evidence describe the development version tested at
+the time. PyPI already has 2.0, 2.1 and 2.2; do not reuse those version numbers.
 
-1. Review and merge PR #118 through the protected-branch workflow; do not push
-   it directly to `master`.
+1. Merge the reviewed Conda/release-preparation changes after CI passes.
+   The README-only cleanup is separately tracked in PR #119.
 2. Configure the PyPI trusted publisher for repository
    `achtman-lab/GrapeTree`, workflow `release.yml`, environment `pypi`, with a
-   required environment approval.
-3. Publish release 2.3.0 after merge. The release workflow builds and checks the
-   Python distributions and uploads Python, browser-only, Intel macOS, and
-   Windows archives with SHA-256 files.
-4. Replace the Conda recipe's branch source with the 2.3.0 release tarball and
-   checksum before submitting it to Bioconda.
+   required environment approval. The environment API returned 404 during
+   preparation; publisher access has not been verified.
+3. Review the draft notes in `documentation/releases/3.0.0.md` and point the
+   GitHub draft at the approved release commit before publishing `v3.0.0`.
+   Preparing a draft does not authorise publishing it. Publication triggers
+   the release workflow and PyPI upload, and builds the Python, browser,
+   Intel macOS and Windows archives with SHA-256 checksums.
+4. For Bioconda submission, replace the local recipe source with the uploaded
+   `grapetree-3.0.0.tar.gz` source distribution and its actual checksum.
 5. Keep issue #93 open until the new PyPI release is installed successfully on
-   supported Python versions. Merge-linked issue references close the other
-   implemented issue reports only after PR review and merge.
-6. Code signing/notarisation and native Apple-silicon algorithm binaries remain
-   follow-up release-infrastructure work because they require external signing
-   credentials or upstream native binaries. The CI-tested unsigned Intel macOS
-   and Windows archives remain usable deliverables.
+   supported Python versions.
+6. Desktop signing/notarisation and native Apple-silicon algorithm binaries
+   remain separate release-infrastructure work. Current desktop archives are
+   unsigned; the macOS application targets Intel processors.
 
 ## Useful verification commands
 

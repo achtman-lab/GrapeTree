@@ -70,6 +70,7 @@ include = [
   "/requirements.txt",
   "/build_mac.sh",
   "/build_win.bat",
+  "/packaging",
   "/static",
   "/binaries",
   "/documentation",

@@ -3,7 +3,9 @@ from grapetree.module import app
 
 
 def test_package_version():
-    assert __version__ == '2.3.0'
+    assert __version__ == '3.0.0'
+    assert app.config['VERSION'] == __version__
+    assert app.config['JAVASCRIPT_VERSION'] == __version__
 
 
 def test_server_home():
