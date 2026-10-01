@@ -31,19 +31,6 @@ cat > "${site_dir}/_headers" <<'EOF'
   Cache-Control: no-store
 EOF
 
-cat > "${site_dir}/vercel.json" <<'EOF'
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "redirects": [{ "source": "/", "destination": "/browser-wasm/", "permanent": false }],
-  "headers": [
-    { "source": "/browser-wasm/", "headers": [{ "key": "Cache-Control", "value": "no-store" }] },
-    { "source": "/browser-wasm/index.html", "headers": [{ "key": "Cache-Control", "value": "no-store" }] },
-    { "source": "/browser-wasm/app.js", "headers": [{ "key": "Cache-Control", "value": "no-store" }] },
-    { "source": "/browser-wasm/runtime-worker.js", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
-  ]
-}
-EOF
-
 cat > "${site_dir}/index.html" <<'EOF'
 <!doctype html>
 <html lang="en">
