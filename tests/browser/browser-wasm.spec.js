@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const fixture = require('../fixtures/compatibility/edmonds.json');
 const expected = require('../fixtures/compatibility/expected.json');
-const wasmURL = `${process.env.GRAPETREE_WASM_BASE_URL || 'http://127.0.0.1:8001'}/browser-wasm/`;
+const wasmURL = `${process.env.GRAPETREE_WASM_BASE_URL || `http://127.0.0.1:${process.env.GRAPETREE_WASM_PORT || '8001'}`}/browser-wasm/`;
 
 const fixtureText = (name) => fs.readFileSync(
   path.join(__dirname, '..', 'fixtures', name),
@@ -173,6 +173,50 @@ test('retries a transient imported worker asset failure without changing the res
 
   expect(result.newick).toContain(';');
   expect(edmondsRequests).toBe(2);
+});
+
+test('page-loaded runtime calculates when worker network access is unavailable', async ({ page }) => {
+  await page.addInitScript(() => {
+    const createObjectURL = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = (blob) => createObjectURL(new Blob([
+      `self.importScripts = () => { throw new DOMException('Worker requests blocked', 'NetworkError'); };
+       self.fetch = () => Promise.reject(new TypeError('Worker requests blocked'));
+       self.XMLHttpRequest = class { open() { throw new Error('Worker requests blocked'); } };
+`,
+      blob,
+    ], { type: 'application/javascript' }));
+  });
+  await page.goto(wasmURL);
+  expect(await page.evaluate(() => typeof window.createGrapeTreeWorker)).toBe('function');
+  const profile = fixtureText('compatibility/basic.profile');
+  for (const method of ['MSTreeV2', 'RapidNJ']) {
+    const result = await page.evaluate(({ profile, method }) => (
+      window.calculateGrapeTreeProfile(profile, { method })
+    ), { profile, method });
+    expect(result.names.slice().sort()).toEqual(['alpha', 'beta', 'delta', 'gamma']);
+    expect(result.newick).toContain(';');
+    await expect(page.locator('#browser-status')).toContainText('data stayed on this device');
+  }
+});
+
+test('failed page asset loading reports the file and allows another attempt', async ({ page }) => {
+  const asset = '**/vendor/edmonds/edmonds.js*';
+  await page.route(asset, (route) => route.abort('failed'));
+  await page.goto(wasmURL);
+  const profile = fixtureText('compatibility/basic.profile');
+  const failure = await page.evaluate(async (profile) => {
+    try { await window.calculateGrapeTreeProfile(profile, { method: 'MSTreeV2' }); }
+    catch (error) { return error.message; }
+    return '';
+  }, profile);
+  expect(failure).toContain('edmonds.js');
+  expect(failure).toContain('reload the page');
+  await expect(page.locator('#browser-status')).toHaveAttribute('data-state', 'error');
+  await page.unroute(asset);
+  const result = await page.evaluate((profile) => (
+    window.calculateGrapeTreeProfile(profile, { method: 'MSTreeV2' })
+  ), profile);
+  expect(result.newick).toContain(';');
 });
 
 test('calculates MSTreeV2 from a profile entirely in a Web Worker', async ({ page }) => {

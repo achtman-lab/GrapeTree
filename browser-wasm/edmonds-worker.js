@@ -1,10 +1,12 @@
 /* global createEdmonds, createRapidNJ, importScripts */
 'use strict';
 
-const assetVersion = new URL(self.location.href).searchParams.get('v') || 'development';
+const workerURL = self.GRAPETREE_WORKER_URL || self.location.href;
+let wasmBinaries = {};
+const assetVersion = new URL(workerURL).searchParams.get('v') || 'development';
 
 function versionedAsset(relativePath) {
-  const url = new URL(relativePath, self.location.href);
+  const url = new URL(relativePath, workerURL);
   url.searchParams.set('v', assetVersion);
   return url.href;
 }
@@ -23,9 +25,11 @@ function importWorkerAsset(relativePath) {
   }
 }
 
-importWorkerAsset('./vendor/edmonds/edmonds.js');
-importWorkerAsset('./vendor/rapidnj/rapidnj.js');
-importWorkerAsset('./browser-backend.js');
+if (!self.GRAPETREE_BUNDLED) {
+  importWorkerAsset('./vendor/edmonds/edmonds.js');
+  importWorkerAsset('./vendor/rapidnj/rapidnj.js');
+  importWorkerAsset('./browser-backend.js');
+}
 
 function normaliseMatrix(matrix) {
   if (!Array.isArray(matrix) || matrix.length < 2) {
@@ -51,8 +55,9 @@ async function calculate(matrix) {
   const stdout = [];
   const stderr = [];
   const module = await createEdmonds({
+    wasmBinary: wasmBinaries.edmonds,
     noInitialRun: true,
-    locateFile: (path) => new URL(`./vendor/edmonds/${path}`, self.location.href).href,
+    locateFile: (path) => new URL(`./vendor/edmonds/${path}`, workerURL).href,
     print: (line) => stdout.push(String(line)),
     printErr: (line) => stderr.push(String(line)),
   });
@@ -76,8 +81,9 @@ async function calculate(matrix) {
 async function calculateRapidNJ(matrix) {
   const stderr = [];
   const module = await createRapidNJ({
+    wasmBinary: wasmBinaries.rapidNJ,
     noInitialRun: true,
-    locateFile: (path) => new URL(`./vendor/rapidnj/${path}`, self.location.href).href,
+    locateFile: (path) => new URL(`./vendor/rapidnj/${path}`, workerURL).href,
     print: () => {},
     printErr: (line) => stderr.push(String(line)),
   });
@@ -97,6 +103,7 @@ async function calculateRapidNJ(matrix) {
 self.addEventListener('message', async (event) => {
   const id = event.data && event.data.id;
   try {
+    if (event.data.wasmBinaries) wasmBinaries = event.data.wasmBinaries;
     if (event.data.profile !== undefined) {
       const result = await self.GrapeTreeBrowserBackend.calculateProfile(
         event.data.profile,

@@ -4,27 +4,42 @@ const visualiser = document.querySelector('#visualiser');
 const status = document.querySelector('#browser-status');
 const WORKER_ASSET_VERSION = '3.0.0';
 let activeWorker = null;
+let calculationSequence = 0;
 
 function setStatus(message, state = 'ready') {
   status.textContent = message;
   status.dataset.state = state;
 }
 
-function calculateProfile(profile, options) {
-  if (activeWorker) activeWorker.terminate();
+async function calculateProfile(profile, options) {
+  const sequence = ++calculationSequence;
+  if (activeWorker) activeWorker.dispose();
+  activeWorker = null;
+  setStatus('Loading calculation files…', 'working');
 
   const workerUrl = new URL('./edmonds-worker.js', window.location.href);
   workerUrl.searchParams.set('v', WORKER_ASSET_VERSION);
-  const worker = new Worker(workerUrl);
+  let runtime;
+  try {
+    runtime = await window.createGrapeTreeWorker(workerUrl);
+  } catch (error) {
+    if (sequence === calculationSequence) setStatus('Calculation files could not be loaded', 'error');
+    throw error;
+  }
+  if (sequence !== calculationSequence) {
+    runtime.dispose();
+    throw new Error('Calculation replaced by a newer request');
+  }
+  const worker = runtime.worker;
   const id = crypto.randomUUID();
-  activeWorker = worker;
+  activeWorker = runtime;
   setStatus('Calculating locally…', 'working');
 
   return new Promise((resolve, reject) => {
     worker.addEventListener('message', (event) => {
       if (event.data.id !== id) return;
-      worker.terminate();
-      if (activeWorker === worker) activeWorker = null;
+      runtime.dispose();
+      if (activeWorker === runtime) activeWorker = null;
 
       if (event.data.error) {
         setStatus('Local calculation failed', 'error');
@@ -36,12 +51,12 @@ function calculateProfile(profile, options) {
       }
     });
     worker.addEventListener('error', (event) => {
-      worker.terminate();
-      if (activeWorker === worker) activeWorker = null;
+      runtime.dispose();
+      if (activeWorker === runtime) activeWorker = null;
       setStatus('Local calculation failed', 'error');
       reject(new Error(event.message || 'The browser worker failed'));
     });
-    worker.postMessage({ id, profile, options });
+    worker.postMessage({ id, profile, options, wasmBinaries: runtime.binaries });
   });
 }
 
