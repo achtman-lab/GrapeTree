@@ -56,6 +56,12 @@ def smoke(expected_version, required_architecture=None):
     assert installed.is_relative_to(Path(sys.prefix).resolve()), installed
     assert importlib.metadata.version('grapetree') == grapetree.__version__ == expected_version
     assert MSTrees.__version__ == expected_version
+    if platform.system() == 'Darwin':
+        for method in ('edmonds', 'NJ', 'RapidNJ'):
+            binary = MSTrees.DEFAULT_PARAMS[method + '_Darwin']
+            architectures = run(['lipo', '-archs', binary], capture_output=True, text=True).stdout.split()
+            assert architectures == [machine], (binary, architectures, machine)
+        print('All three bundled Mac backends match Python architecture', flush=True)
     profile = Path('profile.tsv').resolve()
     profile.write_text(PROFILE)
 

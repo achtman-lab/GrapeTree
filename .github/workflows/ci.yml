@@ -167,14 +167,23 @@ jobs:
         include:
           - name: macOS Intel
             os: macos-15-intel
+            architecture: x86_64
+            python-architecture: x64
+          - name: macOS Apple silicon
+            os: macos-15
+            architecture: arm64
+            python-architecture: arm64
           - name: Windows
             os: windows-latest
+            architecture: x86_64
+            python-architecture: x64
 
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+          architecture: ${{ matrix.python-architecture }}
           cache: pip
       - name: Install GrapeTree and test dependencies
         run: python -m pip install . pytest
@@ -189,39 +198,50 @@ jobs:
         run: |
           python -m pip install build
           python -m build --wheel
-          python packaging/check_distributions.py --require-architecture x86_64 dist/*.whl
+          python packaging/check_distributions.py --require-architecture ${{ matrix.architecture }} dist/*.whl
 
   native-macos:
     timeout-minutes: 10
-    name: Build macOS Intel application
-    runs-on: macos-15-intel
-
+    name: Build macOS ${{ matrix.name }} application
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Intel
+            os: macos-15-intel
+            architecture: x86_64
+            python-architecture: x64
+          - name: AppleSilicon
+            os: macos-15
+            architecture: arm64
+            python-architecture: arm64
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+          architecture: ${{ matrix.python-architecture }}
           cache: pip
-      - name: Install application build dependencies
-        run: python -m pip install . pyinstaller
-      - name: Build application bundle
-        run: ./build_mac.sh
-      - name: Smoke-test packaged command
+      - name: Build and test the native application
         run: |
-          test "$(dist/GrapeTree.app/Contents/MacOS/GrapeTree --version)" = "GrapeTree 3.0.0"
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' dist/GrapeTree.app/Contents/Info.plist)" = "3.0.0"
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' dist/GrapeTree.app/Contents/Info.plist)" = "3.0.0"
-          dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method MSTreeV2 --n_proc 1 > mstree.nwk
-          dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method NJ --n_proc 1 > nj.nwk
-          dist/GrapeTree.app/Contents/MacOS/GrapeTree --profile examples/simulated_data.profile --method RapidNJ --n_proc 1 > rapidnj.nwk
-          test -s mstree.nwk
-          test -s nj.nwk
-          test -s rapidnj.nwk
-          test "$(lipo -archs dist/GrapeTree.app/Contents/MacOS/GrapeTree)" = "x86_64"
-      - uses: actions/upload-artifact@v4
+          python -m pip install . pyinstaller
+          ./build_mac.sh
+          version=$(python -c "exec(open('grapetree/_version.py').read()); print(__version__)")
+          python packaging/check_macos_app.py dist/GrapeTree.app --architecture ${{ matrix.architecture }} --version "$version"
+      - name: Create portable archive
+        run: |
+          version=$(python -c "exec(open('grapetree/_version.py').read()); print(__version__)")
+          archive="GrapeTree-${version}-macOS-${{ matrix.name }}.zip"
+          ditto -c -k --sequesterRsrc --keepParent dist/GrapeTree.app "$archive"
+          ditto -x -k "$archive" "${RUNNER_TEMP}/extracted"
+          python packaging/check_macos_app.py "${RUNNER_TEMP}/extracted/GrapeTree.app" --architecture ${{ matrix.architecture }} --version "$version"
+      - uses: actions/upload-artifact@v7
         with:
-          name: GrapeTree-macOS-Intel
-          path: dist/GrapeTree.app
+          name: GrapeTree-macOS-${{ matrix.name }}
+          path: GrapeTree-*-macOS-${{ matrix.name }}.zip
           if-no-files-found: error
 
   native-windows:
