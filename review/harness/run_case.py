@@ -100,6 +100,11 @@ def temporary_bytes(workdir):
 def run_case(args):
     source = args.source.resolve()
     profile = args.profile.resolve()
+    for name, path in (("--source", source), ("--profile", profile)):
+        if str(path).startswith("-"):
+            raise ValueError(
+                f"resolved path for {name} looks like a CLI option "
+                f"({path!r}); refusing to pass it to the worker")
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     workdir = output / "working"
